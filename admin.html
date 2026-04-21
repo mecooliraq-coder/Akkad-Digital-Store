@@ -2,50 +2,113 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة تحكم متجر أكاد</title>
+    <title>إدارة متجر أكاد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 </head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg">
-        <h1 class="text-2xl font-bold mb-6 text-center text-blue-800">إضافة منتج جديد</h1>
-        <div class="space-y-4">
-            <input id="pName" type="text" placeholder="اسم الجهاز (مثلاً: X96 Max)" class="w-full p-2 border rounded">
-            <input id="pPrice" type="text" placeholder="السعر (مثلاً: 55,000)" class="w-full p-2 border rounded">
-            <select id="pCat" class="w-full p-2 border rounded">
-                <option value="tvbox">أجهزة TV Box</option>
-                <option value="satellite">ستلايت</option>
-                <option value="mounts">حمالات تلفزيون</option>
-                <option value="lighting">إضاءة سمارت</option>
-            </select>
-            <input id="pImg" type="text" placeholder="رابط صورة المنتج" class="w-full p-2 border rounded">
-            <button onclick="saveProduct()" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">نشر المنتج</button>
+<body class="bg-gray-100 p-4 md:p-10 text-right">
+    <div class="max-w-4xl mx-auto space-y-10">
+        
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 border-b pb-2 text-blue-700">إدارة المنتجات</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input id="pId" type="hidden"> <input id="pName" type="text" placeholder="اسم الجهاز" class="p-2 border rounded">
+                <input id="pPrice" type="text" placeholder="السعر" class="p-2 border rounded">
+                <input id="pImg" type="text" placeholder="رابط الصورة" class="p-2 border rounded">
+                <select id="pCat" class="p-2 border rounded"></select>
+                <button onclick="saveProduct()" id="btnSave" class="bg-blue-600 text-white p-2 rounded">حفظ المنتج</button>
+                <button onclick="resetForm()" class="bg-gray-400 text-white p-2 rounded">إلغاء/تفريغ</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="font-bold mb-4">المنتجات الحالية:</h3>
+            <div id="admin-products-list" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-orange-500">
+            <h2 class="text-2xl font-bold mb-4">إدارة الأقسام</h2>
+            <div class="flex gap-2">
+                <input id="newCat" type="text" placeholder="اسم القسم الجديد" class="flex-1 p-2 border rounded">
+                <button onclick="addCategory()" class="bg-orange-500 text-white px-4 rounded">إضافة قسم</button>
+            </div>
+            <div id="cats-list" class="mt-4 flex flex-wrap gap-2"></div>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك بناءً على الصورة
-        const firebaseConfig = {
-            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
-        };
+        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function saveProduct() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const cat = document.getElementById('pCat').value;
-            const img = document.getElementById('pImg').value;
+        // --- إدارة الأقسام ---
+        function addCategory() {
+            const cat = document.getElementById('newCat').value;
+            if(cat) { db.ref('categories').push(cat); document.getElementById('newCat').value = ""; }
+        }
 
-            if(name && price) {
-                db.ref('products').push({ name, price, cat, img })
-                .then(() => {
-                    alert("تم إضافة المنتج بنجاح!");
-                    document.getElementById('pName').value = "";
-                    document.getElementById('pPrice').value = "";
-                });
+        db.ref('categories').on('value', snap => {
+            const cats = snap.val();
+            const list = document.getElementById('cats-list');
+            const select = document.getElementById('pCat');
+            list.innerHTML = ""; select.innerHTML = "";
+            for(let key in cats) {
+                list.innerHTML += `<span class="bg-orange-100 p-2 rounded flex items-center gap-2">${cats[key]} 
+                    <button onclick="deleteCat('${key}')" class="text-red-500 font-bold">×</button></span>`;
+                select.innerHTML += `<option value="${cats[key]}">${cats[key]}</option>`;
             }
+        });
+
+        function deleteCat(id) { if(confirm("حذف القسم؟")) db.ref('categories').child(id).remove(); }
+
+        // --- إدارة المنتجات ---
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                img: document.getElementById('pImg').value,
+                cat: document.getElementById('pCat').value
+            };
+            if(id) db.ref('products').child(id).update(data);
+            else db.ref('products').push(data);
+            resetForm();
+        }
+
+        db.ref('products').on('value', snap => {
+            const prods = snap.val();
+            const list = document.getElementById('admin-products-list');
+            list.innerHTML = "";
+            for(let key in prods) {
+                list.innerHTML += `
+                <div class="flex justify-between items-center bg-gray-50 p-2 border rounded">
+                    <span>${prods[key].name} - ${prods[key].price} د.ع</span>
+                    <div class="flex gap-2">
+                        <button onclick="editProduct('${key}', ${JSON.stringify(prods[key]).replace(/"/g, '&quot;')})" class="text-blue-600">تعديل</button>
+                        <button onclick="deleteProduct('${key}')" class="text-red-600">حذف</button>
+                    </div>
+                </div>`;
+            }
+        });
+
+        function deleteProduct(id) { if(confirm("حذف المنتج؟")) db.ref('products').child(id).remove(); }
+        
+        function editProduct(id, data) {
+            document.getElementById('pId').value = id;
+            document.getElementById('pName').value = data.name;
+            document.getElementById('pPrice').value = data.price;
+            document.getElementById('pImg').value = data.img;
+            document.getElementById('pCat').value = data.cat;
+            document.getElementById('btnSave').innerText = "تحديث المنتج";
+        }
+
+        function resetForm() {
+            document.getElementById('pId').value = "";
+            document.getElementById('pName').value = "";
+            document.getElementById('pPrice').value = "";
+            document.getElementById('pImg').value = "";
+            document.getElementById('btnSave').innerText = "حفظ المنتج";
         }
     </script>
 </body>
