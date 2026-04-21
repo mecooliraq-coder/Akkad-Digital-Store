@@ -1,31 +1,62 @@
-<script>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر أكاد الرقمي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-slate-900 text-white p-4 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">متجر أكاد الرقمي</h1>
+            <div id="status" class="text-xs text-green-400 italic">متصل بالمخزن..</div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-10">
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <p class="text-center col-span-full text-gray-500">جاري تحميل المنتجات من Firebase...</p>
+        </div>
+    </main>
+
+    <script>
+        // إعداداتك الخاصة
         const firebaseConfig = {
             databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function displayProducts(items) {
+        // وظيفة العرض
+        function displayProducts(data) {
             const grid = document.getElementById('products-grid');
+            if (!data) {
+                grid.innerHTML = `<p class="text-center col-span-full">لا توجد منتجات حالياً. أضف منتجات من لوحة التحكم.</p>`;
+                return;
+            }
+            const items = Object.values(data);
             grid.innerHTML = items.map(p => `
-                <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
-                    <div class="h-48 bg-gray-50 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-full object-contain">
-                    </div>
-                    <span class="text-xs font-bold text-blue-500 uppercase">${p.cat}</span>
-                    <h3 class="text-lg font-bold text-slate-800">${p.name}</h3>
-                    <div class="flex justify-between items-center mt-6">
-                        <span class="text-xl font-bold text-slate-900">${p.price} د.ع</span>
-                        <button class="bg-blue-600 text-white w-10 h-10 rounded-full">+</button>
-                    </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                    <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-40 w-full object-contain mb-4">
+                    <h3 class="font-bold text-lg">${p.name}</h3>
+                    <p class="text-blue-600 font-bold mt-2">${p.price} د.ع</p>
                 </div>
             `).join('');
         }
 
-        // جلب البيانات من Firebase
+        // الاستماع للتغييرات في Firebase
         db.ref('products').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const productList = data ? Object.values(data) : [];
-            displayProducts(productList);
+            displayProducts(snapshot.val());
+        }, (error) => {
+            document.getElementById('products-grid').innerHTML = "خطأ في الاتصال: " + error.message;
         });
     </script>
+</body>
+</html>
