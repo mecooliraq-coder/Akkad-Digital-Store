@@ -7,56 +7,55 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50">
-    <nav class="bg-slate-900 text-white p-4 shadow-xl">
+    <nav class="bg-slate-900 text-white p-4 shadow-xl sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold">متجر أكاد الرقمي</h1>
-            <div id="status" class="text-xs text-green-400 italic">متصل بالمخزن..</div>
         </div>
+        <div id="categories-nav" class="flex gap-4 mt-4 overflow-x-auto text-sm pb-2">
+            </div>
     </nav>
 
     <main class="container mx-auto px-4 py-10">
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <p class="text-center col-span-full text-gray-500">جاري تحميل المنتجات من Firebase...</p>
+            <p class="text-center col-span-full">جاري التحميل...</p>
         </div>
     </main>
 
     <script>
-        // إعداداتك الخاصة
-        const firebaseConfig = {
-            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
-        };
+        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // وظيفة العرض
+        // رقم الواتساب الخاص بك (اكتبه بدون أصفار أو علامة +)
+        const myPhone = "9647XXXXXXXXX"; 
+
         function displayProducts(data) {
             const grid = document.getElementById('products-grid');
-            if (!data) {
-                grid.innerHTML = `<p class="text-center col-span-full">لا توجد منتجات حالياً. أضف منتجات من لوحة التحكم.</p>`;
-                return;
-            }
+            if (!data) { grid.innerHTML = "لا توجد منتجات"; return; }
             const items = Object.values(data);
             grid.innerHTML = items.map(p => `
-                <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                    <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-40 w-full object-contain mb-4">
-                    <h3 class="font-bold text-lg">${p.name}</h3>
-                    <p class="text-blue-600 font-bold mt-2">${p.price} د.ع</p>
+                <div class="bg-white rounded-xl shadow-md p-4 border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-40 w-full object-contain mb-4 rounded-lg">
+                        <h3 class="font-bold text-lg">${p.name}</h3>
+                        <p class="text-blue-600 font-bold mt-2 text-xl">${p.price} د.ع</p>
+                    </div>
+                    <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
+                       class="mt-4 bg-green-600 text-white text-center py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp text-xl"></i> اطلب عبر واتساب
+                    </a>
                 </div>
             `).join('');
         }
 
-        // الاستماع للتغييرات في Firebase
-        db.ref('products').on('value', (snapshot) => {
-            displayProducts(snapshot.val());
-        }, (error) => {
-            document.getElementById('products-grid').innerHTML = "خطأ في الاتصال: " + error.message;
-        });
+        db.ref('products').on('value', snap => displayProducts(snap.val()));
     </script>
 </body>
 </html>
