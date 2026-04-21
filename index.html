@@ -3,66 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أكاد الرقمي</title>
+    <title>متجر أكاد الرقمي | عالم الترفيه</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
         
-        /* حركة نابضة لزر الواتساب */
-        .pulse-wa {
-            animation: pulse-animation 2s infinite;
-        }
-        @keyframes pulse-animation {
-            0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.5); }
-            100% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); /* خلفية سينمائية عميقة */
+            color: white;
+            min-height: 100vh;
         }
 
-        /* منع اختفاء شريط الأقسام */
+        /* تأثير الزجاج للكروت */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s ease;
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-10px);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* زر واتساب متوهج */
+        .wa-glow {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+            animation: glow-pulse 2s infinite;
+        }
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.7); }
+            100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.4); }
+        }
+
         .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <nav class="bg-slate-900 text-white shadow-2xl sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-2">
-                    <div class="bg-blue-600 p-2 rounded-lg"><i class="fas fa-bolt"></i></div>
-                    <h1 class="text-xl font-bold italic">AKKAD STORE</h1>
+    <nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <i class="fas fa-microchip text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tighter uppercase">Akkad <span class="text-blue-500">Digital</span></h1>
+                        <p class="text-[10px] text-gray-400">نحن نرسم ملامح الترفيه</p>
+                    </div>
                 </div>
-                <div class="text-xs bg-slate-800 px-3 py-1 rounded-full border border-slate-700">بغداد | توصيل سريع</div>
+                <div class="flex gap-4">
+                     <a href="https://wa.me/9647730492020" class="text-green-500 hover:scale-110 transition"><i class="fab fa-whatsapp text-2xl"></i></a>
+                </div>
             </div>
-            
-            <div class="relative group">
+
+            <div class="relative max-w-2xl mx-auto">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" 
-                    class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-10 outline-none focus:border-blue-500 transition-all text-sm"
-                    placeholder="ابحث عن جهاز، سعر، أو قسم...">
-                <i class="fas fa-search absolute right-4 top-3 text-slate-500 text-sm"></i>
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-500"
+                    placeholder="ابحث عن جهازك القادم...">
+                <i class="fas fa-search absolute right-5 top-4 text-gray-500"></i>
             </div>
         </div>
 
-        <div id="categories-nav" class="bg-slate-800/50 backdrop-blur flex gap-3 px-4 py-2 overflow-x-auto scrollbar-hide border-t border-slate-700/50">
+        <div id="categories-nav" class="flex gap-3 px-4 py-3 overflow-x-auto scrollbar-hide border-t border-white/5">
             </div>
     </nav>
 
-    <div class="container mx-auto px-4 mt-6">
-        <div class="bg-gradient-to-l from-blue-600 to-indigo-700 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
+    <header class="container mx-auto px-4 mt-8">
+        <div class="relative rounded-3xl overflow-hidden h-44 flex items-center p-8 bg-gradient-to-r from-blue-900 to-indigo-900 shadow-2xl">
             <div class="relative z-10">
-                <h2 class="text-2xl font-bold mb-1">أقوى العروض الحصرية</h2>
-                <p class="text-blue-100 text-sm">أجهزة TV Box بنظام أندرويد الأصلي</p>
+                <span class="bg-blue-500 text-[10px] px-2 py-1 rounded-md font-bold mb-2 inline-block uppercase">عرض محدود</span>
+                <h2 class="text-3xl font-bold">أقوى أجهزة الـ TV BOX</h2>
+                <p class="text-blue-200 text-sm mt-1 italic">حول تلفزيونك العادي إلى سمارت بلمسة واحدة</p>
             </div>
-            <i class="fas fa-tv absolute left-[-20px] bottom-[-20px] text-8xl opacity-10 rotate-12"></i>
+            <i class="fas fa-gamepad absolute left-[-20px] top-[-20px] text-[150px] opacity-10 -rotate-12"></i>
         </div>
-    </div>
+    </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <main class="container mx-auto px-4 py-12">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="col-span-full text-center py-20">
+                <div class="animate-spin text-blue-500 text-3xl mb-4"><i class="fas fa-circle-notch"></i></div>
+                <p class="text-gray-400">جاري تحميل أحدث المنتجات...</p>
             </div>
+        </div>
     </main>
+
+    <footer class="border-t border-white/5 py-10 text-center opacity-50 text-xs">
+        <p>© 2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
+    </footer>
 
     <script>
         const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
@@ -71,17 +109,15 @@
         const myPhone = "9647730492020"; 
         let allProducts = [];
 
-        // جلب الأقسام
         db.ref('categories').on('value', snap => {
             const cats = snap.val();
             const nav = document.getElementById('categories-nav');
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-4 py-1 rounded-full whitespace-nowrap text-xs text-white shadow-lg">الكل</button>`;
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-6 py-2 rounded-xl whitespace-nowrap text-xs font-bold shadow-lg shadow-blue-600/20">الكل</button>`;
             for(let key in cats) {
-                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-slate-700/50 hover:bg-slate-600 px-4 py-1 rounded-full whitespace-nowrap text-xs text-white transition">${cats[key]}</button>`;
+                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-white/5 hover:bg-white/10 border border-white/5 px-6 py-2 rounded-xl whitespace-nowrap text-xs transition capitalize">${cats[key]}</button>`;
             }
         });
 
-        // جلب المنتجات
         db.ref('products').on('value', snap => {
             const data = snap.val();
             allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
@@ -91,37 +127,41 @@
         function displayProducts(items) {
             const grid = document.getElementById('products-grid');
             if (items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400">لا توجد نتائج بحث مطابقة..</div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-gray-500">لا يوجد منتجات حالياً..</div>`;
                 return;
             }
             grid.innerHTML = items.map((p, index) => `
-                <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col group relative">
-                    ${index < 4 ? '<span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10 shadow-sm">جديد</span>' : ''}
-                    <div class="h-40 p-4 bg-gray-50/50 rounded-t-2xl flex items-center justify-center overflow-hidden">
-                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="max-h-full group-hover:scale-110 transition-transform duration-500">
+                <div class="glass-card rounded-3xl p-4 flex flex-col relative group">
+                    ${index < 3 ? '<div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-orange-500 text-[9px] font-bold px-3 py-1 rounded-full shadow-lg z-10 uppercase tracking-widest">New</div>' : ''}
+                    
+                    <div class="h-40 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-4 relative overflow-hidden">
+                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 relative z-10">
+                        <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
-                    <div class="p-3 flex flex-col flex-1">
-                        <div class="text-[10px] text-blue-500 font-bold mb-1 opacity-70">${p.cat || 'أخرى'}</div>
-                        <h3 class="font-bold text-slate-800 text-xs mb-3 line-clamp-2 h-8">${p.name}</h3>
-                        <div class="mt-auto">
-                            <div class="text-lg font-bold text-slate-900 mb-3">${p.price} <span class="text-[10px] font-normal text-gray-500 italic">د.ع</span></div>
-                            <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
-                               class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 pulse-wa">
-                                <i class="fab fa-whatsapp"></i> <span class="text-xs font-bold">اطلب الآن</span>
-                            </a>
+
+                    <div class="flex-1">
+                        <div class="text-[9px] text-blue-400 font-bold mb-2 uppercase tracking-widest opacity-60">${p.cat || 'Premium'}</div>
+                        <h3 class="font-bold text-sm text-gray-100 mb-3 line-clamp-2 leading-relaxed">${p.name}</h3>
+                        <div class="flex items-baseline gap-2 mb-5">
+                            <span class="text-xl font-bold text-white">${p.price}</span>
+                            <span class="text-[10px] text-gray-500 uppercase">IQD</span>
                         </div>
                     </div>
+
+                    <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
+                       class="wa-glow w-full bg-green-600 hover:bg-green-500 text-white py-3 rounded-2xl flex items-center justify-center gap-2 transition active:scale-95">
+                        <i class="fab fa-whatsapp text-lg"></i> 
+                        <span class="text-xs font-bold uppercase tracking-tight">اطلب الآن</span>
+                    </a>
                 </div>
             `).join('');
         }
 
-        // البحث الذكي
         function searchProducts() {
             const term = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => 
                 p.name.toLowerCase().includes(term) || 
-                p.cat.toLowerCase().includes(term) ||
-                p.price.toString().includes(term)
+                (p.cat && p.cat.toLowerCase().includes(term))
             );
             displayProducts(filtered);
         }
