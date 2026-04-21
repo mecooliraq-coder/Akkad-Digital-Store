@@ -1,38 +1,224 @@
-<style>
-    /* 1. تدرج لوني أكثر حيوية */
-    body { 
-        background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); 
-    }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر أكاد الرقمي | عالم الترفيه</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: #0f172a; /* لون أساسي غامق لضمان الظهور */
+            background: radial-gradient(circle at top right, #1e293b, #080c14); 
+            color: white; 
+            min-height: 100vh;
+            margin: 0;
+        }
 
-    /* 2. تحسين الكروت لتكون أكثر فخامة */
-    .glass-card { 
-        background: rgba(255, 255, 255, 0.02); 
-        backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255, 255, 255, 0.05); 
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    }
+        /* حاوية الخلفية المتحركة */
+        #bg-elements {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .floating-img {
+            position: absolute;
+            opacity: 0.08;
+            filter: grayscale(100%) blur(1px);
+            animation: float-infinite var(--duration) ease-in-out infinite;
+        }
+        @keyframes float-infinite {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
 
-    /* 3. تأثير "التوهج الذكي" عند التمرير */
-    .glass-card:hover { 
-        border-color: #3b82f6;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-        background: rgba(59, 130, 246, 0.03);
-    }
+        /* كروت المنتجات الزجاجية */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { 
+            transform: translateY(-10px); 
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
 
-    /* 4. جعل زر واتساب "ينبض" بهدوء */
-    .wa-glow {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        transition: 0.3s;
-    }
-    .wa-glow:hover {
-        filter: brightness(1.1);
-        transform: scale(1.05) !important;
-    }
+        /* شريط العروض */
+        .ticker-wrapper { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            background: rgba(59, 130, 246, 0.05); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .ticker-content { 
+            display: inline-block; 
+            animation: ticker 40s linear infinite; 
+        }
+        @keyframes ticker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-    /* 5. تحسين الشريط العلوي */
-    .ticker-wrapper {
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-        border: none;
-        margin-top: 5px;
-    }
-</style>
+        /* نوافذ التفاصيل والفيديو */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; }
+        .modal-content { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-w-lg; border-radius: 2rem; padding: 2rem; }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-elements"></div>
+
+    <nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 shadow-xl">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-tv text-white"></i></div>
+                    <h1 class="text-xl font-bold tracking-tight uppercase">AKKAD <span class="text-blue-500">STORE</span></h1>
+                </div>
+                <a href="https://wa.me/9647730492020" class="text-green-500 hover:scale-110 transition"><i class="fab fa-whatsapp text-3xl"></i></a>
+            </div>
+            <div class="relative max-w-xl mx-auto">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-white/10 rounded-2xl py-2 px-10 outline-none focus:border-blue-500 text-sm" placeholder="ابحث عن أجهزة الترفيه...">
+                <i class="fas fa-search absolute right-4 top-3 text-gray-500"></i>
+            </div>
+            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto scrollbar-hide text-[10px] font-bold"></div>
+        </div>
+    </nav>
+
+    <div class="ticker-wrapper"><div id="product-ticker" class="ticker-content py-2 text-blue-400 font-bold uppercase tracking-wider text-[11px]"></div></div>
+
+    <main class="container mx-auto px-4 py-10 relative z-10">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            </div>
+    </main>
+
+    <div id="descModal" class="modal" onclick="closeModal('descModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-blue-400 border-b border-white/10 pb-2"></h2>
+            <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line mb-6"></p>
+            <button onclick="closeModal('descModal')" class="w-full bg-slate-700 py-3 rounded-xl font-bold hover:bg-slate-600 transition">فهمت ذلك</button>
+        </div>
+    </div>
+
+    <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
+        <div class="relative w-full max-w-4xl aspect-video rounded-3xl overflow-hidden bg-black" onclick="event.stopPropagation()">
+            <iframe id="ytPlayer" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const myPhone = "9647730492020";
+        let allProducts = [];
+
+        // جلب الأقسام
+        db.ref('categories').on('value', snap => {
+            const cats = snap.val();
+            const nav = document.getElementById('categories-nav');
+            if(!nav) return;
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-4 py-1 rounded-full whitespace-nowrap">الكل</button>`;
+            for(let key in cats) nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-white/5 border border-white/5 px-4 py-1 rounded-full whitespace-nowrap text-gray-400">${cats[key]}</button>`;
+        });
+
+        // جلب المنتجات
+        db.ref('products').on('value', snap => {
+            const data = snap.val();
+            allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+            displayProducts(allProducts);
+            
+            // تحديث الشريط العلوي
+            const ticker = document.getElementById('product-ticker');
+            if(ticker) ticker.innerHTML = allProducts.map(p => `<span class="mx-10">${p.name} - ${p.price} د.ع</span>`).join('');
+            
+            // تحديث الخلفية
+            createFloatingBg();
+        });
+
+        function displayProducts(items) {
+            const grid = document.getElementById('products-grid');
+            if(!grid) return;
+            if(items.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center py-20 text-gray-500">لا يوجد منتجات معروضة حالياً</p>';
+                return;
+            }
+            grid.innerHTML = items.map((p, index) => `
+                <div class="glass-card p-4 flex flex-col relative group">
+                    <div class="h-40 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-3 relative overflow-hidden">
+                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="max-h-full object-contain transition duration-500 group-hover:scale-110">
+                        ${p.video ? `<button onclick="openVideo('${p.video}')" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                            <i class="fas fa-play bg-red-600 p-3 rounded-full shadow-xl"></i>
+                        </button>` : ''}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-[12px] mb-2 line-clamp-2 h-8">${p.name}</h3>
+                        <div class="text-lg font-bold text-white mb-3">${p.price} <span class="text-[9px] text-gray-500 uppercase">د.ع</span></div>
+                        <button onclick="showDetails('${p.name}', \`${(p.desc || 'لا يوجد وصف حالياً').replace(/`/g, "'")}\`)" 
+                                class="w-full border border-blue-500/30 text-blue-400 py-1.5 rounded-xl text-[10px] font-bold mb-3 hover:bg-blue-500/10">
+                            اقرأ التفاصيل
+                        </button>
+                    </div>
+                    <a href="https://wa.me/${myPhone}?text=طلب: ${p.name}" target="_blank" 
+                       class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-xl flex items-center justify-center gap-2 transition font-bold text-xs shadow-lg">
+                        <i class="fab fa-whatsapp"></i> اطلب الآن
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function createFloatingBg() {
+            const container = document.getElementById('bg-elements');
+            if(!container) return;
+            container.innerHTML = ""; 
+            const shuffled = [...allProducts].slice(0, 5);
+            shuffled.forEach((p, i) => {
+                if(!p.img) return;
+                const img = document.createElement('img');
+                img.src = p.img;
+                img.className = 'floating-img';
+                img.style.top = `${Math.random() * 80 + 10}%`;
+                img.style.left = `${Math.random() * 80 + 5}%`;
+                img.style.width = `${Math.random() * 100 + 100}px`;
+                img.style.setProperty('--duration', `${Math.random() * 10 + 15}s`);
+                container.appendChild(img);
+            });
+        }
+
+        function showDetails(title, desc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('descModal').style.display = 'flex';
+        }
+
+        function openVideo(id) {
+            document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            document.getElementById('videoModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if(modalId === 'videoModal') document.getElementById('ytPlayer').src = "";
+        }
+
+        function searchProducts() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            displayProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
+        }
+
+        function filterByCat(category) {
+            displayProducts(category === 'all' ? allProducts : allProducts.filter(p => p.cat === category));
+        }
+    </script>
+</body>
+</html>
