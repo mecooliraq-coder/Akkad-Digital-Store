@@ -2,173 +2,133 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم | متجر أكاد</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-slate-100 p-4 md:p-10 text-right">
-    <script>
-        const pass = prompt("الرجاء إدخال كلمة سر المدير للدخول:");
-        if (pass !== "ashd1980") {
-            alert("كلمة السر خاطئة!");
-            window.location.href = "index.html";
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        
+        /* حركة نابضة لزر الواتساب */
+        .pulse-wa {
+            animation: pulse-animation 2s infinite;
         }
-    </script>
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.5); }
+            100% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        }
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-10 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">إدارة متجر أكاد الرقمي</h1>
-                <p class="text-gray-500 text-sm">تحكم كامل بالمنتجات والأقسام</p>
+        /* منع اختفاء شريط الأقسام */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-slate-900 text-white shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-blue-600 p-2 rounded-lg"><i class="fas fa-bolt"></i></div>
+                    <h1 class="text-xl font-bold italic">AKKAD STORE</h1>
+                </div>
+                <div class="text-xs bg-slate-800 px-3 py-1 rounded-full border border-slate-700">بغداد | توصيل سريع</div>
             </div>
-            <a href="index.html" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition">العودة للمتجر</a>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 space-y-6">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-orange-500">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-list text-orange-500"></i> إدارة الأقسام</h2>
-                    <div class="space-y-3">
-                        <input id="catId" type="hidden">
-                        <div class="flex gap-2">
-                            <input id="newCat" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 text-sm">
-                            <button onclick="saveCategory()" id="btnSaveCat" class="bg-orange-500 text-white px-4 rounded-xl font-bold hover:bg-orange-600 transition">+</button>
-                        </div>
-                        <div id="cats-list" class="space-y-2 mt-4 max-h-60 overflow-y-auto pr-2">
-                            </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-blue-600">
-                    <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2"><i class="fas fa-box text-blue-600"></i> بيانات المنتج</h2>
-                    <div class="space-y-4">
-                        <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم الجهاز" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
-                        <input id="pPrice" type="text" placeholder="السعر (د.ع)" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
-                        <input id="pImg" type="text" placeholder="رابط الصورة المباشر" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 text-xs">
-                        <select id="pCat" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"></select>
-                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-700 transition active:scale-95">حفظ المنتج</button>
-                        <button onclick="resetForm()" class="w-full text-gray-400 text-[10px] hover:underline">تفريغ الخانات</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-lg min-h-[600px]">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-th-list"></i> المنتجات الحالية</h2>
-                    <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
+            
+            <div class="relative group">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" 
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 px-10 outline-none focus:border-blue-500 transition-all text-sm"
+                    placeholder="ابحث عن جهاز، سعر، أو قسم...">
+                <i class="fas fa-search absolute right-4 top-3 text-slate-500 text-sm"></i>
             </div>
         </div>
+
+        <div id="categories-nav" class="bg-slate-800/50 backdrop-blur flex gap-3 px-4 py-2 overflow-x-auto scrollbar-hide border-t border-slate-700/50">
+            </div>
+    </nav>
+
+    <div class="container mx-auto px-4 mt-6">
+        <div class="bg-gradient-to-l from-blue-600 to-indigo-700 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
+            <div class="relative z-10">
+                <h2 class="text-2xl font-bold mb-1">أقوى العروض الحصرية</h2>
+                <p class="text-blue-100 text-sm">أجهزة TV Box بنظام أندرويد الأصلي</p>
+            </div>
+            <i class="fas fa-tv absolute left-[-20px] bottom-[-20px] text-8xl opacity-10 rotate-12"></i>
+        </div>
     </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            </div>
+    </main>
 
     <script>
         const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const myPhone = "9647730492020"; 
+        let allProducts = [];
 
-        // --- وظائف الأقسام ---
-        function saveCategory() {
-            const id = document.getElementById('catId').value;
-            const catName = document.getElementById('newCat').value;
-            if(!catName) return;
-
-            if(id) {
-                db.ref('categories').child(id).set(catName);
-            } else {
-                db.ref('categories').push(catName);
-            }
-            document.getElementById('catId').value = "";
-            document.getElementById('newCat').value = "";
-            document.getElementById('btnSaveCat').innerText = "+";
-        }
-
+        // جلب الأقسام
         db.ref('categories').on('value', snap => {
             const cats = snap.val();
-            const list = document.getElementById('cats-list');
-            const select = document.getElementById('pCat');
-            list.innerHTML = ""; select.innerHTML = "";
+            const nav = document.getElementById('categories-nav');
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-4 py-1 rounded-full whitespace-nowrap text-xs text-white shadow-lg">الكل</button>`;
             for(let key in cats) {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-orange-50 p-2 rounded-lg border border-orange-100 text-sm">
-                        <span>${cats[key]}</span>
-                        <div class="flex gap-2">
-                            <button onclick="editCat('${key}', '${cats[key]}')" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteCat('${key}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
-                select.innerHTML += `<option value="${cats[key]}">${cats[key]}</option>`;
+                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-slate-700/50 hover:bg-slate-600 px-4 py-1 rounded-full whitespace-nowrap text-xs text-white transition">${cats[key]}</button>`;
             }
         });
 
-        function editCat(id, name) {
-            document.getElementById('catId').value = id;
-            document.getElementById('newCat').value = name;
-            document.getElementById('btnSaveCat').innerText = "حفظ";
-            document.getElementById('newCat').focus();
-        }
-
-        function deleteCat(id) {
-            if(confirm("سيتم حذف القسم نهائياً، هل أنت متأكد؟")) db.ref('categories').child(id).remove();
-        }
-
-        // --- وظائف المنتجات ---
-        function saveProduct() {
-            const id = document.getElementById('pId').value;
-            const data = {
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                img: document.getElementById('pImg').value,
-                cat: document.getElementById('pCat').value
-            };
-            if(!data.name || !data.price) return alert("أدخل البيانات!");
-
-            if(id) db.ref('products').child(id).update(data);
-            else db.ref('products').push(data);
-            resetForm();
-        }
-
+        // جلب المنتجات
         db.ref('products').on('value', snap => {
-            const prods = snap.val();
-            const list = document.getElementById('admin-products-list');
-            list.innerHTML = "";
-            for(let key in prods) {
-                list.innerHTML += `
-                <div class="bg-slate-50 p-3 rounded-xl border flex gap-3 items-center">
-                    <img src="${prods[key].img || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-contain rounded border bg-white">
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-xs truncate">${prods[key].name}</div>
-                        <div class="text-blue-600 text-[10px] font-bold">${prods[key].price} د.ع</div>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <button onclick="editProduct('${key}', ${JSON.stringify(prods[key]).replace(/"/g, '&quot;')})" class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded">تعديل</button>
-                        <button onclick="deleteProduct('${key}')" class="text-[9px] bg-red-100 text-red-700 px-2 py-1 rounded">حذف</button>
-                    </div>
-                </div>`;
-            }
+            const data = snap.val();
+            allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+            displayProducts(allProducts);
         });
 
-        function deleteProduct(id) { if(confirm("حذف المنتج؟")) db.ref('products').child(id).remove(); }
-        
-        function editProduct(id, data) {
-            document.getElementById('pId').value = id;
-            document.getElementById('pName').value = data.name;
-            document.getElementById('pPrice').value = data.price;
-            document.getElementById('pImg').value = data.img;
-            document.getElementById('pCat').value = data.cat;
-            document.getElementById('btnSave').innerText = "تعديل الآن";
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function displayProducts(items) {
+            const grid = document.getElementById('products-grid');
+            if (items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-400">لا توجد نتائج بحث مطابقة..</div>`;
+                return;
+            }
+            grid.innerHTML = items.map((p, index) => `
+                <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col group relative">
+                    ${index < 4 ? '<span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10 shadow-sm">جديد</span>' : ''}
+                    <div class="h-40 p-4 bg-gray-50/50 rounded-t-2xl flex items-center justify-center overflow-hidden">
+                        <img src="${p.img || 'https://via.placeholder.com/150'}" class="max-h-full group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-3 flex flex-col flex-1">
+                        <div class="text-[10px] text-blue-500 font-bold mb-1 opacity-70">${p.cat || 'أخرى'}</div>
+                        <h3 class="font-bold text-slate-800 text-xs mb-3 line-clamp-2 h-8">${p.name}</h3>
+                        <div class="mt-auto">
+                            <div class="text-lg font-bold text-slate-900 mb-3">${p.price} <span class="text-[10px] font-normal text-gray-500 italic">د.ع</span></div>
+                            <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
+                               class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 pulse-wa">
+                                <i class="fab fa-whatsapp"></i> <span class="text-xs font-bold">اطلب الآن</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function resetForm() {
-            document.getElementById('pId').value = "";
-            document.getElementById('pName').value = "";
-            document.getElementById('pPrice').value = "";
-            document.getElementById('pImg').value = "";
-            document.getElementById('btnSave').innerText = "حفظ المنتج";
+        // البحث الذكي
+        function searchProducts() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                p.cat.toLowerCase().includes(term) ||
+                p.price.toString().includes(term)
+            );
+            displayProducts(filtered);
+        }
+
+        function filterByCat(category) {
+            const filtered = category === 'all' ? allProducts : allProducts.filter(p => p.cat === category);
+            displayProducts(filtered);
         }
     </script>
 </body>
