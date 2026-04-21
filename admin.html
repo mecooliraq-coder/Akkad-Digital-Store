@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم | متجر أكاد</title>
+    <title>إدارة متجر أكاد | الحماية والتحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -18,47 +18,44 @@
     </script>
 
     <div class="max-w-6xl mx-auto">
-        <header class="mb-10 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm">
+        <header class="mb-10 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-600">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">إدارة متجر أكاد الرقمي</h1>
-                <p class="text-gray-500 text-sm">تحكم كامل بالمنتجات والأقسام</p>
+                <h1 class="text-2xl font-bold text-slate-800">لوحة الإدارة الشاملة</h1>
+                <p class="text-gray-500 text-sm">إضافة منتجات، أقسام، وفيديوهات مراجعة</p>
             </div>
-            <a href="index.html" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition">العودة للمتجر</a>
+            <a href="index.html" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">مشاهدة المتجر</a>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1 space-y-6">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-orange-500">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-list text-orange-500"></i> إدارة الأقسام</h2>
-                    <div class="space-y-3">
-                        <input id="catId" type="hidden">
-                        <div class="flex gap-2">
-                            <input id="newCat" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-orange-500 text-sm">
-                            <button onclick="saveCategory()" id="btnSaveCat" class="bg-orange-500 text-white px-4 rounded-xl font-bold hover:bg-orange-600 transition">+</button>
-                        </div>
-                        <div id="cats-list" class="space-y-2 mt-4 max-h-60 overflow-y-auto pr-2">
-                            </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-list text-orange-500"></i> الأقسام</h2>
+                    <input id="catId" type="hidden">
+                    <div class="flex gap-2 mb-4">
+                        <input id="newCat" type="text" placeholder="اسم القسم" class="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400">
+                        <button onclick="saveCategory()" id="btnSaveCat" class="bg-orange-500 text-white px-4 rounded-lg">+</button>
                     </div>
+                    <div id="cats-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-blue-600">
-                    <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2"><i class="fas fa-box text-blue-600"></i> بيانات المنتج</h2>
-                    <div class="space-y-4">
+                    <h2 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-plus-circle text-blue-600"></i> تفاصيل المنتج</h2>
+                    <div class="space-y-3">
                         <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم الجهاز" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
-                        <input id="pPrice" type="text" placeholder="السعر (د.ع)" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
-                        <input id="pImg" type="text" placeholder="رابط الصورة المباشر" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 text-xs">
-                        <select id="pCat" class="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"></select>
-                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-700 transition active:scale-95">حفظ المنتج</button>
-                        <button onclick="resetForm()" class="w-full text-gray-400 text-[10px] hover:underline">تفريغ الخانات</button>
+                        <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-2 border rounded-lg outline-none">
+                        <input id="pPrice" type="text" placeholder="السعر" class="w-full p-2 border rounded-lg outline-none">
+                        <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-2 border rounded-lg outline-none">
+                        <input id="pVideo" type="text" placeholder="معرف فيديو يوتيوب (ID)" class="w-full p-2 border rounded-lg outline-none text-red-600">
+                        <select id="pCat" class="w-full p-2 border rounded-lg outline-none"></select>
+                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">حفظ الآن</button>
+                        <button onclick="resetForm()" class="w-full text-xs text-gray-400 underline">إلغاء</button>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-lg min-h-[600px]">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-th-list"></i> المنتجات الحالية</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-lg min-h-[500px]">
+                    <h2 class="font-bold mb-6 italic text-blue-900 border-b pb-2">المنتجات المعروضة</h2>
                     <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
             </div>
@@ -70,19 +67,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- وظائف الأقسام ---
         function saveCategory() {
             const id = document.getElementById('catId').value;
-            const catName = document.getElementById('newCat').value;
-            if(!catName) return;
-
-            if(id) {
-                db.ref('categories').child(id).set(catName);
-            } else {
-                db.ref('categories').push(catName);
-            }
-            document.getElementById('catId').value = "";
-            document.getElementById('newCat').value = "";
+            const name = document.getElementById('newCat').value;
+            if(!name) return;
+            if(id) db.ref('categories').child(id).set(name);
+            else db.ref('categories').push(name);
+            document.getElementById('catId').value = ""; document.getElementById('newCat').value = "";
             document.getElementById('btnSaveCat').innerText = "+";
         }
 
@@ -92,40 +83,24 @@
             const select = document.getElementById('pCat');
             list.innerHTML = ""; select.innerHTML = "";
             for(let key in cats) {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-orange-50 p-2 rounded-lg border border-orange-100 text-sm">
-                        <span>${cats[key]}</span>
-                        <div class="flex gap-2">
-                            <button onclick="editCat('${key}', '${cats[key]}')" class="text-blue-500 hover:text-blue-700"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteCat('${key}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="flex justify-between bg-gray-50 p-2 rounded border text-sm"><span>${cats[key]}</span><div class="flex gap-2"><button onclick="editCat('${key}', '${cats[key]}')" class="text-blue-500">✎</button><button onclick="deleteCat('${key}')" class="text-red-500">×</button></div></div>`;
                 select.innerHTML += `<option value="${cats[key]}">${cats[key]}</option>`;
             }
         });
 
-        function editCat(id, name) {
-            document.getElementById('catId').value = id;
-            document.getElementById('newCat').value = name;
-            document.getElementById('btnSaveCat').innerText = "حفظ";
-            document.getElementById('newCat').focus();
-        }
+        function editCat(id, name) { document.getElementById('catId').value = id; document.getElementById('newCat').value = name; document.getElementById('btnSaveCat').innerText = "✓"; }
+        function deleteCat(id) { if(confirm("حذف؟")) db.ref('categories').child(id).remove(); }
 
-        function deleteCat(id) {
-            if(confirm("سيتم حذف القسم نهائياً، هل أنت متأكد؟")) db.ref('categories').child(id).remove();
-        }
-
-        // --- وظائف المنتجات ---
         function saveProduct() {
             const id = document.getElementById('pId').value;
             const data = {
                 name: document.getElementById('pName').value,
                 price: document.getElementById('pPrice').value,
                 img: document.getElementById('pImg').value,
+                video: document.getElementById('pVideo').value,
                 cat: document.getElementById('pCat').value
             };
-            if(!data.name || !data.price) return alert("أدخل البيانات!");
-
+            if(!data.name) return;
             if(id) db.ref('products').child(id).update(data);
             else db.ref('products').push(data);
             resetForm();
@@ -137,37 +112,33 @@
             list.innerHTML = "";
             for(let key in prods) {
                 list.innerHTML += `
-                <div class="bg-slate-50 p-3 rounded-xl border flex gap-3 items-center">
-                    <img src="${prods[key].img || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-contain rounded border bg-white">
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-xs truncate">${prods[key].name}</div>
-                        <div class="text-blue-600 text-[10px] font-bold">${prods[key].price} د.ع</div>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <button onclick="editProduct('${key}', ${JSON.stringify(prods[key]).replace(/"/g, '&quot;')})" class="text-[9px] bg-blue-100 text-blue-700 px-2 py-1 rounded">تعديل</button>
-                        <button onclick="deleteProduct('${key}')" class="text-[9px] bg-red-100 text-red-700 px-2 py-1 rounded">حذف</button>
+                <div class="bg-gray-50 p-3 rounded-xl border flex items-center gap-3">
+                    <img src="${prods[key].img}" class="w-10 h-10 object-contain bg-white rounded">
+                    <div class="flex-1 font-bold text-xs truncate">${prods[key].name}</div>
+                    <div class="flex gap-2">
+                        <button onclick="editProduct('${key}', ${JSON.stringify(prods[key]).replace(/"/g, '&quot;')})" class="text-blue-600 font-bold text-xs">تعديل</button>
+                        <button onclick="deleteProduct('${key}')" class="text-red-600 font-bold text-xs">حذف</button>
                     </div>
                 </div>`;
             }
         });
 
         function deleteProduct(id) { if(confirm("حذف المنتج؟")) db.ref('products').child(id).remove(); }
-        
         function editProduct(id, data) {
             document.getElementById('pId').value = id;
             document.getElementById('pName').value = data.name;
             document.getElementById('pPrice').value = data.price;
             document.getElementById('pImg').value = data.img;
+            document.getElementById('pVideo').value = data.video || "";
             document.getElementById('pCat').value = data.cat;
-            document.getElementById('btnSave').innerText = "تعديل الآن";
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.getElementById('btnSave').innerText = "تحديث البيانات";
         }
-
         function resetForm() {
             document.getElementById('pId').value = "";
             document.getElementById('pName').value = "";
             document.getElementById('pPrice').value = "";
             document.getElementById('pImg').value = "";
+            document.getElementById('pVideo').value = "";
             document.getElementById('btnSave').innerText = "حفظ المنتج";
         }
     </script>
