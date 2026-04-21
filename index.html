@@ -1,170 +1,26 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أكاد الرقمي | تجربة فريدة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: white; min-height: 100vh;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover {
-            transform: translateY(-12px);
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        .wa-glow {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
-            animation: pulse-green 2s infinite;
-        }
-        @keyframes pulse-green {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); box-shadow: 0 0 25px rgba(34, 197, 94, 0.6); }
-            100% { transform: scale(1); }
-        }
-        #videoModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-    </style>
-</head>
-<body>
+/* حركة الشريط المتحرك */
+.ticker-wrapper {
+    overflow: hidden;
+    white-space: nowrap;
+    background: rgba(59, 130, 246, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-    <nav class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-xl border-b border-white/5">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <i class="fas fa-tv text-2xl text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold tracking-tight">AKKAD <span class="text-blue-500">DIGITAL</span></h1>
-                        <p class="text-[10px] text-gray-400 uppercase tracking-widest">Premium Tech Store</p>
-                    </div>
-                </div>
-                <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 hover:bg-green-500 hover:text-white transition-all duration-500 shadow-xl shadow-green-500/10">
-                    <i class="fab fa-whatsapp text-xl"></i>
-                </a>
-            </div>
+.ticker-content {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker 30s linear infinite;
+}
 
-            <div class="relative group max-w-3xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" 
-                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-500 text-sm"
-                    placeholder="ما الذي تبحث عنه اليوم؟">
-                <i class="fas fa-search absolute right-5 top-4 text-gray-500 group-focus-within:text-blue-500 transition-colors"></i>
-            </div>
-        </div>
+@keyframes ticker {
+    0% { transform: translate3d(100%, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
 
-        <div id="categories-nav" class="flex gap-3 px-4 py-4 overflow-x-auto scrollbar-hide border-t border-white/5 bg-slate-900/50">
-            </div>
-    </nav>
-
-    <main class="container mx-auto px-4 py-12">
-        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            </div>
-    </main>
-
-    <div id="videoModal" onclick="closeVideo()">
-        <div class="relative w-[90%] max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10" onclick="event.stopPropagation()">
-            <iframe id="ytPlayer" class="w-full h-full" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
-            <button class="absolute top-6 right-6 bg-white/10 hover:bg-red-500 w-10 h-10 rounded-full flex items-center justify-center transition-colors" onclick="closeVideo()">
-                <i class="fas fa-times text-white"></i>
-            </button>
-        </div>
-    </div>
-
-    <script>
-        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const myPhone = "9647730492020";
-        let allProducts = [];
-
-        // Categories Fetching
-        db.ref('categories').on('value', snap => {
-            const cats = snap.val();
-            const nav = document.getElementById('categories-nav');
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-6 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30">الكل</button>`;
-            for(let key in cats) {
-                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-white/5 border border-white/5 px-6 py-2 rounded-xl text-xs hover:bg-white/10 transition-all">${cats[key]}</button>`;
-            }
-        });
-
-        // Products Fetching
-        db.ref('products').on('value', snap => {
-            const data = snap.val();
-            allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
-            displayProducts(allProducts);
-        });
-
-        function displayProducts(items) {
-            const grid = document.getElementById('products-grid');
-            if (items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center opacity-40">لا توجد منتجات حالياً..</div>`;
-                return;
-            }
-            grid.innerHTML = items.map((p, index) => `
-                <div class="glass-card rounded-[2rem] p-5 flex flex-col group">
-                    <div class="h-44 mb-6 bg-white/5 rounded-2xl flex items-center justify-center p-4 relative overflow-hidden">
-                        <img src="${p.img}" class="max-h-full max-w-full object-contain group-hover:rotate-3 transition-transform duration-500 z-10">
-                        ${p.video ? `
-                            <button onclick="openVideo('${p.video}')" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
-                                    <i class="fas fa-play ml-1"></i>
-                                </div>
-                            </button>
-                        ` : ''}
-                    </div>
-
-                    <div class="flex-1">
-                        <span class="text-[9px] text-blue-400 font-bold tracking-widest uppercase mb-2 block opacity-60">${p.cat || 'Premium'}</span>
-                        <h3 class="font-bold text-sm text-gray-100 mb-4 line-clamp-2 h-10 leading-relaxed">${p.name}</h3>
-                        <div class="flex items-end gap-1 mb-6">
-                            <span class="text-2xl font-bold text-white">${p.price}</span>
-                            <span class="text-[10px] text-gray-500 mb-1 uppercase tracking-tighter italic">د.ع</span>
-                        </div>
-                    </div>
-
-                    <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
-                       class="wa-glow w-full bg-green-600 hover:bg-green-500 text-white py-3.5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-green-600/20">
-                        <i class="fab fa-whatsapp text-xl"></i> 
-                        <span class="text-xs font-bold uppercase">اطلب عبر واتساب</span>
-                    </a>
-                </div>
-            `).join('');
-        }
-
-        function openVideo(id) {
-            document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-            document.getElementById('videoModal').style.display = 'flex';
-        }
-
-        function closeVideo() {
-            document.getElementById('ytPlayer').src = "";
-            document.getElementById('videoModal').style.display = 'none';
-        }
-
-        function searchProducts() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term) || (p.cat && p.cat.toLowerCase().includes(term)));
-            displayProducts(filtered);
-        }
-
-        function filterByCat(category) {
-            displayProducts(category === 'all' ? allProducts : allProducts.filter(p => p.cat === category));
-        }
-    </script>
-</body>
-</html>
+.ticker-item {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 12px;
+    color: #93c5fd;
+    font-weight: bold;
+}
