@@ -18,13 +18,14 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold">متجر أكاد الرقمي</h1>
         </div>
-        <div id="categories-nav" class="flex gap-4 mt-4 overflow-x-auto text-sm pb-2">
+        <div id="categories-nav" class="container mx-auto flex gap-4 mt-4 overflow-x-auto text-sm pb-2 scrollbar-hide">
+            <button onclick="filterByCat('all')" class="bg-blue-600 px-4 py-1 rounded-full whitespace-nowrap">الكل</button>
             </div>
     </nav>
 
     <main class="container mx-auto px-4 py-10">
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <p class="text-center col-span-full">جاري التحميل...</p>
+            <p class="text-center col-span-full">جاري تحميل المنتجات...</p>
         </div>
     </main>
 
@@ -33,19 +34,43 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // رقم الواتساب الخاص بك (اكتبه بدون أصفار أو علامة +)
-        const myPhone = "9647XXXXXXXXX"; 
+        const myPhone = "964XXXXXXXXXX"; // ضع رقمك هنا
+        let allProducts = [];
 
-        function displayProducts(data) {
+        // 1. جلب وعرض الأقسام
+        db.ref('categories').on('value', snap => {
+            const cats = snap.val();
+            const nav = document.getElementById('categories-nav');
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-4 py-1 rounded-full whitespace-nowrap text-white">الكل</button>`;
+            for(let key in cats) {
+                nav.innerHTML += `
+                <button onclick="filterByCat('${cats[key]}')" 
+                    class="bg-slate-700 hover:bg-blue-500 px-4 py-1 rounded-full whitespace-nowrap text-white transition">
+                    ${cats[key]}
+                </button>`;
+            }
+        });
+
+        // 2. جلب وعرض المنتجات
+        db.ref('products').on('value', snap => {
+            const data = snap.val();
+            allProducts = data ? Object.values(data) : [];
+            displayProducts(allProducts);
+        });
+
+        function displayProducts(items) {
             const grid = document.getElementById('products-grid');
-            if (!data) { grid.innerHTML = "لا توجد منتجات"; return; }
-            const items = Object.values(data);
+            if (items.length === 0) {
+                grid.innerHTML = `<p class="text-center col-span-full text-gray-500">لا توجد منتجات في هذا القسم حالياً.</p>`;
+                return;
+            }
             grid.innerHTML = items.map(p => `
-                <div class="bg-white rounded-xl shadow-md p-4 border border-gray-100 flex flex-col justify-between">
+                <div class="bg-white rounded-xl shadow-md p-4 border border-gray-100 flex flex-col justify-between hover:shadow-lg transition">
                     <div>
                         <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-40 w-full object-contain mb-4 rounded-lg">
-                        <h3 class="font-bold text-lg">${p.name}</h3>
-                        <p class="text-blue-600 font-bold mt-2 text-xl">${p.price} د.ع</p>
+                        <span class="text-xs text-blue-500 font-bold">${p.cat}</span>
+                        <h3 class="font-bold text-lg text-slate-800">${p.name}</h3>
+                        <p class="text-slate-900 font-bold mt-2 text-xl">${p.price} د.ع</p>
                     </div>
                     <a href="https://wa.me/${myPhone}?text=سلام عليكم، أرغب بطلب: ${p.name}" target="_blank" 
                        class="mt-4 bg-green-600 text-white text-center py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
@@ -55,7 +80,15 @@
             `).join('');
         }
 
-        db.ref('products').on('value', snap => displayProducts(snap.val()));
+        // 3. وظيفة الفلترة (التصفية حسب القسم)
+        function filterByCat(category) {
+            if (category === 'all') {
+                displayProducts(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.cat === category);
+                displayProducts(filtered);
+            }
+        }
     </script>
 </body>
 </html>
