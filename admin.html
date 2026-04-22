@@ -1,506 +1,227 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>لوحة التحكم | متجر أكاد الرقمي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; }
-        
-        .glass-panel {
-            background: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        }
-        
-        .stat-card.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
-        .stat-card.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
-        .stat-card.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); }
-        .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        
-        .order-row {
-            transition: all 0.3s ease;
-            border-right: 4px solid transparent;
-        }
-        .order-row:hover {
-            background: #f8fafc;
-            border-right-color: #3b82f6;
-            transform: translateX(-4px);
-        }
-        .order-row.pending { border-right-color: #f59e0b; }
-        .order-row.processing { border-right-color: #3b82f6; }
-        .order-row.shipped { border-right-color: #8b5cf6; }
-        .order-row.delivered { border-right-color: #22c55e; }
-        .order-row.cancelled { border-right-color: #ef4444; }
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-processing { background: #dbeafe; color: #1e40af; }
-        .status-shipped { background: #ede9fe; color: #5b21b6; }
-        .status-delivered { background: #dcfce7; color: #166534; }
-        .status-cancelled { background: #fee2e2; color: #991b1b; }
-        
-        .tab-btn {
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 13px;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-            background: #e2e8f0;
-            color: #64748b;
-        }
-        .tab-btn.active {
-            background: #3b82f6;
-            color: white;
-            box-shadow: 0 4px 15px rgba(59,130,246,0.3);
-        }
-        
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
-        }
-        
-        .notification-toast {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 9999;
-            background: white;
-            border-radius: 1rem;
-            padding: 1rem 1.5rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border-right: 4px solid #22c55e;
-            animation: slideInLeft 0.5s ease;
-            max-width: 350px;
-        }
-        @keyframes slideInLeft {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .low-stock { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
-        }
-        
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(34,197,94,0.1);
-            padding: 6px 16px;
-            border-radius: 9999px;
-            border: 1px solid rgba(34,197,94,0.2);
-        }
+<script>
+    // إعدادات Firebase (يجب التأكد من مطابقتها لمشروعك)
+    const firebaseConfig = {
+        databaseURL: "https://your-project-id.firebaseio.com" 
+    };
+    
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: white;
-            border-radius: 1.5rem;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            animation: slideUp 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+    // متغيرات الحالة
+    let allOrders = [];
+    let allCategories = {};
 
-        .edit-mode {
-            background: #fef3c7 !important;
-            border-color: #f59e0b !important;
-        }
+    // تحديث الوقت المباشر
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('currentTime').innerText = now.toLocaleString('ar-EG');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        .category-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-    </style>
-</head>
-<body class="p-4 md:p-8 text-right">
-
-    <script>
-        const pass = prompt("الرجاء إدخال كلمة سر المدير للدخول:");
-        if (pass !== "ashd1980") {
-            alert("كلمة السر خاطئة!");
-            window.location.href = "index.html";
-        }
-    </script>
-
-    <div class="max-w-7xl mx-auto">
-        
-        <!-- Header -->
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
-                    <i class="fas fa-satellite-dish text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">لوحة تحكم أكاد</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <div class="live-indicator">
-                            <span class="pulse-dot"></span>
-                            <span class="text-xs text-green-600 font-bold">المتجر حي الآن</span>
-                        </div>
-                        <span class="text-xs text-gray-400" id="currentTime"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex gap-3 flex-wrap">
-                <button onclick="openCategoryModal()" class="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-orange-600 transition flex items-center gap-2">
-                    <i class="fas fa-folder-plus"></i> إدارة الأقسام
-                </button>
-                <a href="index.html" target="_blank" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold shadow-sm border border-blue-100 hover:shadow-md transition flex items-center gap-2">
-                    <i class="fas fa-external-link-alt"></i> معاينة المتجر
-                </a>
-                <button onclick="exportData()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700 transition flex items-center gap-2">
-                    <i class="fas fa-download"></i> تصدير
-                </button>
-            </div>
-        </header>
-
-        <!-- Stats Row -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="stat-card">
-                <div class="flex justify-between items-start mb-2">
-                    <i class="fas fa-shopping-bag text-2xl opacity-50"></i>
-                    <span class="text-xs opacity-75">اليوم</span>
-                </div>
-                <div class="text-3xl font-bold" id="statTodayOrders">0</div>
-                <div class="text-xs opacity-75 mt-1">طلب جديد</div>
-            </div>
-            <div class="stat-card orange">
-                <div class="flex justify-between items-start mb-2">
-                    <i class="fas fa-clock text-2xl opacity-50"></i>
-                    <span class="text-xs opacity-75">معلق</span>
-                </div>
-                <div class="text-3xl font-bold" id="statPending">0</div>
-                <div class="text-xs opacity-75 mt-1">بانتظار التجهيز</div>
-            </div>
-            <div class="stat-card purple">
-                <div class="flex justify-between items-start mb-2">
-                    <i class="fas fa-truck text-2xl opacity-50"></i>
-                    <span class="text-xs opacity-75">بالطريق</span>
-                </div>
-                <div class="text-3xl font-bold" id="statShipped">0</div>
-                <div class="text-xs opacity-75 mt-1">قيد التوصيل</div>
-            </div>
-            <div class="stat-card green">
-                <div class="flex justify-between items-start mb-2">
-                    <i class="fas fa-check-double text-2xl opacity-50"></i>
-                    <span class="text-xs opacity-75">مكتمل</span>
-                </div>
-                <div class="text-3xl font-bold" id="statDelivered">0</div>
-                <div class="text-xs opacity-75 mt-1">تم التسليم</div>
-            </div>
-        </div>
-
-        <!-- Revenue Card -->
-        <div class="glass-panel p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
-                </div>
-                <div>
-                    <div class="text-sm text-gray-500">إجمالي مبيعات اليوم</div>
-                    <div class="text-2xl font-bold text-slate-800" id="statRevenue">0 د.ع</div>
-                </div>
-            </div>
-            <div class="flex gap-4 text-sm">
-                <div class="text-center px-4 border-l border-gray-200">
-                    <div class="text-blue-600 font-bold" id="statTotalProducts">0</div>
-                    <div class="text-gray-400 text-xs">منتج</div>
-                </div>
-                <div class="text-center px-4 border-l border-gray-200">
-                    <div class="text-orange-600 font-bold" id="statLowStock">0</div>
-                    <div class="text-gray-400 text-xs">كمية منخفضة</div>
-                </div>
-                <div class="text-center px-4">
-                    <div class="text-purple-600 font-bold" id="statTotalOrders">0</div>
-                    <div class="text-gray-400 text-xs">طلب كلي</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active">
-                <i class="fas fa-inbox mr-2"></i> الطلبات الواردة
-            </button>
-            <button onclick="switchTab('products')" id="tab-products" class="tab-btn">
-                <i class="fas fa-boxes mr-2"></i> المنتجات
-            </button>
-            <button onclick="switchTab('categories')" id="tab-categories" class="tab-btn">
-                <i class="fas fa-tags mr-2"></i> الأقسام
-            </button>
-            <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn">
-                <i class="fas fa-chart-line mr-2"></i> التحليلات
-            </button>
-        </div>
-
-        <!-- Orders Panel -->
-        <div id="panel-orders" class="glass-panel p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-bold text-lg text-slate-700 flex items-center gap-2">
-                    <i class="fas fa-bell text-orange-500 animate-bounce"></i>
-                    الطلبات الواردة
-                </h2>
-                <div class="flex gap-2">
-                    <select id="orderFilter" onchange="filterOrders()" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none">
-                        <option value="all">جميع الحالات</option>
-                        <option value="pending">معلق</option>
-                        <option value="processing">جاري التجهيز</option>
-                        <option value="shipped">بالطريق</option>
-                        <option value="delivered">تم التسليم</option>
-                        <option value="cancelled">ملغى</option>
-                    </select>
-                    <button onclick="refreshOrders()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm hover:bg-blue-100 transition">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-            </div>
+    // 1. إدارة الأقسام (التحكم الكلي)
+    function loadCategories() {
+        db.ref('categories').on('value', (snapshot) => {
+            const categories = snapshot.val() || {};
+            allCategories = categories;
             
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b-2 border-gray-100 text-gray-400 text-xs">
-                            <th class="pb-3 text-right">رقم الطلب</th>
-                            <th class="pb-3 text-right">المنتج</th>
-                            <th class="pb-3 text-right">العميل</th>
-                            <th class="pb-3 text-right">الموقع</th>
-                            <th class="pb-3 text-right">السعر</th>
-                            <th class="pb-3 text-right">الوقت</th>
-                            <th class="pb-3 text-right">الحالة</th>
-                            <th class="pb-3 text-right">إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTable">
-                    </tbody>
-                </table>
-            </div>
-            <div id="noOrders" class="hidden text-center py-12 text-gray-400">
-                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
-                <p>لا توجد طلبات في هذه الفئة</p>
-            </div>
-        </div>
+            // تحديث قائمة الأقسام في نموذج إضافة المنتجات
+            const pCatSelect = document.getElementById('pCat');
+            pCatSelect.innerHTML = '<option value="">اختر القسم...</option>';
+            
+            // تحديث قائمة الأقسام في صفحة الإدارة
+            const listContainer = document.getElementById('categoriesFullList');
+            listContainer.innerHTML = '';
 
-        <!-- Products Panel -->
-        <div id="panel-products" class="hidden glass-panel p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            Object.keys(categories).forEach(id => {
+                const cat = categories[id];
                 
-                <!-- Add/Edit Product Form -->
-                <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
-                        <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-700">
-                            <i class="fas fa-plus-circle"></i> 
-                            <span id="formTitle">إضافة منتج جديد</span>
-                        </h2>
-                        
-                        <div class="space-y-3">
-                            <input id="pId" type="hidden">
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">اسم المنتج *</label>
-                                <input id="pName" type="text" placeholder="مثال: TV Box Android 12 - 4GB RAM" 
-                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+                // إضافة للقائمة المنسدلة
+                pCatSelect.innerHTML += `<option value="${id}">${cat.name}</option>`;
+                
+                // إضافة لجدول الإدارة
+                listContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-xl hover:shadow-sm transition">
+                        <div class="flex items-center gap-3">
+                            <div class="category-icon bg-orange-100 text-orange-600">
+                                <i class="fas fa-folder"></i>
                             </div>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">السعر *</label>
-                                    <input id="pPrice" type="text" placeholder="75,000" 
-                                           class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">المخزون *</label>
-                                    <input id="pStock" type="number" placeholder="10" min="0"
-                                           class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">رابط الصورة</label>
-                                <input id="pImg" type="text" placeholder="https://..." 
-                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">معرف فيديو يوتيوب (مراجعة/شرح)</label>
-                                <input id="pVideo" type="text" placeholder="dQw4w9WgXcQ" 
-                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-400 text-sm bg-white">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">القسم *</label>
-                                <select id="pCat" class="w-full p-3 border border-gray-200 rounded-xl outline-none bg-white text-sm cursor-pointer"></select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">المواصفات التفصيلية</label>
-                                <textarea id="pDesc" placeholder="المعالج: &#10;الذاكرة: &#10;التخزين: &#10;النظام: &#10;المواصفات الفنية..." 
-                                          class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 h-32 text-sm bg-white resize-none"></textarea>
-                            </div>
-                            
-                            <button onclick="saveProduct()" id="btnSave" 
-                                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-2">
-                                <i class="fas fa-save"></i> <span id="btnSaveText">حفظ المنتج</span>
+                            <span class="font-bold text-slate-700">${cat.name}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editCategory('${id}', '${cat.name}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition">
+                                <i class="fas fa-edit"></i>
                             </button>
-                            
-                            <button onclick="resetForm()" class="w-full text-gray-400 hover:text-gray-600 text-sm py-2 transition">
-                                تفريغ الحقول
+                            <button onclick="deleteCategory('${id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                </div>
+                `;
+            });
+        });
+    }
 
-                <!-- Products List -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[600px]">
-                        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
-                            <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                                <i class="fas fa-th-large text-blue-500"></i> المنتجات الحالية
-                            </h2>
-                            <div class="flex gap-2">
-                                <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="بحث في المنتجات..." 
-                                       class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm outline-none w-48">
-                            </div>
+    // حفظ قسم (إضافة أو تعديل)
+    function saveCategory() {
+        const name = document.getElementById('newCat').value.trim();
+        const id = document.getElementById('catId').value;
+
+        if (!name) return alert("يرجى إدخال اسم القسم");
+
+        if (id) {
+            // تحديث
+            db.ref('categories/' + id).update({ name: name })
+                .then(() => {
+                    showToast("تم تحديث القسم بنجاح");
+                    cancelEdit();
+                });
+        } else {
+            // إضافة جديد
+            const newRef = db.ref('categories').push();
+            newRef.set({ name: name })
+                .then(() => {
+                    showToast("تم إضافة القسم الجديد");
+                    document.getElementById('newCat').value = '';
+                });
+        }
+    }
+
+    function deleteCategory(id) {
+        if (confirm("هل أنت متأكد من حذف هذا القسم؟ سيؤثر ذلك على عرض المنتجات المرتبطة به.")) {
+            db.ref('categories/' + id).remove().then(() => showToast("تم حذف القسم"));
+        }
+    }
+
+    function editCategory(id, name) {
+        document.getElementById('catId').value = id;
+        document.getElementById('newCat').value = name;
+        document.getElementById('catFormTitle').innerText = "تعديل القسم";
+        document.getElementById('btnSaveCatText').innerText = "تحديث";
+        document.getElementById('btnCancelEdit').classList.remove('hidden');
+        document.getElementById('newCat').focus();
+    }
+
+    function cancelEdit() {
+        document.getElementById('catId').value = '';
+        document.getElementById('newCat').value = '';
+        document.getElementById('catFormTitle').innerText = "إضافة قسم جديد";
+        document.getElementById('btnSaveCatText').innerText = "إضافة";
+        document.getElementById('btnCancelEdit').classList.add('hidden');
+    }
+
+    // 2. إدارة التبويبات
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        
+        ['orders', 'products', 'categories', 'analytics'].forEach(p => {
+            document.getElementById('panel-' + p).classList.add('hidden');
+        });
+        document.getElementById('panel-' + tab).classList.remove('hidden');
+    }
+
+    // 3. إدارة المنتجات
+    function saveProduct() {
+        const product = {
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            stock: parseInt(document.getElementById('pStock').value),
+            img: document.getElementById('pImg').value,
+            video: document.getElementById('pVideo').value,
+            cat: document.getElementById('pCat').value,
+            desc: document.getElementById('pDesc').value,
+            timestamp: Date.now()
+        };
+
+        if (!product.name || !product.price || !product.cat) {
+            return alert("يرجى ملء الحقول الأساسية (الاسم، السعر، القسم)");
+        }
+
+        const id = document.getElementById('pId').value;
+        if (id) {
+            db.ref('products/' + id).update(product).then(() => {
+                showToast("تم تحديث المنتج");
+                resetForm();
+            });
+        } else {
+            db.ref('products').push(product).then(() => {
+                showToast("تم إضافة المنتج بنجاح");
+                resetForm();
+            });
+        }
+    }
+
+    function loadProducts() {
+        db.ref('products').on('value', (snapshot) => {
+            const products = snapshot.val() || {};
+            const container = document.getElementById('admin-products-list');
+            container.innerHTML = '';
+            
+            let count = 0;
+            let lowStock = 0;
+
+            Object.keys(products).forEach(id => {
+                const p = products[id];
+                count++;
+                if (p.stock <= 3) lowStock++;
+
+                container.innerHTML += `
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex gap-4 items-center">
+                        <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-lg object-cover bg-white">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm">${p.name}</h4>
+                            <div class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</div>
+                            <div class="text-xs ${p.stock <= 3 ? 'text-red-500 font-bold' : 'text-gray-400'}">المخزون: ${p.stock}</div>
                         </div>
-                        
-                        <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <button onclick="editProduct('${id}')" class="text-blue-500 p-2 hover:bg-blue-100 rounded-lg"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteProduct('${id}')" class="text-red-500 p-2 hover:bg-red-100 rounded-lg"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Categories Panel -->
-        <div id="panel-categories" class="hidden glass-panel p-6">
-            <div class="max-w-3xl mx-auto">
-                <!-- Add Category -->
-                <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-2xl border border-orange-100 mb-6">
-                    <h2 class="font-bold text-lg text-orange-700 mb-4 flex items-center gap-2">
-                        <i class="fas fa-folder-plus"></i> إضافة قسم جديد
-                    </h2>
-                    <div class="flex gap-3">
-                        <input id="newCatInline" type="text" placeholder="اكتب اسم القسم الجديد هنا..." 
-                               class="flex-1 p-3 border border-orange-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-white">
-                        <button onclick="saveCategoryInline()" 
-                                class="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-600 transition flex items-center gap-2">
-                            <i class="fas fa-plus"></i> إضافة
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Categories List -->
-                <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                    <i class="fas fa-list text-orange-500"></i> الأقسام الموجودة
-                    <span class="text-xs text-gray-400 font-normal">(اضغط تعديل للتعديل، سلة للحذف)</span>
-                </h3>
-                <div id="categoriesFullList" class="space-y-3"></div>
-            </div>
-        </div>
-
-        <!-- Analytics Panel -->
-        <div id="panel-analytics" class="hidden glass-panel p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-gray-100">
-                    <h3 class="font-bold text-slate-700 mb-4">أكثر المنتجات مبيعاً</h3>
-                    <div id="topProducts" class="space-y-3"></div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100">
-                    <h3 class="font-bold text-slate-700 mb-4">الطلبات حسب المحافظة</h3>
-                    <div id="ordersByCity" class="space-y-3"></div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Category Modal -->
-    <div id="categoryModal" class="modal-overlay" onclick="closeCategoryModal()">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-orange-600">إدارة الأقسام</h2>
-                <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
+                `;
+            });
             
-            <!-- Add/Edit Category -->
-            <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-6">
-                <h3 class="font-bold text-orange-700 mb-3 text-sm" id="catFormTitle">إضافة قسم جديد</h3>
-                <input id="catId" type="hidden">
-                <div class="flex gap-2">
-                    <input id="newCat" type="text" placeholder="اسم القسم..." 
-                           class="flex-1 p-3 border border-orange-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-white">
-                    <button onclick="saveCategory()" id="btnSaveCat" 
-                            class="bg-orange-500 text-white px-5 rounded-xl font-bold hover:bg-orange-600 transition flex items-center gap-2">
-                        <i class="fas fa-plus"></i> <span id="btnSaveCatText">إضافة</span>
-                    </button>
-                </div>
-                <button onclick="cancelEdit()" id="btnCancelEdit" class="hidden mt-2 text-sm text-gray-500 hover:text-gray-700">
-                    إلغاء التعديل
-                </button>
-            </div>
-            
-            <!-- Categories List -->
-            <h3 class="font-bold text-slate-700 mb-3 text-sm">الأقسام الموج
+            document.getElementById('statTotalProducts').innerText = count;
+            document.getElementById('statLowStock').innerText = lowStock;
+        });
+    }
+
+    // وظائف مساعدة
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `<i class="fas fa-check-circle text-green-500 ml-2"></i> ${msg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function resetForm() {
+        document.getElementById('pId').value = '';
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        document.getElementById('pStock').value = '';
+        document.getElementById('pImg').value = '';
+        document.getElementById('pVideo').value = '';
+        document.getElementById('pDesc').value = '';
+        document.getElementById('formTitle').innerText = "إضافة منتج جديد";
+        document.getElementById('btnSaveText').innerText = "حفظ المنتج";
+    }
+
+    function openCategoryModal() {
+        document.getElementById('categoryModal').classList.add('active');
+    }
+
+    function closeCategoryModal() {
+        document.getElementById('categoryModal').classList.remove('active');
+        cancelEdit();
+    }
+
+    // تشغيل التحميل عند الفتح
+    window.onload = () => {
+        loadCategories();
+        loadProducts();
+    };
+</script>
