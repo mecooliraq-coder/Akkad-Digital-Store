@@ -596,4 +596,373 @@
                         </div>
                     </div>
                     
-                    <div class="grid
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-3 rounded-xl">
+                            <div class="text-xs text-gray-500 mb-1">المنتج</div>
+                            <div class="font-bold">${order.productName}</div>
+                            <div class="text-blue-600 font-bold">${order.price} د.ع</div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-xl">
+                            <div class="text-xs text-gray-500 mb-1">تاريخ الطلب</div>
+                            <div class="font-bold">${order.date}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <h3 class="font-bold text-blue-800 mb-2">معلومات العميل</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-gray-600">الاسم:</span> <span class="font-bold">${order.customerName}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">الهاتف:</span> <span class="font-bold">${order.phone}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">المحافظة:</span> <span class="font-bold">${order.city}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">العنوان:</span> <span class="font-bold">${order.address}</span></div>
+                        </div>
+                    </div>
+                    
+                    ${order.notes ? `
+                    <div class="bg-yellow-50 p-3 rounded-xl border border-yellow-100">
+                        <div class="text-xs text-yellow-700 font-bold mb-1">ملاحظات</div>
+                        <div class="text-sm text-yellow-800">${order.notes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="flex gap-2 mt-4">
+                        <a href="https://wa.me/${order.phone.replace(/^0/, '964')}?text=مرحباً ${order.customerName}، طلبك ${order.orderId} جاهز!" 
+                           target="_blank" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold text-center hover:bg-green-600 transition">
+                            <i class="fab fa-whatsapp mr-2"></i> تواصل مع العميل
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if(seconds < 60) return 'الآن';
+            const minutes = Math.floor(seconds / 60);
+            if(minutes < 60) return `منذ ${minutes} دقيقة`;
+            const hours = Math.floor(minutes / 60);
+            if(hours < 24) return `منذ ${hours} ساعة`;
+            return `منذ ${Math.floor(hours / 24)} يوم`;
+        }
+
+        function refreshOrders() {
+            renderOrders(document.getElementById('orderFilter').value);
+            showNotification('تم تحديث الطلبات');
+        }
+
+        function loadProducts() {
+            db.ref('products').on('value', snap => {
+                const data = snap.val();
+                allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})) : [];
+                renderAdminProducts();
+                updateStats();
+            });
+        }
+
+        function renderAdminProducts() {
+            const list = document.getElementById('admin-products-list');
+            const search = document.getElementById('productSearch')?.value?.toLowerCase() || '';
+            
+            let filtered = allProducts;
+            if(search) {
+                filtered = allProducts.filter(p => p.name.toLowerCase().includes(search));
+            }
+            
+            if(filtered.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>';
+                return;
+            }
+            
+            list.innerHTML = filtered.map(p => {
+                const stockClass = p.stock < 5 ? 'text-red-600 font-bold' : 'text-gray-600';
+                const lowStockBadge = p.stock < 5 ? '<span class="bg-red-100 text-red-600 text-[10px] px-2 py-1 rounded-lg font-bold">كمية منخفضة!</span>' : '';
+                
+                return `
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition flex items-center gap-4 ${p.stock < 3 ? 'low-stock' : ''}">
+                    <img src="${p.img || 'https://via.placeholder.com/60'}" class="w-16 h-16 object-contain bg-gray-50 rounded-xl p-2">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm truncate">${p.name}</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-blue-600 text-sm font-bold">${p.price} د.ع</span>
+                            <span class="text-gray-400 text-xs">|</span>
+                            <span class="${stockClass} text-xs">مخزون: ${p.stock || 0}</span>
+                        </div>
+                        <div class="mt-1">${lowStockBadge}</div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="editProduct('${p.id}')" class="bg-blue-50 text-blue-600 p-2 rounded-lg hover:bg-blue-100 transition" title="تعديل">
+                            <i class="fas fa-edit text-xs"></i>
+                        </button>
+                        <button onclick="deleteProduct('${p.id}')" class="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition" title="حذف">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function searchProducts() {
+            renderAdminProducts();
+        }
+
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value.trim(),
+                price: document.getElementById('pPrice').value.trim(),
+                stock: parseInt(document.getElementById('pStock').value) || 0,
+                img: document.getElementById('pImg').value.trim(),
+                video: document.getElementById('pVideo').value.trim(),
+                desc: document.getElementById('pDesc').value.trim(),
+                cat: document.getElementById('pCat').value,
+                orders: 0
+            };
+
+            if(!data.name || !data.price) {
+                alert("يرجى ملء الاسم والسعر على الأقل");
+                return;
+            }
+
+            if(id) {
+                const existing = allProducts.find(p => p.id === id);
+                if(existing) data.orders = existing.orders || 0;
+                db.ref('products').child(id).update(data);
+                showNotification('تم تحديث المنتج بنجاح');
+            } else {
+                db.ref('products').push(data);
+                showNotification('تم إضافة المنتج الجديد');
+            }
+            
+            resetForm();
+        }
+
+        function editProduct(id) {
+            const p = allProducts.find(x => x.id === id);
+            if(!p) return;
+            
+            document.getElementById('pId').value = id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pStock').value = p.stock || 0;
+            document.getElementById('pImg').value = p.img || '';
+            document.getElementById('pVideo').value = p.video || '';
+            document.getElementById('pDesc').value = p.desc || '';
+            document.getElementById('pCat').value = p.cat || '';
+            
+            document.getElementById('formTitle').textContent = 'تعديل المنتج';
+            document.getElementById('btnSaveText').textContent = 'تحديث المنتج';
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function deleteProduct(id) {
+            if(!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+            db.ref('products').child(id).remove();
+            showNotification('تم حذف المنتج');
+        }
+
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pStock').value = '';
+            document.getElementById('pImg').value = '';
+            document.getElementById('pVideo').value = '';
+            document.getElementById('pDesc').value = '';
+            
+            document.getElementById('formTitle').textContent = 'إضافة منتج جديد';
+            document.getElementById('btnSaveText').textContent = 'حفظ المنتج';
+        }
+
+        function loadCategories() {
+            db.ref('categories').on('value', snap => {
+                const cats = snap.val();
+                const select = document.getElementById('pCat');
+                const list = document.getElementById('cats-list');
+                const fullList = document.getElementById('categoriesFullList');
+                
+                select.innerHTML = '<option value="">اختر القسم</option>';
+                list.innerHTML = '';
+                if(fullList) fullList.innerHTML = '';
+                
+                for(let key in cats) {
+                    select.innerHTML += `<option value="${cats[key]}">${cats[key]}</option>`;
+                    
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <span class="font-bold text-sm">${cats[key]}</span>
+                            <div class="flex gap-2">
+                                <button onclick="editCat('${key}', '${cats[key]}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteCat('${key}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                    
+                    if(fullList) {
+                        fullList.innerHTML += `
+                            <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-tag text-orange-500"></i>
+                                    </div>
+                                    <span class="font-bold">${cats[key]}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="editCat('${key}', '${cats[key]}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition">تعديل</button>
+                                    <button onclick="deleteCat('${key}')" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition">حذف</button>
+                                </div>
+                            </div>`;
+                    }
+                }
+            });
+        }
+
+        function saveCategory() {
+            const id = document.getElementById('catId').value;
+            const name = document.getElementById('newCat').value.trim();
+            
+            if(!name) return alert("أدخل اسم القسم");
+            
+            if(id) db.ref('categories').child(id).set(name);
+            else db.ref('categories').push(name);
+            
+            document.getElementById('catId').value = '';
+            document.getElementById('newCat').value = '';
+            document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i>';
+            
+            showNotification(id ? 'تم تحديث القسم' : 'تم إضافة القسم');
+        }
+
+        function editCat(id, name) {
+            document.getElementById('catId').value = id;
+            document.getElementById('newCat').value = name;
+            document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-save"></i>';
+        }
+
+        function deleteCat(id) {
+            if(!confirm("حذف القسم؟")) return;
+            db.ref('categories').child(id).remove();
+            showNotification('تم حذف القسم');
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayOrders = allOrders.filter(o => new Date(o.timestamp).toDateString() === today);
+            document.getElementById('statTodayOrders').textContent = todayOrders.length;
+            
+            const revenue = todayOrders.reduce((sum, o) => sum + (parseInt(o.price.replace(/,/g, '')) || 0), 0);
+            document.getElementById('statRevenue').textContent = revenue.toLocaleString() + ' د.ع';
+            
+            document.getElementById('statPending').textContent = allOrders.filter(o => o.status === 'pending').length;
+            document.getElementById('statShipped').textContent = allOrders.filter(o => o.status === 'shipped').length;
+            document.getElementById('statDelivered').textContent = allOrders.filter(o => o.status === 'delivered').length;
+            
+            document.getElementById('statTotalProducts').textContent = allProducts.length;
+            document.getElementById('statLowStock').textContent = allProducts.filter(p => (p.stock || 0) < 5).length;
+            document.getElementById('statTotalOrders').textContent = allOrders.length;
+            
+            updateAnalytics();
+        }
+
+        function updateAnalytics() {
+            const topProducts = [...allProducts]
+                .sort((a, b) => (b.orders || 0) - (a.orders || 0))
+                .slice(0, 5);
+            
+            document.getElementById('topProducts').innerHTML = topProducts.map((p, i) => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div class="w-8 h-8 ${i < 3 ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-600'} rounded-lg flex items-center justify-center font-bold text-sm">
+                        ${i + 1}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">${p.name}</div>
+                        <div class="text-xs text-gray-400">${p.orders || 0} طلب</div>
+                    </div>
+                    <div class="text-blue-600 font-bold text-sm">${p.price} د.ع</div>
+                </div>
+            `).join('');
+            
+            const cityCounts = {};
+            allOrders.forEach(o => {
+                cityCounts[o.city] = (cityCounts[o.city] || 0) + 1;
+            });
+            
+            const sortedCities = Object.entries(cityCounts).sort((a, b) => b[1] - a[1]);
+            
+            document.getElementById('ordersByCity').innerHTML = sortedCities.map(([city, count]) => `
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full bg-blue-500 rounded-full transition-all" style="width: ${Math.min((count / allOrders.length) * 100 * 3, 100)}%"></div>
+                        <span class="absolute right-2 top-0 h-full flex items-center text-xs font-bold text-gray-600 z-10">${city}</span>
+                    </div>
+                    <div class="text-sm font-bold w-8 text-center">${count}</div>
+                </div>
+            `).join('');
+        }
+
+        function showNotification(message) {
+            const div = document.createElement('div');
+            div.className = 'notification-toast';
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm text-gray-800">${message}</div>
+                        <div class="text-xs text-gray-400">الآن</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        let lastOrderCount = 0;
+        db.ref('orders').on('value', snap => {
+            const count = snap.numChildren();
+            if(count > lastOrderCount && lastOrderCount > 0) {
+                showNotification('🎉 طلب جديد وارد!');
+            }
+            lastOrderCount = count;
+        });
+
+        function exportData() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                products: allProducts,
+                orders: allOrders,
+                stats: {
+                    totalRevenue: allOrders.filter(o => o.status === 'delivered').reduce((s, o) => s + (parseInt(o.price.replace(/,/g, '')) || 0), 0),
+                    totalOrders: allOrders.length,
+                    totalProducts: allProducts.length
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `akkad-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('تم تصدير البيانات بنجاح');
+        }
+
+        // Initialize
+        loadOrders();
+        loadProducts();
+        loadCategories();
+    </script>
+</body>
+</html>
