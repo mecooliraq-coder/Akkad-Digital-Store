@@ -1,219 +1,156 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم متجر أكاد</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background: #f8fafc; }
-        .glass-card { background: white; border-radius: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    </style>
-</head>
-<body class="p-4 md:p-8">
+function submitOrder(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
+            const city = document.getElementById('customerCity').value;
+            const address = document.getElementById('customerAddress').value;
+            const notes = document.getElementById('customerNotes').value;
+            
+            if(!currentOrderProduct) return;
+            
+            const orderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            
+            const orderData = {
+                orderId: orderId,
+                productName: currentOrderProduct.name,
+                productPrice: currentOrderProduct.price,
+                customerName: name,
+                customerPhone: phone,
+                customerCity: city,
+                customerAddress: address,
+                customerNotes: notes,
+                status: 'pending', // pending, processing, shipped, delivered
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
 
-    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">دخول الإدارة</h2>
-            <input id="passInput" type="password" class="w-full p-4 border rounded-2xl mb-4 text-center outline-none" placeholder="كلمة المرور">
-            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition">دخول</button>
-            <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden font-bold">كلمة المرور غير صحيحة!</p>
-        </div>
-    </div>
+            // 1. حفظ الطلب في قاعدة البيانات للتتبع
+            db.ref('orders/' + orderId).set(orderData).then(() => {
+                // 2. تحديث إحصائيات طلبات اليوم (اختياري)
+                db.ref('stats/todayOrders').transaction(current => (current || 0) + 1);
+                
+                // 3. تجهيز رسالة الواتساب
+                const message = `*طلب جديد من متجر أكاد*%0A` +
+                                `--------------------------%0A` +
+                                `*رقم الطلب:* ${orderId}%0A` +
+                                `*المنتج:* ${currentOrderProduct.name}%0A` +
+                                `*السعر:* ${currentOrderProduct.price} د.ع%0A` +
+                                `--------------------------%0A` +
+                                `*الاسم:* ${name}%0A` +
+                                `*الهاتف:* ${phone}%0A` +
+                                `*المحافظة:* ${city}%0A` +
+                                `*العنوان:* ${address}%0A` +
+                                `*ملاحظات:* ${notes || 'لا يوجد'}`;
 
-    <div id="mainContent" class="max-w-7xl mx-auto hidden opacity-0 transition-opacity duration-500">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-black text-slate-800">لوحة التحكم</h1>
-            <button onclick="openCatModal()" class="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-600 transition flex items-center gap-2">
-                <i class="fas fa-tags"></i> إدارة الأقسام
-            </button>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-4">
-                <div class="glass-card p-6 sticky top-8">
-                    <h3 id="formTitle" class="font-bold text-lg mb-6 text-blue-600">إضافة منتج جديد</h3>
-                    <div class="space-y-4">
-                        <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:border-blue-500 text-sm">
-                        <div class="grid grid-cols-2 gap-2">
-                            <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm">
-                            <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm">
-                        </div>
-                        <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 bg-slate-50 border rounded-xl outline-none text-sm">
-                        <input id="pYoutube" type="text" placeholder="رابط اليوتيوب (اختياري)" class="w-full p-3 bg-red-50 border border-red-100 rounded-xl outline-none text-sm">
-                        
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 mr-2">اختيار القسم</label>
-                            <select id="pCat" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm cursor-pointer"></select>
-                        </div>
-
-                        <textarea id="pDesc" placeholder="الوصف" class="w-full p-3 bg-slate-50 border rounded-xl h-24 outline-none text-sm"></textarea>
-                        
-                        <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-md hover:bg-blue-700 transition">حفظ المنتج</button>
-                        <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 text-xs hidden mt-2">إلغاء التعديل</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-8">
-                <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="catModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-black text-xl text-slate-800">إدارة الأقسام</h3>
-                <button onclick="closeCatModal()" class="text-slate-400 text-2xl hover:text-slate-600">&times;</button>
-            </div>
-            <div class="flex gap-2 mb-6">
-                <input id="catEditId" type="hidden">
-                <input id="catName" type="text" placeholder="اسم القسم" class="flex-1 p-4 bg-slate-50 border rounded-2xl outline-none focus:border-orange-500 transition-all">
-                <button onclick="saveCat()" id="catBtn" class="bg-orange-500 text-white px-6 rounded-2xl font-bold hover:bg-orange-600 transition">حفظ</button>
-            </div>
-            <div id="catListDisplay" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
-        </div>
-    </div>
-
-    <script>
-        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        function checkAuth() {
-            if (document.getElementById('passInput').value === "ashd1980") {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 10);
-                loadData();
-            } else { document.getElementById('errorMsg').classList.remove('hidden'); }
+                const whatsappUrl = `https://wa.me/${myPhone}?text=${message}`;
+                
+                // 4. إغلاق المودال وفتح واتساب
+                closeModal('orderModal');
+                showToast('تم تسجيل طلبك بنجاح! جاري تحويلك لواتساب...', 'fa-check', 'green');
+                
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1500);
+            }).catch(error => {
+                console.error("Error saving order: ", error);
+                showToast('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى', 'fa-exclamation-triangle', 'red');
+            });
         }
 
-        function loadData() {
-            // مزامنة الأقسام: تضمن ظهورها في المنسدلة وفي قائمة المودال فوراً
-            db.ref('categories').on('value', snap => {
-                const cats = snap.val() || {};
-                const select = document.getElementById('pCat');
-                const list = document.getElementById('catListDisplay');
-                
-                select.innerHTML = '<option value="">-- اختر القسم --</option>';
-                list.innerHTML = '';
-                
-                Object.keys(cats).forEach(id => {
-                    const name = cats[id].name;
-                    // إضافة للمنسدلة في نموذج المنتج
-                    select.innerHTML += `<option value="${id}">${name}</option>`;
-                    // إضافة لقائمة إدارة الأقسام في المودال
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:border-orange-200">
-                            <span class="font-bold text-slate-700">${name}</span>
-                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="editCat('${id}', '${name}')" class="text-blue-500 p-2 hover:bg-blue-50 rounded-lg"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteCat('${id}')" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>`;
-                });
-            });
+        // وظيفة التتبع
+        function trackOrder() {
+            const input = document.getElementById('trackInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('trackingResult');
+            
+            if(!input) return;
 
-            // مزامنة المنتجات
-            db.ref('products').on('value', snap => {
-                const prods = snap.val() || {};
-                const list = document.getElementById('productsList');
-                list.innerHTML = '';
-                Object.keys(prods).forEach(id => {
-                    const p = prods[id];
-                    list.innerHTML += `
-                        <div class="glass-card p-4 flex gap-4 items-center">
-                            <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-xl object-cover bg-slate-100">
-                            <div class="flex-1">
-                                <h4 class="font-bold text-sm text-slate-800">${p.name}</h4>
-                                <p class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</p>
-                                <div class="flex gap-3 mt-2">
-                                    <button onclick="editProduct('${id}')" class="text-blue-500 text-[10px] font-bold hover:underline">تعديل</button>
-                                    <button onclick="deleteProduct('${id}')" class="text-red-500 text-[10px] font-bold hover:underline">حذف</button>
+            resultDiv.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
+
+            db.ref('orders').orderByChild('orderId').equalTo(input).once('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    const order = Object.values(data)[0];
+                    const statusMap = {
+                        'pending': { text: 'قيد المراجعة', class: 'active', icon: 'fa-clock' },
+                        'processing': { text: 'جاري التجهيز', class: 'completed', icon: 'fa-box-open' },
+                        'shipped': { text: 'تم الشحن', class: 'completed', icon: 'fa-truck' },
+                        'delivered': { text: 'تم الاستلام', class: 'completed', icon: 'fa-check-double' }
+                    };
+                    
+                    const s = statusMap[order.status] || statusMap.pending;
+
+                    resultDiv.innerHTML = `
+                        <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-4 text-center">
+                            <div class="text-[10px] text-gray-400 mb-1">حالة الطلب الحالي</div>
+                            <div class="font-bold text-blue-400 text-lg">${s.text}</div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="tracking-step completed">
+                                <div class="step-icon bg-green-500/20 text-green-500"><i class="fas fa-file-invoice"></i></div>
+                                <div>
+                                    <div class="text-xs font-bold">تم استلام الطلب</div>
+                                    <div class="text-[9px] text-gray-500">${order.orderId}</div>
                                 </div>
                             </div>
-                        </div>`;
-                });
+                            <div class="tracking-step ${order.status !== 'pending' ? 'completed' : 'active'}">
+                                <div class="step-icon ${order.status !== 'pending' ? 'bg-green-500/20 text-green-500' : 'bg-blue-500/20 text-blue-500'}">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="text-xs font-bold">جاري التجهيز والتغليف</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="text-red-400 text-center py-4 text-xs font-bold">عذراً، لم نجد طلباً بهذا الرقم</div>';
+                }
             });
         }
 
-        // وظائف الأقسام
-        function saveCat() {
-            const name = document.getElementById('catName').value;
-            const id = document.getElementById('catEditId').value;
-            if(!name) return;
-            const ref = id ? db.ref('categories/'+id).update({name}) : db.ref('categories').push({name});
-            ref.then(() => resetCatForm());
+        // دوال المودال العامة
+        function showDetails(title, desc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('descModal').classList.add('active');
         }
 
-        function editCat(id, name) {
-            document.getElementById('catEditId').value = id;
-            document.getElementById('catName').value = name;
-            document.getElementById('catBtn').innerText = "تحديث";
-            document.getElementById('catBtn').className = "bg-blue-600 text-white px-6 rounded-2xl font-bold";
+        function openVideo(videoId) {
+            const player = document.getElementById('ytPlayer');
+            player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            document.getElementById('videoModal').classList.add('active');
         }
 
-        function resetCatForm() {
-            document.getElementById('catEditId').value = '';
-            document.getElementById('catName').value = '';
-            document.getElementById('catBtn').innerText = "حفظ";
-            document.getElementById('catBtn').className = "bg-orange-500 text-white px-6 rounded-2xl font-bold";
+        function openTrackingModal() {
+            document.getElementById('trackingModal').classList.add('active');
         }
 
-        function deleteCat(id) { if(confirm("حذف القسم؟")) db.ref('categories/'+id).remove(); }
-        function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
-        function closeCatModal() { document.getElementById('catModal').style.display = 'none'; resetCatForm(); }
-
-        // وظائف المنتجات
-        function saveProduct() {
-            const id = document.getElementById('pId').value;
-            const data = {
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                stock: document.getElementById('pStock').value,
-                img: document.getElementById('pImg').value,
-                youtube: document.getElementById('pYoutube').value,
-                cat: document.getElementById('pCat').value,
-                desc: document.getElementById('pDesc').value
-            };
-            if(!data.name) return alert("أدخل اسم المنتج");
-            const ref = id ? db.ref('products/'+id).update(data) : db.ref('products').push(data);
-            ref.then(() => resetForm());
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if(modalId === 'videoModal') document.getElementById('ytPlayer').src = '';
         }
 
-        function editProduct(id) {
-            db.ref('products/'+id).once('value').then(snap => {
-                const p = snap.val();
-                document.getElementById('pId').value = id;
-                document.getElementById('pName').value = p.name;
-                document.getElementById('pPrice').value = p.price;
-                document.getElementById('pStock').value = p.stock;
-                document.getElementById('pImg').value = p.img;
-                document.getElementById('pYoutube').value = p.youtube || '';
-                document.getElementById('pCat').value = p.cat;
-                document.getElementById('pDesc').value = p.desc;
-                document.getElementById('formTitle').innerText = "تعديل المنتج";
-                document.getElementById('saveBtn').innerText = "تحديث";
-                document.getElementById('cancelBtn').classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+        function filterByCat(cat) {
+            if(cat === 'all') {
+                displayProducts(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.cat === cat);
+                displayProducts(filtered);
+            }
         }
 
-        function deleteProduct(id) { if(confirm("حذف المنتج؟")) db.ref('products/'+id).remove(); }
-        function resetForm() {
-            document.getElementById('pId').value = '';
-            document.querySelectorAll('input, select, textarea').forEach(el => { if(el.id.startsWith('p')) el.value = ''; });
-            document.getElementById('formTitle').innerText = "إضافة منتج جديد";
-            document.getElementById('saveBtn').innerText = "حفظ المنتج";
-            document.getElementById('cancelBtn').classList.add('hidden');
+        function searchProducts() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                (p.desc && p.desc.toLowerCase().includes(term))
+            );
+            displayProducts(filtered);
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.classList.remove('active');
+                if(event.target.id === 'videoModal') document.getElementById('ytPlayer').src = '';
+            }
         }
     </script>
 </body>
