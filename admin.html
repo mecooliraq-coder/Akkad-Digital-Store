@@ -7,8 +7,136 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; }
+        
+        .glass-panel {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .stat-card.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        
+        .order-row {
+            transition: all 0.3s ease;
+            border-right: 4px solid transparent;
+        }
+        .order-row:hover {
+            background: #f8fafc;
+            border-right-color: #3b82f6;
+            transform: translateX(-4px);
+        }
+        .order-row.pending { border-right-color: #f59e0b; }
+        .order-row.processing { border-right-color: #3b82f6; }
+        .order-row.shipped { border-right-color: #8b5cf6; }
+        .order-row.delivered { border-right-color: #22c55e; }
+        .order-row.cancelled { border-right-color: #ef4444; }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #ede9fe; color: #5b21b6; }
+        .status-delivered { background: #dcfce7; color: #166534; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: #e2e8f0;
+            color: #64748b;
+        }
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+        }
+        
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: white;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-right: 4px solid #22c55e;
+            animation: slideInLeft 0.5s ease;
+            max-width: 350px;
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .low-stock { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+        }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(34,197,94,0.1);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            border: 1px solid rgba(34,197,94,0.2);
+        }
+    </style>
 </head>
-<body class="bg-slate-100 p-4 md:p-10 text-right">
+<body class="p-4 md:p-8 text-right">
+
     <script>
         const pass = prompt("الرجاء إدخال كلمة سر المدير للدخول:");
         if (pass !== "ashd1980") {
@@ -17,167 +145,455 @@
         }
     </script>
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-10 flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-600">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-800">إدارة متجر أكاد</h1>
-                <p class="text-gray-500 text-sm">أضف المنتجات، المواصفات، وفيديوهات المراجعة</p>
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-crown text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">لوحة تحكم أكاد</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="live-indicator">
+                            <span class="pulse-dot"></span>
+                            <span class="text-xs text-green-600 font-bold">المتجر حي الآن</span>
+                        </div>
+                        <span class="text-xs text-gray-400" id="currentTime"></span>
+                    </div>
+                </div>
             </div>
-            <a href="index.html" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">معاينة المتجر</a>
+            <div class="flex gap-3">
+                <a href="index.html" target="_blank" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold shadow-sm border border-blue-100 hover:shadow-md transition flex items-center gap-2">
+                    <i class="fas fa-external-link-alt"></i> معاينة المتجر
+                </a>
+                <button onclick="exportData()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700 transition flex items-center gap-2">
+                    <i class="fas fa-download"></i> تصدير البيانات
+                </button>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 space-y-6">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card">
+                <div class="flex justify-between items-start mb-2">
+                    <i class="fas fa-shopping-bag text-2xl opacity-50"></i>
+                    <span class="text-xs opacity-75">اليوم</span>
+                </div>
+                <div class="text-3xl font-bold" id="statTodayOrders">0</div>
+                <div class="text-xs opacity-75 mt-1">طلب جديد</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="flex justify-between items-start mb-2">
+                    <i class="fas fa-clock text-2xl opacity-50"></i>
+                    <span class="text-xs opacity-75">معلق</span>
+                </div>
+                <div class="text-3xl font-bold" id="statPending">0</div>
+                <div class="text-xs opacity-75 mt-1">بانتظار التجهيز</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="flex justify-between items-start mb-2">
+                    <i class="fas fa-truck text-2xl opacity-50"></i>
+                    <span class="text-xs opacity-75">بالطريق</span>
+                </div>
+                <div class="text-3xl font-bold" id="statShipped">0</div>
+                <div class="text-xs opacity-75 mt-1">قيد التوصيل</div>
+            </div>
+            <div class="stat-card green">
+                <div class="flex justify-between items-start mb-2">
+                    <i class="fas fa-check-double text-2xl opacity-50"></i>
+                    <span class="text-xs opacity-75">مكتمل</span>
+                </div>
+                <div class="text-3xl font-bold" id="statDelivered">0</div>
+                <div class="text-xs opacity-75 mt-1">تم التسليم</div>
+            </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="glass-panel p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">إجمالي مبيعات اليوم</div>
+                    <div class="text-2xl font-bold text-slate-800" id="statRevenue">0 د.ع</div>
+                </div>
+            </div>
+            <div class="flex gap-4 text-sm">
+                <div class="text-center px-4 border-l border-gray-200">
+                    <div class="text-blue-600 font-bold" id="statTotalProducts">0</div>
+                    <div class="text-gray-400 text-xs">منتج</div>
+                </div>
+                <div class="text-center px-4 border-l border-gray-200">
+                    <div class="text-orange-600 font-bold" id="statLowStock">0</div>
+                    <div class="text-gray-400 text-xs">كمية منخفضة</div>
+                </div>
+                <div class="text-center px-4">
+                    <div class="text-purple-600 font-bold" id="statTotalOrders">0</div>
+                    <div class="text-gray-400 text-xs">طلب كلي</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active">
+                <i class="fas fa-inbox mr-2"></i> الطلبات الواردة
+            </button>
+            <button onclick="switchTab('products')" id="tab-products" class="tab-btn">
+                <i class="fas fa-boxes mr-2"></i> المنتجات
+            </button>
+            <button onclick="switchTab('categories')" id="tab-categories" class="tab-btn">
+                <i class="fas fa-tags mr-2"></i> الأقسام
+            </button>
+            <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn">
+                <i class="fas fa-chart-line mr-2"></i> التحليلات
+            </button>
+        </div>
+
+        <!-- Orders Panel -->
+        <div id="panel-orders" class="glass-panel p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-bold text-lg text-slate-700 flex items-center gap-2">
+                    <i class="fas fa-bell text-orange-500 animate-bounce"></i>
+                    الطلبات الواردة
+                </h2>
+                <div class="flex gap-2">
+                    <select id="orderFilter" onchange="filterOrders()" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none">
+                        <option value="all">جميع الحالات</option>
+                        <option value="pending">معلق</option>
+                        <option value="processing">جاري التجهيز</option>
+                        <option value="shipped">بالطريق</option>
+                        <option value="delivered">تم التسليم</option>
+                        <option value="cancelled">ملغى</option>
+                    </select>
+                    <button onclick="refreshOrders()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm hover:bg-blue-100 transition">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b-2 border-gray-100 text-gray-400 text-xs">
+                            <th class="pb-3 text-right">رقم الطلب</th>
+                            <th class="pb-3 text-right">المنتج</th>
+                            <th class="pb-3 text-right">العميل</th>
+                            <th class="pb-3 text-right">الموقع</th>
+                            <th class="pb-3 text-right">السعر</th>
+                            <th class="pb-3 text-right">الوقت</th>
+                            <th class="pb-3 text-right">الحالة</th>
+                            <th class="pb-3 text-right">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable">
+                    </tbody>
+                </table>
+            </div>
+            <div id="noOrders" class="hidden text-center py-12 text-gray-400">
+                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                <p>لا توجد طلبات في هذه الفئة</p>
+            </div>
+        </div>
+
+        <!-- Products Panel -->
+        <div id="panel-products" class="hidden glass-panel p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="font-bold mb-4 flex items-center gap-2 text-orange-600"><i class="fas fa-list"></i> إدارة الأقسام</h2>
-                    <input id="catId" type="hidden">
-                    <div class="flex gap-2 mb-4">
-                        <input id="newCat" type="text" placeholder="اسم القسم الجديد" class="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-400 text-sm">
-                        <button onclick="saveCategory()" id="btnSaveCat" class="bg-orange-500 text-white px-4 rounded-lg font-bold">+</button>
-                    </div>
-                    <div id="cats-list" class="space-y-2 max-h-40 overflow-y-auto pr-2 text-sm">
+                <!-- Add/Edit Product Form -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
+                        <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-700">
+                            <i class="fas fa-plus-circle"></i> 
+                            <span id="formTitle">إضافة منتج جديد</span>
+                        </h2>
+                        
+                        <div class="space-y-3">
+                            <input id="pId" type="hidden">
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">اسم المنتج *</label>
+                                <input id="pName" type="text" placeholder="مثال: PlayStation 5" 
+                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">السعر *</label>
+                                    <input id="pPrice" type="text" placeholder="50,000" 
+                                           class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">المخزون *</label>
+                                    <input id="pStock" type="number" placeholder="10" min="0"
+                                           class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">رابط الصورة</label>
+                                <input id="pImg" type="text" placeholder="https://..." 
+                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">معرف فيديو يوتيوب</label>
+                                <input id="pVideo" type="text" placeholder="dQw4w9WgXcQ" 
+                                       class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-400 text-sm bg-white">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">القسم</label>
+                                <select id="pCat" class="w-full p-3 border border-gray-200 rounded-xl outline-none bg-white text-sm cursor-pointer"></select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">المواصفات</label>
+                                <textarea id="pDesc" placeholder="اكتب مواصفات الجهاز هنا..." 
+                                          class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 h-28 text-sm bg-white resize-none"></textarea>
+                            </div>
+                            
+                            <button onclick="saveProduct()" id="btnSave" 
+                                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-2">
+                                <i class="fas fa-save"></i> <span id="btnSaveText">حفظ المنتج</span>
+                            </button>
+                            
+                            <button onclick="resetForm()" class="w-full text-gray-400 hover:text-gray-600 text-sm py-2 transition">
+                                تفريغ الحقول
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- Categories Management -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="font-bold mb-4 flex items-center gap-2 text-orange-600">
+                            <i class="fas fa-folder-open"></i> الأقسام
+                        </h2>
+                        <input id="catId" type="hidden">
+                        <div class="flex gap-2 mb-4">
+                            <input id="newCat" type="text" placeholder="اسم قسم جديد" 
+                                   class="flex-1 p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 text-sm">
+                            <button onclick="saveCategory()" id="btnSaveCat" 
+                                    class="bg-orange-500 text-white px-5 rounded-xl font-bold hover:bg-orange-600 transition">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="cats-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-blue-600">
-                    <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-600"><i class="fas fa-box-open"></i> بيانات المنتج</h2>
-                    <div class="space-y-3">
-                        <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم الجهاز" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-                        <input id="pPrice" type="text" placeholder="السعر (مثال: 50,000)" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-                        <input id="pImg" type="text" placeholder="رابط الصورة المباشر" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-                        <input id="pVideo" type="text" placeholder="معرف فيديو يوتيوب (ID)" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-red-400 text-sm text-red-600">
+                <!-- Products List -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[600px]">
+                        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                            <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                                <i class="fas fa-th-large text-blue-500"></i> المنتجات الحالية
+                            </h2>
+                            <div class="flex gap-2">
+                                <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="بحث..." 
+                                       class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm outline-none w-48">
+                            </div>
+                        </div>
                         
-                        <label class="block text-xs font-bold text-gray-400 mr-1">المواصفات (تظهر عند "اقرأ التفاصيل")</label>
-                        <textarea id="pDesc" placeholder="اكتب مواصفات الجهاز هنا... استعمل أسطر جديدة للنقاط." class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400 h-28 text-sm"></textarea>
-                        
-                        <select id="pCat" class="w-full p-2 border rounded-lg outline-none bg-gray-50 text-sm cursor-pointer"></select>
-                        
-                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition active:scale-95">حفظ المنتج</button>
-                        <button onclick="resetForm()" class="w-full text-[10px] text-gray-400 hover:underline">تفريغ الحقول</button>
+                        <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-lg min-h-[600px]">
-                    <h2 class="font-bold mb-6 text-slate-700 flex items-center gap-2 border-b pb-3">
-                        <i class="fas fa-th-large"></i> المنتجات الحالية في المتجر
-                    </h2>
-                    <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        </div>
+        <!-- Categories Panel -->
+        <div id="panel-categories" class="hidden glass-panel p-6">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="font-bold text-lg text-slate-700 mb-6 text-center">إدارة الأقسام</h2>
+                <div id="categoriesFullList" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Panel -->
+        <div id="panel-analytics" class="hidden glass-panel p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 class="font-bold text-slate-700 mb-4">أكثر المنتجات مبيعاً</h3>
+                    <div id="topProducts" class="space-y-3"></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 class="font-bold text-slate-700 mb-4">الطلبات حسب المحافظة</h3>
+                    <div id="ordersByCity" class="space-y-3"></div>
                 </div>
             </div>
+        </div>
+
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative">
+            <button onclick="closeOrderModal()" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">تفاصيل الطلب</h2>
+            <div id="orderDetailContent"></div>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase
         const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- وظائف الأقسام ---
-        function saveCategory() {
-            const id = document.getElementById('catId').value;
-            const name = document.getElementById('newCat').value;
-            if(!name) return alert("أدخل اسم القسم");
-            if(id) db.ref('categories').child(id).set(name);
-            else db.ref('categories').push(name);
-            document.getElementById('catId').value = ""; document.getElementById('newCat').value = "";
-            document.getElementById('btnSaveCat').innerText = "+";
+        let allOrders = [];
+        let allProducts = [];
+        let currentTab = 'orders';
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('ar-IQ');
         }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        db.ref('categories').on('value', snap => {
-            const cats = snap.val();
-            const list = document.getElementById('cats-list');
-            const select = document.getElementById('pCat');
-            list.innerHTML = ""; select.innerHTML = "";
-            for(let key in cats) {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border">
-                        <span>${cats[key]}</span>
-                        <div class="flex gap-2">
-                            <button onclick="editCat('${key}', '${cats[key]}')" class="text-blue-500 hover:scale-110 transition"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteCat('${key}')" class="text-red-500 hover:scale-110 transition"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>`;
-                select.innerHTML += `<option value="${cats[key]}">${cats[key]}</option>`;
-            }
-        });
-
-        function editCat(id, name) {
-            document.getElementById('catId').value = id;
-            document.getElementById('newCat').value = name;
-            document.getElementById('btnSaveCat').innerText = "حفظ";
-        }
-
-        function deleteCat(id) { if(confirm("حذف القسم؟")) db.ref('categories').child(id).remove(); }
-
-        // --- وظائف المنتجات ---
-        function saveProduct() {
-            const id = document.getElementById('pId').value;
-            const data = {
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                img: document.getElementById('pImg').value,
-                video: document.getElementById('pVideo').value,
-                desc: document.getElementById('pDesc').value,
-                cat: document.getElementById('pCat').value
-            };
-
-            if(!data.name || !data.price) return alert("يرجى ملء الاسم والسعر على الأقل");
-
-            if(id) db.ref('products').child(id).update(data);
-            else db.ref('products').push(data);
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
             
-            resetForm();
+            ['orders', 'products', 'categories', 'analytics'].forEach(t => {
+                document.getElementById('panel-' + t).classList.add('hidden');
+            });
+            document.getElementById('panel-' + tab).classList.remove('hidden');
         }
 
-        db.ref('products').on('value', snap => {
-            const prods = snap.val();
-            const list = document.getElementById('admin-products-list');
-            list.innerHTML = "";
-            for(let key in prods) {
-                list.innerHTML += `
-                <div class="bg-slate-50 p-3 rounded-2xl border flex items-center gap-3">
-                    <img src="${prods[key].img || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-contain bg-white rounded-lg border">
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-xs truncate">${prods[key].name}</div>
-                        <div class="text-blue-600 text-[10px] font-bold">${prods[key].price} د.ع</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="editProduct('${key}', ${JSON.stringify(prods[key]).replace(/"/g, '&quot;')})" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-bold">تعديل</button>
-                        <button onclick="deleteProduct('${key}')" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-[10px] font-bold">حذف</button>
-                    </div>
-                </div>`;
+        function loadOrders() {
+            db.ref('orders').orderByChild('timestamp').on('value', snap => {
+                const data = snap.val();
+                allOrders = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+                renderOrders();
+                updateStats();
+            });
+        }
+
+        function renderOrders(filter = 'all') {
+            const tbody = document.getElementById('ordersTable');
+            const noOrders = document.getElementById('noOrders');
+            
+            let filtered = allOrders;
+            if(filter !== 'all') {
+                filtered = allOrders.filter(o => o.status === filter);
             }
-        });
-
-        function deleteProduct(id) { if(confirm("هل أنت متأكد من حذف هذا المنتج؟")) db.ref('products').child(id).remove(); }
-
-        function editProduct(id, data) {
-            document.getElementById('pId').value = id;
-            document.getElementById('pName').value = data.name;
-            document.getElementById('pPrice').value = data.price;
-            document.getElementById('pImg').value = data.img;
-            document.getElementById('pVideo').value = data.video || "";
-            document.getElementById('pDesc').value = data.desc || "";
-            document.getElementById('pCat').value = data.cat;
-            document.getElementById('btnSave').innerText = "تحديث المنتج الآن";
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            if(filtered.length === 0) {
+                tbody.innerHTML = '';
+                noOrders.classList.remove('hidden');
+                return;
+            }
+            
+            noOrders.classList.add('hidden');
+            
+            tbody.innerHTML = filtered.map(order => {
+                const statusClass = `status-${order.status}`;
+                const statusText = {
+                    'pending': 'معلق',
+                    'processing': 'جاري التجهيز',
+                    'shipped': 'بالطريق',
+                    'delivered': 'تم التسليم',
+                    'cancelled': 'ملغى'
+                }[order.status] || order.status;
+                
+                const timeAgo = getTimeAgo(order.timestamp);
+                
+                return `
+                    <tr class="order-row ${order.status} border-b border-gray-50">
+                        <td class="py-4 px-2">
+                            <div class="font-bold text-blue-600 text-xs">${order.orderId}</div>
+                        </td>
+                        <td class="py-4 px-2">
+                            <div class="font-bold text-sm">${order.productName}</div>
+                            <div class="text-xs text-gray-400">${order.price} د.ع</div>
+                        </td>
+                        <td class="py-4 px-2">
+                            <div class="font-bold text-sm">${order.customerName}</div>
+                            <div class="text-xs text-gray-400">${order.phone}</div>
+                        </td>
+                        <td class="py-4 px-2">
+                            <div class="text-sm">${order.city}</div>
+                            <div class="text-xs text-gray-400 truncate max-w-[100px]">${order.address}</div>
+                        </td>
+                        <td class="py-4 px-2 font-bold text-blue-600">${order.price} د.ع</td>
+                        <td class="py-4 px-2 text-xs text-gray-500">${timeAgo}</td>
+                        <td class="py-4 px-2">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td class="py-4 px-2">
+                            <div class="flex gap-1">
+                                <button onclick="viewOrder('${order.id}')" class="bg-blue-50 text-blue-600 p-2 rounded-lg hover:bg-blue-100 transition" title="عرض">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                                ${order.status === 'pending' ? `
+                                <button onclick="updateStatus('${order.id}', 'processing')" class="bg-yellow-50 text-yellow-600 p-2 rounded-lg hover:bg-yellow-100 transition" title="تجهيز">
+                                    <i class="fas fa-box text-xs"></i>
+                                </button>
+                                ` : ''}
+                                ${order.status === 'processing' ? `
+                                <button onclick="updateStatus('${order.id}', 'shipped')" class="bg-purple-50 text-purple-600 p-2 rounded-lg hover:bg-purple-100 transition" title="شحن">
+                                    <i class="fas fa-truck text-xs"></i>
+                                </button>
+                                ` : ''}
+                                ${order.status === 'shipped' ? `
+                                <button onclick="updateStatus('${order.id}', 'delivered')" class="bg-green-50 text-green-600 p-2 rounded-lg hover:bg-green-100 transition" title="تسليم">
+                                    <i class="fas fa-check text-xs"></i>
+                                </button>
+                                ` : ''}
+                                ${order.status !== 'cancelled' && order.status !== 'delivered' ? `
+                                <button onclick="updateStatus('${order.id}', 'cancelled')" class="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition" title="إلغاء">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        function resetForm() {
-            document.getElementById('pId').value = "";
-            document.getElementById('pName').value = "";
-            document.getElementById('pPrice').value = "";
-            document.getElementById('pImg').value = "";
-            document.getElementById('pVideo').value = "";
-            document.getElementById('pDesc').value = "";
-            document.getElementById('btnSave').innerText = "حفظ المنتج";
+        function filterOrders() {
+            const filter = document.getElementById('orderFilter').value;
+            renderOrders(filter);
         }
-    </script>
-</body>
-</html>
+
+        function updateStatus(orderId, status) {
+            db.ref('orders/' + orderId + '/status').set(status);
+            showNotification(`تم تحديث حالة الطلب إلى: ${status}`);
+        }
+
+        function viewOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if(!order) return;
+            
+            const modal = document.getElementById('orderModal');
+            const content = document.getElementById('orderDetailContent');
+            
+            const statusColors = {
+                'pending': 'bg-yellow-100 text-yellow-700',
+                'processing': 'bg-blue-100 text-blue-700',
+                'shipped': 'bg-purple-100 text-purple-700',
+                'delivered': 'bg-green-100 text-green-700',
+                'cancelled': 'bg-red-100 text-red-700'
+            };
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl">
+                        <div>
+                            <div class="text-xs text-gray-500">رقم الطلب</div>
+                            <div class="font-bold text-lg">${order.orderId}</div>
+                        </div>
+                        <div class="px-4 py-2 rounded-lg ${statusColors[order.status] || 'bg-gray-100'} font-bold text-sm">
+                            ${order.status}
+                        </div>
+                    </div>
+                    
+                    <div class="grid
