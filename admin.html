@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم متجر أكاد</title>
+    <title>لوحة تحكم متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -11,129 +11,238 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background: #f8fafc; }
-        .glass-card { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        body { background: #f1f5f9; scroll-behavior: smooth; }
+        .glass-card { background: white; border-radius: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .glass-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .stat-box { background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 1.5rem; border-radius: 1.25rem; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">دخول الإدارة</h2>
-            <input id="passInput" type="password" class="w-full p-4 border rounded-xl mb-4 text-center outline-none" placeholder="كلمة المرور">
-            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition">دخول</button>
-            <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden">خطأ في كلمة المرور!</p>
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-3xl shadow-lg shadow-blue-200">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">تسجيل دخول الإدارة</h2>
+            <p class="text-slate-400 text-sm mb-8">لوحة تحكم متجر أكاد</p>
+            <input id="passInput" type="password" class="w-full p-4 border-2 border-slate-100 rounded-2xl mb-4 text-center text-lg outline-none focus:border-blue-500 transition-all" placeholder="أدخل كلمة المرور">
+            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-xl shadow-blue-100 active:scale-95 transition-all">دخول النظام</button>
+            <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden font-bold">⚠️ كلمة المرور غير صحيحة!</p>
         </div>
     </div>
 
-    <div id="mainContent" class="max-w-6xl mx-auto hidden opacity-0 transition-opacity duration-500">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-extrabold text-slate-800">لوحة التحكم</h1>
-            <div class="flex gap-2">
-                <button onclick="openCatModal()" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm">إدارة الأقسام</button>
-                <button onclick="location.reload()" class="bg-slate-200 px-4 py-2 rounded-lg font-bold text-sm">خروج</button>
+    <div id="mainContent" class="max-w-7xl mx-auto hidden opacity-0 transition-opacity duration-700">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-slate-800">لوحة التحكم</h1>
+                <p id="dateDisplay" class="text-slate-400 text-sm mt-1"></p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openCatModal()" class="bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-orange-600 transition shadow-lg shadow-orange-100 flex items-center gap-2">
+                    <i class="fas fa-tags"></i> إدارة الأقسام
+                </button>
+                <button onclick="location.reload()" class="bg-white text-red-500 border border-red-100 px-6 py-3 rounded-2xl font-bold hover:bg-red-50 transition shadow-sm">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="glass-card p-6 h-fit sticky top-4">
-                <h3 id="formTitle" class="font-bold text-lg mb-4 text-blue-600">إضافة منتج جديد</h3>
-                <div class="space-y-3">
-                    <input id="pId" type="hidden">
-                    <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-lg outline-none text-sm">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 border rounded-lg outline-none text-sm">
-                        <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-lg outline-none text-sm">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="stat-box shadow-xl shadow-blue-100">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-blue-100 text-sm font-bold">إجمالي المنتجات</p>
+                        <h3 id="countProd" class="text-4xl font-black mt-1">0</h3>
                     </div>
-                    <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-lg outline-none text-sm">
-                    <input id="pYoutube" type="text" placeholder="رابط فيديو اليوتيوب (اختياري)" class="w-full p-3 border rounded-lg outline-none text-sm border-blue-100 focus:border-blue-500">
-                    
-                    <select id="pCat" class="w-full p-3 border rounded-lg outline-none bg-white text-sm"></select>
-                    <textarea id="pDesc" placeholder="وصف المنتج" class="w-full p-3 border rounded-lg h-24 outline-none text-sm"></textarea>
-                    
-                    <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-700">حفظ المنتج</button>
-                    <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 text-xs hidden">إلغاء التعديل</button>
+                    <i class="fas fa-box-open text-4xl opacity-20"></i>
+                </div>
+            </div>
+            <div class="stat-box shadow-xl shadow-orange-100" style="background: linear-gradient(135deg, #ea580c, #fb923c);">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-orange-100 text-sm font-bold">الأقسام النشطة</p>
+                        <h3 id="countCat" class="text-4xl font-black mt-1">0</h3>
+                    </div>
+                    <i class="fas fa-folder-tree text-4xl opacity-20"></i>
+                </div>
+            </div>
+            <div class="stat-box shadow-xl shadow-green-100" style="background: linear-gradient(135deg, #059669, #34d399);">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-green-100 text-sm font-bold">حالة البيانات</p>
+                        <h3 class="text-2xl font-black mt-3">متصل ومزامن</h3>
+                    </div>
+                    <i class="fas fa-cloud-check text-4xl opacity-20"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4">
+                <div class="glass-card p-6 sticky top-8">
+                    <h3 id="formTitle" class="font-black text-xl mb-6 text-blue-600 flex items-center gap-2">
+                        <i class="fas fa-plus-circle"></i> إضافة منتج جديد
+                    </h3>
+                    <div class="space-y-4">
+                        <input id="pId" type="hidden">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 mr-2">اسم المنتج</label>
+                            <input id="pName" type="text" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 transition-all text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 mr-2">السعر (د.ع)</label>
+                                <input id="pPrice" type="text" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 mr-2">المخزون</label>
+                                <input id="pStock" type="number" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 mr-2">رابط الصورة</label>
+                            <input id="pImg" type="text" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-red-500 mr-2">رابط فيديو اليوتيوب (اختياري)</label>
+                            <input id="pYoutube" type="text" class="w-full p-3.5 bg-red-50 border border-red-100 rounded-xl outline-none focus:border-red-400 text-sm" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 mr-2">القسم</label>
+                            <select id="pCat" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer"></select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 mr-2">وصف المنتج</label>
+                            <textarea id="pDesc" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl h-28 outline-none focus:border-blue-500 text-sm"></textarea>
+                        </div>
+                        <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> حفظ المنتج
+                        </button>
+                        <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 font-bold text-sm hidden hover:text-slate-600 transition">إلغاء التعديل</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-8">
+                <div class="mb-6 relative">
+                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="ابحث عن منتج بالاسم..." class="w-full p-4 pr-12 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:border-blue-500 transition-all">
+                </div>
                 <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
 
-    <div id="catModal" class="fixed inset-0 bg-black/50 z-[110] hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-xl text-orange-600">إدارة الأقسام</h3>
-                <button onclick="closeCatModal()" class="text-slate-400 text-2xl">&times;</button>
+    <div id="catModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="font-black text-2xl text-slate-800">إدارة الأقسام</h3>
+                <button onclick="closeCatModal()" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition">&times;</button>
             </div>
-            <div class="flex gap-2 mb-4">
+            <div class="flex gap-2 mb-6">
                 <input id="catEditId" type="hidden">
-                <input id="catName" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-lg outline-none">
-                <button onclick="saveCat()" id="catBtn" class="bg-orange-500 text-white px-6 rounded-lg font-bold transition">حفظ</button>
+                <input id="catName" type="text" placeholder="اسم القسم الجديد" class="flex-1 p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-orange-500">
+                <button onclick="saveCat()" id="catBtn" class="bg-orange-500 text-white px-6 rounded-2xl font-bold hover:bg-orange-600 transition">حفظ</button>
             </div>
-            <div id="catListDisplay" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            <div id="catListDisplay" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com/" };
+        // تكوين Firebase بناءً على مشروعك المرفق
+        const firebaseConfig = { 
+            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com/" 
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let allProducts = {};
+
+        // نظام التحقق
         function checkAuth() {
-            if (document.getElementById('passInput').value === "ashd1980") {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "ashd1980") {
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 10);
-                loadData();
-            } else { document.getElementById('errorMsg').classList.remove('hidden'); }
+                document.getElementById('mainContent').classList.remove('hidden');
+                setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 50);
+                init();
+            } else {
+                document.getElementById('errorMsg').classList.remove('hidden');
+            }
+        }
+
+        function init() {
+            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            loadData();
         }
 
         function loadData() {
-            // تحميل الأقسام
+            // مزامنة الأقسام
             db.ref('categories').on('value', snap => {
                 const cats = snap.val() || {};
                 const select = document.getElementById('pCat');
                 const list = document.getElementById('catListDisplay');
-                select.innerHTML = '<option value="">اختر القسم...</option>';
+                select.innerHTML = '<option value="">اختر القسم المناسب...</option>';
                 list.innerHTML = '';
+                let count = 0;
                 Object.keys(cats).forEach(id => {
+                    count++;
                     select.innerHTML += `<option value="${id}">${cats[id].name}</option>`;
                     list.innerHTML += `
-                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border">
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
                             <span class="font-bold text-slate-700">${cats[id].name}</span>
                             <div class="flex gap-2">
-                                <button onclick="editCat('${id}', '${cats[id].name}')" class="text-blue-500 p-2"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteCat('${id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+                                <button onclick="editCat('${id}', '${cats[id].name}')" class="text-blue-500 hover:bg-white p-2 rounded-xl transition"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteCat('${id}')" class="text-red-500 hover:bg-white p-2 rounded-xl transition"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>`;
                 });
+                document.getElementById('countCat').innerText = count;
             });
 
-            // تحميل المنتجات
+            // مزامنة المنتجات
             db.ref('products').on('value', snap => {
-                const prods = snap.val() || {};
-                const list = document.getElementById('productsList');
-                list.innerHTML = '';
-                Object.keys(prods).forEach(id => {
-                    const p = prods[id];
-                    list.innerHTML += `
-                        <div class="glass-card p-4 flex gap-4 items-center border-r-4 ${p.youtube ? 'border-r-red-500' : 'border-r-blue-500'}">
-                            <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-lg object-cover bg-slate-100">
-                            <div class="flex-1">
-                                <h4 class="font-bold text-sm line-clamp-1">${p.name}</h4>
-                                <p class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</p>
-                                ${p.youtube ? '<span class="text-[9px] bg-red-100 text-red-600 px-1 rounded">فيديو متاح</span>' : ''}
-                                <div class="flex gap-3 mt-2">
-                                    <button onclick="editProduct('${id}')" class="text-blue-500 text-[10px] font-extrabold uppercase">تعديل</button>
-                                    <button onclick="deleteProduct('${id}')" class="text-red-500 text-[10px] font-extrabold uppercase">حذف</button>
-                                </div>
-                            </div>
-                        </div>`;
-                });
+                allProducts = snap.val() || {};
+                renderProducts(allProducts);
             });
+        }
+
+        function renderProducts(prods) {
+            const list = document.getElementById('productsList');
+            list.innerHTML = '';
+            let count = 0;
+            Object.keys(prods).forEach(id => {
+                count++;
+                const p = prods[id];
+                list.innerHTML += `
+                    <div class="glass-card p-4 flex gap-5 items-center border-r-4 ${p.youtube ? 'border-r-red-500' : 'border-r-blue-500'}">
+                        <img src="${p.img || 'https://via.placeholder.com/100'}" class="w-20 h-20 rounded-2xl object-cover bg-slate-50 shadow-sm">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-base line-clamp-1">${p.name}</h4>
+                            <p class="text-blue-600 font-black text-sm mt-1">${p.price} د.ع</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">مخزون: ${p.stock || 0}</span>
+                                ${p.youtube ? '<span class="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-bold"><i class="fab fa-youtube ml-1"></i>فيديو</span>' : ''}
+                            </div>
+                            <div class="flex gap-4 mt-3">
+                                <button onclick="editProduct('${id}')" class="text-blue-500 text-xs font-black hover:underline">تعديل المنتج</button>
+                                <button onclick="deleteProduct('${id}')" class="text-red-400 text-xs font-black hover:underline">حذف</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('countProd').innerText = count;
+        }
+
+        // البحث
+        function searchProducts() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = {};
+            Object.keys(allProducts).forEach(id => {
+                if (allProducts[id].name.toLowerCase().includes(q)) filtered[id] = allProducts[id];
+            });
+            renderProducts(filtered);
         }
 
         // الأقسام
@@ -146,4 +255,62 @@
         }
         function editCat(id, name) {
             document.getElementById('catEditId').value = id;
-            document.
+            document.getElementById('catName').value = name;
+            document.getElementById('catBtn').innerText = "تحديث";
+            document.getElementById('catBtn').className = "bg-blue-600 text-white px-6 rounded-2xl font-bold transition";
+        }
+        function resetCatForm() {
+            document.getElementById('catEditId').value = '';
+            document.getElementById('catName').value = '';
+            document.getElementById('catBtn').innerText = "حفظ";
+            document.getElementById('catBtn').className = "bg-orange-500 text-white px-6 rounded-2xl font-bold transition";
+        }
+        function deleteCat(id) { if(confirm("حذف القسم نهائياً؟")) db.ref('categories/'+id).remove(); }
+        function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
+        function closeCatModal() { document.getElementById('catModal').style.display = 'none'; resetCatForm(); }
+
+        // المنتجات
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                stock: document.getElementById('pStock').value,
+                img: document.getElementById('pImg').value,
+                youtube: document.getElementById('pYoutube').value,
+                cat: document.getElementById('pCat').value,
+                desc: document.getElementById('pDesc').value
+            };
+            if(!data.name || !data.price) return alert("يرجى ملء الاسم والسعر على الأقل");
+            const ref = id ? db.ref('products/'+id).update(data) : db.ref('products').push(data);
+            ref.then(() => { resetForm(); });
+        }
+
+        function editProduct(id) {
+            const p = allProducts[id];
+            document.getElementById('pId').value = id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pStock').value = p.stock;
+            document.getElementById('pImg').value = p.img;
+            document.getElementById('pYoutube').value = p.youtube || '';
+            document.getElementById('pCat').value = p.cat;
+            document.getElementById('pDesc').value = p.desc;
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> تعديل المنتج';
+            document.getElementById('saveBtn').innerText = "تحديث البيانات";
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(id) { if(confirm("هل أنت متأكد من حذف هذا المنتج؟")) db.ref('products/'+id).remove(); }
+
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.querySelectorAll('input, select, textarea').forEach(el => { if(el.id.startsWith('p')) el.value = ''; });
+            document.getElementById('formTitle').innerHTML = '<i class="fas fa-plus-circle"></i> إضافة منتج جديد';
+            document.getElementById('saveBtn').innerText = "حفظ المنتج";
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
