@@ -23,62 +23,25 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-overlay.active { display: flex; }
         .modal-box { background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 500px; }
-        .product-card { transition: all 0.3s; border: 1px solid #e2e8f0; }
-        .product-card:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); transform: translateY(-3px); }
-        .btn-icon { transition: all 0.2s; cursor: pointer; border: none; background: none; }
-        .btn-icon:hover { transform: scale(1.1); }
-        .search-box { background: white; border: 2px solid #e2e8f0; transition: all 0.3s; }
-        .search-box:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
         .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .fade-in { animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
-        .img-preview { width: 100%; height: 150px; object-fit: cover; border-radius: 1rem; margin-top: 0.5rem; display: none; }
-        .img-preview.active { display: block; }
-        .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9998; display: none; align-items: center; justify-content: center; flex-direction: column; }
-        .loading-overlay.active { display: flex; }
     </style>
 </head>
 <body class="p-4 md:p-8 text-right">
 
-    <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-blue-600 to-blue-800 z-50 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
-                    <i class="fas fa-shield-alt text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-800">تسجيل الدخول</h2>
-                <p class="text-sm text-gray-400 mt-2">لوحة تحكم متجر أكاد الرقمي</p>
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 text-center">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
+                <i class="fas fa-shield-alt text-2xl"></i>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-sm text-gray-600 block mb-2">كلمة المرور</label>
-                    <input id="loginPassword" type="password" class="w-full p-3 border rounded-xl outline-none text-sm focus:border-blue-500 transition" placeholder="••••••••">
-                </div>
-                <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2">
-                    <span id="loginBtnText">دخول</span>
-                    <div id="loginSpinner" class="loading-spinner hidden"></div>
-                </button>
-                <p id="loginError" class="text-red-500 text-sm text-center hidden"></p>
-            </div>
-            <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                <p class="text-xs text-yellow-700">
-                    <i class="fas fa-info-circle ml-1"></i>
-                    كلمة المرور الافتراضية: ashd1980
-                </p>
-            </div>
+            <h2 class="text-2xl font-bold text-slate-800">تسجيل الدخول</h2>
+            <p class="text-sm text-gray-400 mt-2 mb-6">لوحة تحكم متجر أكاد الرقمي</p>
+            <input id="loginPassword" type="password" class="w-full p-3 border rounded-xl mb-4 text-center outline-none" placeholder="أدخل كلمة المرور">
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">دخول</button>
+            <p id="loginError" class="text-red-500 text-xs mt-3 hidden">كلمة المرور غير صحيحة!</p>
         </div>
     </div>
 
-    <!-- شاشة التحميل -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner mb-4"></div>
-        <p class="text-gray-600 font-bold">جاري تحميل البيانات...</p>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
     <div id="mainContent" class="max-w-7xl mx-auto hidden">
         <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div class="flex items-center gap-4">
@@ -90,58 +53,51 @@
                     <p class="text-xs text-gray-400" id="currentTime"></p>
                 </div>
             </div>
-            <div class="flex gap-3 flex-wrap">
-                <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-green-700 transition flex items-center gap-2 text-sm">
-                    <i class="fas fa-file-csv"></i> تصدير
-                </button>
-                <button onclick="openCategoryModal()" class="bg-orange-500 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition flex items-center gap-2 text-sm">
-                    <i class="fas fa-tags"></i> الأقسام
-                </button>
-                <a href="index.html" target="_blank" class="bg-slate-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm">المتجر</a>
-                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2.5 rounded-xl font-bold hover:bg-red-600 transition text-sm">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+            <div class="flex gap-3">
+                <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-green-700 transition">تصدير CSV</button>
+                <button onclick="openCategoryModal()" class="bg-orange-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-orange-600 transition">الأقسام</button>
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm">خروج</button>
             </div>
         </header>
 
-        <!-- الإحصائيات -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-white">
             <div class="stat-card">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="text-3xl font-bold" id="statTotalProducts">0</div>
-                        <div class="text-xs opacity-75 mt-1">منتجاً متوفراً</div>
-                    </div>
-                    <i class="fas fa-box text-2xl opacity-30"></i>
-                </div>
+                <div class="text-3xl font-bold" id="statTotalProducts">0</div>
+                <div class="text-xs opacity-80">إجمالي المنتجات</div>
             </div>
             <div class="stat-card orange">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="text-3xl font-bold" id="statLowStock">0</div>
-                        <div class="text-xs opacity-75 mt-1">مخزون منخفض</div>
-                    </div>
-                    <i class="fas fa-exclamation-triangle text-2xl opacity-30"></i>
-                </div>
+                <div class="text-3xl font-bold" id="statLowStock">0</div>
+                <div class="text-xs opacity-80">مخزون منخفض</div>
             </div>
             <div class="stat-card red">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="text-3xl font-bold" id="statOutOfStock">0</div>
-                        <div class="text-xs opacity-75 mt-1">نفذ من المخزون</div>
-                    </div>
-                    <i class="fas fa-times-circle text-2xl opacity-30"></i>
-                </div>
+                <div class="text-3xl font-bold" id="statOutOfStock">0</div>
+                <div class="text-xs opacity-80">نفذ من المخزون</div>
             </div>
             <div class="stat-card green">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="text-3xl font-bold" id="statCategories">0</div>
-                        <div class="text-xs opacity-75 mt-1">قسم نشط</div>
-                    </div>
-                    <i class="fas fa-folder text-2xl opacity-30"></i>
-                </div>
+                <div class="text-3xl font-bold" id="statCategories">0</div>
+                <div class="text-xs opacity-80">الأقسام النشطة</div>
             </div>
         </div>
 
-        <!-- البحث والف
+        <div class="glass-panel p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-gray-50 p-6 rounded-2xl border sticky top-4">
+                    <h2 class="font-bold mb-4 text-blue-700" id="formTitle">إضافة منتج جديد</h2>
+                    <div class="space-y-3">
+                        <input id="pId" type="hidden">
+                        <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-xl text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input id="pPrice" type="text" placeholder="السعر (د.ع)" class="w-full p-3 border rounded-xl text-sm">
+                            <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-xl text-sm">
+                        </div>
+                        <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-xl text-sm">
+                        <select id="pCat" class="w-full p-3 border rounded-xl text-sm bg-white"></select>
+                        <textarea id="pDesc" placeholder="وصف المنتج" class="w-full p-3 border rounded-xl h-24 text-sm"></textarea>
+                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700">حفظ المنتج</button>
+                        <button onclick="resetForm()" id="btnCancel" class="w-full text-gray-400 text-xs hidden">إلغاء التعديل</button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="mb-4">
+                        <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="
