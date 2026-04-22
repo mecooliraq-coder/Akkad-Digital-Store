@@ -1,227 +1,261 @@
-<script>
-    // إعدادات Firebase (يجب التأكد من مطابقتها لمشروعك)
-    const firebaseConfig = {
-        databaseURL: "https://your-project-id.firebaseio.com" 
-    };
-    
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | متجر أكاد الرقمي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; }
+        .glass-panel { background: white; border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .stat-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border-radius: 1.5rem; padding: 1.5rem; position: relative; overflow: hidden; }
+        .stat-card.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); }
+        .tab-btn { padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 13px; transition: all 0.3s; cursor: pointer; border: none; background: #e2e8f0; color: #64748b; }
+        .tab-btn.active { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+        .pulse-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+        .notification-toast { position: fixed; top: 20px; left: 20px; z-index: 9999; background: white; border-radius: 1rem; padding: 1rem 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border-right: 4px solid #22c55e; animation: slideInLeft 0.5s ease; }
+        @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-right">
 
-    // متغيرات الحالة
-    let allOrders = [];
-    let allCategories = {};
+    <script>
+        const pass = prompt("الرجاء إدخال كلمة سر المدير للدخول:");
+        if (pass !== "ashd1980") {
+            alert("كلمة السر خاطئة!");
+            window.location.href = "index.html";
+        }
+    </script>
 
-    // تحديث الوقت المباشر
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('currentTime').innerText = now.toLocaleString('ar-EG');
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-satellite-dish text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">لوحة تحكم أكاد</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div class="live-indicator bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                            <span class="pulse-dot"></span>
+                            <span class="text-xs text-green-600 font-bold mr-1">المتجر حي</span>
+                        </div>
+                        <span class="text-xs text-gray-400" id="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 flex-wrap">
+                <button onclick="openCategoryModal()" class="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-orange-600 transition flex items-center gap-2">
+                    <i class="fas fa-folder-plus"></i> إدارة الأقسام
+                </button>
+                <a href="index.html" target="_blank" class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold shadow-sm border border-blue-100 hover:shadow-md transition">معاينة المتجر</a>
+            </div>
+        </header>
 
-    // 1. إدارة الأقسام (التحكم الكلي)
-    function loadCategories() {
-        db.ref('categories').on('value', (snapshot) => {
-            const categories = snapshot.val() || {};
-            allCategories = categories;
-            
-            // تحديث قائمة الأقسام في نموذج إضافة المنتجات
-            const pCatSelect = document.getElementById('pCat');
-            pCatSelect.innerHTML = '<option value="">اختر القسم...</option>';
-            
-            // تحديث قائمة الأقسام في صفحة الإدارة
-            const listContainer = document.getElementById('categoriesFullList');
-            listContainer.innerHTML = '';
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card">
+                <div class="text-3xl font-bold" id="statTotalProducts">0</div>
+                <div class="text-xs opacity-75 mt-1">إجمالي المنتجات</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="text-3xl font-bold" id="statLowStock">0</div>
+                <div class="text-xs opacity-75 mt-1">نقص في المخزون</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="text-3xl font-bold" id="statTotalOrders">0</div>
+                <div class="text-xs opacity-75 mt-1">إجمالي الطلبات</div>
+            </div>
+            <div class="stat-card green">
+                <div class="text-3xl font-bold">نشط</div>
+                <div class="text-xs opacity-75 mt-1">حالة النظام</div>
+            </div>
+        </div>
 
-            Object.keys(categories).forEach(id => {
-                const cat = categories[id];
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="switchTab('products')" id="tab-products" class="tab-btn active">المنتجات</button>
+            <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn">الطلبات</button>
+        </div>
+
+        <div id="panel-products" class="glass-panel p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                    <h2 class="font-bold mb-4 text-blue-700" id="formTitle">إضافة منتج جديد</h2>
+                    <div class="space-y-3">
+                        <input id="pId" type="hidden">
+                        <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-xl outline-none text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 border rounded-xl outline-none text-sm">
+                            <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-xl outline-none text-sm">
+                        </div>
+                        <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-xl outline-none text-sm">
+                        <select id="pCat" class="w-full p-3 border rounded-xl outline-none text-sm bg-white"></select>
+                        <textarea id="pDesc" placeholder="المواصفات" class="w-full p-3 border rounded-xl outline-none h-24 text-sm"></textarea>
+                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700">حفظ المنتج</button>
+                        <button onclick="resetForm()" class="w-full text-gray-400 text-xs">تفريغ الحقول</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div id="admin-products-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-orders" class="hidden glass-panel p-6">
+            <h2 class="font-bold mb-4">قائمة الطلبات</h2>
+            <div id="ordersList" class="space-y-3 text-center text-gray-400 py-10">جاري تحميل الطلبات...</div>
+        </div>
+    </div>
+
+    <div id="categoryModal" class="modal-overlay" onclick="closeCategoryModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold text-orange-600 mb-4">إدارة الأقسام</h2>
+            <div class="flex gap-2 mb-6">
+                <input id="newCat" type="text" placeholder="اسم القسم الجديد" class="flex-1 p-3 border rounded-xl outline-none text-sm">
+                <button onclick="saveCategory()" class="bg-orange-500 text-white px-5 rounded-xl font-bold">إضافة</button>
+            </div>
+            <div id="categoriesFullList" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = { databaseURL: "YOUR_DATABASE_URL" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // تحديث الوقت
+        setInterval(() => { document.getElementById('currentTime').innerText = new Date().toLocaleString('ar-EG'); }, 1000);
+
+        // تبديل التبويبات
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('panel-products').classList.toggle('hidden', tab !== 'products');
+            document.getElementById('panel-orders').classList.toggle('hidden', tab !== 'orders');
+        }
+
+        // إدارة الأقسام
+        function loadCategories() {
+            db.ref('categories').on('value', (snap) => {
+                const cats = snap.val() || {};
+                const list = document.getElementById('categoriesFullList');
+                const select = document.getElementById('pCat');
+                list.innerHTML = '';
+                select.innerHTML = '<option value="">اختر القسم...</option>';
                 
-                // إضافة للقائمة المنسدلة
-                pCatSelect.innerHTML += `<option value="${id}">${cat.name}</option>`;
-                
-                // إضافة لجدول الإدارة
-                listContainer.innerHTML += `
-                    <div class="flex items-center justify-between p-4 bg-white border border-gray-100 rounded-xl hover:shadow-sm transition">
-                        <div class="flex items-center gap-3">
-                            <div class="category-icon bg-orange-100 text-orange-600">
-                                <i class="fas fa-folder"></i>
+                Object.keys(cats).forEach(id => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span>${cats[id].name}</span>
+                            <button onclick="deleteCategory('${id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    select.innerHTML += `<option value="${id}">${cats[id].name}</option>`;
+                });
+            });
+        }
+
+        function saveCategory() {
+            const name = document.getElementById('newCat').value;
+            if (name) db.ref('categories').push({ name }).then(() => {
+                document.getElementById('newCat').value = '';
+                showToast("تمت الإضافة");
+            });
+        }
+
+        function deleteCategory(id) {
+            if (confirm("حذف القسم؟")) db.ref('categories/' + id).remove();
+        }
+
+        // إدارة المنتجات
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                stock: parseInt(document.getElementById('pStock').value) || 0,
+                img: document.getElementById('pImg').value,
+                cat: document.getElementById('pCat').value,
+                desc: document.getElementById('pDesc').value
+            };
+
+            if (id) {
+                db.ref('products/' + id).update(data).then(() => { showToast("تم التحديث"); resetForm(); });
+            } else {
+                db.ref('products').push(data).then(() => { showToast("تم الحفظ"); resetForm(); });
+            }
+        }
+
+        function loadProducts() {
+            db.ref('products').on('value', (snap) => {
+                const prods = snap.val() || {};
+                const list = document.getElementById('admin-products-list');
+                list.innerHTML = '';
+                let low = 0, total = 0;
+
+                Object.keys(prods).forEach(id => {
+                    total++;
+                    const p = prods[id];
+                    if (p.stock <= 3) low++;
+                    list.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl border flex gap-3 items-center">
+                            <img src="${p.img}" class="w-12 h-12 rounded object-cover">
+                            <div class="flex-1">
+                                <div class="font-bold text-sm">${p.name}</div>
+                                <div class="text-xs text-blue-600">${p.price} د.ع</div>
                             </div>
-                            <span class="font-bold text-slate-700">${cat.name}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="editCategory('${id}', '${cat.name}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteCategory('${id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        });
-    }
-
-    // حفظ قسم (إضافة أو تعديل)
-    function saveCategory() {
-        const name = document.getElementById('newCat').value.trim();
-        const id = document.getElementById('catId').value;
-
-        if (!name) return alert("يرجى إدخال اسم القسم");
-
-        if (id) {
-            // تحديث
-            db.ref('categories/' + id).update({ name: name })
-                .then(() => {
-                    showToast("تم تحديث القسم بنجاح");
-                    cancelEdit();
+                            <button onclick="editProduct('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-blue-500"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteProduct('${id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+                        </div>`;
                 });
-        } else {
-            // إضافة جديد
-            const newRef = db.ref('categories').push();
-            newRef.set({ name: name })
-                .then(() => {
-                    showToast("تم إضافة القسم الجديد");
-                    document.getElementById('newCat').value = '';
-                });
-        }
-    }
-
-    function deleteCategory(id) {
-        if (confirm("هل أنت متأكد من حذف هذا القسم؟ سيؤثر ذلك على عرض المنتجات المرتبطة به.")) {
-            db.ref('categories/' + id).remove().then(() => showToast("تم حذف القسم"));
-        }
-    }
-
-    function editCategory(id, name) {
-        document.getElementById('catId').value = id;
-        document.getElementById('newCat').value = name;
-        document.getElementById('catFormTitle').innerText = "تعديل القسم";
-        document.getElementById('btnSaveCatText').innerText = "تحديث";
-        document.getElementById('btnCancelEdit').classList.remove('hidden');
-        document.getElementById('newCat').focus();
-    }
-
-    function cancelEdit() {
-        document.getElementById('catId').value = '';
-        document.getElementById('newCat').value = '';
-        document.getElementById('catFormTitle').innerText = "إضافة قسم جديد";
-        document.getElementById('btnSaveCatText').innerText = "إضافة";
-        document.getElementById('btnCancelEdit').classList.add('hidden');
-    }
-
-    // 2. إدارة التبويبات
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        
-        ['orders', 'products', 'categories', 'analytics'].forEach(p => {
-            document.getElementById('panel-' + p).classList.add('hidden');
-        });
-        document.getElementById('panel-' + tab).classList.remove('hidden');
-    }
-
-    // 3. إدارة المنتجات
-    function saveProduct() {
-        const product = {
-            name: document.getElementById('pName').value,
-            price: document.getElementById('pPrice').value,
-            stock: parseInt(document.getElementById('pStock').value),
-            img: document.getElementById('pImg').value,
-            video: document.getElementById('pVideo').value,
-            cat: document.getElementById('pCat').value,
-            desc: document.getElementById('pDesc').value,
-            timestamp: Date.now()
-        };
-
-        if (!product.name || !product.price || !product.cat) {
-            return alert("يرجى ملء الحقول الأساسية (الاسم، السعر، القسم)");
-        }
-
-        const id = document.getElementById('pId').value;
-        if (id) {
-            db.ref('products/' + id).update(product).then(() => {
-                showToast("تم تحديث المنتج");
-                resetForm();
-            });
-        } else {
-            db.ref('products').push(product).then(() => {
-                showToast("تم إضافة المنتج بنجاح");
-                resetForm();
+                document.getElementById('statTotalProducts').innerText = total;
+                document.getElementById('statLowStock').innerText = low;
             });
         }
-    }
 
-    function loadProducts() {
-        db.ref('products').on('value', (snapshot) => {
-            const products = snapshot.val() || {};
-            const container = document.getElementById('admin-products-list');
-            container.innerHTML = '';
-            
-            let count = 0;
-            let lowStock = 0;
+        function editProduct(id, data) {
+            document.getElementById('pId').value = id;
+            document.getElementById('pName').value = data.name;
+            document.getElementById('pPrice').value = data.price;
+            document.getElementById('pStock').value = data.stock;
+            document.getElementById('pImg').value = data.img;
+            document.getElementById('pCat').value = data.cat;
+            document.getElementById('pDesc').value = data.desc;
+            document.getElementById('btnSave').innerText = "تحديث المنتج";
+        }
 
-            Object.keys(products).forEach(id => {
-                const p = products[id];
-                count++;
-                if (p.stock <= 3) lowStock++;
+        function deleteProduct(id) {
+            if (confirm("حذف المنتج؟")) db.ref('products/' + id).remove();
+        }
 
-                container.innerHTML += `
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex gap-4 items-center">
-                        <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-lg object-cover bg-white">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-sm">${p.name}</h4>
-                            <div class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</div>
-                            <div class="text-xs ${p.stock <= 3 ? 'text-red-500 font-bold' : 'text-gray-400'}">المخزون: ${p.stock}</div>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <button onclick="editProduct('${id}')" class="text-blue-500 p-2 hover:bg-blue-100 rounded-lg"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProduct('${id}')" class="text-red-500 p-2 hover:bg-red-100 rounded-lg"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('statTotalProducts').innerText = count;
-            document.getElementById('statLowStock').innerText = lowStock;
-        });
-    }
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.querySelectorAll('#panel-products input, #panel-products textarea').forEach(i => i.value = '');
+            document.getElementById('btnSave').innerText = "حفظ المنتج";
+        }
 
-    // وظائف مساعدة
-    function showToast(msg) {
-        const toast = document.createElement('div');
-        toast.className = 'notification-toast';
-        toast.innerHTML = `<i class="fas fa-check-circle text-green-500 ml-2"></i> ${msg}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
+        function showToast(m) {
+            const t = document.createElement('div');
+            t.className = 'notification-toast';
+            t.innerText = m;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
+        }
 
-    function resetForm() {
-        document.getElementById('pId').value = '';
-        document.getElementById('pName').value = '';
-        document.getElementById('pPrice').value = '';
-        document.getElementById('pStock').value = '';
-        document.getElementById('pImg').value = '';
-        document.getElementById('pVideo').value = '';
-        document.getElementById('pDesc').value = '';
-        document.getElementById('formTitle').innerText = "إضافة منتج جديد";
-        document.getElementById('btnSaveText').innerText = "حفظ المنتج";
-    }
+        function openCategoryModal() { document.getElementById('categoryModal').classList.add('active'); }
+        function closeCategoryModal() { document.getElementById('categoryModal').classList.remove('active'); }
 
-    function openCategoryModal() {
-        document.getElementById('categoryModal').classList.add('active');
-    }
-
-    function closeCategoryModal() {
-        document.getElementById('categoryModal').classList.remove('active');
-        cancelEdit();
-    }
-
-    // تشغيل التحميل عند الفتح
-    window.onload = () => {
-        loadCategories();
-        loadProducts();
-    };
-</script>
+        window.onload = () => { loadCategories(); loadProducts(); };
+    </script>
+</body>
+</html>
