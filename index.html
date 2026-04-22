@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أكاد الرقمي | عالم الترفيه</title>
+    <title>متجر أكاد الرقمي | عالم الترفيه والمنزل الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -271,6 +271,16 @@
         .glow-text {
             text-shadow: 0 0 20px rgba(59,130,246,0.5);
         }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -286,14 +296,14 @@
             <div class="flex justify-between items-center mb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg relative">
-                        <i class="fas fa-tv text-white text-xl"></i>
+                        <i class="fas fa-satellite-dish text-white text-xl"></i>
                         <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900">
                             <div class="pulse-ring"></div>
                         </div>
                     </div>
                     <div>
                         <h1 class="text-xl font-bold tracking-tight uppercase glow-text">AKKAD <span class="text-blue-400">STORE</span></h1>
-                        <p class="text-[10px] text-gray-400">متجر حي • الدفع عند الاستلام</p>
+                        <p class="text-[10px] text-gray-400">TV Box • ستلايت • منزل ذكي • الدفع عند الاستلام</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -310,7 +320,7 @@
             <div class="relative max-w-xl mx-auto">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" 
                        class="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 outline-none focus:border-blue-500 text-sm transition" 
-                       placeholder="ابحث عن أجهزة الترفيه، بلايستيشن، إكس بوكس...">
+                       placeholder="ابحث عن TV Box، ستلايت، حمالات، ريموت، إنارة ذكية...">
                 <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
             </div>
             
@@ -326,7 +336,7 @@
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-10 relative z-10">
         <!-- Stats Bar -->
-        <div class="flex justify-center gap-6 mb-8 text-center">
+        <div class="flex justify-center gap-6 mb-8 text-center flex-wrap">
             <div class="glass-card px-6 py-3">
                 <div class="text-2xl font-bold text-blue-400" id="totalProducts">0</div>
                 <div class="text-[10px] text-gray-400">منتج متوفر</div>
@@ -339,6 +349,16 @@
                 <div class="text-2xl font-bold text-yellow-400">COD</div>
                 <div class="text-[10px] text-gray-400">الدفع عند الاستلام</div>
             </div>
+            <div class="glass-card px-6 py-3">
+                <div class="text-2xl font-bold text-purple-400"><i class="fas fa-shipping-fast"></i></div>
+                <div class="text-[10px] text-gray-400">توصيل لكل المحافظات</div>
+            </div>
+        </div>
+
+        <!-- Featured Banner -->
+        <div class="glass-card p-6 mb-8 text-center">
+            <h2 class="text-2xl font-bold mb-2">🎬 عالم الترفيه في منزلك</h2>
+            <p class="text-gray-400 text-sm">TV Box • أطباق ستلايت • حمالات تلفزيون • ريموت كنترول ذكي • إنارة سمارت</p>
         </div>
 
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -379,6 +399,11 @@
                             <option value="السليمانية">السليمانية</option>
                             <option value="النجف">النجف</option>
                             <option value="كربلاء">كربلاء</option>
+                            <option value="كركوك">كركوك</option>
+                            <option value="دهوك">دهوك</option>
+                            <option value="ديالى">ديالى</option>
+                            <option value="واسط">واسط</option>
+                            <option value="صلاح الدين">صلاح الدين</option>
                             <option value="أخرى">أخرى</option>
                         </select>
                     </div>
@@ -388,7 +413,7 @@
                     </div>
                     <div>
                         <label class="block text-sm text-gray-400 mb-2">ملاحظات (اختياري)</label>
-                        <textarea id="customerNotes" class="form-input" rows="2" placeholder="أي تفاصيل إضافية..."></textarea>
+                        <textarea id="customerNotes" class="form-input" rows="2" placeholder="نوع التركيب، موعد التوصيل المفضل..."></textarea>
                     </div>
                 </div>
 
@@ -399,7 +424,7 @@
                     </button>
                     <p class="text-center text-[11px] text-gray-500">
                         <i class="fas fa-shield-halved mr-1"></i>
-                        طلبك آمن • الدفع عند الاستلام
+                        طلبك آمن • الدفع عند الاستلام • تركيب متاح
                     </p>
                 </div>
             </form>
@@ -457,6 +482,27 @@
         let allProducts = [];
         let currentOrderProduct = null;
 
+        // Category icons mapping
+        const categoryIcons = {
+            'tv box': 'fa-tv',
+            'ستلايت': 'fa-satellite-dish',
+            'حمالات': 'fa-desktop',
+            'ريموت': 'fa-remote',
+            'إنارة': 'fa-lightbulb',
+            'سمارت': 'fa-wifi',
+            'منزل ذكي': 'fa-home',
+            'default': 'fa-box'
+        };
+
+        function getCategoryIcon(catName) {
+            if(!catName) return 'fa-box';
+            const lower = catName.toLowerCase();
+            for(let key in categoryIcons) {
+                if(lower.includes(key)) return categoryIcons[key];
+            }
+            return 'fa-box';
+        }
+
         function showToast(message, icon = 'fa-bell', color = 'blue') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -475,11 +521,11 @@
         }
 
         const liveOrders = [
-            { name: "أحمد", city: "بغداد", product: "PlayStation 5", time: "منذ ٣ دقائق" },
-            { name: "محمد", city: "البصرة", product: "Xbox Series X", time: "منذ ٧ دقائق" },
-            { name: "علي", city: "الموصل", product: "Nintendo Switch", time: "منذ ١٢ دقيقة" },
-            { name: "حسن", city: "أربيل", product: "Steam Deck", time: "منذ ١٥ دقيقة" },
-            { name: "سامي", city: "النجف", product: "PS5 Controller", time: "منذ ٢٠ دقيقة" }
+            { name: "أحمد", city: "بغداد", product: "TV Box Android 12", time: "منذ ٣ دقائق" },
+            { name: "محمد", city: "البصرة", product: "طبق ستلايت ١٨٠ سم", time: "منذ ٧ دقائق" },
+            { name: "علي", city: "الموصل", product: "حمالة تلفزيون متحركة", time: "منذ ١٢ دقيقة" },
+            { name: "حسن", city: "أربيل", product: "ريموت كنترول عالمي", time: "منذ ١٥ دقيقة" },
+            { name: "سامي", city: "النجف", product: "لمبة سمارت LED", time: "منذ ٢٠ دقيقة" }
         ];
 
         function startLiveNotifications() {
@@ -499,9 +545,16 @@
             const cats = snap.val();
             const nav = document.getElementById('categories-nav');
             if(!nav) return;
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-5 py-2 rounded-full whitespace-nowrap shadow-lg shadow-blue-600/30">الكل</button>`;
+            
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 px-5 py-2 rounded-full whitespace-nowrap shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                <i class="fas fa-th-large"></i> الكل
+            </button>`;
+            
             for(let key in cats) {
-                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-white/5 border border-white/10 px-5 py-2 rounded-full whitespace-nowrap text-gray-400 hover:bg-white/10 hover:text-white transition">${cats[key]}</button>`;
+                const icon = getCategoryIcon(cats[key]);
+                nav.innerHTML += `<button onclick="filterByCat('${cats[key]}')" class="bg-white/5 border border-white/10 px-5 py-2 rounded-full whitespace-nowrap text-gray-400 hover:bg-white/10 hover:text-white transition flex items-center gap-2">
+                    <i class="fas ${icon}"></i> ${cats[key]}
+                </button>`;
             }
         });
 
@@ -545,6 +598,7 @@
                     <div class="col-span-full text-center py-20">
                         <i class="fas fa-box-open text-6xl text-gray-600 mb-4"></i>
                         <p class="text-gray-500 text-lg">لا يوجد منتجات معروضة حالياً</p>
+                        <p class="text-gray-600 text-sm mt-2">أضف منتجاتك من لوحة التحكم</p>
                     </div>`;
                 return;
             }
@@ -566,15 +620,16 @@
                 }
 
                 const orderCount = p.orders || Math.floor(Math.random() * 50) + 5;
+                const catIcon = getCategoryIcon(p.cat);
 
                 return `
                 <div class="glass-card p-4 flex flex-col relative group ${!p.stock ? 'opacity-60' : ''}">
                     <div class="stock-badge ${stockClass}">${stockText}</div>
                     
                     <div class="h-44 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-3 relative overflow-hidden">
-                        <img src="${p.img || 'https://via.placeholder.com/150?text=AKKAD'}" 
+                        <img src="${p.img || 'https://via.placeholder.com/150?text=AKKAD+STORE'}" 
                              class="max-h-full object-contain transition duration-500 group-hover:scale-110"
-                             onerror="this.src='https://via.placeholder.com/150?text=AKKAD'">
+                             onerror="this.src='https://via.placeholder.com/150?text=AKKAD+STORE'">
                         
                         ${p.video ? `
                         <button onclick="openVideo('${p.video}')" 
@@ -586,6 +641,13 @@
                     </div>
                     
                     <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="category-icon bg-blue-500/20 text-blue-400">
+                                <i class="fas ${catIcon}"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">${p.cat || 'عام'}</span>
+                        </div>
+                        
                         <h3 class="font-bold text-[13px] mb-1 line-clamp-2 leading-relaxed">${p.name}</h3>
                         
                         <div class="order-counter">
@@ -652,7 +714,7 @@
                     <div>
                         <div class="font-bold text-sm">${product.name}</div>
                         <div class="text-blue-400 font-bold text-lg">${product.price} د.ع</div>
-                        <div class="text-[10px] text-gray-400">الدفع عند الاستلام</div>
+                        <div class="text-[10px] text-gray-400">الدفع عند الاستلام • تركيب متاح</div>
                     </div>
                 </div>
             `;
@@ -696,7 +758,7 @@
             
             db.ref('stats/todayOrders').transaction(count => (count || 0) + 1);
             
-            const message = `طلب جديد من متجر أكاد الرقمي 🎮%0A%0A` +
+            const message = `طلب جديد من متجر أكاد الرقمي 📺%0A%0A` +
                 `🔢 رقم الطلب: ${orderId}%0A` +
                 `📦 المنتج: ${currentOrderProduct.name}%0A` +
                 `💰 السعر: ${currentOrderProduct.price} د.ع%0A%0A` +
@@ -706,7 +768,7 @@
                 `🏠 العنوان: ${address || 'غير محدد'}%0A` +
                 `📝 ملاحظات: ${notes || 'لا يوجد'}%0A%0A` +
                 `⏰ الوقت: ${new Date().toLocaleString('ar-IQ')}%0A%0A` +
-                `الرجاء تأكيد الطلب وتحديد موعد التوصيل.`;
+                `الرجاء تأكيد الطلب وتحديد موعد التوصيل/التركيب.`;
             
             showToast(`تم إرسال طلبك! رقم الطلب: ${orderId}`, 'fa-check-circle', 'green');
             
@@ -776,7 +838,7 @@
                     { icon: 'fa-clipboard-check', label: 'تم استلام الطلب', status: 'completed' },
                     { icon: 'fa-box', label: 'جاري التجهيز', status: order.status !== 'pending' ? 'completed' : 'active' },
                     { icon: 'fa-truck', label: 'بالطريق إليك', status: ['shipped', 'delivered'].includes(order.status) ? 'completed' : (order.status === 'processing' ? 'active' : '') },
-                    { icon: 'fa-house-chimney', label: 'تم التسليم', status: order.status === 'delivered' ? 'completed' : '' }
+                    { icon: 'fa-tools', label: 'التركيب والتشغيل', status: order.status === 'delivered' ? 'completed' : '' }
                 ];
                 
                 return `
@@ -852,7 +914,7 @@
         function filterByCat(category) {
             const buttons = document.querySelectorAll('#categories-nav button');
             buttons.forEach(btn => {
-                if(btn.textContent === (category === 'all' ? 'الكل' : category)) {
+                if(btn.textContent.trim() === (category === 'all' ? 'الكل' : category)) {
                     btn.classList.remove('bg-white/5', 'text-gray-400');
                     btn.classList.add('bg-blue-600', 'text-white', 'shadow-lg', 'shadow-blue-600/30');
                 } else {
@@ -865,7 +927,7 @@
         }
 
         window.addEventListener('load', () => {
-            showToast('🎮 مرحباً بك في متجر أكاد الرقمي!', 'fa-store', 'blue');
+            showToast('📺 مرحباً بك في متجر أكاد الرقمي!', 'fa-satellite-dish', 'blue');
         });
     </script>
 </body>
