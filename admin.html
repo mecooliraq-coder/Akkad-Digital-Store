@@ -3,101 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | متجر أكاد الرقمي</title>
+    <title>لوحة تحكم متجر أكاد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; scroll-behavior: smooth; }
-        .glass-panel { background: white; border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid rgba(226, 232, 240, 0.8); }
-        .stat-card { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border-radius: 1.5rem; padding: 1.5rem; position: relative; overflow: hidden; transition: transform 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card.orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
-        .stat-card.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        .notification-toast { position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: #1e293b; color: white; border-radius: 1rem; padding: 1rem 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 500px; }
-        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background: #f8fafc; }
+        .glass-card { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .stat-box { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 1.5rem; border-radius: 1rem; }
     </style>
 </head>
-<body class="p-4 md:p-8 text-right">
+<body class="p-4 md:p-8">
 
-    <div id="loginScreen" class="fixed inset-0 bg-gradient-to-br from-blue-600 to-blue-800 z-50 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 text-center">
-            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
-                <i class="fas fa-shield-alt text-2xl"></i>
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-3xl">
+                <i class="fas fa-user-shield"></i>
             </div>
-            <h2 class="text-2xl font-bold text-slate-800">تسجيل الدخول</h2>
-            <p class="text-sm text-gray-400 mt-2 mb-6">لوحة تحكم متجر أكاد الرقمي</p>
-            <input id="loginPassword" type="password" class="w-full p-3 border rounded-xl mb-4 text-center outline-none" placeholder="أدخل كلمة المرور">
-            <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">دخول</button>
-            <p id="loginError" class="text-red-500 text-xs mt-3 hidden">كلمة المرور غير صحيحة!</p>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">تسجيل دخول المدير</h2>
+            <p class="text-slate-500 mb-6 text-sm">متجر أكاد الرقمي</p>
+            <input id="passInput" type="password" class="w-full p-4 border rounded-xl mb-4 text-center text-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="أدخل كلمة المرور">
+            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition">دخول اللوحة</button>
+            <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden">كلمة المرور غير صحيحة!</p>
         </div>
     </div>
 
-    <div id="mainContent" class="max-w-7xl mx-auto hidden">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg text-white">
-                    <i class="fas fa-tools text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">لوحة تحكم أكاد</h1>
-                    <p class="text-xs text-gray-400" id="currentTime"></p>
-                </div>
+    <div id="mainContent" class="max-w-6xl mx-auto opacity-0 transition-opacity duration-500">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800">لوحة التحكم</h1>
+                <p id="dateDisplay" class="text-slate-400 text-sm mt-1"></p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-green-700 transition">تصدير CSV</button>
-                <button onclick="openCategoryModal()" class="bg-orange-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-orange-600 transition">الأقسام</button>
-                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm">خروج</button>
+            <div class="flex gap-2">
+                <button onclick="openCatModal()" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-orange-600">إدارة الأقسام</button>
+                <button onclick="location.reload()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm">خروج</button>
             </div>
         </header>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-white">
-            <div class="stat-card">
-                <div class="text-3xl font-bold" id="statTotalProducts">0</div>
-                <div class="text-xs opacity-80">إجمالي المنتجات</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stat-box">
+                <p class="text-blue-100 text-sm">إجمالي المنتجات</p>
+                <h3 id="countProd" class="text-3xl font-bold mt-1">0</h3>
             </div>
-            <div class="stat-card orange">
-                <div class="text-3xl font-bold" id="statLowStock">0</div>
-                <div class="text-xs opacity-80">مخزون منخفض</div>
+            <div class="stat-box" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <p class="text-orange-100 text-sm">الأقسام</p>
+                <h3 id="countCat" class="text-3xl font-bold mt-1">0</h3>
             </div>
-            <div class="stat-card red">
-                <div class="text-3xl font-bold" id="statOutOfStock">0</div>
-                <div class="text-xs opacity-80">نفذ من المخزون</div>
-            </div>
-            <div class="stat-card green">
-                <div class="text-3xl font-bold" id="statCategories">0</div>
-                <div class="text-xs opacity-80">الأقسام النشطة</div>
+            <div class="stat-box" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <p class="text-green-100 text-sm">حالة الربط</p>
+                <h3 class="text-3xl font-bold mt-1">متصل</h3>
             </div>
         </div>
 
-        <div class="glass-panel p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1 bg-gray-50 p-6 rounded-2xl border sticky top-4">
-                    <h2 class="font-bold mb-4 text-blue-700" id="formTitle">إضافة منتج جديد</h2>
-                    <div class="space-y-3">
-                        <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-xl text-sm">
-                        <div class="grid grid-cols-2 gap-3">
-                            <input id="pPrice" type="text" placeholder="السعر (د.ع)" class="w-full p-3 border rounded-xl text-sm">
-                            <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-xl text-sm">
-                        </div>
-                        <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-xl text-sm">
-                        <select id="pCat" class="w-full p-3 border rounded-xl text-sm bg-white"></select>
-                        <textarea id="pDesc" placeholder="وصف المنتج" class="w-full p-3 border rounded-xl h-24 text-sm"></textarea>
-                        <button onclick="saveProduct()" id="btnSave" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700">حفظ المنتج</button>
-                        <button onclick="resetForm()" id="btnCancel" class="w-full text-gray-400 text-xs hidden">إلغاء التعديل</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="glass-card p-6 h-fit sticky top-4">
+                <h3 id="formTitle" class="font-bold text-lg mb-4 text-blue-600">إضافة منتج جديد</h3>
+                <div class="space-y-4">
+                    <input id="pId" type="hidden">
+                    <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-lg text-sm outline-none">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 border rounded-lg text-sm outline-none">
+                        <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-lg text-sm outline-none">
                     </div>
+                    <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-lg text-sm outline-none">
+                    <select id="pCat" class="w-full p-3 border rounded-lg text-sm outline-none bg-white"></select>
+                    <textarea id="pDesc" placeholder="وصف المنتج" class="w-full p-3 border rounded-lg text-sm h-24 outline-none"></textarea>
+                    <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-700">حفظ المنتج</button>
+                    <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 text-xs hidden">إلغاء التعديل</button>
                 </div>
+            </div>
 
-                <div class="lg:col-span-2">
-                    <div class="mb-4">
-                        <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="
+            <div class="lg:col-span-2">
+                <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="catModal" class="fixed inset-0 bg-black/50 z-[110] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-xl">إدارة الأقسام</h3>
+                <button onclick="closeCatModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+            <div class="flex gap-2 mb-4">
+                <input id="catName" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-lg text-sm outline-none">
+                <button onclick="addCat()" class="bg-orange-500 text-white px-4 rounded-lg font-bold">إضافة</button>
+            </div>
+            <div id="catListDisplay" class="space-y-2 max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        // الربط بقاعدة بياناتك بناءً على الصورة
+        const firebaseConfig = { 
+            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // نظام الدخول
+        function checkAuth() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "ashd1980") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.opacity = '1';
+                document.getElementById('mainContent').style.display = 'block';
+                init();
+            } else {
+                document.getElementById('errorMsg').classList.remove('hidden');
+            }
+        }
+
+        function init() {
+            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            loadData();
+        }
+
+        function loadData() {
+            // تحميل الأقسام
+            db.ref('categories').on('value', snap => {
+                const cats = snap.val() || {};
+                const select = document.getElementById('pCat');
+                const list = document.getElementById('catListDisplay');
+                select.innerHTML = '<option value="">اختر القسم...</option>';
+                list.innerHTML = '';
+                let count = 0;
+                Object.keys(cats).forEach(id => {
+                    count++;
+                    select.innerHTML += `<option value="${id}">${cats[id].name}</option>`;
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-700">${cats[id].name}</span>
+                            <button onclick="deleteCat('${id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                });
+                document.getElementById('countCat').innerText = count;
+            });
+
+            // تحميل المنتجات
+            db.ref('products').on('value', snap => {
+                const prods = snap.val() || {};
+                const list = document.getElementById('productsList');
+                list.innerHTML = '';
+                let count = 0;
+                Object.keys(prods).forEach(id => {
+                    count++;
+                    const p = prods[id];
+                    list.innerHTML += `
+                        <div class="glass-card p-4 flex gap-4 items-center">
+                            <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-lg object-cover bg-slate-100">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">${p.name}</h4>
+                                <p class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <button onclick="editProduct('${id}')" class="text-blue-500 bg-blue-50 px-2 py-1 rounded text-[10px] font-bold">تعديل</button>
+                                    <button onclick="deleteProduct('${id}')" class="text-red-500 bg-red-50 px-2 py-1 rounded text-[10px] font-bold">حذف</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('countProd').innerText = count;
+            });
+        }
+
+        // عمليات الأقسام
+        function addCat() {
+            const name = document.getElementById('catName').value;
+            if (name) db.ref('categories').push({ name }).then(() => document.getElementById('catName').value = '');
+        }
+        function deleteCat(id) { if(confirm("حذف القسم؟")) db.ref('categories/'+id).remove(); }
+        function openCatModal() { document.getElementById('catModal').style.display = 'flex'; }
+        function closeCatModal() { document.getElementById('catModal').style.display = 'none'; }
+
+        // عمليات المنتجات
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value,
+                price: document.getElementById('pPrice').value,
+                stock: document.getElementById('pStock').value,
+                img: document.getElementById('pImg').value,
+                cat: document.getElementById('pCat').value,
+                desc: document.getElementById('pDesc').value
+            };
+            if(!data.name) return alert("يرجى إدخال اسم المنتج");
+            
+            const ref = id ? db.ref('products/'+id).update(data) : db.ref('products').push(data);
+            ref.then(() => { resetForm(); alert("تم الحفظ بنجاح"); });
+        }
+
+        function editProduct(id) {
+            db.ref('products/'+id).once('value').then(snap => {
+                const p = snap.val();
+                document.getElementById('pId').value = id;
+                document.getElementById('pName').value = p.name;
+                document.getElementById('pPrice').value = p.price;
+                document.getElementById('pStock').value = p.stock;
+                document.getElementById('pImg').value = p.img;
+                document.getElementById('pCat').value = p.cat;
+                document.getElementById('pDesc').value = p.desc;
+                document.getElementById('formTitle').innerText = "تعديل منتج";
+                document.getElementById('saveBtn').innerText = "تحديث المنتج";
+                document.getElementById('cancelBtn').classList.remove('hidden');
+                window.scrollTo(0, 0);
+            });
+        }
+
+        function deleteProduct(id) { if(confirm("حذف المنتج نهائياً؟")) db.ref('products/'+id).remove(); }
+
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.querySelectorAll('input, select, textarea').forEach(el => { if(el.id.startsWith('p')) el.value = ''; });
+            document.getElementById('formTitle').innerText = "إضافة منتج جديد";
+            document.getElementById('saveBtn').innerText = "حفظ المنتج";
+            document.getElementById('cancelBtn').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
