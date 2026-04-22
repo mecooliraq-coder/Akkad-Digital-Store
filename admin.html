@@ -13,19 +13,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         body { background: #f8fafc; }
         .glass-card { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .stat-box { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 1.5rem; border-radius: 1rem; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-3xl">
-                <i class="fas fa-user-shield"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">تسجيل دخول المدير</h2>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">دخول الإدارة</h2>
             <input id="passInput" type="password" class="w-full p-4 border rounded-xl mb-4 text-center outline-none" placeholder="كلمة المرور">
-            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700">دخول</button>
+            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition">دخول</button>
             <p id="errorMsg" class="text-red-500 mt-4 text-sm hidden">خطأ في كلمة المرور!</p>
         </div>
     </div>
@@ -34,24 +30,29 @@
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-extrabold text-slate-800">لوحة التحكم</h1>
             <div class="flex gap-2">
-                <button onclick="openCatModal()" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold">إدارة الأقسام</button>
-                <button onclick="location.reload()" class="bg-slate-200 px-4 py-2 rounded-lg font-bold">خروج</button>
+                <button onclick="openCatModal()" class="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm">إدارة الأقسام</button>
+                <button onclick="location.reload()" class="bg-slate-200 px-4 py-2 rounded-lg font-bold text-sm">خروج</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="glass-card p-6 h-fit sticky top-4">
                 <h3 id="formTitle" class="font-bold text-lg mb-4 text-blue-600">إضافة منتج جديد</h3>
-                <div class="space-y-4">
+                <div class="space-y-3">
                     <input id="pId" type="hidden">
-                    <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-lg outline-none">
-                    <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 border rounded-lg outline-none">
-                    <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-lg outline-none">
-                    <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-lg outline-none">
-                    <select id="pCat" class="w-full p-3 border rounded-lg outline-none bg-white"></select>
-                    <textarea id="pDesc" placeholder="الوصف" class="w-full p-3 border rounded-lg h-24 outline-none"></textarea>
-                    <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">حفظ المنتج</button>
-                    <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 text-xs hidden">إلغاء</button>
+                    <input id="pName" type="text" placeholder="اسم المنتج" class="w-full p-3 border rounded-lg outline-none text-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="pPrice" type="text" placeholder="السعر" class="w-full p-3 border rounded-lg outline-none text-sm">
+                        <input id="pStock" type="number" placeholder="المخزون" class="w-full p-3 border rounded-lg outline-none text-sm">
+                    </div>
+                    <input id="pImg" type="text" placeholder="رابط الصورة" class="w-full p-3 border rounded-lg outline-none text-sm">
+                    <input id="pYoutube" type="text" placeholder="رابط فيديو اليوتيوب (اختياري)" class="w-full p-3 border rounded-lg outline-none text-sm border-blue-100 focus:border-blue-500">
+                    
+                    <select id="pCat" class="w-full p-3 border rounded-lg outline-none bg-white text-sm"></select>
+                    <textarea id="pDesc" placeholder="وصف المنتج" class="w-full p-3 border rounded-lg h-24 outline-none text-sm"></textarea>
+                    
+                    <button onclick="saveProduct()" id="saveBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-700">حفظ المنتج</button>
+                    <button onclick="resetForm()" id="cancelBtn" class="w-full text-slate-400 text-xs hidden">إلغاء التعديل</button>
                 </div>
             </div>
 
@@ -64,16 +65,85 @@
     <div id="catModal" class="fixed inset-0 bg-black/50 z-[110] hidden items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-xl">إدارة الأقسام</h3>
+                <h3 class="font-bold text-xl text-orange-600">إدارة الأقسام</h3>
                 <button onclick="closeCatModal()" class="text-slate-400 text-2xl">&times;</button>
             </div>
             <div class="flex gap-2 mb-4">
-                <input id="catEditId" type="hidden"> <input id="catName" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-lg outline-none">
-                <button onclick="saveCat()" id="catBtn" class="bg-orange-500 text-white px-4 rounded-lg font-bold">إضافة</button>
+                <input id="catEditId" type="hidden">
+                <input id="catName" type="text" placeholder="اسم القسم" class="flex-1 p-3 border rounded-lg outline-none">
+                <button onclick="saveCat()" id="catBtn" class="bg-orange-500 text-white px-6 rounded-lg font-bold transition">حفظ</button>
             </div>
             <div id="catListDisplay" class="space-y-2 max-h-60 overflow-y-auto"></div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-r
+        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function checkAuth() {
+            if (document.getElementById('passInput').value === "ashd1980") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                setTimeout(() => document.getElementById('mainContent').style.opacity = '1', 10);
+                loadData();
+            } else { document.getElementById('errorMsg').classList.remove('hidden'); }
+        }
+
+        function loadData() {
+            // تحميل الأقسام
+            db.ref('categories').on('value', snap => {
+                const cats = snap.val() || {};
+                const select = document.getElementById('pCat');
+                const list = document.getElementById('catListDisplay');
+                select.innerHTML = '<option value="">اختر القسم...</option>';
+                list.innerHTML = '';
+                Object.keys(cats).forEach(id => {
+                    select.innerHTML += `<option value="${id}">${cats[id].name}</option>`;
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border">
+                            <span class="font-bold text-slate-700">${cats[id].name}</span>
+                            <div class="flex gap-2">
+                                <button onclick="editCat('${id}', '${cats[id].name}')" class="text-blue-500 p-2"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteCat('${id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                });
+            });
+
+            // تحميل المنتجات
+            db.ref('products').on('value', snap => {
+                const prods = snap.val() || {};
+                const list = document.getElementById('productsList');
+                list.innerHTML = '';
+                Object.keys(prods).forEach(id => {
+                    const p = prods[id];
+                    list.innerHTML += `
+                        <div class="glass-card p-4 flex gap-4 items-center border-r-4 ${p.youtube ? 'border-r-red-500' : 'border-r-blue-500'}">
+                            <img src="${p.img || 'https://via.placeholder.com/80'}" class="w-16 h-16 rounded-lg object-cover bg-slate-100">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-sm line-clamp-1">${p.name}</h4>
+                                <p class="text-blue-600 font-bold text-xs mt-1">${p.price} د.ع</p>
+                                ${p.youtube ? '<span class="text-[9px] bg-red-100 text-red-600 px-1 rounded">فيديو متاح</span>' : ''}
+                                <div class="flex gap-3 mt-2">
+                                    <button onclick="editProduct('${id}')" class="text-blue-500 text-[10px] font-extrabold uppercase">تعديل</button>
+                                    <button onclick="deleteProduct('${id}')" class="text-red-500 text-[10px] font-extrabold uppercase">حذف</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        // الأقسام
+        function saveCat() {
+            const name = document.getElementById('catName').value;
+            const id = document.getElementById('catEditId').value;
+            if(!name) return;
+            const ref = id ? db.ref('categories/'+id).update({name}) : db.ref('categories').push({name});
+            ref.then(() => resetCatForm());
+        }
+        function editCat(id, name) {
+            document.getElementById('catEditId').value = id;
+            document.
