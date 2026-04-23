@@ -3,165 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم متجر أكاد</title>
+    <title>لوحة التحكم | متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; min-height: 100vh; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: #0f172a;
+            background: radial-gradient(circle at top right, #1e293b, #080c14); 
+            color: white; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { 
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #3b82f6;
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-right: 3px solid #3b82f6;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 14px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .form-input::placeholder { color: #64748b; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 14px 24px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59,130,246,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 14px 24px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(34,197,94,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239,68,68,0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .status-pending { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .status-processing { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .status-shipped { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+        .status-delivered { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .status-cancelled { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 2rem;
+            padding: 2rem;
+            animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp { 
+            from { transform: translateY(30px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-left: 4px solid #3b82f6;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlide 0.5s ease, toastFade 0.5s ease 4.5s forwards;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastFade {
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+
+        .table-row {
+            transition: all 0.3s;
+        }
+        .table-row:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05));
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body>
+    <div id="toastContainer" class="toast-container"></div>
 
-    <div id="loginPage" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
-        <div class="glass p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <div class="text-center mb-8">
-                <div class="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
-                    <i class="fas fa-lock text-2xl"></i>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="glass-sidebar w-72 h-full fixed right-0 top-0 z-50 flex flex-col">
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-cog text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold">لوحة التحكم</h1>
+                        <p class="text-[10px] text-gray-400">متجر أكاد الرقمي</p>
+                    </div>
                 </div>
-                <h1 class="text-2xl font-bold">تسجيل دخول الإدارة</h1>
-                <p class="text-gray-400 text-sm mt-2">متجر أكاد الرقمي</p>
             </div>
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm mb-2 mr-1">البريد الإلكتروني الجديد</label>
-                    <input type="email" id="email" placeholder="admin@example.com" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none focus:border-blue-500 transition">
+            <nav class="flex-1 p-4 overflow-y-auto scrollbar-hide">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="font-bold">الإحصائيات</span>
                 </div>
-                <div>
-                    <label class="block text-sm mb-2 mr-1">كلمة المرور الجديدة</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none focus:border-blue-500 transition">
+                <div class="nav-item" onclick="showSection('products')">
+                    <i class="fas fa-box w-5"></i>
+                    <span class="font-bold">المنتجات</span>
+                    <span id="sidebarProductCount" class="mr-auto bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px]">0</span>
                 </div>
-                <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all active:scale-95">دخول</button>
-                <p id="loginError" class="text-red-500 text-center text-sm hidden">بيانات الدخول غير صحيحة!</p>
+                <div class="nav-item" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span class="font-bold">الطلبات</span>
+                    <span id="sidebarOrderCount" class="mr-auto bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[10px]">0</span>
+                </div>
+                <div class="nav-item" onclick="showSection('categories')">
+                    <i class="fas fa-tags w-5"></i>
+                    <span class="font-bold">الفئات</span>
+                </div>
+                <div class="nav-item" onclick="showSection('settings')">
+                    <i class="fas fa-sliders-h w-5"></i>
+                    <span class="font-bold">الإعدادات</span>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-white/10">
+                <a href="index.html" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>عرض المتجر</span>
+                </a>
             </div>
-        </div>
-    </div>
+        </aside>
 
-    <div id="protectedContent" class="hidden">
-        <nav class="p-4 border-b border-white/5 glass sticky top-0 z-40">
-            <div class="container mx-auto flex justify-between items-center">
-                <h2 class="font-bold text-xl text-blue-400">لوحة التحكم</h2>
-                <button onclick="logout()" class="text-sm bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">خروج</button>
-            </div>
-        </nav>
-
-        <main class="container mx-auto p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1">
-                    <div class="glass p-6 rounded-2xl sticky top-24">
-                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2 text-blue-400">
-                            <i class="fas fa-plus-circle"></i> إضافة منتج جديد
-                        </h3>
-                        <div class="space-y-4">
-                            <input type="text" id="pName" placeholder="اسم المنتج" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
-                            <input type="text" id="pPrice" placeholder="السعر (مثال: 25,000)" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
-                            <input type="text" id="pImg" placeholder="رابط الصورة (Direct Link)" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
-                            <textarea id="pDesc" placeholder="تفاصيل المنتج..." class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500 h-32"></textarea>
-                            <button onclick="addProduct()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">نشر الآن</button>
+        <!-- Main Content -->
+        <main class="flex-1 mr-72 p-8 overflow-y-auto h-screen">
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <h2 class="text-2xl font-bold mb-6">📊 لوحة الإحصائيات</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-box text-blue-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">المنتجات</span>
                         </div>
+                        <div class="text-3xl font-bold" id="dashTotalProducts">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي المنتجات في المتجر</div>
+                    </div>
+                    
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-green-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">الطلبات</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashTotalOrders">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الطلبات المستلمة</div>
+                    </div>
+                    
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">قيد الانتظار</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashPendingOrders">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">طلبات بانتظار المراجعة</div>
+                    </div>
+                    
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-purple-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">الإيرادات</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashRevenue">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الإيرادات (د.ع)</div>
                     </div>
                 </div>
 
-                <div class="lg:col-span-2">
-                    <div class="glass p-6 rounded-2xl min-h-[400px]">
-                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2 text-green-400">
-                            <i class="fas fa-shopping-cart"></i> الطلبات الواردة
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card p-6">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-fire text-orange-400"></i>
+                            آخر الطلبات
                         </h3>
-                        <div id="ordersContainer" class="space-y-4">
-                            </div>
+                        <div id="recentOrdersList" class="space-y-3"></div>
+                    </div>
+                    
+                    <div class="glass-card p-6">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-bar text-blue-400"></i>
+                            الطلبات حسب الحالة
+                        </h3>
+                        <div id="ordersByStatus" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script>
-        // إعدادات Firebase
-        const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+            <!-- Products Section -->
+            <div id="products" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">📦 إدارة المنتجات</h2>
+                    <button onclick="openProductModal()" class="btn-success">
+                        <i class="fas fa-plus"></i>
+                        إضافة منتج جديد
+                    </button>
+                </div>
+                
+                <div class="glass-card p-4 mb-6">
+                    <div class="flex gap-4 flex-wrap">
+                        <input type="text" id="productSearch" onkeyup="searchProducts()" 
+                               class="form-input flex-1" placeholder="ابحث عن منتج...">
+                        <select id="productFilter" onchange="filterProducts()" class="form-input w-48">
+                            <option value="all">جميع الفئات</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="glass-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-white/5">
+                                <tr>
+                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
+                                    <th class="text-right p-4 text-sm font-bold">الفئة</th>
+                                    <th class="text-right p-4 text-sm font-bold">السعر</th>
+                                    <th class="text-right p-4 text-sm font-bold">المخزون</th>
+                                    <th class="text-right p-4 text-sm font-bold">الطلبات</th>
+                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        // بيانات الدخول (غيرها كما تحب هنا)
-        const ADMIN_USER = "akkad.store@gmail.com"; 
-        const ADMIN_PASS = "Akkad2026Admin"; 
+            <!-- Orders Section -->
+            <div id="orders" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">🛒 إدارة الطلبات</h2>
+                    <div class="flex gap-2">
+                        <select id="orderStatusFilter" onchange="filterOrders()" class="form-input w-40">
+                            <option value="all">جميع الحالات</option>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="processing">جاري التجهيز</option>
+                            <option value="shipped">تم الشحن</option>
+                            <option value="delivered">تم التوصيل</option>
+                            <option value="cancelled">ملغي</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="glass-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-white/5">
+                                <tr>
+                                    <th class="text-right p-4 text-sm font-bold">رقم الطلب</th>
+                                    <th class="text-right p-4 text-sm font-bold">العميل</th>
+                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
+                                    <th class="text-right p-4 text-sm font-bold">المبلغ</th>
+                                    <th class="text-right p-4 text-sm font-bold">الحالة</th>
+                                    <th class="text-right p-4 text-sm font-bold">التاريخ</th>
+                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        function handleLogin() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            const error = document.getElementById('loginError');
+            <!-- Categories Section -->
+            <div id="categories" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">🏷️ إدارة الفئات</h2>
+                    <button onclick="openCategoryModal()" class="btn-success">
+                        <i class="fas fa-plus"></i>
+                        إضافة فئة
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="categoriesGrid"></div>
+            </div>
 
-            if (email === ADMIN_USER && pass === ADMIN_PASS) {
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('protectedContent').classList.remove('hidden');
-                sessionStorage.setItem('isAdmin', 'true');
-                loadOrders();
-            } else {
-                error.classList.remove('hidden');
-            }
-        }
-
-        function addProduct() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const img = document.getElementById('pImg').value;
-            const desc = document.getElementById('pDesc').value;
-
-            if(name && price && img) {
-                db.ref('products').push({ name, price, img, desc }).then(() => {
-                    alert("✅ تم نشر المنتج في المتجر");
-                    document.querySelectorAll('input, textarea').forEach(i => i.value = "");
-                });
-            } else {
-                alert("يرجى إكمال البيانات");
-            }
-        }
-
-        function loadOrders() {
-            db.ref('orders').on('value', snap => {
-                const container = document.getElementById('ordersContainer');
-                container.innerHTML = "";
-                const orders = snap.val();
-                if(orders) {
-                    Object.entries(orders).reverse().forEach(([id, o]) => {
-                        container.innerHTML += `
-                            <div class="bg-slate-800/40 p-5 rounded-2xl border border-white/5 flex justify-between items-start hover:bg-slate-800/60 transition">
-                                <div>
-                                    <div class="font-bold text-blue-400 text-lg">${o.name}</div>
-                                    <div class="text-sm text-gray-300 mt-1"><i class="fas fa-map-marker-alt ml-1"></i> ${o.city} | <i class="fas fa-phone ml-1"></i> ${o.phone}</div>
-                                    <div class="bg-blue-500/10 text-blue-400 text-xs inline-block px-3 py-1 rounded-full mt-3">المنتج: ${o.product}</div>
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-green-400">${o.price} د.ع</div>
-                                    <button onclick="deleteOrder('${id}')" class="mt-4 text-gray-500 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    container.innerHTML = "<div class='text-center py-20 text-gray-500'>لا توجد طلبات جديدة حالياً</div>";
-                }
-            });
-        }
-
-        function deleteOrder(id) {
-            if(confirm("هل تريد حذف هذا الطلب؟")) db.ref('orders/' + id).remove();
-        }
-
-        function logout() {
-            sessionStorage.removeItem('isAdmin');
-            location.reload();
-        }
-
-        // التحقق من الجلسة عند التحديث
-        if(sessionStorage.getItem('isAdmin') === 'true') {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('protectedContent').classList.remove('hidden');
-            loadOrders();
-        }
-    </script>
-</body>
-</html>
+            <!-- Settings Section -->
+            <div id="settings" clas
