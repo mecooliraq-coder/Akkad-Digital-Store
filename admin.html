@@ -617,6 +617,7 @@
         let allOrders = [];
         let allCategories = [];
         let currentEditId = null;
+        let currentEditCategoryId = null;
 
         // Toast Notification
         function showToast(message, icon = 'fa-bell', color = 'blue') {
@@ -1033,39 +1034,72 @@
             }
             
             grid.innerHTML = allCategories.map(c => `
-                <div class="glass-card p-6 flex items-center justify-between">
+                <div class="glass-card p-6 flex items-center justify-between group">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
                             <i class="fas fa-tag text-blue-400"></i>
                         </div>
-                        <div class="font-bold">${c.name}</div>
+                        <div>
+                            <div class="font-bold" id="cat-name-${c.id}">${c.name}</div>
+                            <div class="text-[10px] text-gray-400">${c.id}</div>
+                        </div>
                     </div>
-                    <button onclick="deleteCategory('${c.id}')" class="text-red-400 hover:text-red-300 transition">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="editCategory('${c.id}', '${c.name}')" class="btn-warning py-2 px-3 text-xs">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteCategory('${c.id}')" class="btn-danger py-2 px-3 text-xs">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
 
         function openCategoryModal() {
+            currentEditCategoryId = null;
             document.getElementById('categoryName').value = '';
+            document.querySelector('#categoryModal h2').textContent = 'إضافة فئة جديدة';
+            openModal('categoryModal');
+        }
+
+        function editCategory(id, currentName) {
+            currentEditCategoryId = id;
+            document.getElementById('categoryName').value = currentName;
+            document.querySelector('#categoryModal h2').textContent = 'تعديل الفئة';
             openModal('categoryModal');
         }
 
         function saveCategory(e) {
             e.preventDefault();
             const name = document.getElementById('categoryName').value;
-            const catId = 'cat_' + Date.now();
             
-            db.ref('categories/' + catId).set(name)
-                .then(() => {
-                    showToast('تم إضافة الفئة بنجاح', 'fa-check', 'green');
-                    closeModal('categoryModal');
-                    loadCategories();
-                })
-                .catch(error => {
-                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
-                });
+            if(currentEditCategoryId) {
+                // Edit existing category
+                db.ref('categories/' + currentEditCategoryId).set(name)
+                    .then(() => {
+                        showToast('تم تحديث الفئة بنجاح', 'fa-check', 'green');
+                        currentEditCategoryId = null;
+                        document.querySelector('#categoryModal h2').textContent = 'إضافة فئة جديدة';
+                        closeModal('categoryModal');
+                        loadCategories();
+                    })
+                    .catch(error => {
+                        showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                    });
+            } else {
+                // Add new category
+                const catId = 'cat_' + Date.now();
+                db.ref('categories/' + catId).set(name)
+                    .then(() => {
+                        showToast('تم إضافة الفئة بنجاح', 'fa-check', 'green');
+                        closeModal('categoryModal');
+                        loadCategories();
+                    })
+                    .catch(error => {
+                        showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                    });
+            }
         }
 
         function deleteCategory(id) {
