@@ -408,32 +408,32 @@
         </div>
     </main>
 
-    <!-- Quick Order Modal -->
+    <!-- Order Modal -->
     <div id="orderModal" class="modal-overlay" onclick="closeModal('orderModal')">
         <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-blue-400">🛒 طلب سريع</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-blue-400">🛒 إتمام الطلب السريع</h2>
                 <button onclick="closeModal('orderModal')" class="text-gray-400 hover:text-white text-xl">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div id="orderProductInfo" class="bg-white/5 rounded-xl p-3 mb-4 border border-white/10">
+            <div id="orderProductInfo" class="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
             </div>
 
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-sm text-gray-400 mb-1">الاسم الكامل *</label>
-                        <input type="text" id="customerName" class="form-input py-2" placeholder="مثال: أحمد محمد" required>
+                        <label class="block text-sm text-gray-400 mb-2">الاسم الكامل *</label>
+                        <input type="text" id="customerName" class="form-input" placeholder="مثال: أحمد محمد" required>
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-400 mb-1">رقم الهاتف *</label>
-                        <input type="tel" id="customerPhone" class="form-input py-2" placeholder="مثال: 0773 049 2020" required>
+                        <label class="block text-sm text-gray-400 mb-2">رقم الهاتف *</label>
+                        <input type="tel" id="customerPhone" class="form-input" placeholder="مثال: 0773 049 2020" required>
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-400 mb-1">المحافظة *</label>
-                        <select id="customerCity" class="form-input py-2" required>
+                        <label class="block text-sm text-gray-400 mb-2">المحافظة / المنطقة *</label>
+                        <select id="customerCity" class="form-input" required>
                             <option value="">اختر المحافظة</option>
                             <option value="بغداد">بغداد</option>
                             <option value="البصرة">البصرة</option>
@@ -450,13 +450,25 @@
                             <option value="أخرى">أخرى</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">العنوان التفصيلي</label>
+                        <input type="text" id="customerAddress" class="form-input" placeholder="الحي، أقرب نقطة دالة">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">ملاحظات (اختياري)</label>
+                        <textarea id="customerNotes" class="form-input" rows="2" placeholder="نوع التركيب، موعد التوصيل المفضل..."></textarea>
+                    </div>
                 </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn-whatsapp py-3">
-                        <i class="fab fa-whatsapp text-lg"></i>
-                        إرسال الطلب
+                <div class="mt-6 space-y-3">
+                    <button type="submit" class="btn-whatsapp">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                        إرسال الطلب عبر واتساب
                     </button>
+                    <p class="text-center text-[11px] text-gray-500">
+                        <i class="fas fa-shield-halved mr-1"></i>
+                        طلبك آمن • الدفع عند الاستلام • تركيب متاح
+                    </p>
                 </div>
             </form>
         </div>
@@ -687,20 +699,19 @@
                             تم طلبه ${orderCount} مرة
                         </div>
                         
-                        <div class="text-xl font-bold text-white mt-3 mb-1 flex items-baseline gap-1">
+                        <div class="text-xl font-bold text-white mt-3 mb-1 flex items-baseline gap-1" id="price-${p.id}">
                             ${p.price} 
                             <span class="text-[10px] text-gray-500 font-normal">د.ع</span>
                         </div>
                         
                         ${p.options ? `
                         <div class="product-options">
-                            <span class="option-label">${p.optionsLabel || 'الخيارات المتاحة:'}</span>
+                            <span class="option-label">${p.optionsLabel || 'الخيارات:'}</span>
                             <div class="option-buttons" id="opts-${p.id}">
                                 ${p.options.map((opt, idx) => `
                                     <button onclick="selectOption('${p.id}', ${idx}, this)" 
                                             class="option-btn ${opt.stock === 0 ? 'out-of-stock' : ''}"
                                             data-price="${opt.price || p.price}"
-                                            data-stock="${opt.stock || 1}"
                                             ${opt.stock === 0 ? 'disabled' : ''}>
                                         ${opt.name}
                                     </button>
@@ -719,7 +730,7 @@
                     <button onclick="openOrderModal('${p.id}')" 
                             class="btn-whatsapp">
                         <i class="fab fa-whatsapp text-lg"></i>
-                        اطلب الآن
+                        اطلب الآن — الدفع عند الاستلام
                     </button>
                     ` : `
                     <button disabled class="w-full bg-gray-700 text-gray-500 py-3 rounded-xl font-bold text-xs cursor-not-allowed">
@@ -727,7 +738,7 @@
                     </button>
                     `}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function createFloatingBg() {
@@ -757,21 +768,17 @@
             const option = product.options[optionIndex];
             if(option.stock === 0) return;
             
-            // Remove selected from siblings
             const container = document.getElementById('opts-' + productId);
             container.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
             btnElement.classList.add('selected');
             
-            // Store selection
             selectedOptions[productId] = {
                 index: optionIndex,
                 name: option.name,
-                price: option.price || product.price,
-                stock: option.stock
+                price: option.price || product.price
             };
             
-            // Update price display
-            const priceEl = btnElement.closest('.glass-card').querySelector('.text-xl');
+            const priceEl = document.getElementById('price-' + productId);
             if(priceEl) {
                 priceEl.innerHTML = `${option.price || product.price} <span class="text-[10px] text-gray-500 font-normal">د.ع</span>`;
             }
@@ -788,11 +795,12 @@
             
             const infoDiv = document.getElementById('orderProductInfo');
             infoDiv.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <img src="${product.img}" class="w-12 h-12 object-contain bg-white/5 rounded-lg p-1">
+                <div class="flex items-center gap-4">
+                    <img src="${product.img}" class="w-16 h-16 object-cover bg-white/5 rounded-lg" onerror="this.style.display='none'">
                     <div>
                         <div class="font-bold text-sm">${product.name}${optionText}</div>
-                        <div class="text-blue-400 font-bold">${finalPrice} د.ع</div>
+                        <div class="text-blue-400 font-bold text-lg">${finalPrice} د.ع</div>
+                        <div class="text-[10px] text-gray-400">الدفع عند الاستلام • تركيب متاح</div>
                     </div>
                 </div>
             `;
@@ -806,6 +814,8 @@
             const name = document.getElementById('customerName').value;
             const phone = document.getElementById('customerPhone').value;
             const city = document.getElementById('customerCity').value;
+            const address = document.getElementById('customerAddress').value;
+            const notes = document.getElementById('customerNotes').value;
             
             if(!currentOrderProduct) return;
             
@@ -813,44 +823,45 @@
             const finalPrice = selectedOpt ? selectedOpt.price : currentOrderProduct.price;
             
             const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
-            
-            // Save to Firebase
             const orderData = {
                 orderId: orderId,
                 productId: currentOrderProduct.id,
                 productName: currentOrderProduct.name + (selectedOpt ? ` (${selectedOpt.name})` : ''),
                 price: finalPrice,
                 customerName: name,
-                customerPhone: phone,
-                customerCity: city,
+                phone: phone,
+                city: city,
+                address: address || 'غير محدد',
+                notes: notes || 'لا يوجد',
                 status: 'pending',
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                date: new Date().toLocaleString('ar-IQ')
             };
             
-            db.ref('orders/' + orderId).set(orderData)
-                .then(() => {
-                    db.ref('stats/todayOrders').transaction(count => (count || 0) + 1);
-                })
-                .catch(err => console.error('Error saving order:', err));
+            db.ref('orders/' + orderId).set(orderData);
             
-            // Prepare WhatsApp message
-            const message = `*طلب جديد من متجر أكاد* 📺%0A` +
-                `─────────────────%0A` +
-                `*رقم الطلب:* ${orderId}%0A` +
-                `*المنتج:* ${currentOrderProduct.name}${selectedOpt ? ' (' + selectedOpt.name + ')' : ''}%0A` +
-                `*السعر:* ${finalPrice} د.ع%0A` +
-                `─────────────────%0A` +
-                `*الاسم:* ${name}%0A` +
-                `*الهاتف:* ${phone}%0A` +
-                `*المحافظة:* ${city}%0A` +
-                `*الوقت:* ${new Date().toLocaleString('ar-IQ')}`;
+            if(currentOrderProduct.stock > 0) {
+                db.ref('products/' + currentOrderProduct.id + '/stock').set(currentOrderProduct.stock - 1);
+                db.ref('products/' + currentOrderProduct.id + '/orders').set((currentOrderProduct.orders || 0) + 1);
+            }
             
-            showToast('جاري تحويلك لواتساب...', 'fa-whatsapp', 'green');
+            db.ref('stats/todayOrders').transaction(count => (count || 0) + 1);
             
-            // Open WhatsApp
-            setTimeout(() => {
-                window.open(`https://wa.me/${myPhone}?text=${message}`, '_blank');
-            }, 800);
+            const message = `طلب جديد من متجر أكاد الرقمي 📺%0A%0A` +
+                `🔢 رقم الطلب: ${orderId}%0A` +
+                `📦 المنتج: ${currentOrderProduct.name}${selectedOpt ? ' (' + selectedOpt.name + ')' : ''}%0A` +
+                `💰 السعر: ${finalPrice} د.ع%0A%0A` +
+                `👤 الاسم: ${name}%0A` +
+                `📱 الهاتف: ${phone}%0A` +
+                `📍 المحافظة: ${city}%0A` +
+                `🏠 العنوان: ${address || 'غير محدد'}%0A` +
+                `📝 ملاحظات: ${notes || 'لا يوجد'}%0A%0A` +
+                `⏰ الوقت: ${new Date().toLocaleString('ar-IQ')}%0A%0A` +
+                `الرجاء تأكيد الطلب وتحديد موعد التوصيل/التركيب.`;
+            
+            showToast(`تم إرسال طلبك! رقم الطلب: ${orderId}`, 'fa-check-circle', 'green');
+            
+            window.open(`https://wa.me/${myPhone}?text=${message}`, '_blank');
             
             closeModal('orderModal');
             document.getElementById('orderForm').reset();
