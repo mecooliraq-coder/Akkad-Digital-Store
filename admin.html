@@ -3,47 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | أكاد</title>
+    <title>لوحة تحكم متجر أكاد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #080c14; color: white; }
-        .card { background: #111827; border: 1px solid #1f2937; padding: 20px; border-radius: 15px; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; min-height: 100vh; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="p-4">
+<body>
 
-    <div class="max-w-6xl mx-auto space-y-6">
-        <header class="flex justify-between items-center bg-blue-900/20 p-4 rounded-xl border border-blue-500/30">
-            <h1 class="text-xl font-bold">لوحة إدارة المتجر</h1>
-            <div id="statCount" class="text-green-400"></div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="card md:col-span-1 space-y-4">
-                <h2 class="text-blue-400 font-bold border-b border-white/5 pb-2">إضافة منتج</h2>
-                <input type="text" id="pName" placeholder="اسم المنتج" class="w-full bg-black/30 p-3 rounded-lg border border-white/10 outline-none">
-                <input type="text" id="pPrice" placeholder="السعر (مثال: 25,000)" class="w-full bg-black/30 p-3 rounded-lg border border-white/10 outline-none">
-                <input type="text" id="pImg" placeholder="رابط صورة المنتج" class="w-full bg-black/30 p-3 rounded-lg border border-white/10 outline-none">
-                <textarea id="pDesc" placeholder="وصف المنتج" class="w-full bg-black/30 p-3 rounded-lg border border-white/10 outline-none h-24"></textarea>
-                <button onclick="addProduct()" class="w-full bg-blue-600 p-3 rounded-lg font-bold hover:bg-blue-700 transition">نشر في المتجر</button>
+    <div id="loginPage" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
+        <div class="glass p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-lock text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold">تسجيل دخول الإدارة</h1>
+                <p class="text-gray-400 text-sm mt-2">متجر أكاد الرقمي</p>
             </div>
-
-            <div class="card md:col-span-2 space-y-4">
-                <h2 class="text-green-400 font-bold border-b border-white/5 pb-2">أحدث الطلبات</h2>
-                <div id="ordersContainer" class="space-y-3 max-h-[600px] overflow-y-auto">
-                    </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm mb-2 mr-1">البريد الإلكتروني الجديد</label>
+                    <input type="email" id="email" placeholder="admin@example.com" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-sm mb-2 mr-1">كلمة المرور الجديدة</label>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl outline-none focus:border-blue-500 transition">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all active:scale-95">دخول</button>
+                <p id="loginError" class="text-red-500 text-center text-sm hidden">بيانات الدخول غير صحيحة!</p>
             </div>
         </div>
     </div>
 
+    <div id="protectedContent" class="hidden">
+        <nav class="p-4 border-b border-white/5 glass sticky top-0 z-40">
+            <div class="container mx-auto flex justify-between items-center">
+                <h2 class="font-bold text-xl text-blue-400">لوحة التحكم</h2>
+                <button onclick="logout()" class="text-sm bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">خروج</button>
+            </div>
+        </nav>
+
+        <main class="container mx-auto p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="glass p-6 rounded-2xl sticky top-24">
+                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2 text-blue-400">
+                            <i class="fas fa-plus-circle"></i> إضافة منتج جديد
+                        </h3>
+                        <div class="space-y-4">
+                            <input type="text" id="pName" placeholder="اسم المنتج" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
+                            <input type="text" id="pPrice" placeholder="السعر (مثال: 25,000)" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
+                            <input type="text" id="pImg" placeholder="رابط الصورة (Direct Link)" class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500">
+                            <textarea id="pDesc" placeholder="تفاصيل المنتج..." class="w-full bg-slate-900/50 p-3 rounded-xl border border-white/10 outline-none focus:border-blue-500 h-32"></textarea>
+                            <button onclick="addProduct()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">نشر الآن</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="glass p-6 rounded-2xl min-h-[400px]">
+                        <h3 class="text-lg font-bold mb-6 flex items-center gap-2 text-green-400">
+                            <i class="fas fa-shopping-cart"></i> الطلبات الواردة
+                        </h3>
+                        <div id="ordersContainer" class="space-y-4">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
     <script>
+        // إعدادات Firebase
         const firebaseConfig = { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // دالة إضافة منتج
+        // بيانات الدخول (غيرها كما تحب هنا)
+        const ADMIN_USER = "akkad.store@gmail.com"; 
+        const ADMIN_PASS = "Akkad2026Admin"; 
+
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const error = document.getElementById('loginError');
+
+            if (email === ADMIN_USER && pass === ADMIN_PASS) {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('protectedContent').classList.remove('hidden');
+                sessionStorage.setItem('isAdmin', 'true');
+                loadOrders();
+            } else {
+                error.classList.remove('hidden');
+            }
+        }
+
         function addProduct() {
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
@@ -52,38 +112,55 @@
 
             if(name && price && img) {
                 db.ref('products').push({ name, price, img, desc }).then(() => {
-                    alert("تمت الإضافة!");
+                    alert("✅ تم نشر المنتج في المتجر");
                     document.querySelectorAll('input, textarea').forEach(i => i.value = "");
                 });
             } else {
-                alert("يرجى ملء الحقول الأساسية");
+                alert("يرجى إكمال البيانات");
             }
         }
 
-        // مراقبة الطلبات الواردة
-        db.ref('orders').on('value', snap => {
-            const container = document.getElementById('ordersContainer');
-            container.innerHTML = "";
-            const orders = snap.val();
-            if(orders) {
-                Object.entries(orders).reverse().forEach(([id, o]) => {
-                    container.innerHTML += `
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                            <div>
-                                <div class="font-bold text-blue-400">${o.name} - ${o.city}</div>
-                                <div class="text-xs text-gray-400">المنتج: ${o.product} (${o.price} د.ع)</div>
+        function loadOrders() {
+            db.ref('orders').on('value', snap => {
+                const container = document.getElementById('ordersContainer');
+                container.innerHTML = "";
+                const orders = snap.val();
+                if(orders) {
+                    Object.entries(orders).reverse().forEach(([id, o]) => {
+                        container.innerHTML += `
+                            <div class="bg-slate-800/40 p-5 rounded-2xl border border-white/5 flex justify-between items-start hover:bg-slate-800/60 transition">
+                                <div>
+                                    <div class="font-bold text-blue-400 text-lg">${o.name}</div>
+                                    <div class="text-sm text-gray-300 mt-1"><i class="fas fa-map-marker-alt ml-1"></i> ${o.city} | <i class="fas fa-phone ml-1"></i> ${o.phone}</div>
+                                    <div class="bg-blue-500/10 text-blue-400 text-xs inline-block px-3 py-1 rounded-full mt-3">المنتج: ${o.product}</div>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-green-400">${o.price} د.ع</div>
+                                    <button onclick="deleteOrder('${id}')" class="mt-4 text-gray-500 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                                </div>
                             </div>
-                            <button onclick="deleteOrder('${id}')" class="text-red-500 hover:text-red-400"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                });
-            } else {
-                container.innerHTML = "<p class='text-gray-500 text-center'>لا توجد طلبات حالياً</p>";
-            }
-        });
+                        `;
+                    });
+                } else {
+                    container.innerHTML = "<div class='text-center py-20 text-gray-500'>لا توجد طلبات جديدة حالياً</div>";
+                }
+            });
+        }
 
         function deleteOrder(id) {
-            if(confirm("هل تريد حذف الطلب من القائمة؟")) db.ref('orders/'+id).remove();
+            if(confirm("هل تريد حذف هذا الطلب؟")) db.ref('orders/' + id).remove();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isAdmin');
+            location.reload();
+        }
+
+        // التحقق من الجلسة عند التحديث
+        if(sessionStorage.getItem('isAdmin') === 'true') {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('protectedContent').classList.remove('hidden');
+            loadOrders();
         }
     </script>
 </body>
