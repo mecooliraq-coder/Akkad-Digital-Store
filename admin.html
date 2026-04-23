@@ -1,157 +1,1157 @@
-function submitOrder(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('customerName').value;
-            const phone = document.getElementById('customerPhone').value;
-            const city = document.getElementById('customerCity').value;
-            const address = document.getElementById('customerAddress').value;
-            const notes = document.getElementById('customerNotes').value;
-            
-            if(!currentOrderProduct) return;
-            
-            const orderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-            
-            const orderData = {
-                orderId: orderId,
-                productName: currentOrderProduct.name,
-                productPrice: currentOrderProduct.price,
-                customerName: name,
-                customerPhone: phone,
-                customerCity: city,
-                customerAddress: address,
-                customerNotes: notes,
-                status: 'pending', // pending, processing, shipped, delivered
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            // 1. حفظ الطلب في قاعدة البيانات للتتبع
-            db.ref('orders/' + orderId).set(orderData).then(() => {
-                // 2. تحديث إحصائيات طلبات اليوم (اختياري)
-                db.ref('stats/todayOrders').transaction(current => (current || 0) + 1);
-                
-                // 3. تجهيز رسالة الواتساب
-                const message = `*طلب جديد من متجر أكاد*%0A` +
-                                `--------------------------%0A` +
-                                `*رقم الطلب:* ${orderId}%0A` +
-                                `*المنتج:* ${currentOrderProduct.name}%0A` +
-                                `*السعر:* ${currentOrderProduct.price} د.ع%0A` +
-                                `--------------------------%0A` +
-                                `*الاسم:* ${name}%0A` +
-                                `*الهاتف:* ${phone}%0A` +
-                                `*المحافظة:* ${city}%0A` +
-                                `*العنوان:* ${address}%0A` +
-                                `*ملاحظات:* ${notes || 'لا يوجد'}`;
-
-                const whatsappUrl = `https://wa.me/${myPhone}?text=${message}`;
-                
-                // 4. إغلاق المودال وفتح واتساب
-                closeModal('orderModal');
-                showToast('تم تسجيل طلبك بنجاح! جاري تحويلك لواتساب...', 'fa-check', 'green');
-                
-                setTimeout(() => {
-                    window.open(whatsappUrl, '_blank');
-                }, 1500);
-            }).catch(error => {
-                console.error("Error saving order: ", error);
-                showToast('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى', 'fa-exclamation-triangle', 'red');
-            });
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | متجر أكاد الرقمي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: #0f172a;
+            background: radial-gradient(circle at top right, #1e293b, #080c14); 
+            color: white; 
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        // وظيفة التتبع
-        function trackOrder() {
-            const input = document.getElementById('trackInput').value.trim().toUpperCase();
-            const resultDiv = document.getElementById('trackingResult');
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { 
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #3b82f6;
+        }
+
+        .glass-sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border-right: 3px solid #3b82f6;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 14px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .form-input::placeholder { color: #64748b; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 14px 24px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59,130,246,0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 14px 24px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(34,197,94,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239,68,68,0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .status-pending { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .status-processing { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .status-shipped { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+        .status-delivered { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .status-cancelled { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 2rem;
+            padding: 2rem;
+            animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp { 
+            from { transform: translateY(30px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid rgba(59,130,246,0.3);
+            border-left: 4px solid #3b82f6;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlide 0.5s ease, toastFade 0.5s ease 4.5s forwards;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastFade {
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+
+        .table-row {
+            transition: all 0.3s;
+        }
+        .table-row:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05));
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="glass-sidebar w-72 h-full fixed right-0 top-0 z-50 flex flex-col">
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-cog text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold">لوحة التحكم</h1>
+                        <p class="text-[10px] text-gray-400">متجر أكاد الرقمي</p>
+                    </div>
+                </div>
+            </div>
             
-            if(!input) return;
+            <nav class="flex-1 p-4 overflow-y-auto scrollbar-hide">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="font-bold">الإحصائيات</span>
+                </div>
+                <div class="nav-item" onclick="showSection('products')">
+                    <i class="fas fa-box w-5"></i>
+                    <span class="font-bold">المنتجات</span>
+                    <span id="sidebarProductCount" class="mr-auto bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px]">0</span>
+                </div>
+                <div class="nav-item" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span class="font-bold">الطلبات</span>
+                    <span id="sidebarOrderCount" class="mr-auto bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[10px]">0</span>
+                </div>
+                <div class="nav-item" onclick="showSection('categories')">
+                    <i class="fas fa-tags w-5"></i>
+                    <span class="font-bold">الفئات</span>
+                </div>
+                <div class="nav-item" onclick="showSection('settings')">
+                    <i class="fas fa-sliders-h w-5"></i>
+                    <span class="font-bold">الإعدادات</span>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-white/10">
+                <a href="index.html" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>عرض المتجر</span>
+                </a>
+            </div>
+        </aside>
 
-            resultDiv.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> جاري البحث...</div>';
-
-            db.ref('orders').orderByChild('orderId').equalTo(input).once('value', snap => {
-                const data = snap.val();
-                if(data) {
-                    const order = Object.values(data)[0];
-                    const statusMap = {
-                        'pending': { text: 'قيد المراجعة', class: 'active', icon: 'fa-clock' },
-                        'processing': { text: 'جاري التجهيز', class: 'completed', icon: 'fa-box-open' },
-                        'shipped': { text: 'تم الشحن', class: 'completed', icon: 'fa-truck' },
-                        'delivered': { text: 'تم الاستلام', class: 'completed', icon: 'fa-check-double' }
-                    };
+        <!-- Main Content -->
+        <main class="flex-1 mr-72 p-8 overflow-y-auto h-screen">
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <h2 class="text-2xl font-bold mb-6">📊 لوحة الإحصائيات</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-box text-blue-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">المنتجات</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashTotalProducts">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي المنتجات في المتجر</div>
+                    </div>
                     
-                    const s = statusMap[order.status] || statusMap.pending;
-
-                    resultDiv.innerHTML = `
-                        <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-4 text-center">
-                            <div class="text-[10px] text-gray-400 mb-1">حالة الطلب الحالي</div>
-                            <div class="font-bold text-blue-400 text-lg">${s.text}</div>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="tracking-step completed">
-                                <div class="step-icon bg-green-500/20 text-green-500"><i class="fas fa-file-invoice"></i></div>
-                                <div>
-                                    <div class="text-xs font-bold">تم استلام الطلب</div>
-                                    <div class="text-[9px] text-gray-500">${order.orderId}</div>
-                                </div>
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-green-400 text-xl"></i>
                             </div>
-                            <div class="tracking-step ${order.status !== 'pending' ? 'completed' : 'active'}">
-                                <div class="step-icon ${order.status !== 'pending' ? 'bg-green-500/20 text-green-500' : 'bg-blue-500/20 text-blue-500'}">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <div class="text-xs font-bold">جاري التجهيز والتغليف</div>
-                            </div>
+                            <span class="text-[10px] text-gray-400">الطلبات</span>
                         </div>
-                    `;
-                } else {
-                    resultDiv.innerHTML = '<div class="text-red-400 text-center py-4 text-xs font-bold">عذراً، لم نجد طلباً بهذا الرقم</div>';
-                }
-            });
+                        <div class="text-3xl font-bold" id="dashTotalOrders">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الطلبات المستلمة</div>
+                    </div>
+                    
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">قيد الانتظار</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashPendingOrders">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">طلبات بانتظار المراجعة</div>
+                    </div>
+                    
+                    <div class="glass-card stats-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-purple-400 text-xl"></i>
+                            </div>
+                            <span class="text-[10px] text-gray-400">الإيرادات</span>
+                        </div>
+                        <div class="text-3xl font-bold" id="dashRevenue">0</div>
+                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الإيرادات (د.ع)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card p-6">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-fire text-orange-400"></i>
+                            آخر الطلبات
+                        </h3>
+                        <div id="recentOrdersList" class="space-y-3"></div>
+                    </div>
+                    
+                    <div class="glass-card p-6">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-bar text-blue-400"></i>
+                            الطلبات حسب الحالة
+                        </h3>
+                        <div id="ordersByStatus" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">📦 إدارة المنتجات</h2>
+                    <button onclick="openProductModal()" class="btn-success">
+                        <i class="fas fa-plus"></i>
+                        إضافة منتج جديد
+                    </button>
+                </div>
+                
+                <div class="glass-card p-4 mb-6">
+                    <div class="flex gap-4 flex-wrap">
+                        <input type="text" id="productSearch" onkeyup="searchProducts()" 
+                               class="form-input flex-1" placeholder="ابحث عن منتج...">
+                        <select id="productFilter" onchange="filterProducts()" class="form-input w-48">
+                            <option value="all">جميع الفئات</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="glass-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-white/5">
+                                <tr>
+                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
+                                    <th class="text-right p-4 text-sm font-bold">الفئة</th>
+                                    <th class="text-right p-4 text-sm font-bold">السعر</th>
+                                    <th class="text-right p-4 text-sm font-bold">المخزون</th>
+                                    <th class="text-right p-4 text-sm font-bold">الطلبات</th>
+                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">🛒 إدارة الطلبات</h2>
+                    <div class="flex gap-2">
+                        <select id="orderStatusFilter" onchange="filterOrders()" class="form-input w-40">
+                            <option value="all">جميع الحالات</option>
+                            <option value="pending">قيد المراجعة</option>
+                            <option value="processing">جاري التجهيز</option>
+                            <option value="shipped">تم الشحن</option>
+                            <option value="delivered">تم التوصيل</option>
+                            <option value="cancelled">ملغي</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="glass-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-white/5">
+                                <tr>
+                                    <th class="text-right p-4 text-sm font-bold">رقم الطلب</th>
+                                    <th class="text-right p-4 text-sm font-bold">العميل</th>
+                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
+                                    <th class="text-right p-4 text-sm font-bold">المبلغ</th>
+                                    <th class="text-right p-4 text-sm font-bold">الحالة</th>
+                                    <th class="text-right p-4 text-sm font-bold">التاريخ</th>
+                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categories" class="section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">🏷️ إدارة الفئات</h2>
+                    <button onclick="openCategoryModal()" class="btn-success">
+                        <i class="fas fa-plus"></i>
+                        إضافة فئة
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="categoriesGrid"></div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="section">
+                <h2 class="text-2xl font-bold mb-6">⚙️ الإعدادات</h2>
+                
+                <div class="glass-card p-6 mb-6 max-w-2xl">
+                    <h3 class="font-bold mb-4 text-blue-400">إعدادات المتجر</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">رقم الهاتف (واتساب)</label>
+                            <input type="text" id="settingsPhone" class="form-input" placeholder="9647730492020">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">اسم المتجر</label>
+                            <input type="text" id="settingsStoreName" class="form-input" placeholder="متجر أكاد الرقمي">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">رسالة الترحيب</label>
+                            <textarea id="settingsWelcome" class="form-input" rows="3" placeholder="رسالة ترحيب العملاء..."></textarea>
+                        </div>
+                        <button onclick="saveSettings()" class="btn-primary">
+                            <i class="fas fa-save"></i>
+                            حفظ الإعدادات
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 max-w-2xl">
+                    <h3 class="font-bold mb-4 text-red-400">⚠️ منطقة الخطر</h3>
+                    <div class="space-y-3">
+                        <button onclick="resetStats()" class="w-full bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded-xl hover:bg-red-500/20 transition">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            إعادة تعيين الإحصائيات
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal-overlay" onclick="closeModal('productModal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-blue-400" id="productModalTitle">إضافة منتج جديد</h2>
+                <button onclick="closeModal('productModal')" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">اسم المنتج *</label>
+                        <input type="text" id="productName" class="form-input" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">السعر (د.ع) *</label>
+                            <input type="number" id="productPrice" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">المخزون *</label>
+                            <input type="number" id="productStock" class="form-input" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">الفئة *</label>
+                        <select id="productCategory" class="form-input" required>
+                            <option value="">اختر الفئة</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">رابط الصورة</label>
+                        <input type="url" id="productImage" class="form-input" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">معرف فيديو يوتيوب (اختياري)</label>
+                        <input type="text" id="productVideo" class="form-input" placeholder="مثال: dQw4w9WgXcQ">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">الوصف</label>
+                        <textarea id="productDesc" class="form-input" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex gap-3">
+                    <button type="submit" class="btn-success flex-1">
+                        <i class="fas fa-save"></i>
+                        حفظ المنتج
+                    </button>
+                    <button type="button" onclick="closeModal('productModal')" class="btn-primary flex-1 bg-gray-600">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal-overlay" onclick="closeModal('categoryModal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-blue-400">إضافة فئة جديدة</h2>
+                <button onclick="closeModal('categoryModal')" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form onsubmit="saveCategory(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">اسم الفئة *</label>
+                        <input type="text" id="categoryName" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <button type="submit" class="btn-success w-full">
+                        <i class="fas fa-save"></i>
+                        حفظ الفئة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="modal-overlay" onclick="closeModal('orderModal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-blue-400">تفاصيل الطلب</h2>
+                <button onclick="closeModal('orderModal')" class="text-gray-400 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="orderDetailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = { 
+            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" 
+        };
+        
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch(e) {
+            console.error("Firebase init error:", e);
+        }
+        
+        const db = firebase.database();
+        let allProducts = [];
+        let allOrders = [];
+        let allCategories = [];
+        let currentEditId = null;
+
+        // Toast Notification
+        function showToast(message, icon = 'fa-bell', color = 'blue') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-${color}-500/20 flex items-center justify-center flex-shrink-0">
+                    <i class="fas ${icon} text-${color}-400"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-sm">${message}</div>
+                    <div class="text-[10px] text-gray-400">الآن</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
         }
 
-        // دوال المودال العامة
-        function showDetails(title, desc) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDesc').innerText = desc;
-            document.getElementById('descModal').classList.add('active');
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            if(sectionId === 'products') loadProducts();
+            if(sectionId === 'orders') loadOrders();
+            if(sectionId === 'categories') loadCategories();
+            if(sectionId === 'dashboard') loadDashboard();
         }
 
-        function openVideo(videoId) {
-            const player = document.getElementById('ytPlayer');
-            player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-            document.getElementById('videoModal').classList.add('active');
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
         }
-
-        function openTrackingModal() {
-            document.getElementById('trackingModal').classList.add('active');
-        }
-
+        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
-            if(modalId === 'videoModal') document.getElementById('ytPlayer').src = '';
         }
 
-        function filterByCat(cat) {
-            if(cat === 'all') {
-                displayProducts(allProducts);
-            } else {
-                const filtered = allProducts.filter(p => p.cat === cat);
-                displayProducts(filtered);
+        // ========== DASHBOARD ==========
+        function loadDashboard() {
+            // Load stats
+            db.ref('products').once('value', snap => {
+                const products = snap.val() || {};
+                allProducts = Object.entries(products).map(([id, val]) => ({id, ...val}));
+                document.getElementById('dashTotalProducts').textContent = allProducts.length;
+                document.getElementById('sidebarProductCount').textContent = allProducts.length;
+            });
+
+            db.ref('orders').once('value', snap => {
+                const orders = snap.val() || {};
+                allOrders = Object.entries(orders).map(([id, val]) => ({id, ...val}));
+                
+                document.getElementById('dashTotalOrders').textContent = allOrders.length;
+                document.getElementById('sidebarOrderCount').textContent = allOrders.length;
+                
+                const pending = allOrders.filter(o => o.status === 'pending').length;
+                document.getElementById('dashPendingOrders').textContent = pending;
+                
+                const revenue = allOrders.reduce((sum, o) => sum + (parseInt(o.productPrice) || parseInt(o.price) || 0), 0);
+                document.getElementById('dashRevenue').textContent = revenue.toLocaleString();
+                
+                // Recent orders
+                const recent = allOrders.slice(-5).reverse();
+                document.getElementById('recentOrdersList').innerHTML = recent.map(o => `
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                        <div>
+                            <div class="font-bold text-sm">${o.orderId}</div>
+                            <div class="text-[10px] text-gray-400">${o.customerName} - ${o.customerCity}</div>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-bold text-blue-400">${o.productPrice || o.price} د.ع</div>
+                            <div class="text-[10px] ${getStatusClass(o.status)}">${getStatusText(o.status)}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Orders by status
+                const statusCounts = {
+                    pending: allOrders.filter(o => o.status === 'pending').length,
+                    processing: allOrders.filter(o => o.status === 'processing').length,
+                    shipped: allOrders.filter(o => o.status === 'shipped').length,
+                    delivered: allOrders.filter(o => o.status === 'delivered').length,
+                    cancelled: allOrders.filter(o => o.status === 'cancelled').length
+                };
+                
+                const statusLabels = {
+                    pending: 'قيد المراجعة',
+                    processing: 'جاري التجهيز',
+                    shipped: 'تم الشحن',
+                    delivered: 'تم التوصيل',
+                    cancelled: 'ملغي'
+                };
+                
+                const statusColors = {
+                    pending: 'bg-yellow-500',
+                    processing: 'bg-blue-500',
+                    shipped: 'bg-purple-500',
+                    delivered: 'bg-green-500',
+                    cancelled: 'bg-red-500'
+                };
+                
+                document.getElementById('ordersByStatus').innerHTML = Object.entries(statusCounts).map(([status, count]) => `
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full ${statusColors[status]}"></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm">${statusLabels[status]}</span>
+                                <span class="text-sm font-bold">${count}</span>
+                            </div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full ${statusColors[status]} rounded-full transition-all" style="width: ${allOrders.length > 0 ? (count / allOrders.length * 100) : 0}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        // ========== PRODUCTS ==========
+        function loadProducts() {
+            db.ref('products').once('value', snap => {
+                const data = snap.val() || {};
+                allProducts = Object.entries(data).map(([id, val]) => ({id, ...val})).reverse();
+                displayProductsTable(allProducts);
+            });
+            
+            // Load categories for filter
+            db.ref('categories').once('value', snap => {
+                const cats = snap.val() || {};
+                const filter = document.getElementById('productFilter');
+                filter.innerHTML = '<option value="all">جميع الفئات</option>';
+                Object.values(cats).forEach(cat => {
+                    filter.innerHTML += `<option value="${cat}">${cat}</option>`;
+                });
+            });
+        }
+
+        function displayProductsTable(products) {
+            const tbody = document.getElementById('productsTableBody');
+            if(products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">لا يوجد منتجات</td></tr>';
+                return;
             }
+            
+            tbody.innerHTML = products.map(p => `
+                <tr class="table-row border-b border-white/5">
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${p.img || 'https://via.placeholder.com/80?text=No+Image'}" 
+                                 class="image-preview" onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
+                            <div>
+                                <div class="font-bold text-sm">${p.name}</div>
+                                <div class="text-[10px] text-gray-400">${p.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4 text-sm">${p.cat || 'غير محدد'}</td>
+                    <td class="p-4 text-sm font-bold text-blue-400">${p.price} د.ع</td>
+                    <td class="p-4">
+                        <span class="${p.stock < 5 ? 'text-red-400' : 'text-green-400'} font-bold">${p.stock}</span>
+                    </td>
+                    <td class="p-4 text-sm">${p.orders || 0}</td>
+                    <td class="p-4">
+                        <div class="flex gap-2">
+                            <button onclick="editProduct('${p.id}')" class="btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteProduct('${p.id}')" class="btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openProductModal(productId = null) {
+            currentEditId = productId;
+            document.getElementById('productModalTitle').textContent = productId ? 'تعديل منتج' : 'إضافة منتج جديد';
+            
+            // Load categories
+            db.ref('categories').once('value', snap => {
+                const cats = snap.val() || {};
+                const select = document.getElementById('productCategory');
+                select.innerHTML = '<option value="">اختر الفئة</option>';
+                Object.values(cats).forEach(cat => {
+                    select.innerHTML += `<option value="${cat}">${cat}</option>`;
+                });
+            });
+            
+            if(productId) {
+                const product = allProducts.find(p => p.id === productId);
+                if(product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStock').value = product.stock;
+                    document.getElementById('productCategory').value = product.cat || '';
+                    document.getElementById('productImage').value = product.img || '';
+                    document.getElementById('productVideo').value = product.video || '';
+                    document.getElementById('productDesc').value = product.desc || '';
+                }
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('productId').value = '';
+            }
+            
+            openModal('productModal');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: document.getElementById('productPrice').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                cat: document.getElementById('productCategory').value,
+                img: document.getElementById('productImage').value,
+                video: document.getElementById('productVideo').value,
+                desc: document.getElementById('productDesc').value,
+                orders: 0
+            };
+            
+            const productId = currentEditId || 'prod_' + Date.now();
+            
+            db.ref('products/' + productId).set(productData)
+                .then(() => {
+                    showToast(currentEditId ? 'تم تحديث المنتج بنجاح' : 'تم إضافة المنتج بنجاح', 'fa-check', 'green');
+                    closeModal('productModal');
+                    loadProducts();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        function editProduct(id) {
+            openProductModal(id);
+        }
+
+        function deleteProduct(id) {
+            if(!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+            
+            db.ref('products/' + id).remove()
+                .then(() => {
+                    showToast('تم حذف المنتج بنجاح', 'fa-trash', 'green');
+                    loadProducts();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
         }
 
         function searchProducts() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => 
-                p.name.toLowerCase().includes(term) || 
-                (p.desc && p.desc.toLowerCase().includes(term))
-            );
-            displayProducts(filtered);
+            const term = document.getElementById('productSearch').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            displayProductsTable(filtered);
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) {
-                event.target.classList.remove('active');
-                if(event.target.id === 'videoModal') document.getElementById('ytPlayer').src = '';
+        function filterProducts() {
+            const cat = document.getElementById('productFilter').value;
+            if(cat === 'all') {
+                displayProductsTable(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.cat === cat);
+                displayProductsTable(filtered);
             }
         }
+
+        // ========== ORDERS ==========
+        function loadOrders() {
+            db.ref('orders').once('value', snap => {
+                const data = snap.val() || {};
+                allOrders = Object.entries(data).map(([id, val]) => ({id, ...val})).reverse();
+                displayOrdersTable(allOrders);
+            });
+        }
+
+        function displayOrdersTable(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            if(orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">لا يوجد طلبات</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(o => `
+                <tr class="table-row border-b border-white/5">
+                    <td class="p-4">
+                        <div class="font-bold text-sm text-blue-400">${o.orderId}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="font-bold text-sm">${o.customerName}</div>
+                        <div class="text-[10px] text-gray-400">${o.customerPhone}</div>
+                    </td>
+                    <td class="p-4 text-sm">${o.productName}</td>
+                    <td class="p-4 font-bold text-green-400">${o.productPrice || o.price} د.ع</td>
+                    <td class="p-4">
+                        <span class="status-badge ${getStatusClass(o.status)}">${getStatusText(o.status)}</span>
+                    </td>
+                    <td class="p-4 text-[11px] text-gray-400">${formatDate(o.timestamp)}</td>
+                    <td class="p-4">
+                        <div class="flex gap-2">
+                            <button onclick="viewOrder('${o.id}')" class="btn-primary py-2 px-3 text-xs">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="form-input py-2 px-3 text-xs w-32">
+                                <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
+                                <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>جاري التجهيز</option>
+                                <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>تم الشحن</option>
+                                <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>تم التوصيل</option>
+                                <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>ملغي</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewOrder(id) {
+            const order = allOrders.find(o => o.id === id);
+            if(!order) return;
+            
+            document.getElementById('orderDetailsContent').innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">رقم الطلب</div>
+                        <div class="font-bold text-blue-400 text-lg">${order.orderId}</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white/5 rounded-xl p-4">
+                            <div class="text-[10px] text-gray-400 mb-1">العميل</div>
+                            <div class="font-bold">${order.customerName}</div>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4">
+                            <div class="text-[10px] text-gray-400 mb-1">الهاتف</div>
+                            <div class="font-bold text-green-400">${order.customerPhone}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">العنوان</div>
+                        <div class="font-bold">${order.customerCity} - ${order.customerAddress || 'غير محدد'}</div>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">المنتج</div>
+                        <div class="font-bold">${order.productName}</div>
+                        <div class="text-blue-400 font-bold mt-1">${order.productPrice || order.price} د.ع</div>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">الحالة الحالية</div>
+                        <span class="status-badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
+                    </div>
+                    
+                    ${order.customerNotes ? `
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">ملاحظات العميل</div>
+                        <div class="text-sm">${order.customerNotes}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <div class="text-[10px] text-gray-400 mb-1">تاريخ الطلب</div>
+                        <div class="text-sm">${formatDate(order.timestamp)}</div>
+                    </div>
+                </div>
+            `;
+            
+            openModal('orderModal');
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            db.ref('orders/' + id + '/status').set(newStatus)
+                .then(() => {
+                    showToast('تم تحديث حالة الطلب', 'fa-check', 'green');
+                    loadOrders();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        function filterOrders() {
+            const status = document.getElementById('orderStatusFilter').value;
+            if(status === 'all') {
+                displayOrdersTable(allOrders);
+            } else {
+                const filtered = allOrders.filter(o => o.status === status);
+                displayOrdersTable(filtered);
+            }
+        }
+
+        // ========== CATEGORIES ==========
+        function loadCategories() {
+            db.ref('categories').once('value', snap => {
+                const data = snap.val() || {};
+                allCategories = Object.entries(data).map(([id, val]) => ({id, name: val}));
+                displayCategories();
+            });
+        }
+
+        function displayCategories() {
+            const grid = document.getElementById('categoriesGrid');
+            if(allCategories.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">لا يوجد فئات</div>';
+                return;
+            }
+            
+            grid.innerHTML = allCategories.map(c => `
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-tag text-blue-400"></i>
+                        </div>
+                        <div class="font-bold">${c.name}</div>
+                    </div>
+                    <button onclick="deleteCategory('${c.id}')" class="text-red-400 hover:text-red-300 transition">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function openCategoryModal() {
+            document.getElementById('categoryName').value = '';
+            openModal('categoryModal');
+        }
+
+        function saveCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('categoryName').value;
+            const catId = 'cat_' + Date.now();
+            
+            db.ref('categories/' + catId).set(name)
+                .then(() => {
+                    showToast('تم إضافة الفئة بنجاح', 'fa-check', 'green');
+                    closeModal('categoryModal');
+                    loadCategories();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        function deleteCategory(id) {
+            if(!confirm('هل أنت متأكد؟ سيتم حذف الفئة من جميع المنتجات!')) return;
+            
+            db.ref('categories/' + id).remove()
+                .then(() => {
+                    showToast('تم حذف الفئة', 'fa-trash', 'green');
+                    loadCategories();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        // ========== SETTINGS ==========
+        function saveSettings() {
+            const settings = {
+                phone: document.getElementById('settingsPhone').value,
+                storeName: document.getElementById('settingsStoreName').value,
+                welcomeMessage: document.getElementById('settingsWelcome').value
+            };
+            
+            db.ref('settings').set(settings)
+                .then(() => {
+                    showToast('تم حفظ الإعدادات بنجاح', 'fa-save', 'green');
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        function resetStats() {
+            if(!confirm('هل أنت متأكد من إعادة تعيين الإحصائيات؟')) return;
+            
+            db.ref('stats').set({ todayOrders: 0 })
+                .then(() => {
+                    showToast('تم إعادة تعيين الإحصائيات', 'fa-check', 'green');
+                    loadDashboard();
+                })
+                .catch(error => {
+                    showToast('خطأ: ' + error.message, 'fa-exclamation-triangle', 'red');
+                });
+        }
+
+        // ========== HELPERS ==========
+        function getStatusClass(status) {
+            const map = {
+                'pending': 'status-pending',
+                'processing': 'status-processing',
+                'shipped': 'status-shipped',
+                'delivered': 'status-delivered',
+                'cancelled': 'status-cancelled'
+            };
+            return map[status] || 'status-pending';
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'pending': 'قيد المراجعة',
+                'processing': 'جاري التجهيز',
+                'shipped': 'تم الشحن',
+                'delivered': 'تم التوصيل',
+                'cancelled': 'ملغي'
+            };
+            return map[status] || 'قيد المراجعة';
+        }
+
+        function formatDate(timestamp) {
+            if(!timestamp) return 'غير محدد';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('ar-IQ') + ' ' + date.toLocaleTimeString('ar-IQ', {hour: '2-digit', minute: '2-digit'});
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadDashboard();
+            showToast('مرحباً بك في لوحة التحكم!', 'fa-cog', 'blue');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            }
+        });
     </script>
 </body>
 </html>
