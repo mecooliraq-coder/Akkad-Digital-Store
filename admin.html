@@ -7,454 +7,470 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Tajawal', sans-serif; background: #f1f5f9; color: #1e293b; min-height: 100vh; }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .card { background: white; border-radius: 1.25rem; box-shadow: 0 4px 14px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: 500; transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 500; transition: all 0.2s; }
+        .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
         
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background: #0f172a;
-            background: radial-gradient(circle at top right, #1e293b, #080c14); 
-            color: white; 
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover { 
-            background: rgba(255, 255, 255, 0.06);
-            border-color: #3b82f6;
-        }
-
-        .glass-sidebar {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .nav-item {
-            padding: 12px 16px;
-            border-radius: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
-        .nav-item:hover, .nav-item.active {
-            background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
-            border-right: 3px solid #3b82f6;
-        }
-
-        .form-input {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 1rem;
-            padding: 14px 16px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-        }
-        .form-input:focus {
-            border-color: #3b82f6;
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-        }
-        .form-input::placeholder { color: #64748b; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            border-radius: 1rem;
-            padding: 14px 24px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59,130,246,0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border: none;
-            border-radius: 1rem;
-            padding: 14px 24px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(34,197,94,0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border: none;
-            border-radius: 1rem;
-            padding: 10px 18px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(239,68,68,0.4);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border: none;
-            border-radius: 1rem;
-            padding: 10px 18px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 800;
-        }
-        .status-pending { background: rgba(234,179,8,0.2); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
-        .status-processing { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-        .status-shipped { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
-        .status-delivered { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-        .status-cancelled { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(15px);
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 100%;
-            max-width: 600px;
-            border-radius: 2rem;
-            padding: 2rem;
-            animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        @keyframes slideUp { 
-            from { transform: translateY(30px); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            border: 1px solid rgba(59,130,246,0.3);
-            border-left: 4px solid #3b82f6;
-            border-radius: 1rem;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: toastSlide 0.5s ease, toastFade 0.5s ease 4.5s forwards;
-            max-width: 320px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        @keyframes toastSlide {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes toastFade {
-            to { transform: translateX(-100%); opacity: 0; }
-        }
-
-        .table-row {
-            transition: all 0.3s;
-        }
-        .table-row:hover {
-            background: rgba(255,255,255,0.03);
-        }
-
-        .stats-card {
-            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05));
-            border: 1px solid rgba(59,130,246,0.2);
-        }
-
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .image-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1);
-        }
+        .toast { position: fixed; top: 20px; left: 20px; z-index: 3000; padding: 12px 20px; border-radius: 12px; color: white; font-weight: 500; display: none; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        @keyframes slideIn { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .toast-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        input, textarea, select { transition: all 0.2s; }
+        input:focus, textarea:focus, select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
+        
+        .product-item { transition: all 0.2s; }
+        .product-item:hover { border-color: #3b82f6; transform: translateX(4px); }
     </style>
 </head>
-<body>
-    <div id="toastContainer" class="toast-container"></div>
+<body class="p-4 md:p-6">
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside class="glass-sidebar w-72 h-full fixed right-0 top-0 z-50 flex flex-col">
-            <div class="p-6 border-b border-white/10">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-cog text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold">لوحة التحكم</h1>
-                        <p class="text-[10px] text-gray-400">متجر أكاد الرقمي</p>
-                    </div>
-                </div>
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="card p-8 w-full max-w-md text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30">
+                <i class="fas fa-user-shield text-white text-2xl"></i>
             </div>
+            <h1 class="text-2xl font-bold mb-2">لوحة تحكم أكاد</h1>
+            <p class="text-gray-500 mb-6 text-sm">سجّل الدخول لإدارة المتجر</p>
             
-            <nav class="flex-1 p-4 overflow-y-auto scrollbar-hide">
-                <div class="nav-item active" onclick="showSection('dashboard')">
-                    <i class="fas fa-chart-line w-5"></i>
-                    <span class="font-bold">الإحصائيات</span>
-                </div>
-                <div class="nav-item" onclick="showSection('products')">
-                    <i class="fas fa-box w-5"></i>
-                    <span class="font-bold">المنتجات</span>
-                    <span id="sidebarProductCount" class="mr-auto bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px]">0</span>
-                </div>
-                <div class="nav-item" onclick="showSection('orders')">
-                    <i class="fas fa-shopping-cart w-5"></i>
-                    <span class="font-bold">الطلبات</span>
-                    <span id="sidebarOrderCount" class="mr-auto bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[10px]">0</span>
-                </div>
-                <div class="nav-item" onclick="showSection('categories')">
-                    <i class="fas fa-tags w-5"></i>
-                    <span class="font-bold">الفئات</span>
-                </div>
-                <div class="nav-item" onclick="showSection('settings')">
-                    <i class="fas fa-sliders-h w-5"></i>
-                    <span class="font-bold">الإعدادات</span>
-                </div>
-            </nav>
-            
-            <div class="p-4 border-t border-white/10">
-                <a href="index.html" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>عرض المتجر</span>
+            <form id="loginForm" class="space-y-4">
+                <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" required
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
+                <input type="password" id="adminPass" placeholder="كلمة المرور" required
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
+                <button type="submit" class="w-full btn-primary py-3 rounded-xl font-medium">
+                    <span id="loginBtnText">تسجيل الدخول</span>
+                    <span id="loginLoader" class="loader hidden"></span>
+                </button>
+            </form>
+            <p id="loginError" class="text-red-500 text-sm mt-3 hidden"></p>
+            <a href="index.html" class="inline-block mt-6 text-blue-600 hover:underline text-sm">← العودة للمتجر</a>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم الرئيسية (مخفية حتى تسجيل الدخول) -->
+    <div id="adminPanel" class="hidden max-w-7xl mx-auto">
+        <!-- الهيدر -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 card p-5">
+            <div>
+                <h1 class="text-xl font-bold text-slate-800">🎛️ لوحة إدارة المتجر</h1>
+                <p class="text-gray-500 text-sm">أضف المنتجات، عدّل الأقسام، وتتبّع الطلبات</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" target="_blank" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl font-medium hover:bg-blue-100 transition text-sm flex items-center gap-2">
+                    <i class="fas fa-external-link-alt"></i> معاينة المتجر
                 </a>
+                <button onclick="logout()" class="bg-red-50 text-red-700 px-4 py-2 rounded-xl font-medium hover:bg-red-100 transition text-sm flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 mr-72 p-8 overflow-y-auto h-screen">
+        <!-- الإحصائيات -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 text-center">
+                <div id="statProducts" class="text-2xl font-bold text-blue-600">0</div>
+                <div class="text-xs text-gray-500 mt-1">منتج</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div id="statCats" class="text-2xl font-bold text-orange-600">0</div>
+                <div class="text-xs text-gray-500 mt-1">قسم</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-green-600">
+                    <a href="https://wa.me/9647730492020" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">واتساب</div>
+            </div>
+            <div class="card p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600" id="lastUpdate">--:--</div>
+                <div class="text-xs text-gray-500 mt-1">آخر تحديث</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- العمود الأيمن: النماذج -->
+            <div class="space-y-6">
+                
+                <!-- إدارة الأقسام -->
+                <div class="card p-5">
+                    <h2 class="font-bold mb-4 flex items-center gap-2 text-orange-600">
+                        <i class="fas fa-layer-group"></i> إدارة الأقسام
+                    </h2>
+                    <input id="catId" type="hidden">
+                    <div class="flex gap-2 mb-4">
+                        <input id="newCat" type="text" placeholder="اسم القسم الجديد" 
+                            class="flex-1 p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                        <button onclick="saveCategory()" id="btnSaveCat" class="bg-orange-500 hover:bg-orange-600 text-white px-4 rounded-xl font-medium transition">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="catsList" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-sm">
+                        <p class="text-gray-400 text-center py-4 text-xs">جاري تحميل الأقسام...</p>
+                    </div>
+                </div>
+
+                <!-- نموذج المنتج -->
+                <div class="card p-5 border-t-4 border-blue-600">
+                    <h2 class="font-bold mb-4 flex items-center gap-2 text-blue-600">
+                        <i class="fas fa-box-open"></i> 
+                        <span id="formTitle">إضافة منتج جديد</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <input id="pId" type="hidden">
+                        
+                        <input id="pName" type="text" placeholder="اسم الجهاز *" required
+                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <input id="pPrice" type="text" placeholder="السعر *" required
+                                class="p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                            <select id="pCat" class="p-2.5 border border-gray-200 rounded-xl outline-none bg-white text-sm">
+                                <option value="">اختر قسماً</option>
+                            </select>
+                        </div>
+                        
+                        <input id="pImg" type="url" placeholder="رابط الصورة (اختياري)"
+                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                        
+                        <input id="pVideo" type="text" placeholder="معرف يوتيوب (اختياري) - مثال: dQw4w9WgXcQ"
+                            class="w-full p-2.5 border border-red-200 rounded-xl outline-none text-sm text-red-600 placeholder-red-400">
+                        
+                        <label class="block text-xs font-medium text-gray-500 mt-2">وصف المنتج / المواصفات</label>
+                        <textarea id="pDesc" placeholder="• اكتب المواصفات هنا&#10;• استخدم أسطر جديدة للنقاط&#10;• سيكون مرئياً عند الضغط على 'التفاصيل'" 
+                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none h-28 text-sm resize-none"></textarea>
+                        
+                        <button onclick="saveProduct()" id="btnSave" class="w-full btn-primary py-3 rounded-xl font-medium shadow-lg">
+                            حفظ المنتج
+                        </button>
+                        <button onclick="resetForm()" class="w-full text-xs text-gray-400 hover:text-gray-600 transition">
+                            ↺ تفريغ الحقول
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- العمود الأيسر: قائمة المنتجات -->
+            <div class="lg:col-span-2">
+                <div class="card p-5 min-h-[500px]">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                            <i class="fas fa-th-large"></i> المنتجات الحالية
+                        </h2>
+                        <input type="text" id="adminSearch" onkeyup="searchAdminProducts()" placeholder="🔍 بحث سريع..." 
+                            class="p-2 border border-gray-200 rounded-lg text-xs w-40">
+                    </div>
+                    
+                    <div id="adminProductsList" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                        <div class="text-center py-10">
+                            <div class="loader mx-auto mb-3"></div>
+                            <p class="text-gray-400 text-sm">جاري التحميل...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط التنبيهات -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ⚙️ إعدادات التطبيق
+        const APP_CONFIG = {
+            firebase: { 
+                databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
+                // أضف هنا: apiKey, authDomain, projectId إذا استخدمت Auth
+            },
+            whatsapp: "9647730492020"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(APP_CONFIG.firebase);
+        const db = firebase.database();
+        // const auth = firebase.auth(); // فعّل هذا إذا استخدمت Firebase Auth
+
+        let allProducts = [];
+        let allCats = {};
+
+        // 🎯 نظام التنبيهات
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.className = `toast toast-${type}`;
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3500);
+        }
+
+        // 🔐 تسجيل الدخول (محاكاة - استبدل بـ Firebase Auth في الإنتاج)
+        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            const btnText = document.getElementById('loginBtnText');
+            const loader = document.getElementById('loginLoader');
+            const error = document.getElementById('loginError');
             
-            <!-- Dashboard Section -->
-            <div id="dashboard" class="section active">
-                <h2 class="text-2xl font-bold mb-6">📊 لوحة الإحصائيات</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="glass-card stats-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-box text-blue-400 text-xl"></i>
-                            </div>
-                            <span class="text-[10px] text-gray-400">المنتجات</span>
+            // عرض التحميل
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            error.classList.add('hidden');
+            
+            // محاكاة تحقق (استبدل بـ auth.signInWithEmailAndPassword في الإنتاج)
+            setTimeout(() => {
+                // ⚠️ للتجربة فقط: كلمة المرور "admin@akkad.com" / "akkad123"
+                if(email === 'admin@akkad.com' && pass === 'akkad123') {
+                    localStorage.setItem('adminLoggedIn', 'true');
+                    showAdminPanel();
+                    showToast('مرحباً بك في لوحة التحكم! 🎉');
+                } else {
+                    error.innerText = '❌ البريد أو كلمة المرور غير صحيحة';
+                    error.classList.remove('hidden');
+                }
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+            }, 1200);
+        });
+
+        // التحقق من الجلسة
+        function checkSession() {
+            if(localStorage.getItem('adminLoggedIn') === 'true') {
+                showAdminPanel();
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            updateStats();
+        }
+
+        function logout() {
+            if(confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.removeItem('adminLoggedIn');
+                location.reload();
+            }
+        }
+
+        // 📊 تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('statProducts').innerText = allProducts.length;
+            document.getElementById('statCats').innerText = Object.keys(allCats).length;
+            
+            const now = new Date();
+            document.getElementById('lastUpdate').innerText = 
+                `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        }
+
+        // 📂 إدارة الأقسام
+        function saveCategory() {
+            const id = document.getElementById('catId').value;
+            const name = document.getElementById('newCat').value.trim();
+            if(!name) return showToast('أدخل اسم القسم', 'error');
+            
+            const ref = id ? db.ref('categories').child(id) : db.ref('categories').push();
+            ref.set(name)
+                .then(() => {
+                    showToast(id ? 'تم تحديث القسم ✓' : 'تم إضافة القسم ✓');
+                    document.getElementById('catId').value = '';
+                    document.getElementById('newCat').value = '';
+                    document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i>';
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('فشل الحفظ: ' + err.message, 'error');
+                });
+        }
+
+        db.ref('categories').on('value', snap => {
+            allCats = snap.val() || {};
+            const list = document.getElementById('catsList');
+            const select = document.getElementById('pCat');
+            
+            if(Object.keys(allCats).length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-4 text-xs">لا توجد أقسام بعد</p>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            select.innerHTML = '<option value="">اختر قسماً</option>';
+            
+            Object.entries(allCats).forEach(([key, name]) => {
+                // القائمة
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                        <span class="text-sm font-medium">${name}</span>
+                        <div class="flex gap-1.5">
+                            <button onclick="editCat('${key}', '${name}')" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg transition" title="تعديل">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button onclick="deleteCat('${key}')" class="text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition" title="حذف">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
                         </div>
-                        <div class="text-3xl font-bold" id="dashTotalProducts">0</div>
-                        <div class="text-[11px] text-gray-500 mt-1">إجمالي المنتجات في المتجر</div>
-                    </div>
-                    
-                    <div class="glass-card stats-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-shopping-bag text-green-400 text-xl"></i>
-                            </div>
-                            <span class="text-[10px] text-gray-400">الطلبات</span>
-                        </div>
-                        <div class="text-3xl font-bold" id="dashTotalOrders">0</div>
-                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الطلبات المستلمة</div>
-                    </div>
-                    
-                    <div class="glass-card stats-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-clock text-yellow-400 text-xl"></i>
-                            </div>
-                            <span class="text-[10px] text-gray-400">قيد الانتظار</span>
-                        </div>
-                        <div class="text-3xl font-bold" id="dashPendingOrders">0</div>
-                        <div class="text-[11px] text-gray-500 mt-1">طلبات بانتظار المراجعة</div>
-                    </div>
-                    
-                    <div class="glass-card stats-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-money-bill-wave text-purple-400 text-xl"></i>
-                            </div>
-                            <span class="text-[10px] text-gray-400">الإيرادات</span>
-                        </div>
-                        <div class="text-3xl font-bold" id="dashRevenue">0</div>
-                        <div class="text-[11px] text-gray-500 mt-1">إجمالي الإيرادات (د.ع)</div>
-                    </div>
-                </div>
+                    </div>`;
+                // القائمة المنسدلة
+                select.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+            updateStats();
+        });
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="glass-card p-6">
-                        <h3 class="font-bold mb-4 flex items-center gap-2">
-                            <i class="fas fa-fire text-orange-400"></i>
-                            آخر الطلبات
-                        </h3>
-                        <div id="recentOrdersList" class="space-y-3"></div>
-                    </div>
-                    
-                    <div class="glass-card p-6">
-                        <h3 class="font-bold mb-4 flex items-center gap-2">
-                            <i class="fas fa-chart-bar text-blue-400"></i>
-                            الطلبات حسب الحالة
-                        </h3>
-                        <div id="ordersByStatus" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
+        function editCat(id, name) {
+            document.getElementById('catId').value = id;
+            document.getElementById('newCat').value = name;
+            document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-save"></i>';
+            document.getElementById('newCat').focus();
+        }
 
-            <!-- Products Section -->
-            <div id="products" class="section">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">📦 إدارة المنتجات</h2>
-                    <button onclick="openProductModal()" class="btn-success">
-                        <i class="fas fa-plus"></i>
-                        إضافة منتج جديد
-                    </button>
-                </div>
-                
-                <div class="glass-card p-4 mb-6">
-                    <div class="flex gap-4 flex-wrap">
-                        <input type="text" id="productSearch" onkeyup="searchProducts()" 
-                               class="form-input flex-1" placeholder="ابحث عن منتج...">
-                        <select id="productFilter" onchange="filterProducts()" class="form-input w-48">
-                            <option value="all">جميع الفئات</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="glass-card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-white/5">
-                                <tr>
-                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
-                                    <th class="text-right p-4 text-sm font-bold">الفئة</th>
-                                    <th class="text-right p-4 text-sm font-bold">السعر</th>
-                                    <th class="text-right p-4 text-sm font-bold">المخزون</th>
-                                    <th class="text-right p-4 text-sm font-bold">الطلبات</th>
-                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        function deleteCat(id) {
+            if(confirm('⚠️ حذف هذا القسم؟\nلن يتم حذف المنتجات المرتبطة به.')) {
+                db.ref('categories').child(id).remove()
+                    .then(() => showToast('تم حذف القسم'))
+                    .catch(err => showToast('خطأ: ' + err.message, 'error'));
+            }
+        }
 
-            <!-- Orders Section -->
-            <div id="orders" class="section">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">🛒 إدارة الطلبات</h2>
-                    <div class="flex gap-2">
-                        <select id="orderStatusFilter" onchange="filterOrders()" class="form-input w-40">
-                            <option value="all">جميع الحالات</option>
-                            <option value="pending">قيد المراجعة</option>
-                            <option value="processing">جاري التجهيز</option>
-                            <option value="shipped">تم الشحن</option>
-                            <option value="delivered">تم التوصيل</option>
-                            <option value="cancelled">ملغي</option>
-                        </select>
+        // 📦 إدارة المنتجات
+        function saveProduct() {
+            const id = document.getElementById('pId').value;
+            const data = {
+                name: document.getElementById('pName').value.trim(),
+                price: document.getElementById('pPrice').value.trim(),
+                img: document.getElementById('pImg').value.trim(),
+                video: document.getElementById('pVideo').value.trim(),
+                desc: document.getElementById('pDesc').value.trim(),
+                cat: document.getElementById('pCat').value,
+                updatedAt: Date.now()
+            };
+
+            if(!data.name || !data.price) return showToast('الاسم والسعر حقول إلزامية', 'error');
+
+            const ref = id ? db.ref('products').child(id) : db.ref('products').push();
+            ref.set(data)
+                .then(() => {
+                    showToast(id ? '✅ تم تحديث المنتج' : '✅ تمت إضافة المنتج');
+                    resetForm();
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('❌ فشل الحفظ: ' + err.message, 'error');
+                });
+        }
+
+        db.ref('products').orderByChild('updatedAt').on('value', snap => {
+            const prods = snap.val();
+            allProducts = prods ? Object.entries(prods).map(([id, val]) => ({id, ...val})).reverse() : [];
+            renderAdminProducts(allProducts);
+            updateStats();
+        });
+
+        function renderAdminProducts(items) {
+            const list = document.getElementById('adminProductsList');
+            if(items.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-10 text-sm">لا توجد منتجات لعرضها</p>';
+                return;
+            }
+            
+            list.innerHTML = items.map(p => `
+                <div class="product-item card p-3 flex items-center gap-3 border border-gray-100">
+                    <img src="${p.img || 'https://via.placeholder.com/48/e2e8f0/64748b?text=?'}" 
+                         class="w-12 h-12 object-contain bg-gray-50 rounded-lg border"
+                         onerror="this.src='https://via.placeholder.com/48/e2e8f0/64748b?text=No+Img'">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm truncate">${p.name}</div>
+                        <div class="text-blue-600 text-xs font-bold">${p.price} د.ع</div>
+                        ${p.cat ? `<span class="text-[10px] text-gray-400">${p.cat}</span>` : ''}
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="editProduct('${p.id}')" class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-100 transition">تعديل</button>
+                        <button onclick="deleteProduct('${p.id}')" class="bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition">حذف</button>
                     </div>
                 </div>
-                
-                <div class="glass-card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-white/5">
-                                <tr>
-                                    <th class="text-right p-4 text-sm font-bold">رقم الطلب</th>
-                                    <th class="text-right p-4 text-sm font-bold">العميل</th>
-                                    <th class="text-right p-4 text-sm font-bold">المنتج</th>
-                                    <th class="text-right p-4 text-sm font-bold">المبلغ</th>
-                                    <th class="text-right p-4 text-sm font-bold">الحالة</th>
-                                    <th class="text-right p-4 text-sm font-bold">التاريخ</th>
-                                    <th class="text-right p-4 text-sm font-bold">الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            `).join('');
+        }
 
-            <!-- Categories Section -->
-            <div id="categories" class="section">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">🏷️ إدارة الفئات</h2>
-                    <button onclick="openCategoryModal()" class="btn-success">
-                        <i class="fas fa-plus"></i>
-                        إضافة فئة
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="categoriesGrid"></div>
-            </div>
+        function searchAdminProducts() {
+            const term = document.getElementById('adminSearch').value.toLowerCase();
+            const filtered = term 
+                ? allProducts.filter(p => p.name.toLowerCase().includes(term) || p.cat?.toLowerCase().includes(term))
+                : allProducts;
+            renderAdminProducts(filtered);
+        }
 
-            <!-- Settings Section -->
-            <div id="settings" clas
+        function deleteProduct(id) {
+            if(confirm('⚠️ حذف هذا المنتج نهائياً؟')) {
+                db.ref('products').child(id).remove()
+                    .then(() => showToast('تم حذف المنتج'))
+                    .catch(err => showToast('خطأ: ' + err.message, 'error'));
+            }
+        }
+
+        function editProduct(id) {
+            const p = allProducts.find(x => x.id === id);
+            if(!p) return;
+            
+            document.getElementById('pId').value = p.id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pImg').value = p.img || '';
+            document.getElementById('pVideo').value = p.video || '';
+            document.getElementById('pDesc').value = p.desc || '';
+            document.getElementById('pCat').value = p.cat || '';
+            
+            document.getElementById('formTitle').innerText = 'تعديل المنتج';
+            document.getElementById('btnSave').innerHTML = '<i class="fas fa-sync-alt"></i> تحديث المنتج';
+            document.getElementById('btnSave').classList.replace('btn-primary', 'bg-blue-700');
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            showToast('تم تحميل بيانات المنتج للتعديل');
+        }
+
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pImg').value = '';
+            document.getElementById('pVideo').value = '';
+            document.getElementById('pDesc').value = '';
+            document.getElementById('pCat').value = '';
+            
+            document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
+            document.getElementById('btnSave').innerHTML = 'حفظ المنتج';
+            document.getElementById('btnSave').className = 'w-full btn-primary py-3 rounded-xl font-medium shadow-lg';
+        }
+
+        // 🚀 التهيئة عند التحميل
+        window.addEventListener('load', () => {
+            checkSession();
+            
+            // إغلاق النوافذ المنبثقة عند النقر خارجها
+            document.addEventListener('click', (e) => {
+                if(e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        });
+
+        // ⌨️ دعم مفتاح Enter في الحقول
+        document.getElementById('newCat')?.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') saveCategory();
+        });
+        document.getElementById('pName')?.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') document.getElementById('pPrice').focus();
+        });
+    </script>
+</body>
+</html>
