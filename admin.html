@@ -212,7 +212,6 @@
             if(session === 'active') {
                 const time = localStorage.getItem('akkad_admin_time');
                 if(time && (Date.now() - parseInt(time)) < 86400000) {
-                    // التحقق من أن المستخدم لا يزال مسجلاً
                     auth.onAuthStateChanged(user => {
                         if(user && user.email === APP_CONFIG.admin.email) {
                             document.getElementById('loginScreen').classList.add('hidden');
@@ -228,7 +227,6 @@
         }
 
         window.addEventListener('load', () => {
-            // تهيئة Firebase
             if(!firebase.apps.length) {
                 firebase.initializeApp(APP_CONFIG.firebase);
             }
@@ -265,7 +263,6 @@
             document.getElementById('productsCount').innerText = `${allProducts.length} منتج`;
         }
 
-        // ✅ إدارة الأقسام مع الترتيب
         function loadCategories() {
             if(!db) return;
             db.ref('categories').on('value', snap => {
@@ -420,7 +417,6 @@
             }
         }
 
-        // ✅ إدارة المنتجات
         function loadProducts() {
             if(!db) return;
             db.ref('products').on('value', snap => {
