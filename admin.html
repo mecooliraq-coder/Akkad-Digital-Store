@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -33,6 +32,10 @@
         
         .product-item { transition: all 0.2s; }
         .product-item:hover { border-color: #3b82f6; transform: translateX(4px); }
+        
+        /* تأثيرات إضافية للحقول */
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .shake { animation: shake 0.3s ease-in-out; }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -47,11 +50,11 @@
             <p class="text-gray-500 mb-6 text-sm">سجّل الدخول لإدارة المتجر</p>
             
             <form id="loginForm" class="space-y-4">
-                <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" required
-                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
-                <input type="password" id="adminPass" placeholder="كلمة المرور" required
-                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
-                <button type="submit" class="w-full btn-primary py-3 rounded-xl font-medium">
+                <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" required autocomplete="username"
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 transition">
+                <input type="password" id="adminPass" placeholder="كلمة المرور" required autocomplete="current-password"
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 transition">
+                <button type="submit" id="loginBtn" class="w-full btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
                     <span id="loginBtnText">تسجيل الدخول</span>
                     <span id="loginLoader" class="loader hidden"></span>
                 </button>
@@ -194,7 +197,12 @@
             firebase: { 
                 databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
             },
-            whatsapp: "9647730492020"
+            whatsapp: "9647730492020",
+            // 🔐 بيانات الدخول الآمنة (للاستخدام المحلي فقط)
+            admin: {
+                email: "mecool.iraq@gmail.com",
+                pass: "ashd1980"
+            }
         };
 
         // تهيئة Firebase
@@ -213,36 +221,88 @@
             setTimeout(() => toast.style.display = 'none', 3500);
         }
 
-        // 🔐 تسجيل الدخول
-        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+        // 🔐 تسجيل الدخول - كود مُحسّن وموثوق
+        document.getElementById('loginForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const pass = document.getElementById('adminPass').value;
+            
+            const emailInput = document.getElementById('adminEmail');
+            const passInput = document.getElementById('adminPass');
+            const email = emailInput.value.trim().toLowerCase();
+            const pass = passInput.value.trim();
+            const btn = document.getElementById('loginBtn');
             const btnText = document.getElementById('loginBtnText');
             const loader = document.getElementById('loginLoader');
             const error = document.getElementById('loginError');
             
+            // إخفاء الخطأ السابق
+            error.classList.add('hidden');
+            error.innerText = '';
+            
+            // عرض حالة التحميل
+            btn.disabled = true;
             btnText.classList.add('hidden');
             loader.classList.remove('hidden');
-            error.classList.add('hidden');
             
+            // محاكاة تأخير بسيط لتجربة المستخدم
             setTimeout(() => {
-                if(email === 'admin@akkad.com' && pass === 'akkad123') {
-                    localStorage.setItem('adminLoggedIn', 'true');
-                    showAdminPanel();
-                    showToast('مرحباً بك في لوحة التحكم! 🎉');
+                // ✅ التحقق من البيانات
+                if(email === APP_CONFIG.admin.email && pass === APP_CONFIG.admin.pass) {
+                    // حفظ الجلسة
+                    localStorage.setItem('akkad_admin_session', 'active');
+                    localStorage.setItem('akkad_admin_time', Date.now().toString());
+                    
+                    // الانتقال للوحة التحكم
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    
+                    // تحديث الإحصائيات
+                    updateStats();
+                    
+                    // رسالة ترحيب
+                    showToast('✅ مرحباً بك في لوحة التحكم! 🎉');
+                    
+                    // إعادة تعيين الحقول
+                    emailInput.value = '';
+                    passInput.value = '';
                 } else {
+                    // عرض رسالة الخطأ
                     error.innerText = '❌ البريد أو كلمة المرور غير صحيحة';
                     error.classList.remove('hidden');
+                    
+                    // تأثير اهتزاز للحقول
+                    emailInput.classList.add('shake');
+                    passInput.classList.add('shake');
+                    setTimeout(() => {
+                        emailInput.classList.remove('shake');
+                        passInput.classList.remove('shake');
+                    }, 300);
+                    
+                    // تركيز على حقل كلمة المرور
+                    passInput.focus();
+                    passInput.select();
                 }
+                
+                // إعادة زر الدخول لحالته الطبيعية
+                btn.disabled = false;
                 btnText.classList.remove('hidden');
                 loader.classList.add('hidden');
-            }, 1200);
+                
+            }, 800);
         });
 
+        // التحقق من الجلسة النشطة
         function checkSession() {
-            if(localStorage.getItem('adminLoggedIn') === 'true') {
-                showAdminPanel();
+            const session = localStorage.getItem('akkad_admin_session');
+            const loginTime = localStorage.getItem('akkad_admin_time');
+            const now = Date.now();
+            
+            // الجلسة صالحة لمدة 24 ساعة (86400000 ميلي ثانية)
+            const sessionValid = session === 'active' && loginTime && (now - parseInt(loginTime)) < 86400000;
+            
+            if(sessionValid) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                updateStats();
             }
         }
 
@@ -253,8 +313,9 @@
         }
 
         function logout() {
-            if(confirm('هل تريد تسجيل الخروج؟')) {
-                localStorage.removeItem('adminLoggedIn');
+            if(confirm('⚠️ هل تريد تسجيل الخروج من لوحة التحكم؟')) {
+                localStorage.removeItem('akkad_admin_session');
+                localStorage.removeItem('akkad_admin_time');
                 location.reload();
             }
         }
@@ -272,19 +333,19 @@
         function saveCategory() {
             const id = document.getElementById('catId').value;
             const name = document.getElementById('newCat').value.trim();
-            if(!name) return showToast('أدخل اسم القسم', 'error');
+            if(!name) return showToast('⚠️ أدخل اسم القسم', 'error');
             
             const ref = id ? db.ref('categories').child(id) : db.ref('categories').push();
             ref.set(name)
                 .then(() => {
-                    showToast(id ? 'تم تحديث القسم ✓' : 'تم إضافة القسم ✓');
+                    showToast(id ? '✅ تم تحديث القسم' : '✅ تم إضافة القسم');
                     document.getElementById('catId').value = '';
                     document.getElementById('newCat').value = '';
                     document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i>';
                 })
                 .catch(err => {
                     console.error(err);
-                    showToast('فشل الحفظ: ' + err.message, 'error');
+                    showToast('❌ فشل الحفظ: ' + err.message, 'error');
                 });
         }
 
@@ -329,8 +390,8 @@
         function deleteCat(id) {
             if(confirm('⚠️ حذف هذا القسم؟\nلن يتم حذف المنتجات المرتبطة به.')) {
                 db.ref('categories').child(id).remove()
-                    .then(() => showToast('تم حذف القسم'))
-                    .catch(err => showToast('خطأ: ' + err.message, 'error'));
+                    .then(() => showToast('✅ تم حذف القسم'))
+                    .catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
             }
         }
 
@@ -347,7 +408,7 @@
                 updatedAt: Date.now()
             };
 
-            if(!data.name || !data.price) return showToast('الاسم والسعر حقول إلزامية', 'error');
+            if(!data.name || !data.price) return showToast('⚠️ الاسم والسعر حقول إلزامية', 'error');
 
             const ref = id ? db.ref('products').child(id) : db.ref('products').push();
             ref.set(data)
@@ -386,4 +447,79 @@
                         ${p.cat ? `<span class="text-[10px] text-gray-400">${p.cat}</span>` : ''}
                     </div>
                     <div class="flex gap-1.5">
-                        <button onclick
+                        <button onclick="editProduct('${p.id}')" class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-100 transition">تعديل</button>
+                        <button onclick="deleteProduct('${p.id}')" class="bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition">حذف</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchAdminProducts() {
+            const term = document.getElementById('adminSearch').value.toLowerCase();
+            const filtered = term 
+                ? allProducts.filter(p => p.name.toLowerCase().includes(term) || p.cat?.toLowerCase().includes(term))
+                : allProducts;
+            renderAdminProducts(filtered);
+        }
+
+        function deleteProduct(id) {
+            if(confirm('⚠️ حذف هذا المنتج نهائياً؟')) {
+                db.ref('products').child(id).remove()
+                    .then(() => showToast('✅ تم حذف المنتج'))
+                    .catch(err => showToast('❌ خطأ: ' + err.message, 'error'));
+            }
+        }
+
+        function editProduct(id) {
+            const p = allProducts.find(x => x.id === id);
+            if(!p) return;
+            
+            document.getElementById('pId').value = p.id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pImg').value = p.img || '';
+            document.getElementById('pVideo').value = p.video || '';
+            document.getElementById('pDesc').value = p.desc || '';
+            document.getElementById('pCat').value = p.cat || '';
+            
+            document.getElementById('formTitle').innerText = 'تعديل المنتج';
+            document.getElementById('btnSave').innerHTML = '<i class="fas fa-sync-alt"></i> تحديث المنتج';
+            document.getElementById('btnSave').classList.replace('btn-primary', 'bg-blue-700');
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            showToast('✅ تم تحميل بيانات المنتج للتعديل');
+        }
+
+        function resetForm() {
+            document.getElementById('pId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pImg').value = '';
+            document.getElementById('pVideo').value = '';
+            document.getElementById('pDesc').value = '';
+            document.getElementById('pCat').value = '';
+            
+            document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
+            document.getElementById('btnSave').innerHTML = 'حفظ المنتج';
+            document.getElementById('btnSave').className = 'w-full btn-primary py-3 rounded-xl font-medium shadow-lg';
+        }
+
+        // 🚀 التهيئة عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            checkSession();
+            
+            // دعم مفتاح Enter في الحقول
+            document.getElementById('newCat')?.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') saveCategory();
+            });
+            document.getElementById('pName')?.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') document.getElementById('pPrice').focus();
+            });
+            
+            // تسجيل في الكونسول للتأكد من التحميل
+            console.log('✅ لوحة تحكم أكاد: جاهزة للعمل');
+            console.log('📧 بريد الدخول:', APP_CONFIG.admin.email);
+        });
+    </script>
+</body>
+</html>
