@@ -3,242 +3,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أكاد الرقمي | عالم الترفيه</title>
+    <title>متجر أكاد الرقمي | من قلب بلاد الرافدين</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
+        
+        :root {
+            /* ألوان الحضارة الأكادية */
+            --akkad-blue: #1a4d7a;        /* أزرق لازوردي */
+            --akkad-gold: #c9a961;         /* ذهب عتيق */
+            --akkad-bronze: #8b6f47;       /* برونزي */
+            --akkad-terracotta: #b85c38;   /* طيني أحمر */
+            --akkad-stone: #d4c4a8;        /* حجر رملي */
+            --akkad-dark: #0f1a24;         /* ليلي عميق */
+        }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body { 
             font-family: 'Tajawal', sans-serif; 
-            background: radial-gradient(circle at top right, #1e293b, #080c14); 
-            color: white; 
+            background: radial-gradient(ellipse at top, var(--akkad-dark), #0a0f18 60%, #05080c); 
+            color: #f8fafc; 
             min-height: 100vh;
-            line-height: 1.6;
+            line-height: 1.7;
+            overflow-x: hidden;
         }
 
-        /* الخلفية المتحركة */
-        #bg-elements {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-        }
-        .floating-img {
-            position: absolute; opacity: 0.06; filter: grayscale(100%) blur(1px);
-            animation: float-infinite var(--duration) ease-in-out infinite;
-            border-radius: 1rem;
-        }
-        @keyframes float-infinite {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-25px) rotate(8deg); }
+        /* خلفية أنماط مسمارية خفيفة */
+        #cuneiform-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.04;
+            background-image: 
+                radial-gradient(circle at 20% 30%, var(--akkad-gold) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, var(--akkad-bronze) 1px, transparent 1px),
+                repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,169,97,0.03) 40px, rgba(201,169,97,0.03) 80px);
         }
 
-        /* كروت الزجاج */
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.04); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+        /* زخرفة حدود أكادية */
+        .akkad-border {
+            position: relative;
+            border: 2px solid transparent;
+            background: linear-gradient(rgba(15,26,36,0.9), rgba(15,26,36,0.9)) padding-box,
+                        linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze), var(--akkad-gold)) border-box;
             border-radius: 1.5rem;
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-card:hover { 
-            transform: translateY(-8px); 
-            background: rgba(255, 255, 255, 0.08);
-            border-color: #3b82f6;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        .akkad-border::before {
+            content: "𒀀𒁉𒋫"; /* رموز مسمارية زخرفية */
+            position: absolute; top: -10px; right: 20px;
+            color: var(--akkad-gold); font-size: 12px; letter-spacing: 3px;
+            font-family: 'Amiri', serif; opacity: 0.6;
         }
 
-        /* شريط الأخبار */
-        .ticker-wrapper { overflow: hidden; white-space: nowrap; background: rgba(59, 130, 246, 0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .ticker-content { display: inline-block; animation: ticker 45s linear infinite; padding: 8px 0; }
+        /* كروت الزجاج الأكادية */
+        .akkad-card { 
+            background: linear-gradient(145deg, rgba(26,77,122,0.25), rgba(15,26,36,0.4)); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(201,169,97,0.2); 
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+        }
+        .akkad-card::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(184,92,56,0.1));
+            pointer-events: none;
+        }
+        .akkad-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: var(--akkad-gold);
+            box-shadow: 0 30px 60px -15px rgba(201,169,97,0.25), 0 0 40px rgba(184,92,56,0.1);
+        }
+        .akkad-card:hover::before {
+            content: ""; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(201,169,97,0.1), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { left: 100%; } }
+
+        /* شريط التنقل الأكادي */
+        .akkad-nav {
+            background: linear-gradient(180deg, rgba(10,15,24,0.95), rgba(15,26,36,0.9));
+            border-bottom: 2px solid var(--akkad-gold);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 30px rgba(201,169,97,0.1);
+        }
+
+        /* شعار المتجر */
+        .akkad-logo {
+            display: flex; align-items: center; gap: 12px;
+            font-family: 'Amiri', serif;
+        }
+        .akkad-logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 25px rgba(201,169,97,0.4);
+            position: relative;
+        }
+        .akkad-logo-icon::before {
+            content: "𒆳"; /* رمز أكادي */
+            color: var(--akkad-dark); font-size: 24px; font-weight: bold;
+        }
+        .akkad-logo-text {
+            font-size: 1.25rem; font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--akkad-gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .akkad-logo-sub {
+            font-size: 0.65rem; color: var(--akkad-stone); letter-spacing: 1px;
+        }
+
+        /* شريط الأخبار المتحرك */
+        .ticker-wrapper { 
+            overflow: hidden; white-space: nowrap; 
+            background: linear-gradient(90deg, var(--akkad-blue), var(--akkad-dark));
+            border-bottom: 1px solid rgba(201,169,97,0.3);
+            position: relative;
+        }
+        .ticker-wrapper::before {
+            content: "𒀭"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            color: var(--akkad-gold); font-size: 14px; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .ticker-content { display: inline-block; animation: ticker 50s linear infinite; padding: 10px 0; }
         @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
         /* النوافذ المنبثقة */
         .modal { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            display: none; position: fixed; inset: 0; 
+            background: rgba(5,8,12,0.92); 
             z-index: 1000; align-items: center; justify-content: center; 
-            backdrop-filter: blur(8px); padding: 16px; animation: fadeIn 0.2s;
+            backdrop-filter: blur(12px); padding: 16px; 
+            animation: fadeIn 0.3s ease-out;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; backdrop-filter: blur(12px); } }
+        
         .modal-content { 
-            background: #1e293b; border: 1px solid rgba(255,255,255,0.15); 
-            width: 100%; max-width: 500px; border-radius: 1.5rem; 
-            padding: 1.5rem; animation: slideUp 0.3s;
+            background: linear-gradient(145deg, var(--akkad-dark), #152233);
+            border: 2px solid var(--akkad-gold);
+            width: 100%; max-width: 520px; border-radius: 1.75rem; 
+            padding: 1.75rem; animation: slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+            position: relative;
         }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content::before {
+            content: "𒋀𒅆𒌓"; position: absolute; top: 15px; left: 20px;
+            color: var(--akkad-gold); opacity: 0.3; font-size: 10px; letter-spacing: 2px;
+            font-family: 'Amiri', serif;
+        }
+        @keyframes slideUp { from { transform: translateY(40px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
         /* التنبيهات */
         #toast { 
-            position: fixed; top: 20px; left: 20px; z-index: 2000; 
-            padding: 12px 20px; border-radius: 12px; color: white; 
+            position: fixed; top: 24px; left: 24px; z-index: 3000; 
+            padding: 14px 24px; border-radius: 16px; color: white; 
             font-weight: 500; font-size: 14px; display: none; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: slideIn 0.3s;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 25px rgba(201,169,97,0.2);
+            animation: slideIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+            border: 1px solid var(--akkad-gold);
+            background: linear-gradient(135deg, var(--akkad-blue), var(--akkad-dark));
         }
-        @keyframes slideIn { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .toast-success { background: linear-gradient(135deg, #10b981, #059669); }
-        .toast-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        @keyframes slideIn { from { transform: translateX(-120px) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+        .toast-success { border-color: #10b981; box-shadow: 0 15px 35px rgba(16,185,129,0.3); }
+        .toast-error { border-color: #ef4444; box-shadow: 0 15px 35px rgba(239,68,68,0.3); }
 
         /* التحميل */
         .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #3b82f6;
+            border: 4px solid rgba(201,169,97,0.2);
+            border-top: 4px solid var(--akkad-gold);
             border-radius: 50%;
-            width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 40px auto;
+            width: 50px; height: 50px;
+            animation: spin 1.2s linear infinite, pulse 2s ease-in-out infinite;
+            margin: 50px auto;
+            position: relative;
+        }
+        .loader::after {
+            content: "𒆳"; position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            color: var(--akkad-gold); font-size: 18px; font-family: 'Amiri', serif;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* عناصر زخرفية عائمة */
+        .floating-symbol {
+            position: absolute; color: var(--akkad-gold); opacity: 0.08;
+            font-family: 'Amiri', serif; font-size: 24px; pointer-events: none;
+            animation: float-symbol 25s ease-in-out infinite;
+        }
+        @keyframes float-symbol {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(12deg); }
+            66% { transform: translateY(15px) rotate(-8deg); }
+        }
+
+        /* تحسينات إضافية */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* تأثيرات الأزرار الأكادية */
+        .btn-akkad {
+            background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze));
+            color: var(--akkad-dark); font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .btn-akkad::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%); transition: transform 0.5s ease;
+        }
+        .btn-akkad:hover::before { transform: translateX(100%); }
+        .btn-akkad:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 12px 30px rgba(201,169,97,0.4);
+        }
+        
+        .btn-outline-akkad {
+            border: 2px solid var(--akkad-gold); color: var(--akkad-gold);
+            background: transparent; font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-akkad:hover {
+            background: rgba(201,169,97,0.15);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
-    <!-- خلفية متحركة -->
-    <div id="bg-elements"></div>
+    <!-- خلفية أنماط مسمارية -->
+    <div id="cuneiform-bg"></div>
+    
+    <!-- رموز أكادية عائمة -->
+    <div class="floating-symbol" style="top:15%;left:10%">𒀭</div>
+    <div class="floating-symbol" style="top:70%;left:85%;animation-delay:-5s">𒆳</div>
+    <div class="floating-symbol" style="top:40%;left:5%;animation-delay:-12s">𒌓</div>
+    <div class="floating-symbol" style="top:85%;left:20%;animation-delay:-18s">𒀀</div>
 
     <!-- شريط التنبيهات -->
     <div id="toast"></div>
 
-    <!-- القائمة العلوية -->
-    <nav class="sticky top-0 z-50 bg-slate-900/85 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+    <!-- القائمة العلوية الأكادية -->
+    <nav class="akkad-nav sticky top-0 z-50 backdrop-blur-xl">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                        <i class="fas fa-tv text-white text-lg"></i>
-                    </div>
+                <!-- الشعار -->
+                <a href="#" class="akkad-logo group">
+                    <div class="akkad-logo-icon group-hover:scale-110 transition-transform"></div>
                     <div>
-                        <h1 class="text-lg font-bold tracking-tight">AKKAD <span class="text-blue-400">STORE</span></h1>
-                        <p class="text-[10px] text-gray-400">أفضل أجهزة الترفيه الرقمي</p>
+                        <div class="akkad-logo-text">أكاد <span class="text-[10px] font-normal opacity-80">DIGITAL</span></div>
+                        <div class="akkad-logo-sub">من قلب الرافدين</div>
                     </div>
-                </div>
+                </a>
+                
+                <!-- روابط الرأس -->
                 <div class="flex items-center gap-3">
-                    <a href="admin.html" class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1">
-                        <i class="fas fa-user-cog"></i> الإدارة
+                    <a href="admin.html" class="text-gray-300 hover:text-[var(--akkad-gold)] transition text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5">
+                        <i class="fas fa-crown text-[var(--akkad-gold)]"></i> الإدارة
                     </a>
-                    <a href="https://wa.me/9647730492020" class="bg-green-600 hover:bg-green-500 text-white p-2.5 rounded-xl transition shadow-lg shadow-green-500/20">
-                        <i class="fab fa-whatsapp text-xl"></i>
+                    <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white p-2.5 rounded-xl transition shadow-lg shadow-green-500/20 flex items-center gap-1.5">
+                        <i class="fab fa-whatsapp text-lg"></i>
                     </a>
                 </div>
             </div>
             
             <!-- شريط البحث -->
-            <div class="relative max-w-xl mx-auto">
+            <div class="relative max-w-2xl mx-auto">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" 
-                    class="w-full bg-white/5 border border-white/10 rounded-2xl py-2.5 px-12 outline-none focus:border-blue-500 focus:bg-white/10 transition text-sm" 
-                    placeholder="🔍 ابحث عن جهاز، ماركة، أو ميزة...">
-                <i class="fas fa-search absolute right-4 top-3.5 text-gray-500"></i>
+                    class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" 
+                    placeholder="🔍 ابحث عن جهاز من كنوز الرافدين...">
+                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/70"></i>
+                <span class="absolute left-5 top-3.5 text-xs text-[var(--akkad-stone)] hidden md:block">𒋗 بحث متقدم</span>
             </div>
             
-            <!-- تصنيفات -->
-            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
-                <button onclick="filterByCat('all')" class="bg-blue-600 text-white px-4 py-1.5 rounded-full whitespace-nowrap text-xs font-medium shadow-lg shadow-blue-500/20 transition">الكل</button>
+            <!-- تصنيفات بأسلوب أكادي -->
+            <div id="categories-nav" class="flex gap-2 mt-5 overflow-x-auto scrollbar-hide pb-2">
+                <button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">
+                    <i class="fas fa-gem ml-1"></i> الكل
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- شريط العروض -->
+    <!-- شريط العروض المتحرك -->
     <div class="ticker-wrapper">
-        <div id="product-ticker" class="ticker-content text-blue-300 font-medium tracking-wide text-[11px]"></div>
+        <div id="product-ticker" class="ticker-content text-[var(--akkad-gold)] font-medium tracking-wide text-[11px] flex items-center gap-4"></div>
     </div>
 
     <!-- المحتوى الرئيسي -->
-    <main class="container mx-auto px-4 py-8 relative z-10">
+    <main class="container mx-auto px-4 py-10 relative z-10">
+        <!-- عنوان القسم بلمسة أكادية -->
+        <div class="text-center mb-10">
+            <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family:'Amiri',serif">
+                <span class="text-[var(--akkad-gold)]">𒆳</span> كنوز أكاد الرقمية <span class="text-[var(--akkad-gold)]">𒆳</span>
+            </h2>
+            <p class="text-gray-400 text-sm">أحدث الأجهزة بأسعار من عهد الحضارات</p>
+        </div>
+        
         <!-- حالة التحميل -->
-        <div id="loading" class="text-center py-20">
+        <div id="loading" class="text-center py-25">
             <div class="loader"></div>
-            <p class="text-gray-400 mt-4 text-sm">جاري تحميل المنتجات...</p>
+            <p class="text-gray-400 mt-5 text-sm">جاري استحضار الكنوز من قاعدة البيانات...</p>
+            <div class="text-[var(--akkad-gold)]/40 text-3xl mt-3" style="font-family:'Amiri'">𒀀𒁉𒋫</div>
         </div>
         
         <!-- شبكة المنتجات -->
-        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden">
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden">
             <!-- سيتم ملؤها ديناميكياً -->
         </div>
         
         <!-- رسالة عند عدم وجود نتائج -->
-        <div id="no-results" class="hidden text-center py-20">
-            <i class="fas fa-search text-5xl text-gray-600 mb-4"></i>
-            <p class="text-gray-400">لم نجد منتجات تطابق بحثك 😕</p>
-            <button onclick="document.getElementById('searchInput').value=''; searchProducts();" class="mt-4 text-blue-400 hover:underline text-sm">عرض كل المنتجات</button>
+        <div id="no-results" class="hidden text-center py-25">
+            <div class="text-6xl mb-4" style="font-family:'Amiri';color:var(--akkad-gold)">𒀭</div>
+            <p class="text-gray-400 text-lg mb-2">لم نجد هذا الكنز في أرشيفنا 😕</p>
+            <p class="text-gray-500 text-sm mb-5">جرب كلمات بحث أخرى من حضارة الرافدين</p>
+            <button onclick="document.getElementById('searchInput').value=''; searchProducts();" 
+                    class="btn-outline-akkad px-6 py-2.5 rounded-xl text-sm">
+                عرض كل الكنوز
+            </button>
         </div>
     </main>
 
-    <!-- نافذة تفاصيل المنتج -->
+    <!-- نافذة تفاصيل المنتج (بنمط أكادي) -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 id="modalTitle" class="text-xl font-bold text-blue-400"></h2>
-                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-xl">&times;</button>
+            <div class="flex justify-between items-start mb-5">
+                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]" style="font-family:'Amiri',serif"></h2>
+                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
             </div>
-            <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line mb-6"></p>
+            <div class="border-t border-[var(--akkad-gold)]/20 pt-4 mb-5">
+                <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line"></p>
+            </div>
             <div class="flex gap-3">
-                <button onclick="closeModal('descModal')" class="flex-1 bg-slate-700 py-2.5 rounded-xl font-medium hover:bg-slate-600 transition text-sm">إغلاق</button>
-                <a id="modalOrderBtn" href="#" target="_blank" class="flex-1 bg-green-600 text-center py-2.5 rounded-xl font-medium hover:bg-green-500 transition text-sm flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp"></i> طلب الآن
+                <button onclick="closeModal('descModal')" class="flex-1 bg-white/5 border border-white/10 py-2.5 rounded-xl font-medium hover:bg-white/10 transition text-sm">
+                    إغلاق
+                </button>
+                <a id="modalOrderBtn" href="#" target="_blank" class="flex-1 btn-akkad text-center py-2.5 rounded-xl font-medium transition text-sm flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp"></i> اطلب هذا الكنز
                 </a>
+            </div>
+            <div class="text-center mt-4 text-[10px] text-gray-500" style="font-family:'Amiri'">
+                𒀀𒁉𒋫 • متجر أكاد الرقمي • منذ 2026 𒋫𒁉𒀀
             </div>
         </div>
     </div>
 
     <!-- نافذة الفيديو -->
     <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
-        <div class="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl" onclick="event.stopPropagation()">
-            <button onclick="closeModal('videoModal')" class="absolute top-4 right-4 z-10 bg-black/60 hover:bg-black/80 text-white w-10 h-10 rounded-full flex items-center justify-center transition">&times;</button>
+        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border-2 border-[var(--akkad-gold)]" onclick="event.stopPropagation()">
+            <button onclick="closeModal('videoModal')" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white w-11 h-11 rounded-full flex items-center justify-center transition border border-[var(--akkad-gold)]">&times;</button>
+            <div class="absolute top-4 left-4 text-[var(--akkad-gold)] text-xs" style="font-family:'Amiri'">𒌓 عرض حصري 𒌓</div>
             <iframe id="ytPlayer" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     </div>
 
-    <!-- ================= 🎯 نموذج طلب واتساب السريع - متجر أكاد ================= -->
+    <!-- ================= 🎯 نموذج طلب واتساب السريع - بنمط أكادي ================= -->
     <div id="wa-order-modal" class="modal" onclick="closeWaModal(event)">
       <div class="modal-content max-w-md" onclick="event.stopPropagation()">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-blue-400">📝 إكمال بيانات الطلب</h3>
-          <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-lg font-bold text-[var(--akkad-gold)]" style="font-family:'Amiri',serif">📜 سجل طلبك الملكي</h3>
+          <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl leading-none transition">&times;</button>
         </div>
         
-        <form id="wa-order-form" class="space-y-3">
-          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required 
-            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+        <form id="wa-order-form" class="space-y-3.5">
+          <input type="text" id="wa-name" placeholder="الاسم الكريم *" required 
+            class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500">
           
           <div class="grid grid-cols-2 gap-3">
-            <select id="wa-gov" required class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+            <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
               <option value="">المحافظة *</option>
-              <option value="بغداد">بغداد</option>
-              <option value="البصرة">البصرة</option>
-              <option value="نينوى">نينوى</option>
-              <option value="أربيل">أربيل</option>
+              <option value="بغداد">بغداد - عاصمة الرافدين</option>
+              <option value="البصرة">البصرة - لؤلؤة الخليج</option>
+              <option value="نينوى">نينوى - أرض آشور</option>
+              <option value="أربيل">أربيل - عروس الجبل</option>
               <option value="السليمانية">السليمانية</option>
               <option value="كركوك">كركوك</option>
               <option value="الأنبار">الأنبار</option>
-              <option value="بابل">بابل</option>
-              <option value="أخرى">أخرى</option>
+              <option value="بابل">بابل - مدينة حمورابي</option>
+              <option value="أخرى">منطقة أخرى</option>
             </select>
-            <input type="text" id="wa-city" placeholder="المدينة / الحي *" required 
-              class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required 
+              class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500">
           </div>
           
-          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required 
-            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة (معلم) *" required 
+            class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500">
           
           <input type="tel" id="wa-phone" placeholder="رقم الموبايل (واتساب) *" required 
-            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition" pattern="[0-9\s\+\-\(\)]+">
+            class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500" pattern="[0-9\s\+\-\(\)]+">
           
           <!-- حقول مخفية لبيانات المنتج -->
           <input type="hidden" id="wa-prod-name">
           <input type="hidden" id="wa-prod-price">
           
-          <button type="submit" class="w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-500/20 mt-2 flex items-center justify-center gap-2">
-            <i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب
+          <button type="submit" class="w-full btn-akkad font-bold py-3.5 rounded-xl transition shadow-lg mt-3 flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp"></i> 📜 إرسال الطلب إلى الملك
           </button>
         </form>
+        <div class="text-center mt-4 text-[10px] text-gray-500" style="font-family:'Amiri'">
+          𒆳 طلبك محفوظ في ألواحنا الرقمية 𒆳
+        </div>
       </div>
     </div>
 
     <script>
-    // 🎯 دوال نموذج واتساب
+    // 🎯 دوال نموذج واتساب (بنمط أكادي)
     function openWaModal(prodName, prodPrice) {
       document.getElementById('wa-prod-name').value = prodName;
       document.getElementById('wa-prod-price').value = prodPrice;
@@ -266,22 +437,23 @@
       const prod = document.getElementById('wa-prod-name').value;
       const price = document.getElementById('wa-prod-price').value;
       
-      const msg = `*🛒 طلب جديد - متجر أكاد الرقمي*
-━━━━━━━━━━━━━━
+      const msg = `*🏛️ طلب ملكي - متجر أكاد الرقمي*
+━━━━━━━━━━━━━━━
 👤 *الاسم:* ${name}
-📍 *العنوان:* ${gov} - ${city}
-📌 *نقطة دالة:* ${landmark}
+📍 *العنوان:* ${gov} • ${city}
+🗿 *نقطة دالة:* ${landmark}
 📱 *موبايل:* ${mobile}
-━━━━━━━━━━━━━━
-📦 *المنتج:* ${prod}
-💰 *السعر:* ${price} د.ع
-━━━━━━━━━━━━━━
-🕐 ${new Date().toLocaleDateString('ar-IQ', {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+━━━━━━━━━━━━━━━
+📦 *الكنز المطلوب:* ${prod}
+💰 *الثمن:* ${price} د.ع
+━━━━━━━━━━━━━━━
+🕐 ${new Date().toLocaleDateString('ar-IQ', {year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'})}
+𒆳 من أرض الرافدين إلى حضارتك 𒆳`;
 
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
       closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
-      showToast('✅ سيتم توجيهك إلى واتساب لإكمال الطلب');
+      showToast('✅ تم توجيهك إلى رسول الملك واتساب');
     });
 
     document.addEventListener('keydown', e => {
@@ -290,7 +462,6 @@
       }
     });
     </script>
-    <!-- ================= نهاية كود النموذج ================= -->
 
     <script>
         // ⚙️ إعدادات التطبيق
@@ -307,13 +478,15 @@
         let allProducts = [];
         let isLoading = true;
 
-        // 🎯 دالة عرض التنبيهات
+        // 🎯 دالة عرض التنبيهات (بنمط أكادي)
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.className = `toast-${type}`;
-            toast.innerText = type==='success' ? `✅ ${message}` : `❌ ${message}`;
+            toast.innerHTML = type==='success' 
+                ? `<i class="fas fa-check-circle ml-1"></i> ${message}` 
+                : `<i class="fas fa-exclamation-circle ml-1"></i> ${message}`;
             toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
         }
 
         // 📥 جلب الأقسام
@@ -322,14 +495,18 @@
             const nav = document.getElementById('categories-nav');
             if(!nav) return;
             
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 text-white px-4 py-1.5 rounded-full whitespace-nowrap text-xs font-medium shadow-lg shadow-blue-500/20 transition hover:scale-105">الكل</button>`;
+            nav.innerHTML = `<button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition hover:scale-105">
+                <i class="fas fa-gem ml-1"></i> الكل
+            </button>`;
             
             Object.entries(cats).forEach(([key, name]) => {
-                nav.innerHTML += `<button onclick="filterByCat('${name}')" class="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-500/50 px-4 py-1.5 rounded-full whitespace-nowrap text-xs text-gray-300 transition">${name}</button>`;
+                nav.innerHTML += `<button onclick="filterByCat('${name}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition hover:bg-[var(--akkad-gold)]/10">
+                    ${name}
+                </button>`;
             });
         }, error => {
             console.error('Error loading categories:', error);
-            showToast('فشل تحميل الأقسام', 'error');
+            showToast('فشل تحميل أقسام الكنوز', 'error');
         });
 
         // 📦 جلب المنتجات
@@ -347,11 +524,14 @@
             
         }, error => {
             console.error('Error loading products:', error);
-            document.getElementById('loading').innerHTML = '<p class="text-red-400">❌ فشل الاتصال بالخادم</p>';
+            document.getElementById('loading').innerHTML = `
+                <p class="text-red-400 text-lg">❌ تعذر الوصول إلى خزانة الكنوز</p>
+                <p class="text-gray-500 text-sm mt-2">تحقق من اتصالك بالإنترنت</p>
+                <div class="text-[var(--akkad-gold)]/30 text-4xl mt-4" style="font-family:'Amiri'">𒀭</div>`;
             showToast('حدث خطأ في تحميل المنتجات', 'error');
         });
 
-        // 🖥️ عرض المنتجات في الشبكة
+        // 🖥️ عرض المنتجات في الشبكة (بنمط أكادي)
         function displayProducts(items) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -368,56 +548,59 @@
             grid.classList.remove('hidden');
             
             grid.innerHTML = items.map(p => {
-                const whatsappText = encodeURIComponent(`مرحباً، أريد طلب: ${p.name} - السعر: ${p.price} ${APP_CONFIG.currency}`);
+                const whatsappText = encodeURIComponent(`مرحباً يا ملك، أريد طلب: ${p.name} - السعر: ${p.price} ${APP_CONFIG.currency}`);
                 const whatsappLink = `https://wa.me/${APP_CONFIG.whatsapp}?text=${whatsappText}`;
                 
                 return `
-                <div class="glass-card p-4 flex flex-col relative group h-full">
-                    <!-- شارة الفيديو -->
-                    ${p.video ? `<span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full z-10 flex items-center gap-1"><i class="fas fa-play"></i> فيديو</span>` : ''}
+                <div class="akkad-card p-5 flex flex-col relative group h-full">
+                    <!-- شارة الفيديو بنمط أكادي -->
+                    ${p.video ? `<span class="absolute top-4 left-4 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-10 flex items-center gap-1 shadow-lg"><i class="fas fa-play text-[8px]"></i> عرض</span>` : ''}
                     
                     <!-- صورة المنتج -->
-                    <div class="h-40 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-3 relative overflow-hidden cursor-pointer" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
-                        <img src="${p.img || 'https://via.placeholder.com/150/1e293b/94a3b8?text=No+Image'}" 
+                    <div class="h-44 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-4 relative overflow-hidden cursor-pointer border border-white/10" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
+                        <img src="${p.img || 'https://via.placeholder.com/150/1a4d7a/c9a961?text=𒆳'}" 
                              alt="${p.name}" 
-                             class="max-h-full max-w-full object-contain transition duration-500 group-hover:scale-110"
-                             onerror="this.src='https://via.placeholder.com/150/1e293b/94a3b8?text=صورة+غير+متوفرة'">
+                             class="max-h-full max-w-full object-contain transition duration-700 group-hover:scale-110"
+                             onerror="this.src='https://via.placeholder.com/150/1a4d7a/c9a961?text=𒋫'">
                         
                         ${p.video ? `
-                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                            <i class="fas fa-play-circle text-white text-4xl drop-shadow-lg"></i>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                            <i class="fas fa-play-circle text-white text-5xl drop-shadow-lg animate-pulse"></i>
                         </div>` : ''}
+                        
+                        <!-- زخرفة زاوية -->
+                        <div class="absolute top-2 right-2 text-[var(--akkad-gold)]/30 text-xs" style="font-family:'Amiri'">𒀀</div>
                     </div>
                     
                     <!-- معلومات المنتج -->
                     <div class="flex-1 flex flex-col">
-                        <h3 class="font-bold text-[13px] mb-2 line-clamp-2 min-h-[32px] text-white">${p.name}</h3>
-                        <div class="text-lg font-bold text-white mb-3">${p.price} <span class="text-[10px] text-gray-400 font-normal">${APP_CONFIG.currency}</span></div>
+                        <h3 class="font-bold text-[13px] mb-2 line-clamp-2 min-h-[34px] text-white group-hover:text-[var(--akkad-gold)] transition">${p.name}</h3>
+                        <div class="text-xl font-bold text-[var(--akkad-gold)] mb-4">${p.price} <span class="text-[10px] text-gray-400 font-normal">${APP_CONFIG.currency}</span></div>
                         
-                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف متاح حالياً').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
-                                class="w-full border border-blue-500/40 text-blue-300 py-2 rounded-xl text-[11px] font-medium mb-3 hover:bg-blue-500/15 transition flex items-center justify-center gap-1">
-                            <i class="fas fa-info-circle"></i> التفاصيل
+                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف متاح حالياً لهذا الكنز').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
+                                class="w-full btn-outline-akkad py-2.5 rounded-xl text-[11px] font-medium mb-3 hover:bg-[var(--akkad-gold)]/15 transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-scroll"></i> تفاصيل الكنز
                         </button>
                     </div>
                     
-                    <!-- أزرار الطلب الجديدة -->
-                    <div class="flex gap-2 mt-2">
+                    <!-- أزرار الطلب الأكادية -->
+                    <div class="flex gap-2 mt-1">
                       <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
-                              class="flex-1 border border-blue-500/40 text-blue-300 py-2 rounded-xl text-[11px] font-medium hover:bg-blue-500/15 transition flex items-center justify-center gap-1">
-                        <i class="fas fa-info-circle"></i> التفاصيل
+                              class="flex-1 btn-outline-akkad py-2 rounded-xl text-[11px] font-medium hover:bg-[var(--akkad-gold)]/15 transition flex items-center justify-center gap-1">
+                        <i class="fas fa-info-circle"></i> تفاصيل
                       </button>
                       
                       <!-- ✅ الزر الجديد: يفتح نموذج البيانات -->
                       <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" 
-                              class="flex-1 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white py-2 rounded-xl flex items-center justify-center gap-1 transition font-medium text-xs shadow-lg shadow-green-500/20">
-                        <i class="fab fa-whatsapp"></i> اطلب سريع
+                              class="flex-1 btn-akkad py-2 rounded-xl flex items-center justify-center gap-1 transition font-medium text-xs shadow-lg">
+                        <i class="fab fa-whatsapp"></i> طلب سريع
                       </button>
                     </div>
 
-                    <!-- زر الواتساب الكامل (تحت الأزرار) -->
+                    <!-- زر الواتساب الكامل -->
                     <a href="${whatsappLink}" target="_blank" 
-                       class="w-full mt-2 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 py-2 rounded-xl flex items-center justify-center gap-2 transition text-[11px]">
-                      <i class="fab fa-whatsapp"></i> واتساب مباشر
+                       class="w-full mt-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 py-2 rounded-xl flex items-center justify-center gap-2 transition text-[11px]">
+                      <i class="fab fa-whatsapp"></i> مراسلة مباشرة
                     </a>
                 </div>`;
             }).join('');
@@ -428,27 +611,27 @@
             const ticker = document.getElementById('product-ticker');
             if(!ticker || allProducts.length === 0) return;
             
-            const items = allProducts.slice(0, 10).map(p => 
-                `<span class="mx-8 inline-flex items-center gap-2"><i class="fas fa-tag text-blue-400"></i> ${p.name} - ${p.price} ${APP_CONFIG.currency}</span>`
+            const items = allProducts.slice(0, 12).map(p => 
+                `<span class="mx-10 inline-flex items-center gap-2"><i class="fas fa-gem text-[var(--akkad-gold)]"></i> ${p.name} • ${p.price} ${APP_CONFIG.currency}</span>`
             ).join('');
             ticker.innerHTML = items + items;
         }
 
-        // 🎨 إنشاء خلفية عائمة
+        // 🎨 إنشاء خلفية عائمة بلمسة أكادية
         function createFloatingBg() {
-            const container = document.getElementById('bg-elements');
-            if(!container) return;
-            container.innerHTML = "";
+            const container = document.getElementById('bg-elements') || document.body;
+            // إزالة العناصر القديمة إن وجدت
+            document.querySelectorAll('.floating-product').forEach(el => el.remove());
             
-            const shuffled = [...allProducts].filter(p => p.img).slice(0, 6);
+            const shuffled = [...allProducts].filter(p => p.img).slice(0, 5);
             shuffled.forEach((p, i) => {
                 const img = document.createElement('img');
                 img.src = p.img;
-                img.className = 'floating-img';
+                img.className = 'floating-product absolute opacity-[0.03] blur-[1px] pointer-events-none';
                 img.style.top = `${Math.random() * 70 + 15}%`;
                 img.style.left = `${Math.random() * 70 + 10}%`;
-                img.style.width = `${Math.random() * 80 + 80}px`;
-                img.style.setProperty('--duration', `${Math.random() * 12 + 18}s`);
+                img.style.width = `${Math.random() * 100 + 100}px`;
+                img.style.animation = `float-symbol ${Math.random() * 20 + 25}s ease-in-out infinite`;
                 img.style.animationDelay = `${Math.random() * 5}s`;
                 container.appendChild(img);
             });
@@ -472,11 +655,11 @@
         // 📂 التصفية حسب القسم
         function filterByCat(category) {
             document.querySelectorAll('#categories-nav button').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
-                btn.classList.add('bg-white/5', 'text-gray-300');
+                btn.classList.remove('btn-akkad', 'shadow-lg');
+                btn.classList.add('btn-outline-akkad');
             });
-            event.target.classList.remove('bg-white/5', 'text-gray-300');
-            event.target.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+            event.target.classList.remove('btn-outline-akkad');
+            event.target.classList.add('btn-akkad', 'shadow-lg');
             
             const filtered = category === 'all' 
                 ? allProducts 
@@ -514,6 +697,7 @@
             if(e.key === 'Escape') {
                 closeModal('descModal');
                 closeModal('videoModal');
+                closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
             }
         });
 
@@ -521,9 +705,12 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 if(isLoading) {
-                    document.getElementById('loading').innerHTML = '<p class="text-yellow-400">⏳ التحميل يستغرق وقتاً أطول...</p>';
+                    document.getElementById('loading').innerHTML = `
+                        <p class="text-yellow-400 text-lg">⏳ الكنوز تستغرق وقتاً للوصول...</p>
+                        <p class="text-gray-500 text-sm mt-2">الصبر من شيم أبناء الرافدين</p>
+                        <div class="text-[var(--akkad-gold)]/40 text-3xl mt-4 animate-pulse" style="font-family:'Amiri'">𒆳𒀀𒁉</div>`;
                 }
-            }, 10000);
+            }, 12000);
         });
     </script>
 </body>
