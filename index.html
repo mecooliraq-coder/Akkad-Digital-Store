@@ -60,6 +60,7 @@
             box-shadow: 0 0 20px rgba(201,169,97,0.3);
             transition: all 0.3s ease;
             object-fit: cover;
+            background: var(--akkad-blue);
         }
         .akkad-logo:hover .akkad-logo-img {
             box-shadow: 0 0 30px rgba(201,169,97,0.6);
@@ -77,14 +78,40 @@
             font-family: 'Tajawal', sans-serif; font-weight: 500;
         }
 
+        /* ✅ الشريط المتحرك - تم التعديل */
         .ticker-wrapper { 
-            overflow: hidden; white-space: nowrap; 
-            background: linear-gradient(90deg, var(--akkad-blue), var(--akkad-dark));
-            border-bottom: 1px solid rgba(201,169,97,0.3);
+            overflow: hidden; 
+            white-space: nowrap; 
+            background: linear-gradient(90deg, rgba(26,77,122,0.95), rgba(15,26,36,0.95));
+            border-bottom: 2px solid var(--akkad-gold);
             position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .ticker-content { display: inline-block; animation: ticker 50s linear infinite; padding: 10px 0; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .ticker-content { 
+            display: inline-block; 
+            animation: ticker 40s linear infinite;
+            padding: 12px 0;
+            white-space: nowrap;
+        }
+        /* ✅ عكس اتجاه الحركة */
+        @keyframes ticker { 
+            0% { transform: translateX(-50%); } 
+            100% { transform: translateX(0%); } 
+        }
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 25px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .ticker-item i {
+            color: var(--akkad-gold);
+            font-size: 10px;
+        }
 
         .akkad-card { 
             background: linear-gradient(145deg, rgba(26,77,122,0.25), rgba(15,26,36,0.4)); 
@@ -167,9 +194,9 @@
     <nav class="akkad-nav sticky top-0 z-50 backdrop-blur-xl">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
-                <!-- ✅ الشعار الجديد بالصورة -->
+                <!-- ✅ الشعار مع الرابط المباشر -->
                 <a href="#" class="akkad-logo group">
-                    <img src="logo.png" alt="شعار أكاد" class="akkad-logo-img">
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/56/1a4d7a/c9a961?text=🦬'">
                     <div>
                         <div class="akkad-logo-text">أكاد</div>
                         <div class="akkad-logo-sub">DIGITAL STORE</div>
@@ -198,8 +225,9 @@
         </div>
     </nav>
 
+    <!-- ✅ الشريط المتحرك المُحسّن -->
     <div class="ticker-wrapper">
-        <div id="product-ticker" class="ticker-content text-[var(--akkad-gold)] font-medium tracking-wide text-[11px] flex items-center gap-4"></div>
+        <div id="product-ticker" class="ticker-content"></div>
     </div>
 
     <!-- المحتوى الرئيسي -->
@@ -208,7 +236,6 @@
             <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family:'Amiri',serif">
                 <span class="text-[var(--akkad-gold)]">𒆳</span> كنوز أكاد الرقمية <span class="text-[var(--akkad-gold)]">𒆳</span>
             </h2>
-            <!-- ✅ العبارة الجديدة -->
             <p class="text-gray-300 text-sm font-medium mt-1 tracking-wide">أحدث الأجهزة والمستلزمات بأقل الأسعار مع التوصيل لكل العراق</p>
         </div>
         
@@ -391,10 +418,18 @@
             }).join('');
         }
 
+        // ✅ تحديث الشريط المتحرك
         function updateTicker() {
             const t = document.getElementById('product-ticker');
             if(!t || !allProducts.length) return;
-            t.innerHTML = allProducts.slice(0,8).map(p => `<span class="mx-6 inline-flex items-center gap-2"><i class="fas fa-gem text-[var(--akkad-gold)]"></i> ${p.name} • ${p.price}</span>`).join('') + allProducts.slice(0,8).map(p => `<span class="mx-6 inline-flex items-center gap-2"><i class="fas fa-gem text-[var(--akkad-gold)]"></i> ${p.name} • ${p.price}</span>`).join('');
+            
+            // تكرار العناصر مرتين لضمان استمرار الحركة
+            const items = allProducts.slice(0, 10).map(p => 
+                `<span class="ticker-item"><i class="fas fa-gem"></i> ${p.name} - ${p.price} ${APP_CONFIG.currency}</span>`
+            ).join('');
+            
+            // تكرار المحتوى لضمان استمرارية الحركة السلسة
+            t.innerHTML = items + items + items;
         }
 
         function searchProducts() {
