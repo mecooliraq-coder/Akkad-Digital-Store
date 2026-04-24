@@ -12,8 +12,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
         
         :root {
-            --akkad-blue: #1a4d7a; --akkad-gold: #c9a961; --akkad-bronze: #8b6f47;
-            --akkad-terracotta: #b85c38; --akkad-dark: #0a0f18;
+            --akkad-dark: #030508; --akkad-deep: #0a1018; --akkad-surface: #0f1a24;
+            --akkad-blue: #1a4d7a; --akkad-blue-light: #2a6bb5;
+            --akkad-gold: #c9a961; --akkad-gold-light: #e2c47a;
+            --akkad-bronze: #8b6f47; --akkad-terracotta: #b85c38;
+            --glass-bg: rgba(15, 26, 36, 0.55);
+            --glass-border: rgba(201, 169, 97, 0.25);
+            --text-primary: #f8fafc; --text-secondary: #94a3b8;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,75 +26,103 @@
         body { 
             font-family: 'Tajawal', sans-serif; 
             background: var(--akkad-dark); 
-            color: #f8fafc; 
+            color: var(--text-primary); 
             min-height: 100vh;
-            line-height: 1.8;
+            line-height: 1.9;
+            letter-spacing: 0.01em;
             overflow-x: hidden;
         }
 
+        /* === طبقات الخلفية المتقدمة === */
         .bg-mesh {
-            position: fixed; inset: 0; z-index: -2;
-            background: linear-gradient(135deg, #05080c 0%, #0a1018 40%, #0f1a24 100%);
+            position: fixed; inset: 0; z-index: -3;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(201,169,97,0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(26,77,122,0.18) 0%, transparent 60%),
+                linear-gradient(165deg, var(--akkad-dark) 0%, var(--akkad-deep) 50%, var(--akkad-surface) 100%);
+            animation: bgDrift 40s ease-in-out infinite alternate;
         }
-        .bg-mesh::before, .bg-mesh::after {
-            content: ''; position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.35;
-        }
-        .bg-mesh::before {
-            width: 600px; height: 600px; background: radial-gradient(circle, var(--akkad-gold), transparent);
-            top: -100px; right: -100px; animation: float1 20s ease-in-out infinite alternate;
-        }
-        .bg-mesh::after {
-            width: 500px; height: 500px; background: radial-gradient(circle, var(--akkad-blue), transparent);
-            bottom: -100px; left: -100px; animation: float2 18s ease-in-out infinite alternate;
-        }
-        @keyframes float1 { 0% { transform: translate(0,0); } 100% { transform: translate(-80px, 80px); } }
-        @keyframes float2 { 0% { transform: translate(0,0); } 100% { transform: translate(60px, -60px); } }
+        @keyframes bgDrift { 0% { background-position: 0% 0%, 100% 100%, 0% 0%; } 100% { background-position: 15% -5%, 85% 105%, 5% 5%; } }
 
-        .grid-overlay {
-            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.03;
+        .bg-pattern {
+            position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: 0.035;
             background-image: 
-                linear-gradient(rgba(201,169,97,0.5) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(201,169,97,0.5) 1px, transparent 1px);
-            background-size: 40px 40px;
+                repeating-linear-gradient(45deg, transparent, transparent 24px, rgba(201,169,97,0.6) 24px, rgba(201,169,97,0.6) 25px),
+                repeating-linear-gradient(-45deg, transparent, transparent 24px, rgba(201,169,97,0.6) 24px, rgba(201,169,97,0.6) 25px);
+            mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
         }
 
-        .akkad-nav {
-            background: rgba(10,15,24,0.85); backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(201,169,97,0.2);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        .bg-noise {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 180px; mix-blend-mode: overlay;
         }
+
+        .float-decor {
+            position: fixed; z-index: -1; pointer-events: none;
+            width: 320px; height: 320px; border: 1px solid rgba(201,169,97,0.08);
+            border-radius: 40% 60% 50% 70% / 60% 40% 70% 30%;
+            animation: morphFloat 28s ease-in-out infinite;
+        }
+        .float-decor.top-left { top: -8%; left: -6%; }
+        .float-decor.bottom-right { bottom: -8%; right: -6%; border-color: rgba(26,77,122,0.12); animation-delay: -14s; }
+        @keyframes morphFloat {
+            0%,100% { border-radius: 40% 60% 50% 70% / 60% 40% 70% 30%; transform: rotate(0deg) scale(1); }
+            33% { border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%; transform: rotate(4deg) scale(1.05); }
+            66% { border-radius: 50% 50% 30% 70% / 70% 30% 50% 50%; transform: rotate(-3deg) scale(0.95); }
+        }
+
+        /* === الهيدر والتنقل === */
+        .akkad-nav {
+            background: rgba(3,5,8,0.7); backdrop-filter: blur(20px) saturate(140%);
+            border-bottom: 1px solid rgba(201,169,97,0.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+        }
+        .akkad-nav.scrolled { background: rgba(3,5,8,0.92); box-shadow: 0 4px 30px rgba(0,0,0,0.6); }
         .akkad-logo { display: flex; align-items: center; gap: 14px; font-family: 'Amiri', serif; text-decoration: none; transition: transform 0.3s ease; }
         .akkad-logo:hover { transform: translateX(4px); }
-        .akkad-logo-img { width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(201,169,97,0.5); box-shadow: 0 0 20px rgba(201,169,97,0.25); object-fit: cover; background: var(--akkad-blue); transition: all 0.3s; }
-        .akkad-logo:hover .akkad-logo-img { box-shadow: 0 0 25px rgba(201,169,97,0.5); border-color: var(--akkad-gold); }
-        .akkad-logo-text { font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--akkad-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
-        .akkad-logo-sub { font-size: 0.6rem; color: var(--akkad-gold); letter-spacing: 2px; opacity: 0.85; font-family: 'Tajawal', sans-serif; font-weight: 500; }
+        .akkad-logo-img { width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(201,169,97,0.4); box-shadow: 0 0 20px rgba(201,169,97,0.2); object-fit: cover; background: var(--akkad-blue); transition: all 0.3s; }
+        .akkad-logo:hover .akkad-logo-img { box-shadow: 0 0 25px rgba(201,169,97,0.45); border-color: var(--akkad-gold); }
+        .akkad-logo-text { font-size: 1.45rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--akkad-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+        .akkad-logo-sub { font-size: 0.6rem; color: var(--akkad-gold); letter-spacing: 2px; opacity: 0.85; font-weight: 500; }
 
         .ticker-wrapper { 
-            overflow: hidden; white-space: nowrap; background: linear-gradient(90deg, rgba(26,77,122,0.8), rgba(15,26,36,0.9));
-            border-bottom: 1px solid rgba(201,169,97,0.15);
+            overflow: hidden; white-space: nowrap; 
+            background: linear-gradient(90deg, rgba(201,169,97,0.06), rgba(10,15,24,0.85), rgba(201,169,97,0.06));
+            border-bottom: 1px solid rgba(201,169,97,0.1);
         }
-        .ticker-content { display: inline-block; animation: ticker 45s linear infinite; padding: 10px 0; }
+        .ticker-content { display: inline-block; animation: ticker 50s linear infinite; padding: 10px 0; }
         @keyframes ticker { 0% { transform: translateX(-50%); } 100% { transform: translateX(0%); } }
-        .ticker-item { display: inline-flex; align-items: center; gap: 8px; margin: 0 25px; color: #e2e8f0; font-weight: 500; font-size: 11px; }
+        .ticker-item { display: inline-flex; align-items: center; gap: 8px; margin: 0 25px; color: #cbd5e1; font-weight: 500; font-size: 11px; }
         .ticker-item i { color: var(--akkad-gold); font-size: 9px; }
 
+        /* === البطاقات الزجاجية المتقدمة === */
         .akkad-card { 
-            background: rgba(26,77,122,0.18); backdrop-filter: blur(14px); 
-            border: 1px solid rgba(201,169,97,0.15); border-radius: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+            background: var(--glass-bg); backdrop-filter: blur(16px) saturate(120%); 
+            border: 1px solid var(--glass-border); border-radius: 1.25rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); position: relative; overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
         }
         .akkad-card::before {
-            content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,169,97,0.1), transparent); opacity: 0; transition: 0.4s;
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(201,169,97,0.08) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.4s;
         }
-        .akkad-card:hover { transform: translateY(-10px); border-color: rgba(201,169,97,0.4); box-shadow: 0 25px 50px -15px rgba(201,169,97,0.25); }
+        .akkad-card:hover { transform: translateY(-8px) scale(1.01); border-color: rgba(201,169,97,0.45); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 35px rgba(201,169,97,0.15); }
         .akkad-card:hover::before { opacity: 1; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(5,8,12,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 16px; }
-        .modal-content { background: linear-gradient(145deg, #0f1a24, #152233); border: 1px solid rgba(201,169,97,0.25); width: 100%; max-width: 520px; border-radius: 1.75rem; padding: 1.75rem; animation: slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
-        @keyframes slideUp { from { transform: translateY(40px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(3,5,8,0.88); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 16px; }
+        .modal-content { 
+            background: linear-gradient(160deg, rgba(15,26,36,0.96), rgba(10,15,24,0.99)); 
+            backdrop-filter: blur(24px); border: 1px solid var(--glass-border); 
+            width: 100%; max-width: 520px; border-radius: 1.5rem; padding: 1.75rem; 
+            animation: slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 45px rgba(201,169,97,0.08);
+        }
+        @keyframes slideUp { from { transform: translateY(40px) scale(0.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
-        #toast { position: fixed; top: 24px; left: 24px; z-index: 3000; padding: 14px 24px; border-radius: 14px; color: white; font-weight: 500; display: none; animation: slideIn 0.35s; border: 1px solid rgba(201,169,97,0.3); background: rgba(26,77,122,0.9); backdrop-filter: blur(10px); }
+        #toast { position: fixed; top: 24px; left: 24px; z-index: 3000; padding: 14px 24px; border-radius: 14px; color: white; font-weight: 500; display: none; animation: slideIn 0.35s; border: 1px solid rgba(201,169,97,0.3); background: rgba(26,77,122,0.9); backdrop-filter: blur(12px); }
         @keyframes slideIn { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .loader { border: 3px solid rgba(201,169,97,0.15); border-top: 3px solid var(--akkad-gold); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 40px auto; }
@@ -99,24 +132,37 @@
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         .btn-akkad { background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze)); color: #0a0f18; font-weight: 600; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .btn-akkad::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2)); opacity: 0; transition: 0.3s; }
+        .btn-akkad::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255,255,255,0.25)); opacity: 0; transition: 0.3s; }
         .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(201,169,97,0.35); }
         .btn-akkad:hover::after { opacity: 1; }
         
-        .btn-outline-akkad { border: 1px solid rgba(201,169,97,0.4); color: var(--akkad-gold); background: rgba(201,169,97,0.05); font-weight: 500; transition: all 0.3s ease; }
-        .btn-outline-akkad:hover { background: rgba(201,169,97,0.15); border-color: var(--akkad-gold); transform: translateY(-1px); }
+        .btn-outline-akkad { border: 1px solid rgba(201,169,97,0.35); color: var(--akkad-gold); background: rgba(201,169,97,0.04); font-weight: 500; transition: all 0.3s ease; }
+        .btn-outline-akkad:hover { background: rgba(201,169,97,0.12); border-color: var(--akkad-gold); transform: translateY(-1px); }
 
         .share-btn { background: linear-gradient(135deg, #25D366, #128C7E); color: white; font-weight: 600; transition: all 0.3s; }
         .share-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(37,211,102,0.35); }
+
+        input:focus, select:focus {
+            box-shadow: 0 0 0 2px rgba(201,169,97,0.25), 0 4px 12px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--akkad-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--akkad-gold), var(--akkad-bronze)); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--akkad-gold-light); }
     </style>
 </head>
 <body>
     <div class="bg-mesh"></div>
-    <div class="grid-overlay"></div>
+    <div class="bg-pattern"></div>
+    <div class="bg-noise"></div>
+    <div class="float-decor top-left"></div>
+    <div class="float-decor bottom-right"></div>
     <div id="toast"></div>
 
     <!-- القائمة العلوية -->
-    <nav class="akkad-nav sticky top-0 z-50 backdrop-blur-xl">
+    <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="akkad-logo">
@@ -124,7 +170,6 @@
                     <div><div class="akkad-logo-text">أكاد</div><div class="akkad-logo-sub">DIGITAL STORE</div></div>
                 </a>
                 
-                <!-- ✅ أزرار المشاركة والوتساب مع نص المشاركة تحتها -->
                 <div class="flex flex-col items-end gap-1">
                     <div class="flex items-center gap-2">
                         <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs shadow-lg hover:scale-105 transition" title="مشاركة المتجر">
@@ -135,7 +180,6 @@
                             <i class="fab fa-whatsapp text-lg"></i>
                         </a>
                     </div>
-                    <!-- ✅ نص المشاركة تحت الزر -->
                     <p class="text-[var(--akkad-gold)]/60 text-[10px] font-medium tracking-wide flex items-center gap-1">
                         <i class="fas fa-share-nodes"></i>
                         شارك المتجر مع أصدقائك
@@ -144,8 +188,8 @@
             </div>
             
             <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" placeholder="🔍 ابحث عن جهاز...">
-                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/60"></i>
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-2xl py-3 px-14 transition text-sm placeholder-gray-400/80" placeholder="🔍 ابحث عن جهاز...">
+                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/50"></i>
             </div>
             <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto scrollbar-hide pb-2"></div>
         </div>
@@ -173,8 +217,6 @@
             <p class="text-gray-400 text-lg">لم نجد هذا الكنز في أرشيفنا</p>
             <button onclick="document.getElementById('searchInput').value=''; searchProducts();" class="btn-outline-akkad px-6 py-2 rounded-xl text-sm mt-4">عرض الكل</button>
         </div>
-
-        <!-- ✅ تم حذف قسم نص المشاركة القديم من هنا لتجنب التكرار -->
     </main>
 
     <!-- نافذة التفاصيل -->
@@ -184,7 +226,7 @@
                 <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]" style="font-family:'Amiri',serif"></h2>
                 <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
             </div>
-            <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line mb-6 border-t border-[var(--akkad-gold)]/20 pt-4"></p>
+            <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line mb-6 border-t border-[var(--akkad-gold)]/15 pt-4"></p>
             <div class="flex gap-3">
                 <button onclick="closeModal('descModal')" class="flex-1 bg-white/5 border border-white/10 py-2.5 rounded-xl font-medium hover:bg-white/10 transition text-sm">إغلاق</button>
                 <a id="modalOrderBtn" href="#" target="_blank" class="flex-1 btn-akkad text-center py-2.5 rounded-xl font-medium transition text-sm flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> اطلب الآن</a>
@@ -194,7 +236,7 @@
 
     <!-- نافذة الفيديو -->
     <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
-        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-[var(--akkad-gold)]/30" onclick="event.stopPropagation()">
+        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-[var(--akkad-gold)]/25" onclick="event.stopPropagation()">
             <button onclick="closeModal('videoModal')" class="absolute top-4 right-4 z-10 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 hover:bg-black/80 transition">&times;</button>
             <iframe id="ytPlayer" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
         </div>
@@ -208,18 +250,18 @@
           <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
         </div>
         <form id="wa-order-form" class="space-y-3">
-          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-xl p-3 text-sm transition">
           <div class="grid grid-cols-2 gap-3">
-            <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+            <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/20 rounded-xl p-3 text-sm transition">
               <option value="">المحافظة *</option>
               <option value="بغداد">بغداد</option><option value="البصرة">البصرة</option><option value="نينوى">نينوى</option>
               <option value="أربيل">أربيل</option><option value="السليمانية">السليمانية</option><option value="كركوك">كركوك</option>
               <option value="الأنبار">الأنبار</option><option value="بابل">بابل</option><option value="أخرى">أخرى</option>
             </select>
-            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-xl p-3 text-sm transition">
           </div>
-          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
-          <input type="tel" id="wa-phone" placeholder="رقم الموبايل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-xl p-3 text-sm transition">
+          <input type="tel" id="wa-phone" placeholder="رقم الموبايل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-xl p-3 text-sm transition">
           <input type="hidden" id="wa-prod-name"><input type="hidden" id="wa-prod-price">
           <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-xl transition shadow-lg mt-2 flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> إرسال الطلب</button>
         </form>
@@ -261,6 +303,11 @@
     });
     document.addEventListener('keydown', e => {
       if(e.key === 'Escape') { closeModal('descModal'); closeModal('videoModal'); closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')}); }
+    });
+
+    // تأثير الهيدر عند التمرير
+    window.addEventListener('scroll', () => {
+        document.querySelector('.akkad-nav').classList.toggle('scrolled', window.scrollY > 50);
     });
     </script>
 
@@ -368,16 +415,9 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; if(id==='videoModal') document.getElementById('ytPlayer').src = ""; }
         
         function shareStore() {
-            const shareData = {
-                title: 'متجر أكاد الرقمي',
-                text: 'تصفح أحدث الأجهزة الإلكترونية بأفضل الأسعار في العراق!',
-                url: window.location.href
-            };
-            if (navigator.share) {
-                navigator.share(shareData).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(window.location.href).then(() => showToast('تم نسخ رابط المتجر بنجاح!'));
-            }
+            const shareData = { title: 'متجر أكاد الرقمي', text: 'تصفح أحدث الأجهزة الإلكترونية بأفضل الأسعار في العراق!', url: window.location.href };
+            if (navigator.share) { navigator.share(shareData).catch(console.error); } 
+            else { navigator.clipboard.writeText(window.location.href).then(() => showToast('تم نسخ رابط المتجر بنجاح!')); }
         }
     </script>
 </body>
