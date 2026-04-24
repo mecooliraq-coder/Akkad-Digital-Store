@@ -191,6 +191,107 @@
         </div>
     </div>
 
+    <!-- ================= 🎯 نموذج طلب واتساب السريع - متجر أكاد ================= -->
+    <div id="wa-order-modal" class="modal" onclick="closeWaModal(event)">
+      <div class="modal-content max-w-md" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-blue-400">📝 إكمال بيانات الطلب</h3>
+          <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        
+        <form id="wa-order-form" class="space-y-3">
+          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required 
+            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+          
+          <div class="grid grid-cols-2 gap-3">
+            <select id="wa-gov" required class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+              <option value="">المحافظة *</option>
+              <option value="بغداد">بغداد</option>
+              <option value="البصرة">البصرة</option>
+              <option value="نينوى">نينوى</option>
+              <option value="أربيل">أربيل</option>
+              <option value="السليمانية">السليمانية</option>
+              <option value="كركوك">كركوك</option>
+              <option value="الأنبار">الأنبار</option>
+              <option value="بابل">بابل</option>
+              <option value="أخرى">أخرى</option>
+            </select>
+            <input type="text" id="wa-city" placeholder="المدينة / الحي *" required 
+              class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+          </div>
+          
+          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required 
+            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition">
+          
+          <input type="tel" id="wa-phone" placeholder="رقم الموبايل (واتساب) *" required 
+            class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-sm outline-none focus:border-blue-500 transition" pattern="[0-9\s\+\-\(\)]+">
+          
+          <!-- حقول مخفية لبيانات المنتج -->
+          <input type="hidden" id="wa-prod-name">
+          <input type="hidden" id="wa-prod-price">
+          
+          <button type="submit" class="w-full bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-green-500/20 mt-2 flex items-center justify-center gap-2">
+            <i class="fab fa-whatsapp"></i> إرسال الطلب عبر واتساب
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+    // 🎯 دوال نموذج واتساب
+    function openWaModal(prodName, prodPrice) {
+      document.getElementById('wa-prod-name').value = prodName;
+      document.getElementById('wa-prod-price').value = prodPrice;
+      document.getElementById('wa-order-modal').style.display = 'flex';
+      document.getElementById('wa-name').focus();
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWaModal(e) {
+      if(e && e.target !== e.currentTarget && !e.target.closest('.modal-content')) return;
+      document.getElementById('wa-order-modal').style.display = 'none';
+      document.getElementById('wa-order-form').reset();
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('wa-order-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const phone = "9647730492020";
+      const name = document.getElementById('wa-name').value.trim();
+      const gov = document.getElementById('wa-gov').value;
+      const city = document.getElementById('wa-city').value.trim();
+      const landmark = document.getElementById('wa-landmark').value.trim();
+      const mobile = document.getElementById('wa-phone').value.trim();
+      const prod = document.getElementById('wa-prod-name').value;
+      const price = document.getElementById('wa-prod-price').value;
+      
+      const msg = `*🛒 طلب جديد - متجر أكاد الرقمي*
+━━━━━━━━━━━━━━
+👤 *الاسم:* ${name}
+📍 *العنوان:* ${gov} - ${city}
+📌 *نقطة دالة:* ${landmark}
+📱 *موبايل:* ${mobile}
+━━━━━━━━━━━━━━
+📦 *المنتج:* ${prod}
+💰 *السعر:* ${price} د.ع
+━━━━━━━━━━━━━━
+🕐 ${new Date().toLocaleDateString('ar-IQ', {year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+      closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
+      showToast('✅ سيتم توجيهك إلى واتساب لإكمال الطلب');
+    });
+
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && document.getElementById('wa-order-modal').style.display === 'flex') {
+        closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
+      }
+    });
+    </script>
+    <!-- ================= نهاية كود النموذج ================= -->
+
     <script>
         // ⚙️ إعدادات التطبيق
         const APP_CONFIG = {
@@ -210,7 +311,7 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.className = `toast-${type}`;
-            toast.innerText = message;
+            toast.innerText = type==='success' ? `✅ ${message}` : `❌ ${message}`;
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
@@ -221,10 +322,8 @@
             const nav = document.getElementById('categories-nav');
             if(!nav) return;
             
-            // زر "الكل"
             nav.innerHTML = `<button onclick="filterByCat('all')" class="bg-blue-600 text-white px-4 py-1.5 rounded-full whitespace-nowrap text-xs font-medium shadow-lg shadow-blue-500/20 transition hover:scale-105">الكل</button>`;
             
-            // أزرار الأقسام
             Object.entries(cats).forEach(([key, name]) => {
                 nav.innerHTML += `<button onclick="filterByCat('${name}')" class="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-500/50 px-4 py-1.5 rounded-full whitespace-nowrap text-xs text-gray-300 transition">${name}</button>`;
             });
@@ -238,7 +337,6 @@
             const data = snap.val();
             allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
             
-            // إخفاء التحميل وعرض المنتجات
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('products-grid').classList.remove('hidden');
             
@@ -302,10 +400,24 @@
                         </button>
                     </div>
                     
-                    <!-- زر الطلب -->
+                    <!-- أزرار الطلب الجديدة -->
+                    <div class="flex gap-2 mt-2">
+                      <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
+                              class="flex-1 border border-blue-500/40 text-blue-300 py-2 rounded-xl text-[11px] font-medium hover:bg-blue-500/15 transition flex items-center justify-center gap-1">
+                        <i class="fas fa-info-circle"></i> التفاصيل
+                      </button>
+                      
+                      <!-- ✅ الزر الجديد: يفتح نموذج البيانات -->
+                      <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" 
+                              class="flex-1 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white py-2 rounded-xl flex items-center justify-center gap-1 transition font-medium text-xs shadow-lg shadow-green-500/20">
+                        <i class="fab fa-whatsapp"></i> اطلب سريع
+                      </button>
+                    </div>
+
+                    <!-- زر الواتساب الكامل (تحت الأزرار) -->
                     <a href="${whatsappLink}" target="_blank" 
-                       class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 transition font-medium text-xs shadow-lg shadow-green-500/20">
-                        <i class="fab fa-whatsapp"></i> اطلب الآن
+                       class="w-full mt-2 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 py-2 rounded-xl flex items-center justify-center gap-2 transition text-[11px]">
+                      <i class="fab fa-whatsapp"></i> واتساب مباشر
                     </a>
                 </div>`;
             }).join('');
@@ -319,7 +431,7 @@
             const items = allProducts.slice(0, 10).map(p => 
                 `<span class="mx-8 inline-flex items-center gap-2"><i class="fas fa-tag text-blue-400"></i> ${p.name} - ${p.price} ${APP_CONFIG.currency}</span>`
             ).join('');
-            ticker.innerHTML = items + items; // تكرار لسلاسة الحركة
+            ticker.innerHTML = items + items;
         }
 
         // 🎨 إنشاء خلفية عائمة
@@ -345,7 +457,7 @@
         // 🔍 البحث
         function searchProducts() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            if(term.length < 2 && term.length > 0) return; // انتظار 2 أحرف
+            if(term.length < 2 && term.length > 0) return;
             
             const filtered = term 
                 ? allProducts.filter(p => 
@@ -359,7 +471,6 @@
 
         // 📂 التصفية حسب القسم
         function filterByCat(category) {
-            // تحديث حالة الأزرار
             document.querySelectorAll('#categories-nav button').forEach(btn => {
                 btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
                 btn.classList.add('bg-white/5', 'text-gray-300');
@@ -379,7 +490,7 @@
             document.getElementById('modalDesc').innerHTML = desc;
             document.getElementById('modalOrderBtn').href = whatsappLink;
             document.getElementById('descModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // منع التمرير
+            document.body.style.overflow = 'hidden';
         }
 
         // 🎥 تشغيل الفيديو
@@ -408,7 +519,6 @@
 
         // 🚀 تهيئة إضافية عند التحميل
         window.addEventListener('load', () => {
-            // إخفاء التحميل بعد 10 ثوان كحد أقصى
             setTimeout(() => {
                 if(isLoading) {
                     document.getElementById('loading').innerHTML = '<p class="text-yellow-400">⏳ التحميل يستغرق وقتاً أطول...</p>';
