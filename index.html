@@ -50,7 +50,7 @@
             border-radius: 1.5rem;
         }
         .akkad-border::before {
-            content: "𒀀𒁉𒋫"; /* رموز مسمارية زخرفية */
+            content: "𒀀𒋫";
             position: absolute; top: -10px; right: 20px;
             color: var(--akkad-gold); font-size: 12px; letter-spacing: 3px;
             font-family: 'Amiri', serif; opacity: 0.6;
@@ -96,19 +96,21 @@
             font-family: 'Amiri', serif;
         }
         .akkad-logo-icon {
-            width: 48px; height: 48px;
+            width: 52px; height: 52px;
             background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze));
-            border-radius: 12px;
+            border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 25px rgba(201,169,97,0.4);
             position: relative;
+            border: 2px solid rgba(255,255,255,0.2);
         }
         .akkad-logo-icon::before {
-            content: "𒆳"; /* رمز أكادي */
-            color: var(--akkad-dark); font-size: 24px; font-weight: bold;
+            content: "🦬";
+            font-size: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
         .akkad-logo-text {
-            font-size: 1.25rem; font-weight: 700;
+            font-size: 1.35rem; font-weight: 700;
             background: linear-gradient(135deg, #fff, var(--akkad-gold));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
@@ -149,7 +151,7 @@
             position: relative;
         }
         .modal-content::before {
-            content: "𒋀𒅆𒌓"; position: absolute; top: 15px; left: 20px;
+            content: "𒋀𒌓"; position: absolute; top: 15px; left: 20px;
             color: var(--akkad-gold); opacity: 0.3; font-size: 10px; letter-spacing: 2px;
             font-family: 'Amiri', serif;
         }
@@ -258,11 +260,8 @@
                     </div>
                 </a>
                 
-                <!-- روابط الرأس -->
+                <!-- زر الواتساب فقط (تم إزالة زر الإدارة) -->
                 <div class="flex items-center gap-3">
-                    <a href="admin.html" class="text-gray-300 hover:text-[var(--akkad-gold)] transition text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5">
-                        <i class="fas fa-crown text-[var(--akkad-gold)]"></i> الإدارة
-                    </a>
                     <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white p-2.5 rounded-xl transition shadow-lg shadow-green-500/20 flex items-center gap-1.5">
                         <i class="fab fa-whatsapp text-lg"></i>
                     </a>
@@ -275,7 +274,7 @@
                     class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" 
                     placeholder="🔍 ابحث عن جهاز من كنوز الرافدين...">
                 <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/70"></i>
-                <span class="absolute left-5 top-3.5 text-xs text-[var(--akkad-stone)] hidden md:block">𒋗 بحث متقدم</span>
+                <span class="absolute left-5 top-3.5 text-xs text-[var(--akkad-stone)] hidden md:block"> بحث متقدم</span>
             </div>
             
             <!-- تصنيفات بأسلوب أكادي -->
@@ -306,7 +305,7 @@
         <div id="loading" class="text-center py-25">
             <div class="loader"></div>
             <p class="text-gray-400 mt-5 text-sm">جاري استحضار الكنوز من قاعدة البيانات...</p>
-            <div class="text-[var(--akkad-gold)]/40 text-3xl mt-3" style="font-family:'Amiri'">𒀀𒁉𒋫</div>
+            <div class="text-[var(--akkad-gold)]/40 text-3xl mt-3" style="font-family:'Amiri'">𒀀𒋫</div>
         </div>
         
         <!-- شبكة المنتجات -->
@@ -345,7 +344,7 @@
                 </a>
             </div>
             <div class="text-center mt-4 text-[10px] text-gray-500" style="font-family:'Amiri'">
-                𒀀𒁉𒋫 • متجر أكاد الرقمي • منذ 2026 𒋫𒁉𒀀
+                𒀀𒁉 • متجر أكاد الرقمي • منذ 2026 𒋫𒁉
             </div>
         </div>
     </div>
@@ -374,344 +373,4 @@
           <div class="grid grid-cols-2 gap-3">
             <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
               <option value="">المحافظة *</option>
-              <option value="بغداد">بغداد - عاصمة الرافدين</option>
-              <option value="البصرة">البصرة - لؤلؤة الخليج</option>
-              <option value="نينوى">نينوى - أرض آشور</option>
-              <option value="أربيل">أربيل - عروس الجبل</option>
-              <option value="السليمانية">السليمانية</option>
-              <option value="كركوك">كركوك</option>
-              <option value="الأنبار">الأنبار</option>
-              <option value="بابل">بابل - مدينة حمورابي</option>
-              <option value="أخرى">منطقة أخرى</option>
-            </select>
-            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required 
-              class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500">
-          </div>
-          
-          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة (معلم) *" required 
-            class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500">
-          
-          <input type="tel" id="wa-phone" placeholder="رقم الموبايل (واتساب) *" required 
-            class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition placeholder-gray-500" pattern="[0-9\s\+\-\(\)]+">
-          
-          <!-- حقول مخفية لبيانات المنتج -->
-          <input type="hidden" id="wa-prod-name">
-          <input type="hidden" id="wa-prod-price">
-          
-          <button type="submit" class="w-full btn-akkad font-bold py-3.5 rounded-xl transition shadow-lg mt-3 flex items-center justify-center gap-2">
-            <i class="fab fa-whatsapp"></i> 📜 إرسال الطلب إلى الملك
-          </button>
-        </form>
-        <div class="text-center mt-4 text-[10px] text-gray-500" style="font-family:'Amiri'">
-          𒆳 طلبك محفوظ في ألواحنا الرقمية 𒆳
-        </div>
-      </div>
-    </div>
-
-    <script>
-    // 🎯 دوال نموذج واتساب (بنمط أكادي)
-    function openWaModal(prodName, prodPrice) {
-      document.getElementById('wa-prod-name').value = prodName;
-      document.getElementById('wa-prod-price').value = prodPrice;
-      document.getElementById('wa-order-modal').style.display = 'flex';
-      document.getElementById('wa-name').focus();
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeWaModal(e) {
-      if(e && e.target !== e.currentTarget && !e.target.closest('.modal-content')) return;
-      document.getElementById('wa-order-modal').style.display = 'none';
-      document.getElementById('wa-order-form').reset();
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('wa-order-form')?.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const phone = "9647730492020";
-      const name = document.getElementById('wa-name').value.trim();
-      const gov = document.getElementById('wa-gov').value;
-      const city = document.getElementById('wa-city').value.trim();
-      const landmark = document.getElementById('wa-landmark').value.trim();
-      const mobile = document.getElementById('wa-phone').value.trim();
-      const prod = document.getElementById('wa-prod-name').value;
-      const price = document.getElementById('wa-prod-price').value;
-      
-      const msg = `*🏛️ طلب ملكي - متجر أكاد الرقمي*
-━━━━━━━━━━━━━━━
-👤 *الاسم:* ${name}
-📍 *العنوان:* ${gov} • ${city}
-🗿 *نقطة دالة:* ${landmark}
-📱 *موبايل:* ${mobile}
-━━━━━━━━━━━━━━━
-📦 *الكنز المطلوب:* ${prod}
-💰 *الثمن:* ${price} د.ع
-━━━━━━━━━━━━━━━
-🕐 ${new Date().toLocaleDateString('ar-IQ', {year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'})}
-𒆳 من أرض الرافدين إلى حضارتك 𒆳`;
-
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
-      closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
-      showToast('✅ تم توجيهك إلى رسول الملك واتساب');
-    });
-
-    document.addEventListener('keydown', e => {
-      if(e.key === 'Escape' && document.getElementById('wa-order-modal').style.display === 'flex') {
-        closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
-      }
-    });
-    </script>
-
-    <script>
-        // ⚙️ إعدادات التطبيق
-        const APP_CONFIG = {
-            firebase: { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" },
-            whatsapp: "9647730492020",
-            currency: "د.ع"
-        };
-
-        // تهيئة Firebase
-        firebase.initializeApp(APP_CONFIG.firebase);
-        const db = firebase.database();
-        
-        let allProducts = [];
-        let isLoading = true;
-
-        // 🎯 دالة عرض التنبيهات (بنمط أكادي)
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.className = `toast-${type}`;
-            toast.innerHTML = type==='success' 
-                ? `<i class="fas fa-check-circle ml-1"></i> ${message}` 
-                : `<i class="fas fa-exclamation-circle ml-1"></i> ${message}`;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 4000);
-        }
-
-        // 📥 جلب الأقسام
-        db.ref('categories').on('value', snap => {
-            const cats = snap.val() || {};
-            const nav = document.getElementById('categories-nav');
-            if(!nav) return;
-            
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition hover:scale-105">
-                <i class="fas fa-gem ml-1"></i> الكل
-            </button>`;
-            
-            Object.entries(cats).forEach(([key, name]) => {
-                nav.innerHTML += `<button onclick="filterByCat('${name}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition hover:bg-[var(--akkad-gold)]/10">
-                    ${name}
-                </button>`;
-            });
-        }, error => {
-            console.error('Error loading categories:', error);
-            showToast('فشل تحميل أقسام الكنوز', 'error');
-        });
-
-        // 📦 جلب المنتجات
-        db.ref('products').on('value', snap => {
-            const data = snap.val();
-            allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
-            
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('products-grid').classList.remove('hidden');
-            
-            displayProducts(allProducts);
-            updateTicker();
-            createFloatingBg();
-            isLoading = false;
-            
-        }, error => {
-            console.error('Error loading products:', error);
-            document.getElementById('loading').innerHTML = `
-                <p class="text-red-400 text-lg">❌ تعذر الوصول إلى خزانة الكنوز</p>
-                <p class="text-gray-500 text-sm mt-2">تحقق من اتصالك بالإنترنت</p>
-                <div class="text-[var(--akkad-gold)]/30 text-4xl mt-4" style="font-family:'Amiri'">𒀭</div>`;
-            showToast('حدث خطأ في تحميل المنتجات', 'error');
-        });
-
-        // 🖥️ عرض المنتجات في الشبكة (بنمط أكادي)
-        function displayProducts(items) {
-            const grid = document.getElementById('products-grid');
-            const noResults = document.getElementById('no-results');
-            
-            if(!grid) return;
-            
-            if(items.length === 0) {
-                grid.classList.add('hidden');
-                noResults.classList.remove('hidden');
-                return;
-            }
-            
-            noResults.classList.add('hidden');
-            grid.classList.remove('hidden');
-            
-            grid.innerHTML = items.map(p => {
-                const whatsappText = encodeURIComponent(`مرحباً يا ملك، أريد طلب: ${p.name} - السعر: ${p.price} ${APP_CONFIG.currency}`);
-                const whatsappLink = `https://wa.me/${APP_CONFIG.whatsapp}?text=${whatsappText}`;
-                
-                return `
-                <div class="akkad-card p-5 flex flex-col relative group h-full">
-                    <!-- شارة الفيديو بنمط أكادي -->
-                    ${p.video ? `<span class="absolute top-4 left-4 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-10 flex items-center gap-1 shadow-lg"><i class="fas fa-play text-[8px]"></i> عرض</span>` : ''}
-                    
-                    <!-- صورة المنتج -->
-                    <div class="h-44 mb-4 bg-white/5 rounded-2xl flex items-center justify-center p-4 relative overflow-hidden cursor-pointer border border-white/10" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
-                        <img src="${p.img || 'https://via.placeholder.com/150/1a4d7a/c9a961?text=𒆳'}" 
-                             alt="${p.name}" 
-                             class="max-h-full max-w-full object-contain transition duration-700 group-hover:scale-110"
-                             onerror="this.src='https://via.placeholder.com/150/1a4d7a/c9a961?text=𒋫'">
-                        
-                        ${p.video ? `
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                            <i class="fas fa-play-circle text-white text-5xl drop-shadow-lg animate-pulse"></i>
-                        </div>` : ''}
-                        
-                        <!-- زخرفة زاوية -->
-                        <div class="absolute top-2 right-2 text-[var(--akkad-gold)]/30 text-xs" style="font-family:'Amiri'">𒀀</div>
-                    </div>
-                    
-                    <!-- معلومات المنتج -->
-                    <div class="flex-1 flex flex-col">
-                        <h3 class="font-bold text-[13px] mb-2 line-clamp-2 min-h-[34px] text-white group-hover:text-[var(--akkad-gold)] transition">${p.name}</h3>
-                        <div class="text-xl font-bold text-[var(--akkad-gold)] mb-4">${p.price} <span class="text-[10px] text-gray-400 font-normal">${APP_CONFIG.currency}</span></div>
-                        
-                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف متاح حالياً لهذا الكنز').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
-                                class="w-full btn-outline-akkad py-2.5 rounded-xl text-[11px] font-medium mb-3 hover:bg-[var(--akkad-gold)]/15 transition flex items-center justify-center gap-1.5">
-                            <i class="fas fa-scroll"></i> تفاصيل الكنز
-                        </button>
-                    </div>
-                    
-                    <!-- أزرار الطلب الأكادية -->
-                    <div class="flex gap-2 mt-1">
-                      <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc || 'لا يوجد وصف').replace(/`/g, "'").replace(/\n/g, '<br>')}\`, '${whatsappLink}')" 
-                              class="flex-1 btn-outline-akkad py-2 rounded-xl text-[11px] font-medium hover:bg-[var(--akkad-gold)]/15 transition flex items-center justify-center gap-1">
-                        <i class="fas fa-info-circle"></i> تفاصيل
-                      </button>
-                      
-                      <!-- ✅ الزر الجديد: يفتح نموذج البيانات -->
-                      <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" 
-                              class="flex-1 btn-akkad py-2 rounded-xl flex items-center justify-center gap-1 transition font-medium text-xs shadow-lg">
-                        <i class="fab fa-whatsapp"></i> طلب سريع
-                      </button>
-                    </div>
-
-                    <!-- زر الواتساب الكامل -->
-                    <a href="${whatsappLink}" target="_blank" 
-                       class="w-full mt-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 py-2 rounded-xl flex items-center justify-center gap-2 transition text-[11px]">
-                      <i class="fab fa-whatsapp"></i> مراسلة مباشرة
-                    </a>
-                </div>`;
-            }).join('');
-        }
-
-        // 🎬 تحديث شريط الأخبار
-        function updateTicker() {
-            const ticker = document.getElementById('product-ticker');
-            if(!ticker || allProducts.length === 0) return;
-            
-            const items = allProducts.slice(0, 12).map(p => 
-                `<span class="mx-10 inline-flex items-center gap-2"><i class="fas fa-gem text-[var(--akkad-gold)]"></i> ${p.name} • ${p.price} ${APP_CONFIG.currency}</span>`
-            ).join('');
-            ticker.innerHTML = items + items;
-        }
-
-        // 🎨 إنشاء خلفية عائمة بلمسة أكادية
-        function createFloatingBg() {
-            const container = document.getElementById('bg-elements') || document.body;
-            // إزالة العناصر القديمة إن وجدت
-            document.querySelectorAll('.floating-product').forEach(el => el.remove());
-            
-            const shuffled = [...allProducts].filter(p => p.img).slice(0, 5);
-            shuffled.forEach((p, i) => {
-                const img = document.createElement('img');
-                img.src = p.img;
-                img.className = 'floating-product absolute opacity-[0.03] blur-[1px] pointer-events-none';
-                img.style.top = `${Math.random() * 70 + 15}%`;
-                img.style.left = `${Math.random() * 70 + 10}%`;
-                img.style.width = `${Math.random() * 100 + 100}px`;
-                img.style.animation = `float-symbol ${Math.random() * 20 + 25}s ease-in-out infinite`;
-                img.style.animationDelay = `${Math.random() * 5}s`;
-                container.appendChild(img);
-            });
-        }
-
-        // 🔍 البحث
-        function searchProducts() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            if(term.length < 2 && term.length > 0) return;
-            
-            const filtered = term 
-                ? allProducts.filter(p => 
-                    p.name.toLowerCase().includes(term) || 
-                    (p.desc && p.desc.toLowerCase().includes(term)) ||
-                    (p.cat && p.cat.toLowerCase().includes(term))
-                )
-                : allProducts;
-            displayProducts(filtered);
-        }
-
-        // 📂 التصفية حسب القسم
-        function filterByCat(category) {
-            document.querySelectorAll('#categories-nav button').forEach(btn => {
-                btn.classList.remove('btn-akkad', 'shadow-lg');
-                btn.classList.add('btn-outline-akkad');
-            });
-            event.target.classList.remove('btn-outline-akkad');
-            event.target.classList.add('btn-akkad', 'shadow-lg');
-            
-            const filtered = category === 'all' 
-                ? allProducts 
-                : allProducts.filter(p => p.cat === category);
-            displayProducts(filtered);
-        }
-
-        // 📋 عرض التفاصيل
-        function showDetails(title, desc, whatsappLink) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDesc').innerHTML = desc;
-            document.getElementById('modalOrderBtn').href = whatsappLink;
-            document.getElementById('descModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        // 🎥 تشغيل الفيديو
-        function openVideo(videoId) {
-            document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-            document.getElementById('videoModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        // ❌ إغلاق النوافذ
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-            document.body.style.overflow = '';
-            if(modalId === 'videoModal') {
-                document.getElementById('ytPlayer').src = "";
-            }
-        }
-
-        // ⌨️ إغلاق النوافذ بمفتاح Escape
-        document.addEventListener('keydown', e => {
-            if(e.key === 'Escape') {
-                closeModal('descModal');
-                closeModal('videoModal');
-                closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
-            }
-        });
-
-        // 🚀 تهيئة إضافية عند التحميل
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if(isLoading) {
-                    document.getElementById('loading').innerHTML = `
-                        <p class="text-yellow-400 text-lg">⏳ الكنوز تستغرق وقتاً للوصول...</p>
-                        <p class="text-gray-500 text-sm mt-2">الصبر من شيم أبناء الرافدين</p>
-                        <div class="text-[var(--akkad-gold)]/40 text-3xl mt-4 animate-pulse" style="font-family:'Amiri'">𒆳𒀀𒁉</div>`;
-                }
-            }, 12000);
-        });
-    </script>
-</body>
-</html>
+              <option value="بغداد">بغداد -
