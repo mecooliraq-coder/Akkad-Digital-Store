@@ -33,7 +33,6 @@
             overflow-x: hidden;
         }
 
-        /* === طبقات الخلفية المتقدمة === */
         .bg-mesh {
             position: fixed; inset: 0; z-index: -3;
             background: 
@@ -72,7 +71,6 @@
             66% { border-radius: 50% 50% 30% 70% / 70% 30% 50% 50%; transform: rotate(-3deg) scale(0.95); }
         }
 
-        /* === الهيدر والتنقل === */
         .akkad-nav {
             background: rgba(3,5,8,0.7); backdrop-filter: blur(20px) saturate(140%);
             border-bottom: 1px solid rgba(201,169,97,0.15);
@@ -97,7 +95,6 @@
         .ticker-item { display: inline-flex; align-items: center; gap: 8px; margin: 0 25px; color: #cbd5e1; font-weight: 500; font-size: 11px; }
         .ticker-item i { color: var(--akkad-gold); font-size: 9px; }
 
-        /* === البطاقات الزجاجية المتقدمة === */
         .akkad-card { 
             background: var(--glass-bg); backdrop-filter: blur(16px) saturate(120%); 
             border: 1px solid var(--glass-border); border-radius: 1.25rem;
@@ -305,7 +302,6 @@
       if(e.key === 'Escape') { closeModal('descModal'); closeModal('videoModal'); closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')}); }
     });
 
-    // تأثير الهيدر عند التمرير
     window.addEventListener('scroll', () => {
         document.querySelector('.akkad-nav').classList.toggle('scrolled', window.scrollY > 50);
     });
@@ -371,6 +367,8 @@
             grid.innerHTML = items.map(p => {
                 const imgUrl = p.img || p.image || 'https://via.placeholder.com/150/1a4d7a/c9a961?text=AKKAD';
                 const link = `https://wa.me/${APP_CONFIG.whatsapp}?text=${encodeURIComponent(`أريد طلب: ${p.name} - ${p.price} ${APP_CONFIG.currency}`)}`;
+                // ✅ ✅ ✅ التصحيح: استخدام description مع دعم desc كاحتياط + معالجة آمنة للنص
+                const descSafe = (p.description || p.desc || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;").replace(/\n/g, "<br>");
                 return `
                 <div class="akkad-card p-4 flex flex-col relative group h-full">
                     ${p.video ? `<span class="absolute top-3 left-3 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-50 shadow-lg pointer-events-none flex items-center gap-1"><i class="fas fa-play text-[8px]"></i> <span class="hidden xs:inline">فيديو</span></span>` : ''}
@@ -380,7 +378,7 @@
                     <div class="flex-1 flex flex-col relative z-10">
                         <h3 class="font-bold text-sm mb-2 line-clamp-2 text-gray-100 group-hover:text-[var(--akkad-gold)] transition">${p.name}</h3>
                         <div class="text-lg font-bold text-[var(--akkad-gold)] mb-3">${p.price} <span class="text-[10px] text-gray-500">${APP_CONFIG.currency}</span></div>
-                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc||'').replace(/`/g,"'")}\`, '${link}')" class="w-full btn-outline-akkad py-2 rounded-xl text-xs mb-2 transition flex items-center justify-center gap-1"><i class="fas fa-info-circle"></i> التفاصيل</button>
+                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', '${descSafe}', '${link}')" class="w-full btn-outline-akkad py-2 rounded-xl text-xs mb-2 transition flex items-center justify-center gap-1"><i class="fas fa-info-circle"></i> التفاصيل</button>
                     </div>
                     <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="w-full btn-akkad py-2.5 rounded-xl flex items-center justify-center gap-2 transition text-xs mt-auto"><i class="fab fa-whatsapp"></i> طلب سريع</button>
                 </div>`;
@@ -396,21 +394,25 @@
 
         function searchProducts() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            displayProducts(term ? allProducts.filter(p => p.name.toLowerCase().includes(term) || (p.desc && p.desc.toLowerCase().includes(term))) : allProducts);
+            displayProducts(term ? allProducts.filter(p => p.name.toLowerCase().includes(term) || (p.description || p.desc || '').toLowerCase().includes(term)) : allProducts);
         }
 
         function filterByCat(c) {
             document.querySelectorAll('#categories-nav button').forEach(b => { b.classList.remove('btn-akkad','shadow-lg'); b.classList.add('btn-outline-akkad'); });
             event.target.classList.remove('btn-outline-akkad'); event.target.classList.add('btn-akkad','shadow-lg');
-            displayProducts(c==='all' ? allProducts : allProducts.filter(p => p.cat===c || p.category===c));
+            displayProducts(c==='all' ? allProducts : allProducts.filter(p => p.cat===c || p.category===c || p.catName===c));
         }
 
+        // ✅ ✅ ✅ دالة showDetails المُحسّنة
         function showDetails(title, desc, link) {
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalDesc').innerHTML = desc.replace(/\n/g,'<br>');
+            const descEl = document.getElementById('modalDesc');
+            // تحويل رموز HTML الآمنة ثم عرض النص مع الحفاظ على الأسطر
+            descEl.innerHTML = desc.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/<br>/g, '<br>');
             document.getElementById('modalOrderBtn').href = link;
             document.getElementById('descModal').style.display = 'flex';
         }
+        
         function openVideo(id) { document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`; document.getElementById('videoModal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; if(id==='videoModal') document.getElementById('ytPlayer').src = ""; }
         
