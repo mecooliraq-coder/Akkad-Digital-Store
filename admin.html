@@ -248,4 +248,138 @@
             Object.keys(allCats).forEach(k => { if(!categoryOrder.includes(k)) categoryOrder.push(k); });
             const idx = categoryOrder.indexOf(key); if(idx === -1) return;
             const newIdx = idx + direction; if(newIdx < 0 || newIdx >= categoryOrder.length) return;
-            [categoryOr
+            [categoryOrder[idx], categoryOrder[newIdx]] = [categoryOrder[newIdx], categoryOrder[idx]];
+            db.ref('categoryOrder').set(categoryOrder).then(() => { showToast('✅ تم تحديث الترتيب'); renderCategoriesWithOrder(); }).catch(err => { console.error('Move error:', err); showToast('❌ فشل التحديث', 'error'); });
+        }
+
+        function autoSortCategories() {
+            if(!confirm('ترتيب الأقسام أبجدياً؟')) return;
+            const sorted = Object.entries(allCats).sort((a, b) => (a[1]||'').localeCompare(b[1]||'', 'ar')).map(([k]) => k);
+            db.ref('categoryOrder').set(sorted).then(() => showToast('✅ تم الترتيب الأبجدي'));
+        }
+
+        function updateCategorySelect() {
+            const select = document.getElementById('pCat'); if(!select) return;
+            select.innerHTML = '<option value="">اختر قسماً</option>';
+            categoryOrder.forEach(key => { if(allCats[key]) select.innerHTML += `<option value="${key}">${allCats[key]}</option>`; });
+            Object.entries(allCats).forEach(([key, name]) => { if(!categoryOrder.includes(key)) select.innerHTML += `<option value="${key}">${name}</option>`; });
+        }
+
+        function editCategory(key, name) { document.getElementById('catId').value = key; document.getElementById('newCat').value = name; document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-save"></i> <span class="hidden sm:inline">تحديث</span>'; document.getElementById('newCat').focus(); }
+        function deleteCategory(key) { if(confirm('حذف هذا القسم؟')) { db.ref('categories').child(key).remove().then(() => { categoryOrder = categoryOrder.filter(k => k !== key); db.ref('categoryOrder').set(categoryOrder); showToast('✅ تم حذف القسم'); }).catch(() => showToast('❌ فشل الحذف', 'error')); } }
+
+        function saveCategory() {
+            const id = document.getElementById('catId').value, name = document.getElementById('newCat').value.trim(), errorEl = document.getElementById('catError');
+            if(!name || name.length < 2) { errorEl.innerText = '⚠️ أدخل اسم قسم صالح'; errorEl.classList.remove('hidden'); document.getElementById('newCat').classList.add('shake'); setTimeout(() => document.getElementById('newCat').classList.remove('shake'), 300); return; }
+            errorEl.classList.add('hidden');
+            const btn = document.getElementById('btnSaveCat'), originalBtn = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            if(db) {
+                const catRef = id ? db.ref('categories').child(id) : db.ref('categories').push();
+                catRef.set(name).then(() => {
+                    if(!id) { categoryOrder.push(catRef.key); db.ref('categoryOrder').set(categoryOrder); }
+                    showToast(id ? '✅ تم تحديث القسم' : '✅ تم إضافة القسم');
+                    document.getElementById('catId').value = ''; document.getElementById('newCat').value = '';
+                    document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i> <span class="hidden sm:inline">إضافة</span>';
+                }).catch(err => { errorEl.innerText = '❌ ' + (err.message || 'فشل الحفظ'); errorEl.classList.remove('hidden'); }).finally(() => { btn.disabled = false; btn.innerHTML = originalBtn; });
+            }
+        }
+
+        // ✅ إدارة المنتجات - تم تصحيح حفظ القسم
+        function loadProducts() {
+            if(!db) return;
+            db.ref('products').on('value', snap => {
+                allProducts = []; const data = snap.val();
+                if(data) Object.entries(data).forEach(([key, val]) => allProducts.push({id: key, ...val}));
+                allProducts.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+                renderProductsList(allProducts); updateStats();
+            });
+        }
+
+        function renderProductsList(products) {
+            const container = document.getElementById('adminProductsList'); if(!container) return;
+            if(products.length === 0) { container.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">لا توجد منتجات</p>'; return; }
+            container.innerHTML = products.map(p => {
+                const imgUrl = (p.img || p.image || '').trim();
+                const hasValidImg = imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('//') || imgUrl.startsWith('data:'));
+                const imgHtml = hasValidImg ? `
+                    <div class="w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 relative cursor-pointer" onclick="window.open('${imgUrl}', '_blank')">
+                        <img src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover hover:scale-110 transition" onerror="this.style.display='none'; this.parentElement.querySelector('.fallback').style.display='flex';">
+                        <div class="fallback absolute inset-0 hidden flex items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-image text-lg"></i></div>
+                    </div>` : `<div class="w-16 h-16 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"><i class="fas fa-image text-lg"></i></div>`;
+                // ✅ عرض اسم القسم بشكل صحيح
+                const catDisplay = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || 'غير مصنف';
+                return `<div class="product-item p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-blue-300 transition flex gap-3">
+                    ${imgHtml}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-medium text-sm truncate" title="${p.name}">${p.name}</h4>
+                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg shrink-0">${p.price} د.ع</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">${catDisplay}</p>
+                        ${p.video ? `<p class="text-xs text-red-500 mt-1"><i class="fab fa-youtube"></i> فيديو</p>` : ''}
+                        <div class="flex gap-1 mt-2">
+                            <button onclick="editProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">تعديل</button>
+                            <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200">حذف</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function editProduct(id) {
+            const p = allProducts.find(x => x.id === id); if(!p) return;
+            document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            // ✅ دعم كلا الحقلين للقسم
+            document.getElementById('pCat').value = p.cat || p.category || p.catKey || '';
+            document.getElementById('pImg').value = p.img || p.image || '';
+            document.getElementById('pVideo').value = p.video || ''; document.getElementById('pDesc').value = p.description || '';
+            document.getElementById('formTitle').innerText = 'تعديل المنتج'; document.getElementById('btnSave').innerHTML = '🔄 تحديث المنتج';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(id) { if(confirm('حذف هذا المنتج؟')) { db.ref('products').child(id).remove().then(() => showToast('✅ تم الحذف')).catch(() => showToast('❌ فشل الحذف', 'error')); } }
+
+        function saveProduct() {
+            const id = document.getElementById('pId').value, name = document.getElementById('pName').value.trim(), price = document.getElementById('pPrice').value.trim();
+            const catKey = document.getElementById('pCat').value;
+            const catName = allCats[catKey] || catKey || ''; // ✅ الحصول على اسم القسم للعرض
+            const img = document.getElementById('pImg').value.trim(), video = document.getElementById('pVideo').value.trim(), desc = document.getElementById('pDesc').value.trim();
+            if(!name || !price || !catKey) { showToast('⚠️ أكمل الحقول المطلوبة', 'warning'); return; }
+            const btn = document.getElementById('btnSave'), originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            
+            // ✅ ✅ ✅ التصحيح الرئيسي: حفظ اسم القسم في الحقول المستخدمة للفلترة
+            const product = { 
+                name, price, 
+                cat: catName,           // ← اسم القسم للفلترة في المتجر
+                category: catName,      // ← اسم القسم للفلترة في المتجر
+                catKey: catKey,         // ← المفتاح الأصلي كمرجع إضافي
+                catName: catName,       // ← اسم القسم للعرض
+                img: img, image: img, 
+                video, description: desc, 
+                updatedAt: Date.now() 
+            };
+            
+            if(db) {
+                const ref = id ? db.ref('products').child(id) : db.ref('products').push();
+                ref.set(product).then(() => { showToast(id ? '✅ تم تحديث المنتج' : '✅ تم إضافة المنتج'); resetForm(); })
+                .catch(err => { console.error('Product error:', err); showToast('❌ فشل الحفظ', 'error'); })
+                .finally(() => { btn.disabled = false; btn.innerHTML = originalText; });
+            }
+        }
+
+        function resetForm() { ['pId','pName','pPrice','pCat','pImg','pVideo','pDesc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; }); document.getElementById('formTitle').innerText = 'إضافة منتج جديد'; document.getElementById('btnSave').innerHTML = '💾 حفظ المنتج'; }
+
+        function searchAdminProducts() {
+            const term = document.getElementById('adminSearch').value.toLowerCase().trim();
+            const filtered = allProducts.filter(p => { 
+                const catName = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || ''; 
+                return p.name.toLowerCase().includes(term) || catName.toLowerCase().includes(term); 
+            });
+            renderProductsList(filtered);
+        }
+        function refreshProducts() { showToast('🔄 جاري التحديث...'); loadProducts(); }
+        function clearCache() { if(confirm('مسح البيانات المؤقتة؟')) { localStorage.clear(); showToast('✅ تم المسح'); setTimeout(()=>location.reload(), 1000); } }
+    </script>
+</body>
+</html>
