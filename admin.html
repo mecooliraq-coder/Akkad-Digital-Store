@@ -178,7 +178,7 @@
             btnText.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            // تسجيل الدخول الحقيقي
+            // تسجيل الدخول الحقيقي عبر Firebase
             auth.signInWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
                     localStorage.setItem('akkad_admin_session', 'active');
@@ -191,7 +191,11 @@
                     document.getElementById('adminPass').value = '';
                 })
                 .catch((error) => {
-                    error.innerText = '❌ البريد أو كلمة المرور غير صحيحة';
+                    let errorMsg = '❌ فشل تسجيل الدخول';
+                    if(error.code === 'auth/wrong-password') errorMsg = '❌ كلمة المرور غير صحيحة';
+                    if(error.code === 'auth/user-not-found') errorMsg = '❌ هذا البريد غير مسجّل';
+                    if(error.code === 'auth/invalid-email') errorMsg = '❌ البريد الإلكتروني غير صالح';
+                    error.innerText = errorMsg;
                     error.classList.remove('hidden');
                     document.getElementById('adminPass').classList.add('shake');
                     setTimeout(() => document.getElementById('adminPass').classList.remove('shake'), 300);
