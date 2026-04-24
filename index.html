@@ -124,15 +124,22 @@
                     <div><div class="akkad-logo-text">أكاد</div><div class="akkad-logo-sub">DIGITAL STORE</div></div>
                 </a>
                 
-                <!-- ✅ أزرار المشاركة والوتساب معاً -->
-                <div class="flex items-center gap-2">
-                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs shadow-lg hover:scale-105 transition" title="مشاركة المتجر">
+                <!-- ✅ أزرار المشاركة والوتساب مع نص المشاركة تحتها -->
+                <div class="flex flex-col items-end gap-1">
+                    <div class="flex items-center gap-2">
+                        <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs shadow-lg hover:scale-105 transition" title="مشاركة المتجر">
+                            <i class="fas fa-share-nodes"></i>
+                            <span class="hidden sm:inline">مشاركة</span>
+                        </button>
+                        <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 hover:scale-105 transition">
+                            <i class="fab fa-whatsapp text-lg"></i>
+                        </a>
+                    </div>
+                    <!-- ✅ نص المشاركة تحت الزر -->
+                    <p class="text-[var(--akkad-gold)]/60 text-[10px] font-medium tracking-wide flex items-center gap-1">
                         <i class="fas fa-share-nodes"></i>
-                        <span class="hidden sm:inline">مشاركة</span>
-                    </button>
-                    <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 hover:scale-105 transition">
-                        <i class="fab fa-whatsapp text-lg"></i>
-                    </a>
+                        شارك المتجر مع أصدقائك
+                    </p>
                 </div>
             </div>
             
@@ -167,13 +174,7 @@
             <button onclick="document.getElementById('searchInput').value=''; searchProducts();" class="btn-outline-akkad px-6 py-2 rounded-xl text-sm mt-4">عرض الكل</button>
         </div>
 
-        <!-- ✅ نص المشاركة تحت المنتجات -->
-        <div class="text-center py-10 mt-8 border-t border-[var(--akkad-gold)]/10">
-            <p class="text-[var(--akkad-gold)]/60 text-xs font-medium tracking-wide">
-                <i class="fas fa-share-nodes ml-1"></i>
-                مشاركة المتجر مع الأصدقاء
-            </p>
-        </div>
+        <!-- ✅ تم حذف قسم نص المشاركة القديم من هنا لتجنب التكرار -->
     </main>
 
     <!-- نافذة التفاصيل -->
@@ -325,7 +326,7 @@
                 const link = `https://wa.me/${APP_CONFIG.whatsapp}?text=${encodeURIComponent(`أريد طلب: ${p.name} - ${p.price} ${APP_CONFIG.currency}`)}`;
                 return `
                 <div class="akkad-card p-4 flex flex-col relative group h-full">
-                    ${p.video ? `<span class="absolute top-3 left-3 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-10 shadow-sm"><i class="fas fa-play text-[8px] mr-1"></i> فيديو</span>` : ''}
+                    ${p.video ? `<span class="absolute top-3 left-3 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-50 shadow-lg pointer-events-none flex items-center gap-1"><i class="fas fa-play text-[8px]"></i> <span class="hidden xs:inline">فيديو</span></span>` : ''}
                     <div class="h-36 mb-3 bg-white/5 rounded-xl flex items-center justify-center p-2 cursor-pointer overflow-hidden" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
                         <img src="${imgUrl}" class="max-h-full max-w-full object-contain transition duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150/1a4d7a/c9a961?text=No+Img'">
                     </div>
