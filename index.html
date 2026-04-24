@@ -78,7 +78,6 @@
             font-family: 'Tajawal', sans-serif; font-weight: 500;
         }
 
-        /* ✅ الشريط المتحرك - تم التعديل */
         .ticker-wrapper { 
             overflow: hidden; 
             white-space: nowrap; 
@@ -93,7 +92,6 @@
             padding: 12px 0;
             white-space: nowrap;
         }
-        /* ✅ عكس اتجاه الحركة */
         @keyframes ticker { 
             0% { transform: translateX(-50%); } 
             100% { transform: translateX(0%); } 
@@ -194,9 +192,8 @@
     <nav class="akkad-nav sticky top-0 z-50 backdrop-blur-xl">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
-                <!-- ✅ الشعار مع الرابط المباشر -->
                 <a href="#" class="akkad-logo group">
-                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/56/1a4d7a/c9a961?text=🦬'">
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/56/1a4d7a/c9a961?text=A'">
                     <div>
                         <div class="akkad-logo-text">أكاد</div>
                         <div class="akkad-logo-sub">DIGITAL STORE</div>
@@ -213,19 +210,16 @@
             <div class="relative max-w-2xl mx-auto">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" 
                     class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" 
-                    placeholder="🔍 ابحث عن جهاز من كنوز الرافدين...">
+                    placeholder="🔍 ابحث عن جهاز...">
                 <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/70"></i>
             </div>
             
             <div id="categories-nav" class="flex gap-2 mt-5 overflow-x-auto scrollbar-hide pb-2">
-                <button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">
-                    <i class="fas fa-gem ml-1"></i> الكل
-                </button>
+                <button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">الكل</button>
             </div>
         </div>
     </nav>
 
-    <!-- ✅ الشريط المتحرك المُحسّن -->
     <div class="ticker-wrapper">
         <div id="product-ticker" class="ticker-content"></div>
     </div>
@@ -239,9 +233,21 @@
             <p class="text-gray-300 text-sm font-medium mt-1 tracking-wide">أحدث الأجهزة والمستلزمات بأقل الأسعار مع التوصيل لكل العراق</p>
         </div>
         
+        <!-- ✅ حالة التحميل المُحسّنة -->
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
-            <p class="text-gray-400 mt-5 text-sm">جاري استحضار الكنوز...</p>
+            <p class="text-gray-400 mt-5 text-sm">جاري تحميل المنتجات...</p>
+            <p class="text-gray-500 text-xs mt-2">إذا استمر التحميل، تحقق من اتصال الإنترنت</p>
+        </div>
+        
+        <!-- رسالة الخطأ -->
+        <div id="error-message" class="hidden text-center py-20">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-xl font-bold text-red-400 mb-2">حدث خطأ في التحميل</h3>
+            <p class="text-gray-400 mb-4">لم نتمكن من تحميل المنتجات من قاعدة البيانات</p>
+            <button onclick="location.reload()" class="btn-akkad px-6 py-2 rounded-xl text-sm">
+                <i class="fas fa-redo ml-2"></i>إعادة المحاولة
+            </button>
         </div>
         
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden"></div>
@@ -334,17 +340,7 @@
       const prod = document.getElementById('wa-prod-name').value;
       const price = document.getElementById('wa-prod-price').value;
       
-      const msg = `*🏛️ طلب جديد - متجر أكاد*
-━━━━━━━━━━━━━━━
-👤 *الاسم:* ${name}
-📍 *العنوان:* ${gov} • ${city}
-🗿 *نقطة دالة:* ${landmark}
-📱 *موبايل:* ${mobile}
-━━━━━━━━━━━━━━━
-📦 *المنتج:* ${prod}
-💰 *السعر:* ${price} د.ع
-━━━━━━━━━━━━━━━
-🕐 ${new Date().toLocaleDateString('ar-IQ')}`;
+      const msg = `*🏛️ طلب جديد - متجر أكاد*\n━━━━━━━━━━━━━━━\n👤 *الاسم:* ${name}\n📍 *العنوان:* ${gov} • ${city}\n🗿 *نقطة دالة:* ${landmark}\n📱 *موبايل:* ${mobile}\n━━━━━━━━━━━━━━━\n📦 *المنتج:* ${prod}\n💰 *السعر:* ${price} د.ع\n━━━━━━━━━━━━━━━\n🕐 ${new Date().toLocaleDateString('ar-IQ')}`;
 
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
       closeWaModal({target: document.getElementById('wa-order-modal'), currentTarget: document.getElementById('wa-order-modal')});
@@ -361,10 +357,25 @@
     </script>
 
     <script>
-        const APP_CONFIG = { firebase: { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" }, whatsapp: "9647730492020", currency: "د.ع" };
-        firebase.initializeApp(APP_CONFIG.firebase);
-        const db = firebase.database();
+        const APP_CONFIG = { 
+            firebase: { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" }, 
+            whatsapp: "9647730492020", 
+            currency: "د.ع" 
+        };
+        
+        // ✅ تهيئة Firebase مع معالجة الأخطاء
+        let db;
+        try {
+            firebase.initializeApp(APP_CONFIG.firebase);
+            db = firebase.database();
+            console.log('✅ تم الاتصال بـ Firebase بنجاح');
+        } catch (error) {
+            console.error('❌ خطأ في تهيئة Firebase:', error);
+            showToast('خطأ في الاتصال بقاعدة البيانات', 'error');
+        }
+        
         let allProducts = [];
+        let loadingTimeout;
 
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
@@ -374,23 +385,67 @@
             setTimeout(() => t.style.display = 'none', 3500);
         }
 
-        db.ref('categories').on('value', snap => {
-            const cats = snap.val() || {};
-            const nav = document.getElementById('categories-nav');
-            nav.innerHTML = `<button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">الكل</button>`;
-            Object.entries(cats).forEach(([k, v]) => {
-                nav.innerHTML += `<button onclick="filterByCat('${v}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition">${v}</button>`;
+        // ✅ تحميل الأقسام
+        if (db) {
+            db.ref('categories').on('value', snap => {
+                const cats = snap.val() || {};
+                const nav = document.getElementById('categories-nav');
+                nav.innerHTML = `<button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">الكل</button>`;
+                Object.entries(cats).forEach(([k, v]) => {
+                    nav.innerHTML += `<button onclick="filterByCat('${v}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition">${v}</button>`;
+                });
+            }, error => {
+                console.error('خطأ في تحميل الأقسام:', error);
             });
-        });
 
-        db.ref('products').on('value', snap => {
-            const data = snap.val();
-            allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('products-grid').classList.remove('hidden');
-            displayProducts(allProducts);
-            updateTicker();
-        });
+            // ✅ تحميل المنتجات مع مهلة زمنية
+            loadingTimeout = setTimeout(() => {
+                console.warn('⏳ انتهى وقت التحميل (10 ثوانٍ)');
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-5xl mb-4">⏳</div>
+                    <h3 class="text-xl font-bold text-yellow-400 mb-2">التحميل يستغرق وقتاً</h3>
+                    <p class="text-gray-400 mb-4">تحقق من اتصالك بالإنترنت أو حاول لاحقاً</p>
+                    <button onclick="location.reload()" class="btn-akkad px-6 py-2 rounded-xl text-sm">
+                        <i class="fas fa-redo ml-2"></i>إعادة المحاولة
+                    </button>
+                `;
+            }, 10000);
+
+            db.ref('products').on('value', snap => {
+                // إلغاء المهلة عند نجاح التحميل
+                clearTimeout(loadingTimeout);
+                
+                const data = snap.val();
+                allProducts = data ? Object.entries(data).map(([id, val]) => ({id, ...val})).reverse() : [];
+                
+                console.log(`📦 تم تحميل ${allProducts.length} منتج`);
+                
+                document.getElementById('loading').classList.add('hidden');
+                
+                if (allProducts.length === 0) {
+                    // عرض رسالة إذا كانت القاعدة فارغة
+                    document.getElementById('loading').classList.remove('hidden');
+                    document.getElementById('loading').innerHTML = `
+                        <div class="text-5xl mb-4">📭</div>
+                        <h3 class="text-xl font-bold text-gray-300 mb-2">لا توجد منتجات حالياً</h3>
+                        <p class="text-gray-400 mb-4">قم بإضافة منتجات من لوحة التحكم</p>
+                        <a href="admin.html" class="btn-akkad px-6 py-2 rounded-xl text-sm inline-block">
+                            <i class="fas fa-cog ml-2"></i>الذهاب للوحة التحكم
+                        </a>
+                    `;
+                } else {
+                    document.getElementById('products-grid').classList.remove('hidden');
+                    displayProducts(allProducts);
+                    updateTicker();
+                }
+            }, error => {
+                clearTimeout(loadingTimeout);
+                console.error('❌ خطأ في تحميل المنتجات:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error-message').classList.remove('hidden');
+                showToast('فشل تحميل المنتجات', 'error');
+            });
+        }
 
         function displayProducts(items) {
             const grid = document.getElementById('products-grid');
@@ -418,17 +473,10 @@
             }).join('');
         }
 
-        // ✅ تحديث الشريط المتحرك
         function updateTicker() {
             const t = document.getElementById('product-ticker');
             if(!t || !allProducts.length) return;
-            
-            // تكرار العناصر مرتين لضمان استمرار الحركة
-            const items = allProducts.slice(0, 10).map(p => 
-                `<span class="ticker-item"><i class="fas fa-gem"></i> ${p.name} - ${p.price} ${APP_CONFIG.currency}</span>`
-            ).join('');
-            
-            // تكرار المحتوى لضمان استمرارية الحركة السلسة
+            const items = allProducts.slice(0, 10).map(p => `<span class="ticker-item"><i class="fas fa-gem"></i> ${p.name} - ${p.price}</span>`).join('');
             t.innerHTML = items + items + items;
         }
 
@@ -459,6 +507,12 @@
             document.getElementById(id).style.display = 'none';
             if(id==='videoModal') document.getElementById('ytPlayer').src = "";
         }
+
+        // ✅ تسجيل معلومات التحميل
+        window.addEventListener('load', () => {
+            console.log('🏛️ متجر أكاد الرقمي - جاهز للعمل');
+            console.log('📊 عدد المنتجات:', allProducts.length);
+        });
     </script>
 </body>
 </html>
