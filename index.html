@@ -7,71 +7,113 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
         
         :root {
             --akkad-blue: #1a4d7a; --akkad-gold: #c9a961; --akkad-bronze: #8b6f47;
-            --akkad-terracotta: #b85c38; --akkad-stone: #d4c4a8; --akkad-dark: #0f1a24;
+            --akkad-terracotta: #b85c38; --akkad-dark: #0a0f18;
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body { 
             font-family: 'Tajawal', sans-serif; 
-            background: radial-gradient(ellipse at top, var(--akkad-dark), #0a0f18 60%, #05080c); 
-            color: #f8fafc; min-height: 100vh; line-height: 1.7; overflow-x: hidden;
+            background: var(--akkad-dark); 
+            color: #f8fafc; 
+            min-height: 100vh;
+            line-height: 1.8;
+            overflow-x: hidden;
         }
-        #cuneiform-bg {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.04;
+
+        /* ✅ خلفية متطورة وديناميكية */
+        .bg-mesh {
+            position: fixed; inset: 0; z-index: -2;
+            background: linear-gradient(135deg, #05080c 0%, #0a1018 40%, #0f1a24 100%);
+        }
+        .bg-mesh::before, .bg-mesh::after {
+            content: ''; position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.35;
+        }
+        .bg-mesh::before {
+            width: 600px; height: 600px; background: radial-gradient(circle, var(--akkad-gold), transparent);
+            top: -100px; right: -100px; animation: float1 20s ease-in-out infinite alternate;
+        }
+        .bg-mesh::after {
+            width: 500px; height: 500px; background: radial-gradient(circle, var(--akkad-blue), transparent);
+            bottom: -100px; left: -100px; animation: float2 18s ease-in-out infinite alternate;
+        }
+        @keyframes float1 { 0% { transform: translate(0,0); } 100% { transform: translate(-80px, 80px); } }
+        @keyframes float2 { 0% { transform: translate(0,0); } 100% { transform: translate(60px, -60px); } }
+
+        .grid-overlay {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.03;
             background-image: 
-                radial-gradient(circle at 20% 30%, var(--akkad-gold) 1px, transparent 1px),
-                radial-gradient(circle at 80% 70%, var(--akkad-bronze) 1px, transparent 1px),
-                repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,169,97,0.03) 40px, rgba(201,169,97,0.03) 80px);
+                linear-gradient(rgba(201,169,97,0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,169,97,0.5) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
+
         .akkad-nav {
-            background: linear-gradient(180deg, rgba(10,15,24,0.95), rgba(15,26,36,0.9));
-            border-bottom: 2px solid var(--akkad-gold);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 30px rgba(201,169,97,0.1);
+            background: rgba(10,15,24,0.85); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(201,169,97,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
         .akkad-logo { display: flex; align-items: center; gap: 14px; font-family: 'Amiri', serif; text-decoration: none; transition: transform 0.3s ease; }
         .akkad-logo:hover { transform: translateX(4px); }
-        .akkad-logo-img { width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(201,169,97,0.6); box-shadow: 0 0 20px rgba(201,169,97,0.3); transition: all 0.3s ease; object-fit: cover; background: var(--akkad-blue); }
-        .akkad-logo:hover .akkad-logo-img { box-shadow: 0 0 30px rgba(201,169,97,0.6); border-color: var(--akkad-gold); }
-        .akkad-logo-text { font-size: 1.35rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--akkad-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
-        .akkad-logo-sub { font-size: 0.6rem; color: var(--akkad-gold); letter-spacing: 1.5px; opacity: 0.9; font-family: 'Tajawal', sans-serif; font-weight: 500; }
-        .ticker-wrapper { overflow: hidden; white-space: nowrap; background: linear-gradient(90deg, rgba(26,77,122,0.95), rgba(15,26,36,0.95)); border-bottom: 2px solid var(--akkad-gold); position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .ticker-content { display: inline-block; animation: ticker 40s linear infinite; padding: 12px 0; white-space: nowrap; }
+        .akkad-logo-img { width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(201,169,97,0.5); box-shadow: 0 0 20px rgba(201,169,97,0.25); object-fit: cover; background: var(--akkad-blue); transition: all 0.3s; }
+        .akkad-logo:hover .akkad-logo-img { box-shadow: 0 0 25px rgba(201,169,97,0.5); border-color: var(--akkad-gold); }
+        .akkad-logo-text { font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--akkad-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+        .akkad-logo-sub { font-size: 0.6rem; color: var(--akkad-gold); letter-spacing: 2px; opacity: 0.85; font-family: 'Tajawal', sans-serif; font-weight: 500; }
+
+        .ticker-wrapper { 
+            overflow: hidden; white-space: nowrap; background: linear-gradient(90deg, rgba(26,77,122,0.8), rgba(15,26,36,0.9));
+            border-bottom: 1px solid rgba(201,169,97,0.15);
+        }
+        .ticker-content { display: inline-block; animation: ticker 45s linear infinite; padding: 10px 0; }
         @keyframes ticker { 0% { transform: translateX(-50%); } 100% { transform: translateX(0%); } }
-        .ticker-item { display: inline-flex; align-items: center; gap: 8px; margin: 0 25px; color: #fff; font-weight: 600; font-size: 12px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .ticker-item i { color: var(--akkad-gold); font-size: 10px; }
+        .ticker-item { display: inline-flex; align-items: center; gap: 8px; margin: 0 25px; color: #e2e8f0; font-weight: 500; font-size: 11px; }
+        .ticker-item i { color: var(--akkad-gold); font-size: 9px; }
+
         .akkad-card { 
-            background: linear-gradient(145deg, rgba(26,77,122,0.25), rgba(15,26,36,0.4)); 
-            backdrop-filter: blur(20px); border: 1px solid rgba(201,169,97,0.2); border-radius: 1.5rem;
+            background: rgba(26,77,122,0.18); backdrop-filter: blur(14px); 
+            border: 1px solid rgba(201,169,97,0.15); border-radius: 1.5rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
         }
-        .akkad-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--akkad-gold); box-shadow: 0 30px 60px -15px rgba(201,169,97,0.25); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(5,8,12,0.92); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); padding: 16px; }
-        .modal-content { background: linear-gradient(145deg, var(--akkad-dark), #152233); border: 2px solid var(--akkad-gold); width: 100%; max-width: 520px; border-radius: 1.75rem; padding: 1.75rem; animation: slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
-        @keyframes slideUp { from { transform: translateY(40px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        #toast { position: fixed; top: 24px; left: 24px; z-index: 3000; padding: 14px 24px; border-radius: 16px; color: white; font-weight: 500; display: none; animation: slideIn 0.35s; border: 1px solid var(--akkad-gold); background: linear-gradient(135deg, var(--akkad-blue), var(--akkad-dark)); }
-        @keyframes slideIn { from { transform: translateX(-120px) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
-        .loader { border: 4px solid rgba(201,169,97,0.2); border-top: 4px solid var(--akkad-gold); border-radius: 50%; width: 50px; height: 50px; animation: spin 1.2s linear infinite; margin: 50px auto; }
+        .akkad-card::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,169,97,0.1), transparent); opacity: 0; transition: 0.4s;
+        }
+        .akkad-card:hover { transform: translateY(-10px); border-color: rgba(201,169,97,0.4); box-shadow: 0 25px 50px -15px rgba(201,169,97,0.25); }
+        .akkad-card:hover::before { opacity: 1; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(5,8,12,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 16px; }
+        .modal-content { background: linear-gradient(145deg, #0f1a24, #152233); border: 1px solid rgba(201,169,97,0.25); width: 100%; max-width: 520px; border-radius: 1.75rem; padding: 1.75rem; animation: slideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+        @keyframes slideUp { from { transform: translateY(40px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+        #toast { position: fixed; top: 24px; left: 24px; z-index: 3000; padding: 14px 24px; border-radius: 14px; color: white; font-weight: 500; display: none; animation: slideIn 0.35s; border: 1px solid rgba(201,169,97,0.3); background: rgba(26,77,122,0.9); backdrop-filter: blur(10px); }
+        @keyframes slideIn { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .loader { border: 3px solid rgba(201,169,97,0.15); border-top: 3px solid var(--akkad-gold); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 40px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .floating-symbol { position: absolute; color: var(--akkad-gold); opacity: 0.08; font-family: 'Amiri', serif; font-size: 24px; pointer-events: none; animation: float-symbol 25s ease-in-out infinite; }
-        @keyframes float-symbol { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .btn-akkad { background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze)); color: var(--akkad-dark); font-weight: 600; transition: all 0.3s ease; }
-        .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(201,169,97,0.4); }
-        .btn-outline-akkad { border: 2px solid var(--akkad-gold); color: var(--akkad-gold); background: transparent; font-weight: 500; transition: all 0.3s ease; }
-        .btn-outline-akkad:hover { background: rgba(201,169,97,0.15); transform: translateY(-2px); }
+        
+        .btn-akkad { background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze)); color: #0a0f18; font-weight: 600; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .btn-akkad::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2)); opacity: 0; transition: 0.3s; }
+        .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(201,169,97,0.35); }
+        .btn-akkad:hover::after { opacity: 1; }
+        
+        .btn-outline-akkad { border: 1px solid rgba(201,169,97,0.4); color: var(--akkad-gold); background: rgba(201,169,97,0.05); font-weight: 500; transition: all 0.3s ease; }
+        .btn-outline-akkad:hover { background: rgba(201,169,97,0.15); border-color: var(--akkad-gold); transform: translateY(-1px); }
+
+        .share-btn { background: linear-gradient(135deg, #25D366, #128C7E); color: white; font-weight: 600; transition: all 0.3s; }
+        .share-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(37,211,102,0.35); }
     </style>
 </head>
 <body>
-    <div id="cuneiform-bg"></div>
-    <div class="floating-symbol" style="top:15%;left:10%">𒀭</div>
-    <div class="floating-symbol" style="top:70%;left:85%;animation-delay:-5s">𒆳</div>
+    <div class="bg-mesh"></div>
+    <div class="grid-overlay"></div>
     <div id="toast"></div>
 
     <!-- القائمة العلوية -->
@@ -79,27 +121,29 @@
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="akkad-logo">
-                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/56/1a4d7a/c9a961?text=A'">
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/52/1a4d7a/c9a961?text=A'">
                     <div><div class="akkad-logo-text">أكاد</div><div class="akkad-logo-sub">DIGITAL STORE</div></div>
                 </a>
-                <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#128C7E] hover:to-[#075E54] text-white p-2.5 rounded-xl transition shadow-lg shadow-green-500/20">
+                <a href="https://wa.me/9647730492020" class="bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/25 hover:scale-105 transition">
                     <i class="fab fa-whatsapp text-lg"></i>
                 </a>
             </div>
             <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" placeholder="🔍 ابحث عن جهاز...">
-                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/70"></i>
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-2xl py-3 px-14 outline-none focus:border-[var(--akkad-gold)] focus:bg-white/10 transition text-sm placeholder-gray-400" placeholder="🔍 ابحث عن جهاز...">
+                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/60"></i>
             </div>
-            <div id="categories-nav" class="flex gap-2 mt-5 overflow-x-auto scrollbar-hide pb-2"></div>
+            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto scrollbar-hide pb-2"></div>
         </div>
     </nav>
 
     <div class="ticker-wrapper"><div id="product-ticker" class="ticker-content"></div></div>
 
     <main class="container mx-auto px-4 py-10 relative z-10">
-        <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family:'Amiri',serif"><span class="text-[var(--akkad-gold)]">𒆳</span> كنوز أكاد الرقمية <span class="text-[var(--akkad-gold)]">𒆳</span></h2>
-            <p class="text-gray-300 text-sm font-medium mt-1 tracking-wide">أحدث الأجهزة بأقل الأسعار مع التوصيل لكل العراق</p>
+        <div class="text-center mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold mb-3" style="font-family:'Amiri',serif">
+                <span class="text-[var(--akkad-gold)]">𒆳</span> كنوز أكاد الرقمية <span class="text-[var(--akkad-gold)]">𒆳</span>
+            </h2>
+            <p class="text-gray-400 text-sm font-medium tracking-wide max-w-md mx-auto">أحدث الأجهزة والمستلزمات بأفضل الأسعار مع توصيل سريع لكافة المحافظات</p>
         </div>
         
         <div id="loading" class="text-center py-20"><div class="loader"></div><p class="text-gray-400 mt-5 text-sm">جاري تحميل المنتجات...</p></div>
@@ -110,9 +154,17 @@
         </div>
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 hidden"></div>
         <div id="no-results" class="hidden text-center py-20">
-            <div class="text-5xl mb-4" style="font-family:'Amiri';color:var(--akkad-gold)">𒀭</div>
+            <div class="text-5xl mb-4 opacity-50">🔍</div>
             <p class="text-gray-400 text-lg">لم نجد هذا الكنز في أرشيفنا</p>
             <button onclick="document.getElementById('searchInput').value=''; searchProducts();" class="btn-outline-akkad px-6 py-2 rounded-xl text-sm mt-4">عرض الكل</button>
+        </div>
+
+        <!-- ✅ زر مشاركة المتجر -->
+        <div class="text-center py-12 mt-8 border-t border-[var(--akkad-gold)]/10">
+            <button onclick="shareStore()" class="share-btn px-8 py-3.5 rounded-2xl shadow-lg flex items-center gap-3 mx-auto text-sm">
+                <i class="fas fa-share-nodes text-lg"></i> مشاركة المتجر
+            </button>
+            <p class="text-[var(--akkad-gold)]/70 text-xs mt-4 font-medium tracking-wide">مشاركة المتجر مع الأصدقاء</p>
         </div>
     </main>
 
@@ -121,7 +173,7 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]" style="font-family:'Amiri',serif"></h2>
-                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl">&times;</button>
+                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
             </div>
             <p id="modalDesc" class="text-gray-300 leading-relaxed text-sm whitespace-pre-line mb-6 border-t border-[var(--akkad-gold)]/20 pt-4"></p>
             <div class="flex gap-3">
@@ -133,8 +185,8 @@
 
     <!-- نافذة الفيديو -->
     <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
-        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border-2 border-[var(--akkad-gold)]" onclick="event.stopPropagation()">
-            <button onclick="closeModal('videoModal')" class="absolute top-4 right-4 z-10 bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center border border-[var(--akkad-gold)]">&times;</button>
+        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-[var(--akkad-gold)]/30" onclick="event.stopPropagation()">
+            <button onclick="closeModal('videoModal')" class="absolute top-4 right-4 z-10 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center border border-white/20 hover:bg-black/80 transition">&times;</button>
             <iframe id="ytPlayer" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
@@ -144,21 +196,21 @@
       <div class="modal-content max-w-md" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-bold text-[var(--akkad-gold)]" style="font-family:'Amiri',serif">📜 سجل طلبك</h3>
-          <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl">&times;</button>
+          <button onclick="closeWaModal(event)" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
         </div>
         <form id="wa-order-form" class="space-y-3">
-          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+          <input type="text" id="wa-name" placeholder="الاسم الكامل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
           <div class="grid grid-cols-2 gap-3">
-            <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+            <select id="wa-gov" required class="bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
               <option value="">المحافظة *</option>
               <option value="بغداد">بغداد</option><option value="البصرة">البصرة</option><option value="نينوى">نينوى</option>
               <option value="أربيل">أربيل</option><option value="السليمانية">السليمانية</option><option value="كركوك">كركوك</option>
               <option value="الأنبار">الأنبار</option><option value="بابل">بابل</option><option value="أخرى">أخرى</option>
             </select>
-            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+            <input type="text" id="wa-city" placeholder="الحي / المنطقة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
           </div>
-          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
-          <input type="tel" id="wa-phone" placeholder="رقم الموبايل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+          <input type="text" id="wa-landmark" placeholder="أقرب نقطة دالة *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
+          <input type="tel" id="wa-phone" placeholder="رقم الموبايل *" required class="w-full bg-white/5 border border-[var(--akkad-gold)]/25 rounded-xl p-3 text-sm outline-none focus:border-[var(--akkad-gold)] transition">
           <input type="hidden" id="wa-prod-name"><input type="hidden" id="wa-prod-price">
           <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-xl transition shadow-lg mt-2 flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> إرسال الطلب</button>
         </form>
@@ -168,10 +220,9 @@
     <script>
     function showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
-        t.className = `toast-${type}`;
         t.innerHTML = type==='success' ? `✅ ${msg}` : `❌ ${msg}`;
         t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 3500);
+        setTimeout(() => t.style.display = 'none', 3000);
     }
     function openWaModal(prodName, prodPrice) {
       document.getElementById('wa-prod-name').value = prodName;
@@ -213,12 +264,8 @@
         let db, allProducts = [], categoryOrder = [];
         let loadingTimeout;
 
-        try {
-            firebase.initializeApp(APP_CONFIG.firebase);
-            db = firebase.database();
-        } catch (error) { console.error('❌ Firebase error:', error); }
+        try { firebase.initializeApp(APP_CONFIG.firebase); db = firebase.database(); } catch(e) { console.error('Firebase error:', e); }
         
-        // ✅ تحميل الأقسام مع دعم الترتيب
         if (db) {
             db.ref('categoryOrder').on('value', snap => { categoryOrder = snap.val() || []; renderCategories(); });
             db.ref('categories').on('value', snap => { renderCategories(); });
@@ -232,15 +279,13 @@
                     Object.entries(cats).forEach(([k,v]) => { if(!categoryOrder.includes(k)) sorted.push([k,v]); });
                     
                     nav.innerHTML = `<button onclick="filterByCat('all')" class="btn-akkad px-5 py-2 rounded-full whitespace-nowrap text-xs shadow-lg transition">الكل</button>`;
-                    sorted.forEach(([k, v]) => {
-                        nav.innerHTML += `<button onclick="filterByCat('${v}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition">${v}</button>`;
-                    });
+                    sorted.forEach(([k, v]) => { nav.innerHTML += `<button onclick="filterByCat('${v}')" class="btn-outline-akkad px-4 py-2 rounded-full whitespace-nowrap text-xs transition">${v}</button>`; });
                 });
             }
 
             loadingTimeout = setTimeout(() => {
-                document.getElementById('loading').innerHTML = `<div class="text-5xl mb-4">⏳</div><h3 class="text-xl font-bold text-yellow-400 mb-2">التحميل يستغرق وقتاً</h3><button onclick="location.reload()" class="btn-akkad px-6 py-2 rounded-xl text-sm">إعادة المحاولة</button>`;
-            }, 10000);
+                document.getElementById('loading').innerHTML = `<div class="text-4xl mb-3">⏳</div><h3 class="text-lg font-bold text-yellow-400 mb-2">التحميل يستغرق وقتاً</h3><button onclick="location.reload()" class="btn-akkad px-5 py-2 rounded-xl text-sm mt-2">إعادة المحاولة</button>`;
+            }, 8000);
 
             db.ref('products').on('value', snap => {
                 clearTimeout(loadingTimeout);
@@ -249,11 +294,10 @@
                 document.getElementById('loading').classList.add('hidden');
                 if (allProducts.length === 0) {
                     document.getElementById('loading').classList.remove('hidden');
-                    document.getElementById('loading').innerHTML = `<div class="text-5xl mb-4">📭</div><h3 class="text-xl font-bold text-gray-300 mb-2">لا توجد منتجات حالياً</h3><a href="admin.html" class="btn-akkad px-6 py-2 rounded-xl text-sm inline-block">الذهاب للوحة التحكم</a>`;
+                    document.getElementById('loading').innerHTML = `<div class="text-4xl mb-3">📭</div><h3 class="text-lg font-bold text-gray-300 mb-2">لا توجد منتجات حالياً</h3><a href="admin.html" class="btn-akkad px-5 py-2 rounded-xl text-sm inline-block mt-2">الذهاب للوحة التحكم</a>`;
                 } else {
                     document.getElementById('products-grid').classList.remove('hidden');
-                    displayProducts(allProducts);
-                    updateTicker();
+                    displayProducts(allProducts); updateTicker();
                 }
             }, error => {
                 clearTimeout(loadingTimeout);
@@ -269,23 +313,20 @@
             noRes.classList.add('hidden'); grid.classList.remove('hidden');
             
             grid.innerHTML = items.map(p => {
-                // ✅ دعم كلا الحقلين للصورة
                 const imgUrl = p.img || p.image || 'https://via.placeholder.com/150/1a4d7a/c9a961?text=AKKAD';
                 const link = `https://wa.me/${APP_CONFIG.whatsapp}?text=${encodeURIComponent(`أريد طلب: ${p.name} - ${p.price} ${APP_CONFIG.currency}`)}`;
                 return `
                 <div class="akkad-card p-4 flex flex-col relative group h-full">
-                    ${p.video ? `<span class="absolute top-3 left-3 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2 py-0.5 rounded-full z-10"><i class="fas fa-play"></i> فيديو</span>` : ''}
-                    <div class="h-40 mb-3 bg-white/5 rounded-xl flex items-center justify-center p-2 cursor-pointer" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
-                        <img src="${imgUrl}" class="max-h-full max-w-full object-contain transition group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150/1a4d7a/c9a961?text=No+Img'">
+                    ${p.video ? `<span class="absolute top-3 left-3 bg-[var(--akkad-terracotta)] text-white text-[10px] px-2.5 py-1 rounded-full z-10 shadow-sm"><i class="fas fa-play text-[8px] mr-1"></i> فيديو</span>` : ''}
+                    <div class="h-36 mb-3 bg-white/5 rounded-xl flex items-center justify-center p-2 cursor-pointer overflow-hidden" ${p.video ? `onclick="openVideo('${p.video}')"` : ''}>
+                        <img src="${imgUrl}" class="max-h-full max-w-full object-contain transition duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/150/1a4d7a/c9a961?text=No+Img'">
                     </div>
-                    <div class="flex-1 flex flex-col">
-                        <h3 class="font-bold text-sm mb-2 line-clamp-2 text-white group-hover:text-[var(--akkad-gold)] transition">${p.name}</h3>
-                        <div class="text-lg font-bold text-[var(--akkad-gold)] mb-3">${p.price} <span class="text-[10px] text-gray-400">${APP_CONFIG.currency}</span></div>
-                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc||'').replace(/`/g,"'")}\`, '${link}')" class="w-full btn-outline-akkad py-2 rounded-xl text-xs mb-2 transition flex items-center justify-center gap-1"><i class="fas fa-scroll"></i> التفاصيل</button>
+                    <div class="flex-1 flex flex-col relative z-10">
+                        <h3 class="font-bold text-sm mb-2 line-clamp-2 text-gray-100 group-hover:text-[var(--akkad-gold)] transition">${p.name}</h3>
+                        <div class="text-lg font-bold text-[var(--akkad-gold)] mb-3">${p.price} <span class="text-[10px] text-gray-500">${APP_CONFIG.currency}</span></div>
+                        <button onclick="showDetails('${p.name.replace(/'/g, "\\'")}', \`${(p.desc||'').replace(/`/g,"'")}\`, '${link}')" class="w-full btn-outline-akkad py-2 rounded-xl text-xs mb-2 transition flex items-center justify-center gap-1"><i class="fas fa-info-circle"></i> التفاصيل</button>
                     </div>
-                    <div class="flex gap-2 mt-auto">
-                      <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="flex-1 btn-akkad py-2 rounded-xl flex items-center justify-center gap-1 transition text-xs"><i class="fab fa-whatsapp"></i> طلب سريع</button>
-                    </div>
+                    <button onclick="openWaModal('${p.name.replace(/'/g, "\\'")}', '${p.price}')" class="w-full btn-akkad py-2.5 rounded-xl flex items-center justify-center gap-2 transition text-xs mt-auto"><i class="fab fa-whatsapp"></i> طلب سريع</button>
                 </div>`;
             }).join('');
         }
@@ -293,7 +334,7 @@
         function updateTicker() {
             const t = document.getElementById('product-ticker');
             if(!t || !allProducts.length) return;
-            const items = allProducts.slice(0, 10).map(p => `<span class="ticker-item"><i class="fas fa-gem"></i> ${p.name} - ${p.price}</span>`).join('');
+            const items = allProducts.slice(0, 12).map(p => `<span class="ticker-item"><i class="fas fa-bolt"></i> ${p.name} - ${p.price}</span>`).join('');
             t.innerHTML = items + items + items;
         }
 
@@ -305,7 +346,6 @@
         function filterByCat(c) {
             document.querySelectorAll('#categories-nav button').forEach(b => { b.classList.remove('btn-akkad','shadow-lg'); b.classList.add('btn-outline-akkad'); });
             event.target.classList.remove('btn-outline-akkad'); event.target.classList.add('btn-akkad','shadow-lg');
-            // ✅ دعم كلا الحقلين للقسم
             displayProducts(c==='all' ? allProducts : allProducts.filter(p => p.cat===c || p.category===c));
         }
 
@@ -317,6 +357,20 @@
         }
         function openVideo(id) { document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${id}?autoplay=1`; document.getElementById('videoModal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; if(id==='videoModal') document.getElementById('ytPlayer').src = ""; }
+        
+        // ✅ دالة مشاركة المتجر
+        function shareStore() {
+            const shareData = {
+                title: 'متجر أكاد الرقمي',
+                text: 'تصفح أحدث الأجهزة الإلكترونية بأفضل الأسعار في العراق!',
+                url: window.location.href
+            };
+            if (navigator.share) {
+                navigator.share(shareData).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => showToast('تم نسخ رابط المتجر بنجاح!'));
+            }
+        }
     </script>
 </body>
 </html>
