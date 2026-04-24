@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -141,8 +142,17 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        const APP_CONFIG = { firebase: { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" }, whatsapp: "9647730492020", admin: { email: "mecool.iraq@gmail.com", pass: "ashd1980" } };
-        let db, allProducts = [], allCats = {}, categoryOrder = [];
+        const APP_CONFIG = { 
+            firebase: { 
+                databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" 
+            }, 
+            whatsapp: "9647730492020",
+            admin: { 
+                email: "mecool.iraq@gmail.com"
+            } 
+        };
+        
+        let db, auth, allProducts = [], allCats = {}, categoryOrder = [];
 
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
@@ -152,56 +162,102 @@
             setTimeout(() => toast.style.display = 'none', 4000);
         }
 
+        // ✅ تسجيل الدخول عبر Firebase Authentication
         document.getElementById('loginForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+            const email = document.getElementById('adminEmail').value.trim();
             const pass = document.getElementById('adminPass').value.trim();
-            const btn = document.getElementById('loginBtn'), btnText = document.getElementById('loginBtnText'), loader = document.getElementById('loginLoader'), error = document.getElementById('loginError');
-            error.classList.add('hidden'); btn.disabled = true; btnText.classList.add('hidden'); loader.classList.remove('hidden');
-            setTimeout(() => {
-                if(email === APP_CONFIG.admin.email && pass === APP_CONFIG.admin.pass) {
+            
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginBtnText');
+            const loader = document.getElementById('loginLoader');
+            const error = document.getElementById('loginError');
+            
+            error.classList.add('hidden');
+            btn.disabled = true;
+            btnText.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            // تسجيل الدخول الحقيقي
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
                     localStorage.setItem('akkad_admin_session', 'active');
                     localStorage.setItem('akkad_admin_time', Date.now().toString());
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('adminPanel').classList.remove('hidden');
                     initFirebase();
                     showToast('مرحباً بك! 🎉');
-                    document.getElementById('adminEmail').value = ''; document.getElementById('adminPass').value = '';
-                } else {
-                    error.innerText = '❌ البيانات غير صحيحة'; error.classList.remove('hidden');
+                    document.getElementById('adminEmail').value = '';
+                    document.getElementById('adminPass').value = '';
+                })
+                .catch((error) => {
+                    error.innerText = '❌ البريد أو كلمة المرور غير صحيحة';
+                    error.classList.remove('hidden');
                     document.getElementById('adminPass').classList.add('shake');
                     setTimeout(() => document.getElementById('adminPass').classList.remove('shake'), 300);
-                }
-                btn.disabled = false; btnText.classList.remove('hidden'); loader.classList.add('hidden');
-            }, 600);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btnText.classList.remove('hidden');
+                    loader.classList.add('hidden');
+                });
         });
 
         function checkSession() {
-            if(localStorage.getItem('akkad_admin_session') === 'active') {
+            const session = localStorage.getItem('akkad_admin_session');
+            if(session === 'active') {
                 const time = localStorage.getItem('akkad_admin_time');
                 if(time && (Date.now() - parseInt(time)) < 86400000) {
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    initFirebase();
+                    // التحقق من أن المستخدم لا يزال مسجلاً
+                    auth.onAuthStateChanged(user => {
+                        if(user && user.email === APP_CONFIG.admin.email) {
+                            document.getElementById('loginScreen').classList.add('hidden');
+                            document.getElementById('adminPanel').classList.remove('hidden');
+                            initFirebase();
+                        } else {
+                            localStorage.removeItem('akkad_admin_session');
+                            localStorage.removeItem('akkad_admin_time');
+                        }
+                    });
                 }
             }
         }
-        window.addEventListener('load', checkSession);
-        function logout() { if(confirm('تسجيل الخروج؟')) { localStorage.removeItem('akkad_admin_session'); localStorage.removeItem('akkad_admin_time'); location.reload(); } }
+
+        window.addEventListener('load', () => {
+            // تهيئة Firebase
+            if(!firebase.apps.length) {
+                firebase.initializeApp(APP_CONFIG.firebase);
+            }
+            db = firebase.database();
+            auth = firebase.auth();
+            checkSession();
+        });
+
+        function logout() {
+            if(confirm('تسجيل الخروج؟')) {
+                auth.signOut().then(() => {
+                    localStorage.removeItem('akkad_admin_session');
+                    localStorage.removeItem('akkad_admin_time');
+                    location.reload();
+                });
+            }
+        }
 
         function initFirebase() {
             try {
-                if(!firebase.apps.length) firebase.initializeApp(APP_CONFIG.firebase);
-                db = firebase.database();
-                loadCategories(); loadProducts();
-            } catch(e) { console.error('Firebase error:', e); }
+                loadCategories();
+                loadProducts();
+            } catch(e) {
+                console.error('Firebase error:', e);
+            }
         }
 
         function updateStats() {
             document.getElementById('statProducts').innerText = allProducts.length;
             document.getElementById('statCats').innerText = Object.keys(allCats).length;
             const now = new Date(), t = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            document.getElementById('lastUpdate').innerText = t; document.getElementById('listUpdateTime').innerText = t;
+            document.getElementById('lastUpdate').innerText = t;
+            document.getElementById('listUpdateTime').innerText = t;
             document.getElementById('productsCount').innerText = `${allProducts.length} منتج`;
         }
 
@@ -210,23 +266,39 @@
             if(!db) return;
             db.ref('categories').on('value', snap => {
                 allCats = snap.val() || {};
-                if(categoryOrder.length === 0 && Object.keys(allCats).length > 0) { categoryOrder = Object.keys(allCats); db.ref('categoryOrder').set(categoryOrder); }
-                renderCategoriesWithOrder(); updateCategorySelect(); updateStats();
+                if(categoryOrder.length === 0 && Object.keys(allCats).length > 0) {
+                    categoryOrder = Object.keys(allCats);
+                    db.ref('categoryOrder').set(categoryOrder);
+                }
+                renderCategoriesWithOrder();
+                updateCategorySelect();
+                updateStats();
             });
-            db.ref('categoryOrder').on('value', snap => { categoryOrder = snap.val() || []; renderCategoriesWithOrder(); });
+            db.ref('categoryOrder').on('value', snap => {
+                categoryOrder = snap.val() || [];
+                renderCategoriesWithOrder();
+            });
         }
 
         function getSortedCategories() {
             let sorted = [];
-            categoryOrder.forEach(key => { if(allCats[key]) sorted.push([key, allCats[key]]); });
-            Object.entries(allCats).forEach(([key, name]) => { if(!categoryOrder.includes(key)) sorted.push([key, name]); });
+            categoryOrder.forEach(key => {
+                if(allCats[key]) sorted.push([key, allCats[key]]);
+            });
+            Object.entries(allCats).forEach(([key, name]) => {
+                if(!categoryOrder.includes(key)) sorted.push([key, name]);
+            });
             return sorted;
         }
 
         function renderCategoriesWithOrder() {
-            const list = document.getElementById('catsList'); if(!list) return;
+            const list = document.getElementById('catsList');
+            if(!list) return;
             const sorted = getSortedCategories();
-            if(sorted.length === 0) { list.innerHTML = '<p class="text-gray-400 text-center py-4 text-xs">لا توجد أقسام</p>'; return; }
+            if(sorted.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-4 text-xs">لا توجد أقسام</p>';
+                return;
+            }
             list.innerHTML = sorted.map(([key, name], index) => `
                 <div class="category-item flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100" data-key="${key}">
                     <div class="flex items-center gap-2 min-w-0">
@@ -245,11 +317,23 @@
         }
 
         function moveCategory(key, direction) {
-            Object.keys(allCats).forEach(k => { if(!categoryOrder.includes(k)) categoryOrder.push(k); });
-            const idx = categoryOrder.indexOf(key); if(idx === -1) return;
-            const newIdx = idx + direction; if(newIdx < 0 || newIdx >= categoryOrder.length) return;
+            Object.keys(allCats).forEach(k => {
+                if(!categoryOrder.includes(k)) categoryOrder.push(k);
+            });
+            const idx = categoryOrder.indexOf(key);
+            if(idx === -1) return;
+            const newIdx = idx + direction;
+            if(newIdx < 0 || newIdx >= categoryOrder.length) return;
             [categoryOrder[idx], categoryOrder[newIdx]] = [categoryOrder[newIdx], categoryOrder[idx]];
-            db.ref('categoryOrder').set(categoryOrder).then(() => { showToast('✅ تم تحديث الترتيب'); renderCategoriesWithOrder(); }).catch(err => { console.error('Move error:', err); showToast('❌ فشل التحديث', 'error'); });
+            db.ref('categoryOrder').set(categoryOrder)
+                .then(() => {
+                    showToast('✅ تم تحديث الترتيب');
+                    renderCategoriesWithOrder();
+                })
+                .catch(err => {
+                    console.error('Move error:', err);
+                    showToast('❌ فشل التحديث', 'error');
+                });
         }
 
         function autoSortCategories() {
@@ -259,45 +343,103 @@
         }
 
         function updateCategorySelect() {
-            const select = document.getElementById('pCat'); if(!select) return;
+            const select = document.getElementById('pCat');
+            if(!select) return;
             select.innerHTML = '<option value="">اختر قسماً</option>';
-            categoryOrder.forEach(key => { if(allCats[key]) select.innerHTML += `<option value="${key}">${allCats[key]}</option>`; });
-            Object.entries(allCats).forEach(([key, name]) => { if(!categoryOrder.includes(key)) select.innerHTML += `<option value="${key}">${name}</option>`; });
+            categoryOrder.forEach(key => {
+                if(allCats[key]) select.innerHTML += `<option value="${key}">${allCats[key]}</option>`;
+            });
+            Object.entries(allCats).forEach(([key, name]) => {
+                if(!categoryOrder.includes(key)) select.innerHTML += `<option value="${key}">${name}</option>`;
+            });
         }
 
-        function editCategory(key, name) { document.getElementById('catId').value = key; document.getElementById('newCat').value = name; document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-save"></i> <span class="hidden sm:inline">تحديث</span>'; document.getElementById('newCat').focus(); }
-        function deleteCategory(key) { if(confirm('حذف هذا القسم؟')) { db.ref('categories').child(key).remove().then(() => { categoryOrder = categoryOrder.filter(k => k !== key); db.ref('categoryOrder').set(categoryOrder); showToast('✅ تم حذف القسم'); }).catch(() => showToast('❌ فشل الحذف', 'error')); } }
+        function editCategory(key, name) {
+            document.getElementById('catId').value = key;
+            document.getElementById('newCat').value = name;
+            document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-save"></i> <span class="hidden sm:inline">تحديث</span>';
+            document.getElementById('newCat').focus();
+        }
 
-        function saveCategory() {
-            const id = document.getElementById('catId').value, name = document.getElementById('newCat').value.trim(), errorEl = document.getElementById('catError');
-            if(!name || name.length < 2) { errorEl.innerText = '⚠️ أدخل اسم قسم صالح'; errorEl.classList.remove('hidden'); document.getElementById('newCat').classList.add('shake'); setTimeout(() => document.getElementById('newCat').classList.remove('shake'), 300); return; }
-            errorEl.classList.add('hidden');
-            const btn = document.getElementById('btnSaveCat'), originalBtn = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            if(db) {
-                const catRef = id ? db.ref('categories').child(id) : db.ref('categories').push();
-                catRef.set(name).then(() => {
-                    if(!id) { categoryOrder.push(catRef.key); db.ref('categoryOrder').set(categoryOrder); }
-                    showToast(id ? '✅ تم تحديث القسم' : '✅ تم إضافة القسم');
-                    document.getElementById('catId').value = ''; document.getElementById('newCat').value = '';
-                    document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i> <span class="hidden sm:inline">إضافة</span>';
-                }).catch(err => { errorEl.innerText = '❌ ' + (err.message || 'فشل الحفظ'); errorEl.classList.remove('hidden'); }).finally(() => { btn.disabled = false; btn.innerHTML = originalBtn; });
+        function deleteCategory(key) {
+            if(confirm('حذف هذا القسم؟')) {
+                db.ref('categories').child(key).remove()
+                    .then(() => {
+                        categoryOrder = categoryOrder.filter(k => k !== key);
+                        db.ref('categoryOrder').set(categoryOrder);
+                        showToast('✅ تم حذف القسم');
+                    })
+                    .catch(() => showToast('❌ فشل الحذف', 'error'));
             }
         }
 
-        // ✅ إدارة المنتجات - تم تصحيح حفظ القسم
+        function saveCategory() {
+            const id = document.getElementById('catId').value;
+            const name = document.getElementById('newCat').value.trim();
+            const errorEl = document.getElementById('catError');
+            
+            if(!name || name.length < 2) {
+                errorEl.innerText = '⚠️ أدخل اسم قسم صالح';
+                errorEl.classList.remove('hidden');
+                document.getElementById('newCat').classList.add('shake');
+                setTimeout(() => document.getElementById('newCat').classList.remove('shake'), 300);
+                return;
+            }
+            
+            errorEl.classList.add('hidden');
+            const btn = document.getElementById('btnSaveCat');
+            const originalBtn = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            if(db) {
+                const catRef = id ? db.ref('categories').child(id) : db.ref('categories').push();
+                catRef.set(name)
+                    .then(() => {
+                        if(!id) {
+                            categoryOrder.push(catRef.key);
+                            db.ref('categoryOrder').set(categoryOrder);
+                        }
+                        showToast(id ? '✅ تم تحديث القسم' : '✅ تم إضافة القسم');
+                        document.getElementById('catId').value = '';
+                        document.getElementById('newCat').value = '';
+                        document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i> <span class="hidden sm:inline">إضافة</span>';
+                    })
+                    .catch(err => {
+                        errorEl.innerText = '❌ ' + (err.message || 'فشل الحفظ');
+                        errorEl.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtn;
+                    });
+            }
+        }
+
+        // ✅ إدارة المنتجات
         function loadProducts() {
             if(!db) return;
             db.ref('products').on('value', snap => {
-                allProducts = []; const data = snap.val();
-                if(data) Object.entries(data).forEach(([key, val]) => allProducts.push({id: key, ...val}));
+                allProducts = [];
+                const data = snap.val();
+                if(data) {
+                    Object.entries(data).forEach(([key, val]) => {
+                        allProducts.push({id: key, ...val});
+                    });
+                }
                 allProducts.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
-                renderProductsList(allProducts); updateStats();
+                renderProductsList(allProducts);
+                updateStats();
             });
         }
 
         function renderProductsList(products) {
-            const container = document.getElementById('adminProductsList'); if(!container) return;
-            if(products.length === 0) { container.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">لا توجد منتجات</p>'; return; }
+            const container = document.getElementById('adminProductsList');
+            if(!container) return;
+            if(products.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">لا توجد منتجات</p>';
+                return;
+            }
             container.innerHTML = products.map(p => {
                 const imgUrl = (p.img || p.image || '').trim();
                 const hasValidImg = imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('//') || imgUrl.startsWith('data:'));
@@ -306,8 +448,9 @@
                         <img src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover hover:scale-110 transition" onerror="this.style.display='none'; this.parentElement.querySelector('.fallback').style.display='flex';">
                         <div class="fallback absolute inset-0 hidden flex items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-image text-lg"></i></div>
                     </div>` : `<div class="w-16 h-16 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"><i class="fas fa-image text-lg"></i></div>`;
-                // ✅ عرض اسم القسم بشكل صحيح
+                
                 const catDisplay = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || 'غير مصنف';
+                
                 return `<div class="product-item p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-blue-300 transition flex gap-3">
                     ${imgHtml}
                     <div class="flex-1 min-w-0">
@@ -327,59 +470,110 @@
         }
 
         function editProduct(id) {
-            const p = allProducts.find(x => x.id === id); if(!p) return;
-            document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name;
+            const p = allProducts.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('pId').value = p.id;
+            document.getElementById('pName').value = p.name;
             document.getElementById('pPrice').value = p.price;
-            // ✅ دعم كلا الحقلين للقسم
             document.getElementById('pCat').value = p.cat || p.category || p.catKey || '';
             document.getElementById('pImg').value = p.img || p.image || '';
-            document.getElementById('pVideo').value = p.video || ''; document.getElementById('pDesc').value = p.description || '';
-            document.getElementById('formTitle').innerText = 'تعديل المنتج'; document.getElementById('btnSave').innerHTML = '🔄 تحديث المنتج';
+            document.getElementById('pVideo').value = p.video || '';
+            document.getElementById('pDesc').value = p.description || '';
+            document.getElementById('formTitle').innerText = 'تعديل المنتج';
+            document.getElementById('btnSave').innerHTML = '🔄 تحديث المنتج';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function deleteProduct(id) { if(confirm('حذف هذا المنتج؟')) { db.ref('products').child(id).remove().then(() => showToast('✅ تم الحذف')).catch(() => showToast('❌ فشل الحذف', 'error')); } }
+        function deleteProduct(id) {
+            if(confirm('حذف هذا المنتج؟')) {
+                db.ref('products').child(id).remove()
+                    .then(() => showToast('✅ تم الحذف'))
+                    .catch(() => showToast('❌ فشل الحذف', 'error'));
+            }
+        }
 
         function saveProduct() {
-            const id = document.getElementById('pId').value, name = document.getElementById('pName').value.trim(), price = document.getElementById('pPrice').value.trim();
+            const id = document.getElementById('pId').value;
+            const name = document.getElementById('pName').value.trim();
+            const price = document.getElementById('pPrice').value.trim();
             const catKey = document.getElementById('pCat').value;
-            const catName = allCats[catKey] || catKey || ''; // ✅ الحصول على اسم القسم للعرض
-            const img = document.getElementById('pImg').value.trim(), video = document.getElementById('pVideo').value.trim(), desc = document.getElementById('pDesc').value.trim();
-            if(!name || !price || !catKey) { showToast('⚠️ أكمل الحقول المطلوبة', 'warning'); return; }
-            const btn = document.getElementById('btnSave'), originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            const catName = allCats[catKey] || catKey || '';
+            const img = document.getElementById('pImg').value.trim();
+            const video = document.getElementById('pVideo').value.trim();
+            const desc = document.getElementById('pDesc').value.trim();
             
-            // ✅ ✅ ✅ التصحيح الرئيسي: حفظ اسم القسم في الحقول المستخدمة للفلترة
+            if(!name || !price || !catKey) {
+                showToast('⚠️ أكمل الحقول المطلوبة', 'warning');
+                return;
+            }
+            
+            const btn = document.getElementById('btnSave');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            
             const product = { 
-                name, price, 
-                cat: catName,           // ← اسم القسم للفلترة في المتجر
-                category: catName,      // ← اسم القسم للفلترة في المتجر
-                catKey: catKey,         // ← المفتاح الأصلي كمرجع إضافي
-                catName: catName,       // ← اسم القسم للعرض
-                img: img, image: img, 
-                video, description: desc, 
+                name, 
+                price, 
+                cat: catName,
+                category: catName,
+                catKey: catKey,
+                catName: catName,
+                img: img, 
+                image: img, 
+                video, 
+                description: desc, 
                 updatedAt: Date.now() 
             };
             
             if(db) {
                 const ref = id ? db.ref('products').child(id) : db.ref('products').push();
-                ref.set(product).then(() => { showToast(id ? '✅ تم تحديث المنتج' : '✅ تم إضافة المنتج'); resetForm(); })
-                .catch(err => { console.error('Product error:', err); showToast('❌ فشل الحفظ', 'error'); })
-                .finally(() => { btn.disabled = false; btn.innerHTML = originalText; });
+                ref.set(product)
+                    .then(() => {
+                        showToast(id ? '✅ تم تحديث المنتج' : '✅ تم إضافة المنتج');
+                        resetForm();
+                    })
+                    .catch(err => {
+                        console.error('Product error:', err);
+                        showToast('❌ فشل الحفظ', 'error');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    });
             }
         }
 
-        function resetForm() { ['pId','pName','pPrice','pCat','pImg','pVideo','pDesc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; }); document.getElementById('formTitle').innerText = 'إضافة منتج جديد'; document.getElementById('btnSave').innerHTML = '💾 حفظ المنتج'; }
+        function resetForm() {
+            ['pId','pName','pPrice','pCat','pImg','pVideo','pDesc'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+            document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
+            document.getElementById('btnSave').innerHTML = '💾 حفظ المنتج';
+        }
 
         function searchAdminProducts() {
             const term = document.getElementById('adminSearch').value.toLowerCase().trim();
-            const filtered = allProducts.filter(p => { 
-                const catName = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || ''; 
-                return p.name.toLowerCase().includes(term) || catName.toLowerCase().includes(term); 
+            const filtered = allProducts.filter(p => {
+                const catName = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || '';
+                return p.name.toLowerCase().includes(term) || catName.toLowerCase().includes(term);
             });
             renderProductsList(filtered);
         }
-        function refreshProducts() { showToast('🔄 جاري التحديث...'); loadProducts(); }
-        function clearCache() { if(confirm('مسح البيانات المؤقتة؟')) { localStorage.clear(); showToast('✅ تم المسح'); setTimeout(()=>location.reload(), 1000); } }
+
+        function refreshProducts() {
+            showToast('🔄 جاري التحديث...');
+            loadProducts();
+        }
+
+        function clearCache() {
+            if(confirm('مسح البيانات المؤقتة؟')) {
+                localStorage.clear();
+                showToast('✅ تم المسح');
+                setTimeout(()=>location.reload(), 1000);
+            }
+        }
     </script>
 </body>
 </html>
