@@ -20,7 +20,6 @@
         .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); }
         .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: 500; transition: all 0.2s; }
         .btn-warning:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
-        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 500; transition: all 0.2s; }
         
         .toast { position: fixed; top: 20px; left: 20px; z-index: 3000; padding: 12px 20px; border-radius: 12px; color: white; font-weight: 500; display: none; animation: slideIn 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         @keyframes slideIn { from { transform: translateX(-100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -40,46 +39,42 @@
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         .shake { animation: shake 0.3s ease-in-out; }
         
-        /* ✅ تحسينات جديدة */
+        /* ✅ تحسينات الأقسام والصور */
         .section-header { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 2px solid #f1f5f9; margin-bottom: 16px; }
         .section-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
         .icon-categories { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .icon-products { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .icon-orders { background: linear-gradient(135deg, #10b981, #059669); }
         .icon-settings { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
         
         /* أزرار الترتيب */
         .order-btn { 
-            width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; 
-            font-size: 11px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; 
-            cursor: pointer; transition: all 0.15s; 
+            width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; 
+            font-size: 10px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; 
+            cursor: pointer; transition: all 0.15s; line-height: 1;
         }
         .order-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
         .order-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         
-        /* صورة المنتج في اللوحة */
+        /* ✅ إصلاح صور المنتجات */
+        .product-thumb-wrap { 
+            width: 64px; height: 64px; border-radius: 12px; overflow: hidden; 
+            background: #f1f5f9; border: 2px solid #e2e8f0; position: relative; flex-shrink: 0;
+        }
         .product-thumb { 
-            width: 64px; height: 64px; border-radius: 12px; object-fit: cover; 
-            background: linear-gradient(135deg, #f1f5f9, #e2e8f0); 
-            border: 2px solid #f1f5f9; transition: transform 0.2s;
+            width: 100%; height: 100%; object-fit: cover; display: block; 
         }
-        .product-thumb:hover { transform: scale(1.05); border-color: #3b82f6; }
-        .product-thumb.error { display: none; }
         .product-thumb-placeholder { 
-            width: 64px; height: 64px; border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-            background: #f1f5f9; color: #94a3b8; font-size: 20px; 
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
+            color: #94a3b8; font-size: 24px; background: #f8fafc;
         }
+        .product-thumb.hidden { display: none !important; }
         
-        /* مؤشر الترتيب */
-        .order-indicator { 
-            font-size: 10px; color: #94a3b8; background: #f8fafc; padding: 2px 6px; 
-            border-radius: 6px; margin-left: 4px; 
-        }
+        .order-indicator { font-size: 10px; color: #94a3b8; background: #f8fafc; padding: 2px 6px; border-radius: 6px; margin-right: 4px; }
     </style>
 </head>
 <body class="p-4 md:p-6">
 
-    <!-- 🔐 شاشة تسجيل الدخول -->
+    <!-- 🔐 تسجيل الدخول -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
         <div class="card p-8 w-full max-w-md text-center">
             <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30">
@@ -88,10 +83,10 @@
             <h1 class="text-2xl font-bold mb-2">لوحة تحكم أكاد</h1>
             <p class="text-gray-500 mb-6 text-sm">سجّل الدخول لإدارة المتجر</p>
             <form id="loginForm" class="space-y-4">
-                <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" required autocomplete="username"
-                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 transition">
-                <input type="password" id="adminPass" placeholder="كلمة المرور" required autocomplete="current-password"
-                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 transition">
+                <input type="email" id="adminEmail" placeholder="البريد الإلكتروني" required
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
+                <input type="password" id="adminPass" placeholder="كلمة المرور" required
+                    class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500">
                 <button type="submit" id="loginBtn" class="w-full btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
                     <span id="loginBtnText">تسجيل الدخول</span>
                     <span id="loginLoader" class="loader hidden"></span>
@@ -105,7 +100,6 @@
     <!-- 🎛️ لوحة التحكم -->
     <div id="adminPanel" class="hidden max-w-7xl mx-auto">
         
-        <!-- الهيدر -->
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 card p-5">
             <div>
                 <h1 class="text-xl font-bold text-slate-800">🎛️ لوحة إدارة المتجر</h1>
@@ -121,34 +115,18 @@
             </div>
         </header>
 
-        <!-- 📊 الإحصائيات -->
+        <!-- الإحصائيات -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="card p-4 text-center hover:shadow-lg transition">
-                <div id="statProducts" class="text-2xl font-bold text-blue-600">0</div>
-                <div class="text-xs text-gray-500 mt-1">منتج</div>
-            </div>
-            <div class="card p-4 text-center hover:shadow-lg transition">
-                <div id="statCats" class="text-2xl font-bold text-orange-600">0</div>
-                <div class="text-xs text-gray-500 mt-1">قسم</div>
-            </div>
-            <div class="card p-4 text-center hover:shadow-lg transition">
-                <div class="text-2xl font-bold text-green-600">
-                    <a href="https://wa.me/9647730492020" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                </div>
-                <div class="text-xs text-gray-500 mt-1">واتساب</div>
-            </div>
-            <div class="card p-4 text-center hover:shadow-lg transition">
-                <div class="text-2xl font-bold text-purple-600" id="lastUpdate">--:--</div>
-                <div class="text-xs text-gray-500 mt-1">آخر تحديث</div>
-            </div>
+            <div class="card p-4 text-center"><div id="statProducts" class="text-2xl font-bold text-blue-600">0</div><div class="text-xs text-gray-500 mt-1">منتج</div></div>
+            <div class="card p-4 text-center"><div id="statCats" class="text-2xl font-bold text-orange-600">0</div><div class="text-xs text-gray-500 mt-1">قسم</div></div>
+            <div class="card p-4 text-center"><div class="text-2xl font-bold text-green-600"><a href="https://wa.me/9647730492020" target="_blank"><i class="fab fa-whatsapp"></i></a></div><div class="text-xs text-gray-500 mt-1">واتساب</div></div>
+            <div class="card p-4 text-center"><div class="text-2xl font-bold text-purple-600" id="lastUpdate">--:--</div><div class="text-xs text-gray-500 mt-1">آخر تحديث</div></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- العمود الجانبي -->
             <div class="space-y-5">
                 
-                <!-- 🔹 إدارة الأقسام مع الترتيب -->
+                <!-- 🔹 إدارة الأقسام - ✅ الإصدار المُصلح -->
                 <div class="card p-5">
                     <div class="section-header">
                         <div class="section-icon icon-categories"><i class="fas fa-layer-group"></i></div>
@@ -164,7 +142,6 @@
                         </button>
                     </div>
                     
-                    <!-- زر ترتيب تلقائي -->
                     <div class="flex justify-end mb-2">
                         <button onclick="autoSortCategories()" class="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-1">
                             <i class="fas fa-sort-alpha-down"></i> ترتيب أبجدي
@@ -177,37 +154,27 @@
                     <p id="catError" class="text-red-500 text-xs mt-2 hidden"></p>
                 </div>
 
-                <!-- 🔹 إضافة/تعديل منتج -->
+                <!-- 🔹 إضافة منتج -->
                 <div class="card p-5 border-t-4 border-blue-600">
                     <div class="section-header">
                         <div class="section-icon icon-products"><i class="fas fa-box-open"></i></div>
                         <h2 class="font-bold text-blue-600" id="formTitle">إضافة منتج جديد</h2>
                     </div>
-                    
                     <div class="space-y-3">
                         <input id="pId" type="hidden">
-                        <input id="pName" type="text" placeholder="اسم الجهاز *" required
-                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                        <input id="pName" type="text" placeholder="اسم الجهاز *" required class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
                         <div class="grid grid-cols-2 gap-3">
-                            <input id="pPrice" type="text" placeholder="السعر *" required
-                                class="p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                            <input id="pPrice" type="text" placeholder="السعر *" required class="p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
                             <select id="pCat" class="p-2.5 border border-gray-200 rounded-xl outline-none bg-white text-sm">
                                 <option value="">اختر قسماً</option>
                             </select>
                         </div>
-                        <input id="pImg" type="url" placeholder="رابط الصورة (اختياري)"
-                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
-                        <input id="pVideo" type="text" placeholder="معرف يوتيوب (اختياري)"
-                            class="w-full p-2.5 border border-red-200 rounded-xl outline-none text-sm text-red-600 placeholder-red-400">
+                        <input id="pImg" type="url" placeholder="رابط الصورة (اختياري)" class="w-full p-2.5 border border-gray-200 rounded-xl outline-none text-sm">
+                        <input id="pVideo" type="text" placeholder="معرف يوتيوب (اختياري)" class="w-full p-2.5 border border-red-200 rounded-xl outline-none text-sm text-red-600 placeholder-red-400">
                         <label class="block text-xs font-medium text-gray-500 mt-1">وصف المنتج</label>
-                        <textarea id="pDesc" placeholder="اكتب المواصفات هنا..." 
-                            class="w-full p-2.5 border border-gray-200 rounded-xl outline-none h-20 text-sm resize-none"></textarea>
-                        <button onclick="saveProduct()" id="btnSave" class="w-full btn-primary py-2.5 rounded-xl font-medium shadow-lg">
-                            💾 حفظ المنتج
-                        </button>
-                        <button onclick="resetForm()" class="w-full text-xs text-gray-400 hover:text-gray-600 transition py-1">
-                            ↺ تفريغ الحقول
-                        </button>
+                        <textarea id="pDesc" placeholder="اكتب المواصفات هنا..." class="w-full p-2.5 border border-gray-200 rounded-xl outline-none h-20 text-sm resize-none"></textarea>
+                        <button onclick="saveProduct()" id="btnSave" class="w-full btn-primary py-2.5 rounded-xl font-medium shadow-lg">💾 حفظ المنتج</button>
+                        <button onclick="resetForm()" class="w-full text-xs text-gray-400 hover:text-gray-600 transition py-1">↺ تفريغ الحقول</button>
                     </div>
                 </div>
 
@@ -229,32 +196,21 @@
                         </button>
                     </div>
                 </div>
-
             </div>
 
-            <!-- العمود الرئيسي: المنتجات -->
+            <!-- المنتجات -->
             <div class="lg:col-span-2">
                 <div class="card p-5 min-h-[500px]">
                     <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-                        <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                            <i class="fas fa-th-large"></i> المنتجات الحالية
-                        </h2>
+                        <h2 class="font-bold text-slate-700 flex items-center gap-2"><i class="fas fa-th-large"></i> المنتجات الحالية</h2>
                         <div class="flex items-center gap-2">
-                            <input type="text" id="adminSearch" onkeyup="searchAdminProducts()" placeholder="🔍 بحث..." 
-                                class="p-2 border border-gray-200 rounded-lg text-xs w-32 focus:w-40 transition">
-                            <button onclick="refreshProducts()" class="p-2 text-gray-500 hover:text-blue-600 transition" title="تحديث">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
+                            <input type="text" id="adminSearch" onkeyup="searchAdminProducts()" placeholder="🔍 بحث..." class="p-2 border border-gray-200 rounded-lg text-xs w-32 focus:w-40 transition">
+                            <button onclick="refreshProducts()" class="p-2 text-gray-500 hover:text-blue-600 transition" title="تحديث"><i class="fas fa-sync-alt"></i></button>
                         </div>
                     </div>
-                    
                     <div id="adminProductsList" class="space-y-3 max-h-[580px] overflow-y-auto pr-1">
-                        <div class="text-center py-10">
-                            <div class="loader mx-auto mb-3"></div>
-                            <p class="text-gray-400 text-sm">جاري تحميل المنتجات...</p>
-                        </div>
+                        <div class="text-center py-10"><div class="loader mx-auto mb-3"></div><p class="text-gray-400 text-sm">جاري التحميل...</p></div>
                     </div>
-                    
                     <div class="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
                         <span id="productsCount">0 منتج</span>
                         <span>آخر تحديث: <span id="listUpdateTime">--:--</span></span>
@@ -264,23 +220,21 @@
         </div>
     </div>
 
-    <!-- 🔔 التنبيهات -->
     <div id="toast" class="toast"></div>
 
     <script>
-        // ⚙️ الإعدادات
         const APP_CONFIG = {
             firebase: { databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com" },
             whatsapp: "9647730492020",
             admin: { email: "mecool.iraq@gmail.com", pass: "ashd1980" }
         };
 
-        let db, allProducts = [], allCats = {};
+        let db, allProducts = [], allCats = {}, categoryOrder = [];
 
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             toast.className = `toast toast-${type}`;
-            toast.innerText = type === 'success' ? '✅ ' + msg : (type === 'error' ? '❌ ' + msg : '⚠️ ' + msg);
+            toast.innerText = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : '⚠️ ') + msg;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 4000);
         }
@@ -305,7 +259,7 @@
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('adminPanel').classList.remove('hidden');
                     initFirebase();
-                    showToast('مرحباً بك في لوحة التحكم! 🎉');
+                    showToast('مرحباً بك! 🎉');
                     document.getElementById('adminEmail').value = '';
                     document.getElementById('adminPass').value = '';
                 } else {
@@ -319,18 +273,19 @@
         });
 
         function checkSession() {
-            const session = localStorage.getItem('akkad_admin_session');
-            const time = localStorage.getItem('akkad_admin_time');
-            if(session === 'active' && time && (Date.now() - parseInt(time)) < 86400000) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('adminPanel').classList.remove('hidden');
-                initFirebase();
+            if(localStorage.getItem('akkad_admin_session') === 'active') {
+                const time = localStorage.getItem('akkad_admin_time');
+                if(time && (Date.now() - parseInt(time)) < 86400000) {
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    initFirebase();
+                }
             }
         }
         window.addEventListener('load', checkSession);
 
         function logout() {
-            if(confirm('هل تريد تسجيل الخروج؟')) {
+            if(confirm('تسجيل الخروج؟')) {
                 localStorage.removeItem('akkad_admin_session');
                 localStorage.removeItem('akkad_admin_time');
                 location.reload();
@@ -343,7 +298,6 @@
                 db = firebase.database();
                 loadCategories();
                 loadProducts();
-                updateStats();
             } catch(e) { console.error('Firebase error:', e); }
         }
 
@@ -351,13 +305,14 @@
             document.getElementById('statProducts').innerText = allProducts.length;
             document.getElementById('statCats').innerText = Object.keys(allCats).length;
             const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            document.getElementById('lastUpdate').innerText = timeStr;
-            document.getElementById('listUpdateTime').innerText = timeStr;
+            const t = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            document.getElementById('lastUpdate').innerText = t;
+            document.getElementById('listUpdateTime').innerText = t;
             document.getElementById('productsCount').innerText = `${allProducts.length} منتج`;
         }
 
-        // ✅ ✅ ✅ إدارة الأقسام مع الترتيب ✅ ✅ ✅
+        // ✅ ✅ ✅ إدارة الأقسام - الإصدار النهائي المُصلح ✅ ✅ ✅
+        // ⚠️ المفتاح: الأقسام تُحفظ كنص بسيط (للتوافق مع المتجر) + الترتيب يُحفظ منفصلاً
         
         function saveCategory() {
             const id = document.getElementById('catId').value;
@@ -378,116 +333,117 @@
             btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
             if(db) {
-                const catData = { name: name, order: Date.now() }; // إضافة حقل order للترتيب
-                const ref = id ? db.ref('categories').child(id) : db.ref('categories').push();
-                ref.set(catData).then(() => {
+                // ✅ حفظ اسم القسم كنص بسيط فقط (لضمان ظهوره في المتجر)
+                const catRef = id ? db.ref('categories').child(id) : db.ref('categories').push();
+                
+                catRef.set(name).then(() => {
+                    // ✅ تحديث ترتيب الأقسام إذا كان جديداً
+                    if(!id) {
+                        categoryOrder.push(catRef.key);
+                        db.ref('categoryOrder').set(categoryOrder);
+                    }
                     showToast(id ? '✅ تم تحديث القسم' : '✅ تم إضافة القسم');
                     document.getElementById('catId').value = '';
                     document.getElementById('newCat').value = '';
                     document.getElementById('btnSaveCat').innerHTML = '<i class="fas fa-plus"></i> <span class="hidden sm:inline">إضافة</span>';
                 }).catch(err => {
-                    errorEl.innerText = '❌ خطأ: ' + (err.message || 'فشل الحفظ');
+                    errorEl.innerText = '❌ ' + (err.message || 'فشل الحفظ');
                     errorEl.classList.remove('hidden');
-                    showToast('فشل حفظ القسم', 'error');
+                    showToast('فشل الحفظ', 'error');
                 }).finally(() => { btn.disabled = false; btn.innerHTML = originalBtn; });
             }
         }
 
         function loadCategories() {
             if(!db) return;
+            
+            // تحميل الأسماء (كنص بسيط)
             db.ref('categories').on('value', snap => {
-                const rawData = snap.val() || {};
-                
-                // تحويل البيانات لدمج الـ ID مع المحتوى
-                allCats = {};
-                Object.entries(rawData).forEach(([key, val]) => {
-                    // دعم الصيغتين: نص مباشر أو كائن {name, order}
-                    if(typeof val === 'string') {
-                        allCats[key] = { name: val, order: 0 };
-                    } else {
-                        allCats[key] = val;
-                    }
-                });
-                
-                // فرز الأقسام حسب حقل order
-                const sortedCats = Object.entries(allCats).sort((a, b) => (a[1].order||0) - (b[1].order||0));
-                
-                renderCategoriesList(sortedCats);
+                allCats = snap.val() || {};
+                renderCategoriesWithOrder();
                 updateCategorySelect();
                 updateStats();
             });
+            
+            // تحميل الترتيب (منفصل)
+            db.ref('categoryOrder').on('value', snap => {
+                categoryOrder = snap.val() || [];
+                renderCategoriesWithOrder();
+            });
         }
 
-        function renderCategoriesList(sortedCats) {
+        function renderCategoriesWithOrder() {
             const list = document.getElementById('catsList');
             if(!list) return;
             
-            if(sortedCats.length === 0) {
+            // دمج الأسماء مع الترتيب
+            let sortedEntries = [];
+            
+            // أولاً: الأقسام المرتبة في categoryOrder
+            categoryOrder.forEach(key => {
+                if(allCats[key]) {
+                    sortedEntries.push([key, allCats[key]]);
+                }
+            });
+            
+            // ثانياً: أي أقسام جديدة لم تُرتب بعد
+            Object.entries(allCats).forEach(([key, name]) => {
+                if(!categoryOrder.includes(key)) {
+                    sortedEntries.push([key, name]);
+                }
+            });
+            
+            if(sortedEntries.length === 0) {
                 list.innerHTML = '<p class="text-gray-400 text-center py-4 text-xs">لا توجد أقسام</p>';
                 return;
             }
             
-            list.innerHTML = sortedCats.map(([key, cat], index) => `
+            list.innerHTML = sortedEntries.map(([key, name], index) => `
                 <div class="category-item flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100" data-key="${key}">
                     <div class="flex items-center gap-2 min-w-0">
-                        <!-- أزرار الترتيب -->
                         <div class="flex flex-col gap-0.5">
-                            <button onclick="moveCategory('${key}', -1)" class="order-btn" title="لأعلى" ${index === 0 ? 'disabled' : ''}>
+                            <button onclick="moveCategory('${key}', -1)" class="order-btn" ${index === 0 ? 'disabled' : ''} title="لأعلى">
                                 <i class="fas fa-chevron-up"></i>
                             </button>
-                            <button onclick="moveCategory('${key}', 1)" class="order-btn" title="لأسفل" ${index === sortedCats.length - 1 ? 'disabled' : ''}>
+                            <button onclick="moveCategory('${key}', 1)" class="order-btn" ${index === sortedEntries.length - 1 ? 'disabled' : ''} title="لأسفل">
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                         </div>
-                        <span class="text-sm font-medium truncate" title="${cat.name}">${cat.name}</span>
+                        <span class="text-sm font-medium truncate" title="${name}">${name}</span>
                         <span class="order-indicator">#${index + 1}</span>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        <button onclick="editCategory('${key}', '${cat.name}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"><i class="fas fa-pen text-xs"></i></button>
-                        <button onclick="deleteCategory('${key}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"><i class="fas fa-trash text-xs"></i></button>
+                        <button onclick="editCategory('${key}', '${name}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i class="fas fa-pen text-xs"></i></button>
+                        <button onclick="deleteCategory('${key}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i class="fas fa-trash text-xs"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // ✅ دالة نقل القسم لأعلى/أسفل
         function moveCategory(key, direction) {
-            const sortedCats = Object.entries(allCats).sort((a, b) => (a[1].order||0) - (b[1].order||0));
-            const currentIndex = sortedCats.findIndex(([k]) => k === key);
+            const currentIndex = categoryOrder.indexOf(key);
             const targetIndex = currentIndex + direction;
             
-            if(targetIndex < 0 || targetIndex >= sortedCats.length) return;
+            if(targetIndex < 0 || targetIndex >= categoryOrder.length) return;
             
-            // تبديل قيم order
-            const currentKey = sortedCats[currentIndex][0];
-            const targetKey = sortedCats[targetIndex][0];
-            const tempOrder = allCats[currentKey].order;
+            // تبديل المواضع في المصفوفة
+            [categoryOrder[currentIndex], categoryOrder[targetIndex]] = 
+            [categoryOrder[targetIndex], categoryOrder[currentIndex]];
             
-            allCats[currentKey].order = allCats[targetKey].order;
-            allCats[targetKey].order = tempOrder;
-            
-            // حفظ التغييرات في Firebase
-            const updates = {};
-            updates[`categories/${currentKey}/order`] = allCats[currentKey].order;
-            updates[`categories/${targetKey}/order`] = allCats[targetKey].order;
-            
-            db.ref().update(updates).then(() => {
+            // حفظ الترتيب الجديد
+            db.ref('categoryOrder').set(categoryOrder).then(() => {
                 showToast('✅ تم تحديث الترتيب');
-            }).catch(err => showToast('❌ فشل تحديث الترتيب', 'error'));
+            }).catch(() => showToast('❌ فشل التحديث', 'error'));
         }
 
-        // ✅ ترتيب أبجدي تلقائي
         function autoSortCategories() {
             if(!confirm('ترتيب الأقسام أبجدياً؟')) return;
             
-            const sorted = Object.entries(allCats).sort((a, b) => a[1].name.localeCompare(b[1].name, 'ar'));
-            const updates = {};
+            const sorted = Object.entries(allCats)
+                .sort((a, b) => (a[1]||'').localeCompare(b[1]||'', 'ar'))
+                .map(([key]) => key);
             
-            sorted.forEach(([key], index) => {
-                updates[`categories/${key}/order`] = index * 100; // مضاعفات 100 لتسهيل الإدراج لاحقاً
-            });
-            
-            db.ref().update(updates).then(() => {
+            db.ref('categoryOrder').set(sorted).then(() => {
                 showToast('✅ تم الترتيب الأبجدي');
             }).catch(() => showToast('❌ فشل الترتيب', 'error'));
         }
@@ -496,10 +452,20 @@
             const select = document.getElementById('pCat');
             if(!select) return;
             
-            const sortedCats = Object.entries(allCats).sort((a, b) => (a[1].order||0) - (b[1].order||0));
             select.innerHTML = '<option value="">اختر قسماً</option>';
-            sortedCats.forEach(([key, cat]) => {
-                select.innerHTML += `<option value="${key}">${cat.name}</option>`;
+            
+            // عرض الأقسام حسب الترتيب المحفوظ
+            categoryOrder.forEach(key => {
+                if(allCats[key]) {
+                    select.innerHTML += `<option value="${key}">${allCats[key]}</option>`;
+                }
+            });
+            
+            // إضافة الأقسام غير المرتبة
+            Object.entries(allCats).forEach(([key, name]) => {
+                if(!categoryOrder.includes(key)) {
+                    select.innerHTML += `<option value="${key}">${name}</option>`;
+                }
             });
         }
 
@@ -512,13 +478,16 @@
 
         function deleteCategory(key) {
             if(confirm('حذف هذا القسم؟')) {
-                db.ref('categories').child(key).remove()
-                    .then(() => showToast('✅ تم حذف القسم'))
-                    .catch(() => showToast('❌ فشل الحذف', 'error'));
+                db.ref('categories').child(key).remove().then(() => {
+                    // إزالة من الترتيب أيضاً
+                    categoryOrder = categoryOrder.filter(k => k !== key);
+                    db.ref('categoryOrder').set(categoryOrder);
+                    showToast('✅ تم حذف القسم');
+                }).catch(() => showToast('❌ فشل الحذف', 'error'));
             }
         }
 
-        // ✅ ✅ ✅ إدارة المنتجات مع إصلاح الصور ✅ ✅ ✅
+        // ✅ ✅ ✅ إدارة المنتجات - إصلاح الصور ✅ ✅ ✅
         
         function saveProduct() {
             const id = document.getElementById('pId').value;
@@ -559,7 +528,7 @@
             });
         }
 
-        // ✅ دالة عرض المنتجات مع إصلاح الصور
+        // ✅ دالة عرض المنتجات مع إصلاح جذري للصور
         function renderProductsList(products) {
             const container = document.getElementById('adminProductsList');
             if(!container) return;
@@ -570,32 +539,34 @@
             }
             
             container.innerHTML = products.map(p => {
-                // ✅ معالجة الصورة: التحقق من الرابط وعرض بديل عند الفشل
-                const hasImage = p.image && p.image.trim() !== '';
-                const imageHtml = hasImage ? `
-                    <img src="${p.image}" 
-                         class="product-thumb" 
-                         alt="${p.name}"
-                         onerror="this.classList.add('error'); this.nextElementSibling.classList.remove('hidden');">
-                    <div class="product-thumb-placeholder hidden"><i class="fas fa-image"></i></div>
-                ` : `<div class="product-thumb-placeholder"><i class="fas fa-image"></i></div>`;
+                // ✅ معالجة آمنة للرابط
+                const imgUrl = p.image && p.image.trim() ? p.image.trim() : '';
+                const hasValidImage = imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('//'));
                 
                 return `
                 <div class="product-item p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-blue-300 transition">
                     <div class="flex gap-3">
-                        <div class="relative shrink-0">
-                            ${imageHtml}
+                        <!-- ✅ حاوية الصورة مع معالجة الأخطاء -->
+                        <div class="product-thumb-wrap">
+                            ${hasValidImage ? `
+                                <img src="${imgUrl}" 
+                                     class="product-thumb" 
+                                     alt="${p.name}"
+                                     onerror="this.classList.add('hidden'); this.parentElement.querySelector('.product-thumb-placeholder').classList.remove('hidden');">
+                                <div class="product-thumb-placeholder hidden"><i class="fas fa-image"></i></div>
+                            ` : `<div class="product-thumb-placeholder"><i class="fas fa-image"></i></div>`}
                         </div>
+                        
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start">
                                 <h4 class="font-medium text-sm truncate" title="${p.name}">${p.name}</h4>
                                 <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg shrink-0">${p.price} د.ع</span>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">${allCats[p.category]?.name || allCats[p.category] || 'غير مصنف'}</p>
-                            ${p.video ? `<p class="text-xs text-red-500 mt-1"><i class="fab fa-youtube"></i> فيديو متاح</p>` : ''}
+                            <p class="text-xs text-gray-500 mt-1">${allCats[p.category] || 'غير مصنف'}</p>
+                            ${p.video ? `<p class="text-xs text-red-500 mt-1"><i class="fab fa-youtube"></i> فيديو</p>` : ''}
                             <div class="flex gap-1 mt-2">
-                                <button onclick="editProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">تعديل</button>
-                                <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">حذف</button>
+                                <button onclick="editProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">تعديل</button>
+                                <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200">حذف</button>
                             </div>
                         </div>
                     </div>
@@ -619,7 +590,7 @@
         }
 
         function deleteProduct(id) {
-            if(confirm('حذف هذا المنتج نهائياً؟')) {
+            if(confirm('حذف هذا المنتج؟')) {
                 db.ref('products').child(id).remove()
                     .then(() => showToast('✅ تم الحذف'))
                     .catch(() => showToast('❌ فشل الحذف', 'error'));
@@ -627,7 +598,9 @@
         }
 
         function resetForm() {
-            ['pId','pName','pPrice','pCat','pImg','pVideo','pDesc'].forEach(id => document.getElementById(id).value = '');
+            ['pId','pName','pPrice','pCat','pImg','pVideo','pDesc'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.value = '';
+            });
             document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
             document.getElementById('btnSave').innerHTML = '💾 حفظ المنتج';
         }
@@ -636,7 +609,7 @@
             const term = document.getElementById('adminSearch').value.toLowerCase().trim();
             const filtered = allProducts.filter(p => 
                 p.name.toLowerCase().includes(term) || 
-                (allCats[p.category]?.name || allCats[p.category] || '').toLowerCase().includes(term)
+                (allCats[p.category] || '').toLowerCase().includes(term)
             );
             renderProductsList(filtered);
         }
@@ -649,7 +622,7 @@
         function clearCache() {
             if(confirm('مسح البيانات المؤقتة؟')) {
                 localStorage.clear();
-                showToast('✅ تم المسح، سيتم تسجيل الخروج');
+                showToast('✅ تم المسح');
                 setTimeout(() => location.reload(), 1000);
             }
         }
