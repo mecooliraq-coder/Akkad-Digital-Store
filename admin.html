@@ -193,7 +193,6 @@
         const APP_CONFIG = {
             firebase: { 
                 databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com"
-                // أضف هنا: apiKey, authDomain, projectId إذا استخدمت Auth
             },
             whatsapp: "9647730492020"
         };
@@ -201,7 +200,6 @@
         // تهيئة Firebase
         firebase.initializeApp(APP_CONFIG.firebase);
         const db = firebase.database();
-        // const auth = firebase.auth(); // فعّل هذا إذا استخدمت Firebase Auth
 
         let allProducts = [];
         let allCats = {};
@@ -215,7 +213,7 @@
             setTimeout(() => toast.style.display = 'none', 3500);
         }
 
-        // 🔐 تسجيل الدخول (محاكاة - استبدل بـ Firebase Auth في الإنتاج)
+        // 🔐 تسجيل الدخول
         document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('adminEmail').value;
@@ -224,14 +222,11 @@
             const loader = document.getElementById('loginLoader');
             const error = document.getElementById('loginError');
             
-            // عرض التحميل
             btnText.classList.add('hidden');
             loader.classList.remove('hidden');
             error.classList.add('hidden');
             
-            // محاكاة تحقق (استبدل بـ auth.signInWithEmailAndPassword في الإنتاج)
             setTimeout(() => {
-                // ⚠️ للتجربة فقط: كلمة المرور "admin@akkad.com" / "akkad123"
                 if(email === 'admin@akkad.com' && pass === 'akkad123') {
                     localStorage.setItem('adminLoggedIn', 'true');
                     showAdminPanel();
@@ -245,7 +240,6 @@
             }, 1200);
         });
 
-        // التحقق من الجلسة
         function checkSession() {
             if(localStorage.getItem('adminLoggedIn') === 'true') {
                 showAdminPanel();
@@ -265,7 +259,6 @@
             }
         }
 
-        // 📊 تحديث الإحصائيات
         function updateStats() {
             document.getElementById('statProducts').innerText = allProducts.length;
             document.getElementById('statCats').innerText = Object.keys(allCats).length;
@@ -309,7 +302,6 @@
             select.innerHTML = '<option value="">اختر قسماً</option>';
             
             Object.entries(allCats).forEach(([key, name]) => {
-                // القائمة
                 list.innerHTML += `
                     <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
                         <span class="text-sm font-medium">${name}</span>
@@ -322,7 +314,6 @@
                             </button>
                         </div>
                     </div>`;
-                // القائمة المنسدلة
                 select.innerHTML += `<option value="${name}">${name}</option>`;
             });
             updateStats();
@@ -395,82 +386,4 @@
                         ${p.cat ? `<span class="text-[10px] text-gray-400">${p.cat}</span>` : ''}
                     </div>
                     <div class="flex gap-1.5">
-                        <button onclick="editProduct('${p.id}')" class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-100 transition">تعديل</button>
-                        <button onclick="deleteProduct('${p.id}')" class="bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition">حذف</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function searchAdminProducts() {
-            const term = document.getElementById('adminSearch').value.toLowerCase();
-            const filtered = term 
-                ? allProducts.filter(p => p.name.toLowerCase().includes(term) || p.cat?.toLowerCase().includes(term))
-                : allProducts;
-            renderAdminProducts(filtered);
-        }
-
-        function deleteProduct(id) {
-            if(confirm('⚠️ حذف هذا المنتج نهائياً؟')) {
-                db.ref('products').child(id).remove()
-                    .then(() => showToast('تم حذف المنتج'))
-                    .catch(err => showToast('خطأ: ' + err.message, 'error'));
-            }
-        }
-
-        function editProduct(id) {
-            const p = allProducts.find(x => x.id === id);
-            if(!p) return;
-            
-            document.getElementById('pId').value = p.id;
-            document.getElementById('pName').value = p.name;
-            document.getElementById('pPrice').value = p.price;
-            document.getElementById('pImg').value = p.img || '';
-            document.getElementById('pVideo').value = p.video || '';
-            document.getElementById('pDesc').value = p.desc || '';
-            document.getElementById('pCat').value = p.cat || '';
-            
-            document.getElementById('formTitle').innerText = 'تعديل المنتج';
-            document.getElementById('btnSave').innerHTML = '<i class="fas fa-sync-alt"></i> تحديث المنتج';
-            document.getElementById('btnSave').classList.replace('btn-primary', 'bg-blue-700');
-            
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            showToast('تم تحميل بيانات المنتج للتعديل');
-        }
-
-        function resetForm() {
-            document.getElementById('pId').value = '';
-            document.getElementById('pName').value = '';
-            document.getElementById('pPrice').value = '';
-            document.getElementById('pImg').value = '';
-            document.getElementById('pVideo').value = '';
-            document.getElementById('pDesc').value = '';
-            document.getElementById('pCat').value = '';
-            
-            document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
-            document.getElementById('btnSave').innerHTML = 'حفظ المنتج';
-            document.getElementById('btnSave').className = 'w-full btn-primary py-3 rounded-xl font-medium shadow-lg';
-        }
-
-        // 🚀 التهيئة عند التحميل
-        window.addEventListener('load', () => {
-            checkSession();
-            
-            // إغلاق النوافذ المنبثقة عند النقر خارجها
-            document.addEventListener('click', (e) => {
-                if(e.target.classList.contains('modal')) {
-                    e.target.style.display = 'none';
-                }
-            });
-        });
-
-        // ⌨️ دعم مفتاح Enter في الحقول
-        document.getElementById('newCat')?.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') saveCategory();
-        });
-        document.getElementById('pName')?.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') document.getElementById('pPrice').focus();
-        });
-    </script>
-</body>
-</html>
+                        <button onclick
