@@ -284,7 +284,7 @@
             }
         }
 
-        // ✅ إدارة المنتجات مع دعم الحقول المزدوجة
+        // ✅ إدارة المنتجات - تم تصحيح حفظ القسم
         function loadProducts() {
             if(!db) return;
             db.ref('products').on('value', snap => {
@@ -299,7 +299,6 @@
             const container = document.getElementById('adminProductsList'); if(!container) return;
             if(products.length === 0) { container.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">لا توجد منتجات</p>'; return; }
             container.innerHTML = products.map(p => {
-                // ✅ دعم كلا الحقلين للصورة
                 const imgUrl = (p.img || p.image || '').trim();
                 const hasValidImg = imgUrl && (imgUrl.startsWith('http') || imgUrl.startsWith('//') || imgUrl.startsWith('data:'));
                 const imgHtml = hasValidImg ? `
@@ -307,8 +306,8 @@
                         <img src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover hover:scale-110 transition" onerror="this.style.display='none'; this.parentElement.querySelector('.fallback').style.display='flex';">
                         <div class="fallback absolute inset-0 hidden flex items-center justify-center text-gray-400 bg-gray-50"><i class="fas fa-image text-lg"></i></div>
                     </div>` : `<div class="w-16 h-16 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"><i class="fas fa-image text-lg"></i></div>`;
-                // ✅ دعم كلا الحقلين للقسم
-                const catDisplay = allCats[p.cat] || allCats[p.category] || p.catName || 'غير مصنف';
+                // ✅ عرض اسم القسم بشكل صحيح
+                const catDisplay = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || 'غير مصنف';
                 return `<div class="product-item p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-blue-300 transition flex gap-3">
                     ${imgHtml}
                     <div class="flex-1 min-w-0">
@@ -331,8 +330,8 @@
             const p = allProducts.find(x => x.id === id); if(!p) return;
             document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name;
             document.getElementById('pPrice').value = p.price;
-            // ✅ دعم كلا الحقلين
-            document.getElementById('pCat').value = p.cat || p.category || '';
+            // ✅ دعم كلا الحقلين للقسم
+            document.getElementById('pCat').value = p.cat || p.category || p.catKey || '';
             document.getElementById('pImg').value = p.img || p.image || '';
             document.getElementById('pVideo').value = p.video || ''; document.getElementById('pDesc').value = p.description || '';
             document.getElementById('formTitle').innerText = 'تعديل المنتج'; document.getElementById('btnSave').innerHTML = '🔄 تحديث المنتج';
@@ -343,12 +342,24 @@
 
         function saveProduct() {
             const id = document.getElementById('pId').value, name = document.getElementById('pName').value.trim(), price = document.getElementById('pPrice').value.trim();
-            const catKey = document.getElementById('pCat').value, catName = allCats[catKey] || '';
+            const catKey = document.getElementById('pCat').value;
+            const catName = allCats[catKey] || catKey || ''; // ✅ الحصول على اسم القسم للعرض
             const img = document.getElementById('pImg').value.trim(), video = document.getElementById('pVideo').value.trim(), desc = document.getElementById('pDesc').value.trim();
             if(!name || !price || !catKey) { showToast('⚠️ أكمل الحقول المطلوبة', 'warning'); return; }
             const btn = document.getElementById('btnSave'), originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
-            // ✅ الحفظ بكلا الاسمين للتوافق
-            const product = { name, price, cat: catKey, category: catKey, catName: catName, img: img, image: img, video, description: desc, updatedAt: Date.now() };
+            
+            // ✅ ✅ ✅ التصحيح الرئيسي: حفظ اسم القسم في الحقول المستخدمة للفلترة
+            const product = { 
+                name, price, 
+                cat: catName,           // ← اسم القسم للفلترة في المتجر
+                category: catName,      // ← اسم القسم للفلترة في المتجر
+                catKey: catKey,         // ← المفتاح الأصلي كمرجع إضافي
+                catName: catName,       // ← اسم القسم للعرض
+                img: img, image: img, 
+                video, description: desc, 
+                updatedAt: Date.now() 
+            };
+            
             if(db) {
                 const ref = id ? db.ref('products').child(id) : db.ref('products').push();
                 ref.set(product).then(() => { showToast(id ? '✅ تم تحديث المنتج' : '✅ تم إضافة المنتج'); resetForm(); })
@@ -361,7 +372,10 @@
 
         function searchAdminProducts() {
             const term = document.getElementById('adminSearch').value.toLowerCase().trim();
-            const filtered = allProducts.filter(p => { const catName = allCats[p.cat] || allCats[p.category] || p.catName || ''; return p.name.toLowerCase().includes(term) || catName.toLowerCase().includes(term); });
+            const filtered = allProducts.filter(p => { 
+                const catName = p.catName || allCats[p.cat] || allCats[p.category] || p.cat || p.category || ''; 
+                return p.name.toLowerCase().includes(term) || catName.toLowerCase().includes(term); 
+            });
             renderProductsList(filtered);
         }
         function refreshProducts() { showToast('🔄 جاري التحديث...'); loadProducts(); }
