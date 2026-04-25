@@ -15,7 +15,6 @@
             --akkad-dark: #030508;
             --akkad-gold: #c9a961;
             --glass-bg: rgba(15, 26, 36, 0.55);
-            --glass-border: rgba(201, 169, 97, 0.25);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,7 +53,7 @@
         .akkad-card { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
-            border: 1px solid var(--glass-border); 
+            border: 1px solid rgba(201,169,97,0.2); 
             border-radius: 1.25rem;
             transition: all 0.3s;
         }
@@ -67,7 +66,6 @@
             background: linear-gradient(135deg, var(--akkad-gold), #8b6f47); 
             color: #0a0f18; 
             font-weight: 600; 
-            transition: all 0.3s;
         }
         .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,169,97,0.3); }
         
@@ -76,7 +74,6 @@
             color: var(--akkad-gold); 
             background: rgba(201,169,97,0.04); 
         }
-        .btn-outline-akkad:hover { background: rgba(201,169,97,0.12); }
 
         .modal { 
             display: none; 
@@ -89,7 +86,7 @@
         }
         .modal-content { 
             background: rgba(15,26,36,0.98); 
-            border: 1px solid var(--glass-border); 
+            border: 1px solid rgba(201,169,97,0.3); 
             border-radius: 1.5rem; 
             padding: 1.75rem; 
             max-width: 500px; width: 90%;
@@ -125,10 +122,8 @@
 <body>
     <div class="bg-gradient-custom"></div>
 
-    <!-- شريط الإشعارات -->
     <div id="toast" class="fixed top-5 left-5 z-50 px-4 py-2 rounded-lg hidden" style="background: #1a4d7a;"></div>
 
-    <!-- القائمة العلوية -->
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
@@ -140,7 +135,7 @@
                     </div>
                 </a>
                 <div class="flex gap-2">
-                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs" style="background: linear-gradient(135deg, #25D366, #128C7E);">
+                    <button onclick="shareStore()" class="px-3 py-2 rounded-xl flex items-center gap-2 text-xs" style="background: linear-gradient(135deg, #25D366, #128C7E);">
                         <i class="fas fa-share-nodes"></i>
                         <span class="hidden sm:inline">مشاركة</span>
                     </button>
@@ -159,40 +154,35 @@
         </div>
     </nav>
 
-    <!-- المحتوى الرئيسي -->
     <main class="container mx-auto px-4 py-10">
         <div class="text-center mb-10">
             <h2 class="text-2xl md:text-3xl font-bold mb-3">✨ كنوز أكاد الرقمية ✨</h2>
             <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار</p>
         </div>
         
-        <!-- شاشة التحميل -->
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
-            <p class="text-gray-400 mt-5">جاري تحميل المنتجات...</p>
+            <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
+            <p id="loadingStatus" class="text-gray-500 text-xs mt-2"></p>
         </div>
         
-        <!-- رسالة الخطأ -->
         <div id="error-message" class="hidden text-center py-20">
             <div class="text-6xl mb-4">⚠️</div>
-            <h3 class="text-xl font-bold text-red-400 mb-2">حدث خطأ في الاتصال</h3>
-            <p class="text-gray-400 mb-4">سيتم عرض منتجات تجريبية بدلاً من ذلك</p>
-            <button onclick="loadDemoProducts()" class="btn-akkad px-6 py-2 rounded-xl">
-                <i class="fas fa-box-open ml-2"></i>عرض المنتجات التجريبية
+            <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
+            <p id="errorDetail" class="text-gray-400 mb-4"></p>
+            <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
+                <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
             </button>
         </div>
         
-        <!-- شبكة المنتجات -->
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
         
-        <!-- لا توجد نتائج -->
         <div id="no-results" class="hidden text-center py-20">
             <p class="text-gray-400 text-lg">🔍 لا توجد منتجات مطابقة للبحث</p>
             <button onclick="resetSearch()" class="btn-outline-akkad px-6 py-2 rounded-xl mt-4">عرض الكل</button>
         </div>
     </main>
 
-    <!-- نافذة التفاصيل -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
@@ -211,26 +201,7 @@
 
     <script>
         // ========================================
-        // بيانات تجريبية (في حال فشل Firebase)
-        // ========================================
-        const DEMO_PRODUCTS = [
-            { id: "demo1", name: "هاتف ذكي - ايفون 14 برو", price: 850000, category: "هواتف", description: "هاتف ايفون 14 برو بحالة ممتازة، ضمان شهر، شحن سريع", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=iPhone" },
-            { id: "demo2", name: "سامسونج جالاكسي S23 Ultra", price: 750000, category: "هواتف", description: "سامسونج جالاكسي S23 الترا، ذاكرة 256 جيجا", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=Samsung" },
-            { id: "demo3", name: "لابتوب HP Pavilion", price: 550000, category: "لابتوب", description: "لابتوب HP معالج i5 رام 8 جيجا هارد 512 SSD", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=HP" },
-            { id: "demo4", name: "ماوس لاسلكي", price: 25000, category: "اكسسوارات", description: "ماوس لاسلكي بتصميم مريح", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=Mouse" },
-            { id: "demo5", name: "سماعات بلوتوث", price: 45000, category: "اكسسوارات", description: "سماعات لاسلكية عالية الجودة", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=Headphones" },
-            { id: "demo6", name: "شاحن سريع 65W", price: 35000, category: "اكسسوارات", description: "شاحن سريع بقدرة 65 واط", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=Charger" },
-            { id: "demo7", name: "تابلت ايباد", price: 400000, category: "تابلت", description: "ايباد الجيل التاسع بحالة ممتازة", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=iPad" },
-            { id: "demo8", name: "ساعة ذكية", price: 120000, category: "ساعات", description: "ساعة ذكية بمقاييس صحية", img: "https://via.placeholder.com/300/1a4d7a/c9a961?text=Watch" }
-        ];
-
-        let allProducts = [];
-        let activeCategory = "الكل";
-        let productsCache = {};
-        let useDemo = false;
-
-        // ========================================
-        // تهيئة Firebase
+        // إعدادات Firebase (تم التحقق من صحتها)
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
@@ -242,20 +213,40 @@
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
+        // ========================================
+        // تهيئة Firebase مع معالجة الأخطاء
+        // ========================================
         let database = null;
-        try {
-            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
-                firebase.initializeApp(firebaseConfig);
+        let connectionAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        
+        function initFirebase() {
+            try {
+                // التحقق من وجود Firebase SDK
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK لم يتم تحميله');
+                }
+                
+                // محاولة التهيئة
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 database = firebase.database();
-                console.log("Firebase initialized successfully");
-            } else {
-                console.warn("Firebase SDK not loaded");
-                useDemo = true;
+                console.log('✅ Firebase initialized successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase init error:', error);
+                document.getElementById('errorDetail').innerHTML = `خطأ: ${error.message}`;
+                return false;
             }
-        } catch(e) {
-            console.error("Firebase init error:", e);
-            useDemo = true;
         }
+
+        // ========================================
+        // المتغيرات العامة
+        // ========================================
+        let allProducts = [];
+        let activeCategory = "الكل";
+        let productsCache = {};
 
         // ========================================
         // عرض الإشعارات
@@ -273,7 +264,7 @@
         // ========================================
         function shareStore() {
             const url = window.location.href;
-            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي - أحدث الأجهزة بأفضل الأسعار\n' + url)}`, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
         }
 
         // ========================================
@@ -301,13 +292,13 @@
         }
 
         // ========================================
-        // عرض المنتجات في الشبكة
+        // عرض المنتجات
         // ========================================
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
+            const noResults = document.getElementById('no-results');
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
-            const noResults = document.getElementById('no-results');
             
             if (!products || products.length === 0) {
                 grid.classList.add('hidden');
@@ -330,7 +321,7 @@
                              onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
                     </div>
                     <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-2 mb-2">${product.name}</h3>
+                        <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
                         <div class="flex justify-between items-center">
                             <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
                             <button onclick="event.stopPropagation(); showDetails('${product.id}')" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">تفاصيل</button>
@@ -338,6 +329,16 @@
                     </div>
                 </div>
             `).join('');
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
 
         // ========================================
@@ -353,7 +354,7 @@
             
             if (searchTerm) {
                 filtered = filtered.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.name && p.name.toLowerCase().includes(searchTerm)) || 
                     (p.description && p.description.toLowerCase().includes(searchTerm))
                 );
             }
@@ -384,27 +385,21 @@
             const categories = ["الكل", ...new Set(allProducts.map(p => p.category).filter(Boolean))];
             
             container.innerHTML = categories.map(cat => `
-                <button onclick="filterByCategory('${cat}')" 
+                <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
                         class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition
                                ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50'}"
                         style="font-size:13px">
-                    ${cat === "الكل" ? "🌟 الكل" : cat}
+                    ${cat === "الكل" ? "🌟 الكل" : escapeHtml(cat)}
                 </button>
             `).join('');
         }
 
         // ========================================
-        // تحميل المنتجات التجريبية
+        // إعادة محاولة الاتصال
         // ========================================
-        function loadDemoProducts() {
-            useDemo = true;
-            allProducts = [...DEMO_PRODUCTS];
-            productsCache = {};
-            allProducts.forEach(p => { productsCache[p.id] = p; });
-            
-            renderCategories();
-            filterProducts();
-            showToast("تم عرض منتجات تجريبية", false);
+        function retryConnection() {
+            connectionAttempts = 0;
+            loadProducts();
         }
 
         // ========================================
@@ -413,23 +408,48 @@
         function loadProducts() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
+            const loadingStatus = document.getElementById('loadingStatus');
             
-            // إذا كنا نستخدم العرض التجريبي
-            if (useDemo) {
-                loadDemoProducts();
-                return;
-            }
+            loading.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+            connectionAttempts++;
             
-            // إذا لم توجد قاعدة بيانات
+            loadingStatus.innerHTML = `محاولة الاتصال ${connectionAttempts}/${MAX_ATTEMPTS}...`;
+            
+            // تهيئة Firebase إذا لزم الأمر
             if (!database) {
-                loading.classList.add('hidden');
-                errorMsg.classList.remove('hidden');
-                showToast("لا يمكن الاتصال بقاعدة البيانات، استخدم المنتجات التجريبية", true);
-                return;
+                if (!initFirebase()) {
+                    if (connectionAttempts >= MAX_ATTEMPTS) {
+                        loading.classList.add('hidden');
+                        errorMsg.classList.remove('hidden');
+                        document.getElementById('errorDetail').innerHTML = 'تعذر تهيئة Firebase بعد عدة محاولات';
+                    } else {
+                        setTimeout(loadProducts, 2000);
+                    }
+                    return;
+                }
             }
             
-            // محاولة جلب البيانات من Firebase
-            database.ref('products').once('value', 10) // Timeout 10 seconds
+            // اختبار الاتصال أولاً
+            const connectedRef = database.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    console.log('🟢 متصل بقاعدة البيانات');
+                    loadingStatus.innerHTML = 'متصل، جاري تحميل المنتجات...';
+                } else {
+                    console.log('🔴 غير متصل بقاعدة البيانات');
+                    loadingStatus.innerHTML = 'في انتظار الاتصال...';
+                }
+            });
+            
+            // جلب المنتجات مع timeout
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('انتهى وقت الاتصال (10 ثواني)')), 10000);
+            });
+            
+            const productsPromise = database.ref('products').once('value');
+            
+            Promise.race([productsPromise, timeoutPromise])
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         const products = snapshot.val();
@@ -439,23 +459,32 @@
                         }));
                         
                         if (allProducts.length === 0) {
-                            loadDemoProducts();
+                            showToast("لا توجد منتجات في قاعدة البيانات", true);
                         } else {
                             productsCache = {};
                             allProducts.forEach(p => { productsCache[p.id] = p; });
                             renderCategories();
                             filterProducts();
-                            showToast(`تم تحميل ${allProducts.length} منتج`);
+                            showToast(`✅ تم تحميل ${allProducts.length} منتج`);
                         }
                     } else {
-                        loadDemoProducts();
+                        allProducts = [];
+                        renderCategories();
+                        filterProducts();
+                        showToast("قاعدة البيانات فارغة، أضف منتجات من لوحة التحكم", true);
                     }
                 })
                 .catch(error => {
                     console.error("Firebase error:", error);
-                    loading.classList.add('hidden');
-                    errorMsg.classList.remove('hidden');
-                    showToast("فشل الاتصال، استخدم المنتجات التجريبية", true);
+                    
+                    if (connectionAttempts >= MAX_ATTEMPTS) {
+                        loading.classList.add('hidden');
+                        errorMsg.classList.remove('hidden');
+                        document.getElementById('errorDetail').innerHTML = error.message || 'فشل الاتصال بقاعدة البيانات';
+                    } else {
+                        loadingStatus.innerHTML = `فشل الاتصال، إعادة المحاولة بعد ثانيتين...`;
+                        setTimeout(loadProducts, 2000);
+                    }
                 });
         }
 
@@ -463,7 +492,7 @@
         // بدء التشغيل
         // ========================================
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(loadProducts, 500);
+            loadProducts();
         });
     </script>
 </body>
