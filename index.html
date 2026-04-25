@@ -678,4 +678,127 @@
 
         // ========================================
         // تصفية حسب القسم
-        //
+        // ========================================
+        function filterByCategory(categoryName) {
+            activeCategory = categoryName;
+            renderCategories();
+            filterProducts();
+        }
+
+        // ========================================
+        // عرض الأقسام في شريط التنقل
+        // ========================================
+        function renderCategories() {
+            const container = document.getElementById('categories-nav');
+            
+            let categoriesList = ["الكل"];
+            if (categoriesOrder.length > 0) {
+                categoriesOrder.forEach(key => {
+                    if (typeof key === 'string' && key.trim()) {
+                        categoriesList.push(key);
+                    }
+                });
+            } else {
+                const uniqueCats = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+                categoriesList.push(...uniqueCats);
+            }
+            
+            container.innerHTML = categoriesList.map(cat => `
+                <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
+                        class="px-4 py-1.5 rounded-full border transition-all duration-200 whitespace-nowrap text-sm
+                               ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50 hover:bg-white/5'}">
+                    ${cat === "الكل" ? "🌟 جميع المنتجات" : cat}
+                </button>
+            `).join('');
+        }
+
+        // ========================================
+        // تحديث شريط الأخبار (Ticker)
+        // ========================================
+        function updateTicker() {
+            const ticker = document.getElementById('product-ticker');
+            if (allProducts.length === 0) {
+                ticker.innerHTML = '<span class="ticker-item"><i class="fas fa-store"></i> مرحباً بك في متجر أكاد - كنوز بلاد الرافدين الرقمية</span>';
+                return;
+            }
+            
+            const productsList = allProducts.slice(0, 15);
+            const tickerHTML = productsList.map(p => `
+                <span class="ticker-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    ${p.name} - ${(p.price || 0).toLocaleString()} د.ع
+                    <i class="fas fa-star text-[10px]"></i>
+                </span>
+            `).join('');
+            
+            const repeatedHTML = tickerHTML + tickerHTML;
+            ticker.innerHTML = repeatedHTML;
+        }
+
+        // ========================================
+        // تحميل المنتجات من Firebase
+        // ========================================
+        function loadProducts() {
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('error-message');
+            
+            loading.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+            
+            // قراءة ترتيب الأقسام
+            database.ref('categoryOrder').once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    categoriesOrder = snapshot.val();
+                }
+            }).catch(err => console.warn("لا يوجد ترتيب للأقسام", err));
+            
+            // قراءة المنتجات
+            database.ref('products').once('value').then(snapshot => {
+                loading.classList.add('hidden');
+                
+                if (snapshot.exists()) {
+                    const products = snapshot.val();
+                    allProducts = Object.keys(products).map(key => ({
+                        id: key,
+                        ...products[key]
+                    }));
+                    
+                    productsCache = {};
+                    allProducts.forEach(p => { productsCache[p.id] = p; });
+                    
+                    renderCategories();
+                    updateTicker();
+                    filterProducts();
+                } else {
+                    allProducts = [];
+                    displayProducts([]);
+                }
+            }).catch(error => {
+                console.error("خطأ في تحميل المنتجات:", error);
+                loading.classList.add('hidden');
+                errorMsg.classList.remove('hidden');
+                showToast("فشل تحميل المنتجات: " + error.message, "error");
+            });
+        }
+
+        // ========================================
+        // تأثير التمرير على الشريط العلوي
+        // ========================================
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.akkad-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ========================================
+        // عند تحميل الصفحة
+        // ========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
