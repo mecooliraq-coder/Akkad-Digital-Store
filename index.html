@@ -1,17 +1,6 @@
 
-# Let's create a debug version that shows exactly what's happening
-import json
-
-# First, let's check what the actual error might be
-# The issue could be:
-# 1. No data in database
-# 2. Wrong database path
-# 3. CORS issues
-# 4. The code hangs somewhere
-
-# Let's create an improved version with better error handling and loading timeout
-
-improved_html = '''<!DOCTYPE html>
+# Create the COMPLETE fixed HTML with full debug capabilities
+fixed_html = '''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -297,7 +286,6 @@ improved_html = '''<!DOCTYPE html>
             box-shadow: 0 0 10px rgba(201,169,97,0.5);
         }
 
-        /* ====== حاوية الوسائط مع زر الفيديو ====== */
         .product-media-container {
             position: relative;
             overflow: hidden;
@@ -315,7 +303,6 @@ improved_html = '''<!DOCTYPE html>
             transform: scale(1.08);
         }
 
-        /* زر تشغيل الفيديو الكبير داخل الصورة */
         .video-play-btn {
             position: absolute;
             top: 50%;
@@ -358,7 +345,6 @@ improved_html = '''<!DOCTYPE html>
             margin-right: -2px;
         }
 
-        /* شريط فيديو صغير في الأعلى - يظهر دائماً */
         .video-badge-bar {
             position: absolute;
             top: 10px;
@@ -376,7 +362,6 @@ improved_html = '''<!DOCTYPE html>
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        /* overlay داكن عند hover */
         .media-overlay {
             position: absolute;
             inset: 0;
@@ -389,7 +374,6 @@ improved_html = '''<!DOCTYPE html>
             background: rgba(0,0,0,0.25);
         }
 
-        /* تأثير الظهور */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -403,7 +387,6 @@ improved_html = '''<!DOCTYPE html>
             font-family: 'Amiri', serif;
         }
 
-        /* نافذة مشاهدة فيديو يوتيوب */
         .video-modal {
             display: none;
             position: fixed;
@@ -449,19 +432,25 @@ improved_html = '''<!DOCTYPE html>
             transform: scale(1.2);
         }
 
-        /* Debug info */
-        .debug-info {
+        /* Debug Panel */
+        .debug-panel {
             background: rgba(220, 38, 38, 0.1);
             border: 1px solid rgba(220, 38, 38, 0.3);
             border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
+            padding: 12px;
+            margin-top: 15px;
             font-size: 12px;
             color: #f87171;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             direction: ltr;
             text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
         }
+        
+        .debug-panel .success { color: #4ade80; }
+        .debug-panel .error { color: #f87171; }
+        .debug-panel .info { color: #60a5fa; }
     </style>
 </head>
 <body>
@@ -508,15 +497,15 @@ improved_html = '''<!DOCTYPE html>
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
             <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
-            <p id="loadingStatus" class="text-gray-500 text-xs mt-2"></p>
-            <div id="debugInfo" class="debug-info hidden"></div>
+            <p id="loadingStatus" class="text-gray-500 text-xs mt-2">جاري التهيئة...</p>
+            <div id="debugInfo" class="debug-panel hidden"></div>
         </div>
         
         <div id="error-message" class="hidden text-center py-20">
             <div class="text-6xl mb-4">⚠️</div>
             <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
             <p id="errorDetail" class="text-gray-400 mb-4"></p>
-            <div id="errorDebug" class="debug-info" style="margin-bottom: 15px;"></div>
+            <div id="errorDebug" class="debug-panel" style="margin-bottom: 15px;"></div>
             <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
                 <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
             </button>
@@ -591,6 +580,32 @@ improved_html = '''<!DOCTYPE html>
     </div>
 
     <script>
+        // ====== Debug Logger ======
+        const debugLogs = [];
+        function log(type, message, data) {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `[${timestamp}] [${type}] ${message}`;
+            debugLogs.push(entry);
+            console.log(entry, data || '');
+            updateDebugPanel();
+        }
+        
+        function updateDebugPanel() {
+            const panel = document.getElementById('debugInfo');
+            if (panel && !panel.classList.contains('hidden')) {
+                panel.innerHTML = debugLogs.slice(-10).map(line => {
+                    if (line.includes('[ERROR]')) return `<div class="error">${line}</div>`;
+                    if (line.includes('[SUCCESS]')) return `<div class="success">${line}</div>`;
+                    return `<div class="info">${line}</div>`;
+                }).join('');
+            }
+        }
+        
+        function showDebug() {
+            const panel = document.getElementById('debugInfo');
+            if (panel) panel.classList.remove('hidden');
+        }
+
         // ====== Firebase Config ======
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
@@ -602,15 +617,17 @@ improved_html = '''<!DOCTYPE html>
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        // Initialize Firebase with error handling
+        // Initialize Firebase
         let db;
+        let firebaseApp;
         try {
-            firebase.initializeApp(firebaseConfig);
+            log('INFO', 'Initializing Firebase...');
+            firebaseApp = firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-            console.log("✅ Firebase initialized successfully");
+            log('SUCCESS', 'Firebase initialized successfully');
         } catch (e) {
-            console.error("❌ Firebase init error:", e);
-            showLoadingError("فشل تهيئة Firebase: " + e.message);
+            log('ERROR', 'Firebase init failed: ' + e.message);
+            showLoadingError("فشل تهيئة Firebase", e.message);
         }
 
         // ====== State ======
@@ -622,6 +639,7 @@ improved_html = '''<!DOCTYPE html>
         let currentProductForOrder = null;
         const STORE_WHATSAPP = "9647730492020";
         let loadTimeout;
+        let isLoading = false;
 
         // ====== Toast ======
         function showToast(message, isError = false) {
@@ -645,13 +663,14 @@ improved_html = '''<!DOCTYPE html>
             loading.classList.add('hidden');
             errorMsg.classList.remove('hidden');
             errorDetail.textContent = message;
-            errorDebug.textContent = debug || "No additional debug info";
+            errorDebug.innerHTML = debug ? `<div class="error">${debug}</div>` : '';
             
-            console.error("Loading Error:", message, debug);
+            log('ERROR', 'Loading Error: ' + message, debug);
         }
 
         function updateLoadingStatus(text) {
-            document.getElementById('loadingStatus').textContent = text;
+            const el = document.getElementById('loadingStatus');
+            if (el) el.textContent = text;
         }
 
         // ====== Share ======
@@ -921,94 +940,133 @@ improved_html = '''<!DOCTYPE html>
 
         // ====== Retry ======
         function retryConnection() { 
+            log('INFO', 'Retrying connection...');
             loadData(); 
         }
 
-        // ====== Load Data with Timeout ======
+        // ====== Load Data with Timeout & Debug ======
         function loadData() {
+            if (isLoading) {
+                log('WARN', 'Load already in progress, skipping');
+                return;
+            }
+            
+            isLoading = true;
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
-            const loadingStatus = document.getElementById('loadingStatus');
             const debugInfo = document.getElementById('debugInfo');
             
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
-            debugInfo.classList.add('hidden');
+            showDebug();
             
-            // Set timeout to prevent infinite loading
+            // Timeout to prevent infinite loading
             if (loadTimeout) clearTimeout(loadTimeout);
             loadTimeout = setTimeout(() => {
+                isLoading = false;
                 showLoadingError(
-                    "انتهى وقت الانتظار. قد تكون قواعد Firebase تحظر الوصول أو لا توجد بيانات.",
-                    "Timeout after 10s. Check: 1) Firebase Rules 2) Internet connection 3) Database has data"
+                    "انتهى وقت الانتظار (10 ثوانٍ).",
+                    "POSSIBLE CAUSES:\n1. Firebase Rules block read access\n2. No internet connection\n3. Database is empty\n4. Wrong database URL"
                 );
+                log('ERROR', 'Load timeout after 10s');
             }, 10000);
 
             updateLoadingStatus('جاري تحميل الأقسام...');
+            log('INFO', 'Loading categories...');
             
             db.ref('categories').once('value')
                 .then(snapshot => {
                     categoriesMap = snapshot.val() || {};
+                    log('SUCCESS', `Categories loaded: ${Object.keys(categoriesMap).length} categories`);
                     updateLoadingStatus('جاري تحميل ترتيب الأقسام...');
                     return db.ref('categoryOrder').once('value');
                 })
                 .then(snapshot => {
                     categoryOrder = snapshot.val() || [];
+                    log('SUCCESS', `CategoryOrder loaded: ${categoryOrder.length} items`);
                     updateLoadingStatus('جاري تحميل المنتجات...');
                     return db.ref('products').once('value');
                 })
                 .then(snapshot => {
                     clearTimeout(loadTimeout);
+                    isLoading = false;
+                    
                     const products = snapshot.val() || {};
-                    allProducts = Object.keys(products).map(key => ({ id: key, ...products[key] }));
+                    const productKeys = Object.keys(products);
+                    log('SUCCESS', `Products loaded: ${productKeys.length} products`);
+                    
+                    if (productKeys.length === 0) {
+                        log('WARN', 'No products found in database');
+                        showLoadingError(
+                            "لا توجد منتجات في قاعدة البيانات.",
+                            "Database path 'products' is empty.\\nAdd products via Firebase Console."
+                        );
+                        return;
+                    }
+                    
+                    allProducts = productKeys.map(key => ({ id: key, ...products[key] }));
                     productsCache = {};
                     allProducts.forEach(p => { productsCache[p.id] = p; });
+                    
                     renderCategories();
                     filterProducts();
                     showToast(`✅ تم تحميل ${allProducts.length} منتج`);
                 })
                 .catch(error => {
                     clearTimeout(loadTimeout);
-                    console.error("Firebase Error:", error);
-                    let errorMsg = error.message;
-                    let debug = `Code: ${error.code || 'N/A'}\\n`;
+                    isLoading = false;
+                    
+                    log('ERROR', 'Firebase Error: ' + error.code + ' - ' + error.message);
+                    
+                    let userMsg = "فشل الاتصال بقاعدة البيانات.";
+                    let debugMsg = `Error Code: ${error.code || 'N/A'}\\nMessage: ${error.message}`;
                     
                     if (error.code === 'PERMISSION_DENIED') {
-                        errorMsg = "تم رفض الوصول. قواعد Firebase تحظر القراءة.";
-                        debug += "SOLUTION: Update Firebase Rules to allow .read on products/categories/categoryOrder";
-                    } else if (error.code === 'NETWORK_ERROR') {
-                        errorMsg = "مشكلة في الاتصال بالإنترنت.";
-                        debug += "SOLUTION: Check internet connection";
+                        userMsg = "تم رفض الوصول! قواعد Firebase تحظر القراءة.";
+                        debugMsg += "\\n\\nSOLUTION: Go to Firebase Console → Database → Rules and paste:\\n" +
+                                   '{\\n  \"rules\": {\\n    \".read\": false,\\n    \".write\": false,\\n    \"products\": { \".read\": true },\\n    \"categories\": { \".read\": true },\\n    \"categoryOrder\": { \".read\": true }\\n  }\\n}';
+                    } else if (error.code === 'NETWORK_ERROR' || error.message.includes('network')) {
+                        userMsg = "مشكلة في الاتصال بالإنترنت.";
+                        debugMsg += "\\n\\nSOLUTION: Check your internet connection.";
                     } else if (error.code === 'DISCONNECTED') {
-                        errorMsg = "انقطع الاتصال بقاعدة البيانات.";
-                        debug += "SOLUTION: Check Firebase project status";
+                        userMsg = "انقطع الاتصال بقاعدة البيانات.";
+                        debugMsg += "\\n\\nSOLUTION: Check Firebase project status.";
+                    } else if (error.message.includes('app/duplicate-app')) {
+                        userMsg = "تم تهيئة Firebase مسبقاً.";
+                        debugMsg += "\\n\\nSOLUTION: Refresh the page.";
                     }
                     
-                    showLoadingError(errorMsg, debug);
-                    showToast("❌ " + errorMsg, true);
+                    showLoadingError(userMsg, debugMsg);
+                    showToast("❌ " + userMsg, true);
                 });
         }
 
         // ====== Start ======
         if (db) {
+            log('INFO', 'Starting data load...');
             loadData();
         } else {
-            showLoadingError("Firebase لم يتم تهيئته بشكل صحيح.");
+            log('ERROR', 'Database not initialized');
+            showLoadingError(
+                "Firebase لم يتم تهيئته بشكل صحيح.",
+                "Check console for initialization errors."
+            );
         }
     </script>
 </body>
 </html>'''
 
-with open('/mnt/agents/output/akkad_store_FIXED.html', 'w', encoding='utf-8') as f:
-    f.write(improved_html)
+with open('/mnt/agents/output/akkad_store_DEBUG.html', 'w', encoding='utf-8') as f:
+    f.write(fixed_html)
 
-print("✅ تم إنشاء النسخة المُصلحة!")
-print(f"📄 الحجم: {len(improved_html):,} حرف")
+print("✅ تم إنشاء النسخة الكاملة مع Debug!")
+print(f"📄 الحجم: {len(fixed_html):,} حرف")
 print("\n" + "="*60)
-print("🔧 التحسينات:")
-print("1. معالجة أخطاء Firebase محسّنة")
-print("2. مؤقت 10 ثوانٍ لمنع التحميل اللانهائي")
-print("3. رسائل خطأ واضحة بالعربية")
-print("4. معلومات Debug تفصيلية")
-print("5. التحقق من تهيئة Firebase قبل التحميل")
+print("🔧 المميزات الجديدة:")
+print("1. لوحة Debug تفاعلية تظهر أثناء التحميل")
+print("2. مؤقت 10 ثوانٍ يوقف التحميل اللانهائي")
+print("3. رسائل خطأ مفصلة بالعربية + English debug")
+print("4. كشف PERMISSION_DENIED وإرشادات الإصلاح")
+print("5. كشف قاعدة البيانات الفارغة")
+print("6. منع التحميل المتكرر (isLoading flag)")
 print("="*60)
