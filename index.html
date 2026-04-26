@@ -201,7 +201,7 @@
 
     <script>
         // ========================================
-        // إعدادات Firebase
+        // إعدادات Firebase (تم التحقق من صحتها)
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
@@ -213,16 +213,38 @@
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // ========================================
+        // تهيئة Firebase
+        // ========================================
+        let database = null;
+        let connectionAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        
+        function initFirebase() {
+            try {
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK لم يتم تحميله');
+                }
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                console.log('✅ Firebase initialized');
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase init error:', error);
+                document.getElementById('errorDetail').innerHTML = `خطأ: ${error.message}`;
+                return false;
+            }
+        }
 
         // ========================================
         // المتغيرات العامة
         // ========================================
         let allProducts = [];
-        let categoryOrder = [];      // 👈 هذا هو المفتاح لحل المشكلة
         let activeCategory = "الكل";
         let productsCache = {};
+        let categoryOrder = [];  // 👈 هذا هو المتغير الجديد لحفظ ترتيب الأقسام
 
         // ========================================
         // عرض الإشعارات
@@ -354,7 +376,7 @@
         }
 
         // ========================================
-        // عرض الأقسام - مع الترتيب من لوحة التحكم
+        // عرض الأقسام - المعدل ليدعم الترتيب من لوحة التحكم
         // ========================================
         function renderCategories() {
             const container = document.getElementById('categories-nav');
@@ -362,10 +384,10 @@
             // الحصول على الأقسام الفريدة من المنتجات
             const uniqueCategories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
             
-            // ترتيب الأقسام حسب categoryOrder من Firebase (من لوحة التحكم)
+            // ترتيب الأقسام حسب categoryOrder من Firebase
             let sortedCategories = [];
             
-            // أولاً: الأقسام التي لها ترتيب محفوظ
+            // إضافة الأقسام حسب الترتيب المحفوظ
             if (categoryOrder && categoryOrder.length > 0) {
                 categoryOrder.forEach(catKey => {
                     if (uniqueCategories.includes(catKey) && !sortedCategories.includes(catKey)) {
@@ -374,7 +396,7 @@
                 });
             }
             
-            // ثانياً: إضافة الأقسام الجديدة التي ليس لها ترتيب
+            // إضافة الأقسام المتبقية
             uniqueCategories.forEach(cat => {
                 if (!sortedCategories.includes(cat)) {
                     sortedCategories.push(cat);
@@ -397,6 +419,7 @@
         // إعادة محاولة الاتصال
         // ========================================
         function retryConnection() {
+            connectionAttempts = 0;
             loadProducts();
         }
 
@@ -410,46 +433,63 @@
             
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
+            connectionAttempts++;
             
-            loadingStatus.innerHTML = 'جاري تحميل المنتجات...';
+            loadingStatus.innerHTML = `محاولة الاتصال ${connectionAttempts}/${MAX_ATTEMPTS}...`;
             
-            // جلب المنتجات أولاً
-            db.ref('products').once('value').then(snapshot => {
-                if (snapshot.exists()) {
-                    const products = snapshot.val();
-                    allProducts = Object.keys(products).map(key => ({
-                        id: key,
-                        ...products[key]
-                    }));
-                    
-                    productsCache = {};
-                    allProducts.forEach(p => { productsCache[p.id] = p; });
-                    
-                    // ثم جلب ترتيب الأقسام (هذا هو المهم!)
-                    return db.ref('categoryOrder').once('value');
-                } else {
-                    allProducts = [];
-                    productsCache = {};
-                    return Promise.resolve(null);
+            if (!database) {
+                if (!initFirebase()) {
+                    if (connectionAttempts >= MAX_ATTEMPTS) {
+                        loading.classList.add('hidden');
+                        errorMsg.classList.remove('hidden');
+                        document.getElementById('errorDetail').innerHTML = 'تعذر تهيئة Firebase بعد عدة محاولات';
+                    } else {
+                        setTimeout(loadProducts, 2000);
+                    }
+                    return;
                 }
-            }).then(catSnapshot => {
-                if (catSnapshot) {
-                    categoryOrder = catSnapshot.val() || [];
-                    console.log("✅ ترتيب الأقسام من لوحة التحكم:", categoryOrder);
-                }
-                renderCategories();
-                filterProducts();
-                showToast(`✅ تم تحميل ${allProducts.length} منتج`);
-            }).catch(error => {
-                console.error("خطأ:", error);
-                loading.classList.add('hidden');
-                errorMsg.classList.remove('hidden');
-                document.getElementById('errorDetail').innerHTML = error.message;
-                showToast("❌ فشل تحميل البيانات", true);
-            });
+            }
+            
+            // جلب المنتجات وترتيب الأقسام معاً
+            const productsPromise = database.ref('products').once('value');
+            const categoryOrderPromise = database.ref('categoryOrder').once('value');
+            
+            Promise.all([productsPromise, categoryOrderPromise])
+                .then(([productsSnapshot, catOrderSnapshot]) => {
+                    if (productsSnapshot.exists()) {
+                        const products = productsSnapshot.val();
+                        allProducts = Object.keys(products).map(key => ({
+                            id: key,
+                            ...products[key]
+                        }));
+                        productsCache = {};
+                        allProducts.forEach(p => { productsCache[p.id] = p; });
+                        
+                        // حفظ ترتيب الأقسام من Firebase
+                        categoryOrder = catOrderSnapshot.val() || [];
+                        console.log("📦 ترتيب الأقسام من لوحة التحكم:", categoryOrder);
+                        
+                        renderCategories();
+                        filterProducts();
+                        showToast(`✅ تم تحميل ${allProducts.length} منتج`);
+                    } else {
+                        allProducts = [];
+                        renderCategories();
+                        displayProducts([]);
+                        showToast("لا توجد منتجات حالياً", true);
+                    }
+                })
+                .catch(error => {
+                    console.error("خطأ في التحميل:", error);
+                    loading.classList.add('hidden');
+                    errorMsg.classList.remove('hidden');
+                    document.getElementById('errorDetail').innerHTML = error.message;
+                    showToast("فشل تحميل المنتجات", true);
+                });
         }
 
         // بدء التحميل
+        initFirebase();
         loadProducts();
     </script>
 </body>
