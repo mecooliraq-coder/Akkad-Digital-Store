@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+html_content = '''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -12,9 +13,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
         
         :root {
-            --akkad-dark: #030508;
+            --akkad-dark: #0c0a06;
+            --akkad-deep: #1a1510;
             --akkad-gold: #c9a961;
-            --glass-bg: rgba(15, 26, 36, 0.55);
+            --akkad-gold-light: #e8d5a3;
+            --akkad-bronze: #8b6f47;
+            --akkad-clay: #8b4513;
+            --akkad-stone: #7a7268;
+            --glass-bg: rgba(26, 21, 16, 0.65);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,94 +28,214 @@
         body { 
             font-family: 'Tajawal', sans-serif; 
             background: var(--akkad-dark); 
-            color: #fff; 
+            color: #e8e0d0; 
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        /* خلفية مستوحاة من جدران الطوب المسماري */
         .bg-gradient-custom {
             position: fixed; inset: 0; z-index: -2;
-            background: radial-gradient(circle at 20% 30%, rgba(201,169,97,0.1) 0%, transparent 60%),
-                        linear-gradient(165deg, #030508 0%, #0a1018 50%, #0f1a24 100%);
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(201,169,97,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(139,69,19,0.06) 0%, transparent 50%),
+                linear-gradient(165deg, #0c0a06 0%, #1a1510 50%, #2a2018 100%);
         }
 
+        /* نمط الطوب المسماري */
+        .cuneiform-pattern {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(201,169,97,0.3) 40px,
+                    rgba(201,169,97,0.3) 42px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 20px,
+                    rgba(201,169,97,0.2) 20px,
+                    rgba(201,169,97,0.2) 21px
+                );
+            pointer-events: none;
+        }
+
+        /* زخرفة إطار سومرية */
+        .sumerian-border {
+            position: relative;
+        }
+        .sumerian-border::before,
+        .sumerian-border::after {
+            content: '𒀭𒁀𒌑𒊏';
+            position: absolute;
+            font-size: 10px;
+            color: var(--akkad-gold);
+            opacity: 0.3;
+            letter-spacing: 8px;
+        }
+        .sumerian-border::before { top: -15px; left: 50%; transform: translateX(-50%); }
+        .sumerian-border::after { bottom: -15px; left: 50%; transform: translateX(-50%); }
+
         .akkad-nav {
-            background: rgba(3,5,8,0.7); 
+            background: rgba(12,10,6,0.85); 
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(201,169,97,0.15);
+            border-bottom: 2px solid var(--akkad-gold);
+            border-image: linear-gradient(90deg, transparent, var(--akkad-gold), transparent) 1;
+            position: relative;
+        }
+        .akkad-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--akkad-bronze), transparent);
+            opacity: 0.5;
         }
         
         .akkad-logo-img { 
-            width: 52px; height: 52px; border-radius: 50%; 
-            border: 2px solid rgba(201,169,97,0.4); 
-            object-fit: cover; 
+            width: 56px; height: 56px; border-radius: 50%; 
+            border: 3px solid var(--akkad-gold); 
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(201,169,97,0.2);
         }
         
         .akkad-logo-text { 
-            font-size: 1.45rem; font-weight: 700; 
-            background: linear-gradient(135deg, #fff, var(--akkad-gold)); 
+            font-family: 'Amiri', serif;
+            font-size: 1.6rem; font-weight: 700; 
+            background: linear-gradient(135deg, var(--akkad-gold-light), var(--akkad-gold), var(--akkad-bronze)); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            text-shadow: 0 2px 10px rgba(201,169,97,0.1);
+        }
+
+        /* زخرفة عنوان رئيسي */
+        .title-ornament {
+            position: relative;
+            display: inline-block;
+        }
+        .title-ornament::before,
+        .title-ornament::after {
+            content: '✦';
+            color: var(--akkad-gold);
+            opacity: 0.6;
+            margin: 0 12px;
+            font-size: 0.8em;
         }
 
         .akkad-card { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
-            border: 1px solid rgba(201,169,97,0.2); 
-            border-radius: 1.25rem;
-            transition: all 0.3s;
+            border: 1px solid rgba(201,169,97,0.25); 
+            border-radius: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .akkad-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
+            opacity: 0.6;
         }
         .akkad-card:hover { 
-            transform: translateY(-5px); 
-            border-color: rgba(201,169,97,0.45); 
+            transform: translateY(-8px); 
+            border-color: rgba(201,169,97,0.6); 
+            box-shadow: 0 20px 40px rgba(201,169,97,0.1);
         }
 
         .btn-akkad { 
-            background: linear-gradient(135deg, var(--akkad-gold), #8b6f47); 
-            color: #0a0f18; 
-            font-weight: 600; 
+            background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-bronze)); 
+            color: #0c0a06; 
+            font-weight: 700; 
+            position: relative;
+            overflow: hidden;
         }
-        .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,169,97,0.3); }
+        .btn-akkad::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        .btn-akkad:hover::after {
+            transform: translateX(100%);
+        }
+        .btn-akkad:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(201,169,97,0.35); 
+        }
         
         .btn-outline-akkad { 
-            border: 1px solid rgba(201,169,97,0.35); 
+            border: 1px solid rgba(201,169,97,0.4); 
             color: var(--akkad-gold); 
-            background: rgba(201,169,97,0.04); 
+            background: rgba(201,169,97,0.05); 
+            transition: all 0.3s;
+        }
+        .btn-outline-akkad:hover {
+            background: rgba(201,169,97,0.15);
+            border-color: var(--akkad-gold);
         }
 
         .modal { 
             display: none; 
             position: fixed; inset: 0; 
-            background: rgba(3,5,8,0.9); 
+            background: rgba(12,10,6,0.92); 
             z-index: 1000; 
             align-items: center; 
             justify-content: center; 
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
         .modal-content { 
-            background: rgba(15,26,36,0.98); 
-            border: 1px solid rgba(201,169,97,0.3); 
+            background: linear-gradient(180deg, rgba(26,21,16,0.98), rgba(20,16,12,0.98)); 
+            border: 2px solid var(--akkad-gold); 
             border-radius: 1.5rem; 
-            padding: 1.75rem; 
+            padding: 2rem; 
             max-width: 500px; width: 90%;
+            position: relative;
+        }
+        .modal-content::before {
+            content: '𒀭';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            color: var(--akkad-gold);
+            opacity: 0.3;
         }
 
         .loader { 
             border: 3px solid rgba(201,169,97,0.15); 
             border-top: 3px solid var(--akkad-gold); 
             border-radius: 50%; 
-            width: 45px; height: 45px; 
-            animation: spin 1s linear infinite; 
+            width: 50px; height: 50px; 
+            animation: spin 1.2s linear infinite; 
             margin: 40px auto; 
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        .category-chip {
+            transition: all 0.3s;
+            position: relative;
+        }
         .category-chip.active {
-            background: rgba(201,169,97,0.25);
+            background: linear-gradient(135deg, rgba(201,169,97,0.25), rgba(139,111,71,0.2));
             border-color: var(--akkad-gold);
-            color: var(--akkad-gold);
+            color: var(--akkad-gold-light);
+            box-shadow: 0 4px 15px rgba(201,169,97,0.15);
         }
         
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--akkad-dark); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--akkad-gold), var(--akkad-bronze)); border-radius: 4px; }
         
         .line-clamp-2 {
             display: -webkit-box;
@@ -117,10 +243,80 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        /* زخرفة تذييل */
+        .footer-ornament {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(201,169,97,0.15);
+            margin-top: 3rem;
+        }
+        .footer-ornament .ornament-line {
+            display: inline-block;
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
+            vertical-align: middle;
+            margin: 0 10px;
+        }
+
+        /* زخرفة جانبية */
+        .side-ornament {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            writing-mode: vertical-rl;
+            font-size: 11px;
+            color: var(--akkad-gold);
+            opacity: 0.15;
+            letter-spacing: 4px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .side-ornament.left { left: 8px; }
+        .side-ornament.right { right: 8px; }
+
+        /* تأثير لمعان ذهبي */
+        .gold-shimmer {
+            background: linear-gradient(
+                90deg,
+                var(--akkad-gold) 0%,
+                var(--akkad-gold-light) 25%,
+                var(--akkad-gold) 50%,
+                var(--akkad-gold-light) 75%,
+                var(--akkad-gold) 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        /* حاوية البحث */
+        .search-container {
+            position: relative;
+        }
+        .search-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 1.25rem;
+            background: linear-gradient(135deg, var(--akkad-gold), transparent, var(--akkad-gold));
+            opacity: 0.3;
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
     <div class="bg-gradient-custom"></div>
+    <div class="cuneiform-pattern"></div>
+
+    <!-- زخارف جانبية -->
+    <div class="side-ornament left">𒀭𒁀𒌑𒊏</div>
+    <div class="side-ornament right">𒀭𒁀𒌑𒊏</div>
 
     <div id="toast" class="fixed top-5 left-5 z-50 px-4 py-2 rounded-lg hidden" style="background: #1a4d7a;"></div>
 
@@ -128,10 +324,13 @@
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="flex items-center gap-3">
-                    <img src="https://via.placeholder.com/52/1a4d7a/c9a961?text=A" alt="شعار أكاد" class="akkad-logo-img">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/56/1a1510/c9a961?text=𒀭" alt="شعار أكاد" class="akkad-logo-img">
+                        <div style="position:absolute;inset:-4px;border:1px solid var(--akkad-gold);border-radius:50%;opacity:0.3;"></div>
+                    </div>
                     <div>
                         <div class="akkad-logo-text">أكاد</div>
-                        <div class="text-[10px] text-[var(--akkad-gold)] tracking-wider">DIGITAL STORE</div>
+                        <div class="text-[10px] text-[var(--akkad-gold)] tracking-widest font-bold">DIGITAL STORE</div>
                     </div>
                 </a>
                 <div class="flex gap-2">
@@ -139,15 +338,15 @@
                         <i class="fas fa-share-nodes"></i>
                         <span class="hidden sm:inline">مشاركة</span>
                     </button>
-                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center">
-                        <i class="fab fa-whatsapp"></i>
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition">
+                        <i class="fab fa-whatsapp text-lg"></i>
                     </a>
                 </div>
             </div>
             
-            <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-2xl py-3 px-14" placeholder="🔍 ابحث عن منتج...">
-                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/50"></i>
+            <div class="relative max-w-2xl mx-auto search-container">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/30 rounded-2xl py-3 px-14 text-right" placeholder="🔍 ابحث عن منتج..." style="color:#e8e0d0;">
+                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/60"></i>
             </div>
             
             <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2" style="scrollbar-width: none;"></div>
@@ -155,21 +354,29 @@
     </nav>
 
     <main class="container mx-auto px-4 py-10">
-        <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl font-bold mb-3">✨ كنوز أكاد الرقمية ✨</h2>
-            <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار</p>
+        <!-- عنوان رئيسي مزخرف -->
+        <div class="text-center mb-12 sumerian-border">
+            <h2 class="text-2xl md:text-4xl font-bold mb-3 title-ornament">
+                <span class="gold-shimmer">كنوز أكاد الرقمية</span>
+            </h2>
+            <p class="text-[var(--akkad-stone)] text-sm tracking-wide">من قلب بلاد الرافدين إلى يديك</p>
+            <div class="flex justify-center mt-4 gap-2 opacity-40">
+                <span style="color:var(--akkad-gold);font-size:18px;">𒆳</span>
+                <span style="color:var(--akkad-gold);font-size:18px;">𒈗</span>
+                <span style="color:var(--akkad-gold);font-size:18px;">𒀭</span>
+            </div>
         </div>
         
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
-            <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
-            <p id="loadingStatus" class="text-gray-500 text-xs mt-2"></p>
+            <p class="text-[var(--akkad-stone)] mt-5">جاري الاتصال بقاعدة البيانات...</p>
+            <p id="loadingStatus" class="text-[var(--akkad-stone)]/60 text-xs mt-2"></p>
         </div>
         
         <div id="error-message" class="hidden text-center py-20">
-            <div class="text-6xl mb-4">⚠️</div>
+            <div class="text-6xl mb-4">𒀭</div>
             <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
-            <p id="errorDetail" class="text-gray-400 mb-4"></p>
+            <p id="errorDetail" class="text-[var(--akkad-stone)] mb-4"></p>
             <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
                 <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
             </button>
@@ -178,20 +385,31 @@
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
         
         <div id="no-results" class="hidden text-center py-20">
-            <p class="text-gray-400 text-lg">🔍 لا توجد منتجات مطابقة للبحث</p>
+            <div class="text-5xl mb-4 opacity-30">𒈾</div>
+            <p class="text-[var(--akkad-stone)] text-lg">لا توجد منتجات مطابقة للبحث</p>
             <button onclick="resetSearch()" class="btn-outline-akkad px-6 py-2 rounded-xl mt-4">عرض الكل</button>
         </div>
     </main>
 
+    <!-- تذييل مزخرف -->
+    <footer class="footer-ornament">
+        <div class="container mx-auto px-4">
+            <div class="ornament-line"></div>
+            <span class="text-[var(--akkad-gold)]/40 text-xs tracking-widest">𒀭𒁀𒌑𒊏</span>
+            <div class="ornament-line"></div>
+            <p class="text-[var(--akkad-stone)]/50 text-xs mt-3">متجر أكاد الرقمي - من قلب بلاد الرافدين</p>
+        </div>
+    </footer>
+
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
-                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]"></h2>
-                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] font-['Amiri']"></h2>
+                <button onclick="closeModal('descModal')" class="text-[var(--akkad-stone)] hover:text-white text-2xl transition">&times;</button>
             </div>
-            <p id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6"></p>
+            <p id="modalDesc" class="text-[#c8c0b0] text-sm leading-relaxed mb-6"></p>
             <div class="flex gap-3">
-                <button onclick="closeModal('descModal')" class="flex-1 bg-white/10 py-2 rounded-xl">إغلاق</button>
+                <button onclick="closeModal('descModal')" class="flex-1 bg-white/10 py-2 rounded-xl hover:bg-white/15 transition">إغلاق</button>
                 <a id="modalOrderBtn" href="#" target="_blank" class="flex-1 btn-akkad text-center py-2 rounded-xl flex items-center justify-center gap-2">
                     <i class="fab fa-whatsapp"></i> اطلب الآن
                 </a>
@@ -201,7 +419,7 @@
 
     <script>
         // ========================================
-        // إعدادات Firebase (تم التحقق من صحتها)
+        // إعدادات Firebase
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
@@ -213,21 +431,15 @@
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        // ========================================
-        // تهيئة Firebase مع معالجة الأخطاء
-        // ========================================
         let database = null;
         let connectionAttempts = 0;
         const MAX_ATTEMPTS = 3;
         
         function initFirebase() {
             try {
-                // التحقق من وجود Firebase SDK
                 if (typeof firebase === 'undefined') {
                     throw new Error('Firebase SDK لم يتم تحميله');
                 }
-                
-                // محاولة التهيئة
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 }
@@ -241,42 +453,27 @@
             }
         }
 
-        // ========================================
-        // المتغيرات العامة
-        // ========================================
         let allProducts = [];
         let activeCategory = "الكل";
         let productsCache = {};
 
-        // ========================================
-        // عرض الإشعارات
-        // ========================================
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
-            toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
+            toast.style.backgroundColor = isError ? "#8b4513" : "#1a4d7a";
             toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${message}`;
             toast.style.display = "block";
             setTimeout(() => toast.style.display = "none", 3000);
         }
 
-        // ========================================
-        // مشاركة المتجر
-        // ========================================
         function shareStore() {
             const url = window.location.href;
-            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\\n' + url)}`, '_blank');
         }
 
-        // ========================================
-        // إغلاق النافذة
-        // ========================================
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
 
-        // ========================================
-        // عرض التفاصيل
-        // ========================================
         function showDetails(productId) {
             const product = productsCache[productId];
             if (!product) return;
@@ -285,15 +482,12 @@
             document.getElementById('modalDesc').innerHTML = product.description || "لا يوجد وصف تفصيلي";
             
             const price = product.price || 0;
-            const orderText = `🛍️ أريد شراء: ${product.name}\n💰 السعر: ${price.toLocaleString()} د.ع`;
+            const orderText = `🛍️ أريد شراء: ${product.name}\\n💰 السعر: ${price.toLocaleString()} د.ع`;
             document.getElementById('modalOrderBtn').href = `https://wa.me/9647730492020?text=${encodeURIComponent(orderText)}`;
             
             document.getElementById('descModal').style.display = "flex";
         }
 
-        // ========================================
-        // عرض المنتجات
-        // ========================================
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -315,16 +509,17 @@
             
             grid.innerHTML = products.map(product => `
                 <div class="akkad-card overflow-hidden cursor-pointer" onclick="showDetails('${product.id}')">
-                    <div class="h-40 overflow-hidden">
-                        <img src="${product.img || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
-                             class="w-full h-full object-cover transition hover:scale-105"
-                             onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
+                    <div class="h-44 overflow-hidden relative">
+                        <img src="${product.img || 'https://via.placeholder.com/300/1a1510/c9a961?text=𒀭'}" 
+                             class="w-full h-full object-cover transition duration-500 hover:scale-110"
+                             onerror="this.src='https://via.placeholder.com/300/1a1510/c9a961?text=𒀭'">
+                        <div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,rgba(12,10,6,0.8));"></div>
                     </div>
                     <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
+                        <h3 class="font-bold text-sm line-clamp-2 mb-3 text-[#e8e0d0]">${escapeHtml(product.name)}</h3>
                         <div class="flex justify-between items-center">
-                            <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
-                            <button onclick="event.stopPropagation(); showDetails('${product.id}')" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">تفاصيل</button>
+                            <span class="text-[var(--akkad-gold)] font-bold text-sm">${(product.price || 0).toLocaleString()} <span class="text-xs text-[var(--akkad-stone)]">د.ع</span></span>
+                            <button onclick="event.stopPropagation(); showDetails('${product.id}')" class="btn-outline-akkad px-3 py-1.5 rounded-lg text-xs">تفاصيل</button>
                         </div>
                     </div>
                 </div>
@@ -341,9 +536,6 @@
             });
         }
 
-        // ========================================
-        // تصفية المنتجات
-        // ========================================
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
@@ -377,34 +569,25 @@
             filterProducts();
         }
 
-        // ========================================
-        // عرض الأقسام
-        // ========================================
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             const categories = ["الكل", ...new Set(allProducts.map(p => p.category).filter(Boolean))];
             
             container.innerHTML = categories.map(cat => `
-                <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
-                        class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition
-                               ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50'}"
+                <button onclick="filterByCategory('${cat.replace(/'/g, "\\\\'")}')" 
+                        class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition category-chip
+                               ${activeCategory === cat ? 'active' : 'border-white/20 hover:border-[var(--akkad-gold)]/50 text-[var(--akkad-stone)]'}"
                         style="font-size:13px">
-                    ${cat === "الكل" ? "🌟 الكل" : escapeHtml(cat)}
+                    ${cat === "الكل" ? "𒀭 الكل" : escapeHtml(cat)}
                 </button>
             `).join('');
         }
 
-        // ========================================
-        // إعادة محاولة الاتصال
-        // ========================================
         function retryConnection() {
             connectionAttempts = 0;
             loadProducts();
         }
 
-        // ========================================
-        // تحميل المنتجات من Firebase
-        // ========================================
         function loadProducts() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
@@ -416,7 +599,6 @@
             
             loadingStatus.innerHTML = `محاولة الاتصال ${connectionAttempts}/${MAX_ATTEMPTS}...`;
             
-            // تهيئة Firebase إذا لزم الأمر
             if (!database) {
                 if (!initFirebase()) {
                     if (connectionAttempts >= MAX_ATTEMPTS) {
@@ -430,7 +612,6 @@
                 }
             }
             
-            // اختبار الاتصال أولاً
             const connectedRef = database.ref('.info/connected');
             connectedRef.on('value', (snap) => {
                 if (snap.val() === true) {
@@ -442,7 +623,6 @@
                 }
             });
             
-            // جلب المنتجات مع timeout
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error('انتهى وقت الاتصال (10 ثواني)')), 10000);
             });
@@ -457,3 +637,38 @@
                             id: key,
                             ...products[key]
                         }));
+                        
+                        allProducts.forEach(p => productsCache[p.id] = p);
+                        
+                        renderCategories();
+                        filterProducts();
+                        showToast(`تم تحميل ${allProducts.length} منتج`);
+                    } else {
+                        displayProducts([]);
+                        showToast('لا توجد منتجات في المتجر', true);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error loading products:', error);
+                    if (connectionAttempts >= MAX_ATTEMPTS) {
+                        loading.classList.add('hidden');
+                        errorMsg.classList.remove('hidden');
+                        document.getElementById('errorDetail').innerHTML = error.message;
+                    } else {
+                        loadingStatus.innerHTML = `فشل الاتصال، إعادة المحاولة...`;
+                        setTimeout(loadProducts, 3000);
+                    }
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>'''
+
+with open('/mnt/agents/output/akkad_store.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("تم حفظ الملف بنجاح!")
