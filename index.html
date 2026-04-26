@@ -292,16 +292,14 @@ html_content = '''<!DOCTYPE html>
             height: 180px;
         }
         
-        .product-media-container img,
-        .product-media-container video {
+        .product-media-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease;
         }
         
-        .akkad-card:hover .product-media-container img,
-        .akkad-card:hover .product-media-container video {
+        .akkad-card:hover .product-media-container img {
             transform: scale(1.08);
         }
 
@@ -310,26 +308,32 @@ html_content = '''<!DOCTYPE html>
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 56px;
-            height: 56px;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: rgba(201, 169, 97, 0.9);
-            border: 3px solid rgba(255,255,255,0.8);
+            background: rgba(201, 169, 97, 0.95);
+            border: 3px solid rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 3;
+            opacity: 0;
             transition: all 0.3s ease;
             box-shadow: 
                 0 0 0 4px rgba(201,169,97,0.3),
                 0 4px 20px rgba(0,0,0,0.4);
         }
         
+        .product-media-container:hover .video-play-btn {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
         .video-play-btn:hover {
             background: var(--akkad-gold);
-            transform: translate(-50%, -50%) scale(1.15);
+            transform: translate(-50%, -50%) scale(1.15) !important;
             box-shadow: 
                 0 0 0 6px rgba(201,169,97,0.4),
                 0 0 20px rgba(201,169,97,0.6),
@@ -338,11 +342,11 @@ html_content = '''<!DOCTYPE html>
         
         .video-play-btn i {
             color: #0a0f18;
-            font-size: 20px;
+            font-size: 22px;
             margin-right: -2px;
         }
 
-        /* شريط فيديو صغير في الأعلى */
+        /* شريط فيديو صغير في الأعلى - يظهر دائماً */
         .video-badge-bar {
             position: absolute;
             top: 10px;
@@ -370,7 +374,7 @@ html_content = '''<!DOCTYPE html>
         }
         
         .product-media-container:hover .media-overlay {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.25);
         }
 
         /* تأثير الظهور */
@@ -401,30 +405,32 @@ html_content = '''<!DOCTYPE html>
         
         .video-modal-content {
             position: relative;
-            max-width: 90vw;
-            max-height: 90vh;
+            width: 90vw;
+            max-width: 900px;
+            aspect-ratio: 16/9;
             border-radius: 1rem;
             overflow: hidden;
             border: 2px solid rgba(201,169,97,0.4);
             box-shadow: 0 0 50px rgba(201,169,97,0.2);
         }
         
-        .video-modal-content video {
-            max-width: 90vw;
-            max-height: 85vh;
-            display: block;
+        .video-modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         
         .video-modal-close {
             position: absolute;
-            top: -40px;
+            top: -50px;
             left: 0;
             color: var(--akkad-gold);
-            font-size: 28px;
+            font-size: 32px;
             cursor: pointer;
             background: none;
             border: none;
             transition: transform 0.2s;
+            z-index: 10;
         }
         
         .video-modal-close:hover {
@@ -548,11 +554,11 @@ html_content = '''<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- نافذة مشاهدة الفيديو -->
+    <!-- نافذة مشاهدة فيديو يوتيوب -->
     <div id="videoModal" class="video-modal" onclick="closeVideoModal()">
         <div class="video-modal-content" onclick="event.stopPropagation()">
             <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
-            <video id="modalVideo" controls autoplay style="max-width:90vw;max-height:85vh;"></video>
+            <div id="videoContainer" style="width:100%;height:100%;"></div>
         </div>
     </div>
 
@@ -632,20 +638,48 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // ====== نافذة الفيديو ======
-        function openVideoModal(videoUrl) {
-            const modal = document.getElementById('videoModal');
-            const video = document.getElementById('modalVideo');
-            video.src = videoUrl;
-            video.load();
-            modal.style.display = "flex";
+        // ====== دوال فيديو يوتيوب ======
+        
+        // استخراج معرف يوتيوب من أي رابط
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            // إذا كان المعرف مباشرة (11 حرف)
+            if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+            // استخراج من رابط
+            const patterns = [
+                /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/|youtube\\.com\\/embed\\/|youtube\\.com\\/v\\/|youtube\\.com\\/shorts\\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\\.com\\/watch\\?.*v=([a-zA-Z0-9_-]{11})/,
+                /youtu\\.be\\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (let pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
         }
         
+        // الحصول على صورة مصغرة من يوتيوب
+        function getYouTubeThumbnail(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        }
+        
+        // فتح نافذة الفيديو
+        function openVideoModal(videoIdOrUrl) {
+            const videoId = extractYouTubeId(videoIdOrUrl);
+            if (!videoId) {
+                showToast("❌ رابط الفيديو غير صالح", true);
+                return;
+            }
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            document.getElementById('videoModal').style.display = "flex";
+        }
+        
+        // إغلاق نافذة الفيديو
         function closeVideoModal() {
             const modal = document.getElementById('videoModal');
-            const video = document.getElementById('modalVideo');
-            video.pause();
-            video.src = "";
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = '';
             modal.style.display = "none";
         }
 
@@ -678,37 +712,38 @@ html_content = '''<!DOCTYPE html>
             closeQuickOrder();
         });
 
-        // ====== دالة عرض الوسائط مع زر الفيديو ======
+        // ====== دالة عرض الوسائط مع زر الفيديو يوتيوب ======
         function getMediaElement(product) {
-            const videoUrl = product.video || product.videoUrl;
-            const imgUrl = product.img || product.image || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد';
+            const videoField = product.video || product.videoUrl || product.youtube || product.yt;
+            const imgUrl = product.img || product.image;
             
-            if (videoUrl) {
-                const isVideo = /\\.(mp4|webm|ogg|mov)$/i.test(videoUrl) || 
-                               videoUrl.includes('video') || 
-                               videoUrl.includes('firebasestorage');
-                
-                if (isVideo) {
-                    return `
-                        <div class="product-media-container">
-                            <img src="${imgUrl}" 
-                                 class="w-full h-full object-cover"
-                                 onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
-                            <div class="media-overlay"></div>
-                            <div class="video-badge-bar">
-                                <i class="fas fa-video"></i> فيديو
-                            </div>
-                            <button onclick="event.stopPropagation(); openVideoModal('${videoUrl}')" 
-                                    class="video-play-btn" title="شاهد الفيديو">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>`;
-                }
+            const videoId = extractYouTubeId(videoField);
+            
+            if (videoId) {
+                // استخدام صورة يوتيوب المصغرة
+                const thumbUrl = getYouTubeThumbnail(videoId);
+                return `
+                    <div class="product-media-container">
+                        <img src="${thumbUrl}" 
+                             alt="${escapeHtml(product.name)}"
+                             class="w-full h-full object-cover"
+                             onerror="this.src='${imgUrl || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}'">
+                        <div class="media-overlay"></div>
+                        <div class="video-badge-bar">
+                            <i class="fas fa-video"></i> فيديو
+                        </div>
+                        <button onclick="event.stopPropagation(); openVideoModal('${videoId}')" 
+                                class="video-play-btn" title="شاهد الفيديو">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>`;
             }
             
+            // منتج بدون فيديو - عرض الصورة العادية
             return `
                 <div class="product-media-container">
-                    <img src="${imgUrl}" 
+                    <img src="${imgUrl || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
+                         alt="${escapeHtml(product.name)}"
                          class="w-full h-full object-cover"
                          onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
                 </div>`;
@@ -868,8 +903,8 @@ html_content = '''<!DOCTYPE html>
 </html>'''
 
 # Save the complete updated file
-with open('/mnt/agents/output/akkad_store_final.html', 'w', encoding='utf-8') as f:
+with open('/mnt/agents/output/akkad_store_youtube.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ تم حفظ الكود الكامل المعدل بنجاح!")
+print("✅ تم حفظ الكود الكامل المعدل لدعم يوتيوب بنجاح!")
 print(f"📄 حجم الملف: {len(html_content):,} حرف")
