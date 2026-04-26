@@ -625,30 +625,49 @@
             }
         }
 
-        // استخراج معرف الفيديو من يوتيوب
+        // استخراج معرف الفيديو من يوتيوب (دعم جميع صيغ الروابط)
         function getYouTubeId(url) {
             if (!url) return null;
-            const regExp = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?#]+)/;
-            const match = url.match(regExp);
-            return match ? match[1] : null;
+            
+            // قائمة بأنماط روابط يوتيوب المدعومة
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\?#]+)/,
+                /youtube\.com\/shorts\/([^&\?#]+)/
+            ];
+            
+            for (let pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
         }
 
+        // تشغيل الفيديو
         function playVideo(videoUrl, event) {
             if (event) event.stopPropagation();
-            if (!videoUrl) return;
+            if (!videoUrl) {
+                showToast('⚠️ لا يوجد رابط فيديو لهذا المنتج', 'error');
+                return;
+            }
+            
             const videoId = getYouTubeId(videoUrl);
             if (videoId) {
                 const iframe = document.getElementById('videoIframe');
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                iframe.src = embedUrl;
                 document.getElementById('videoModal').style.display = 'flex';
             } else {
-                showToast('⚠️ رابط الفيديو غير صالح', 'error');
+                showToast('⚠️ رابط الفيديو غير صالح (يوتيوب فقط)', 'error');
+                console.log('رابط الفيديو غير صالح:', videoUrl);
             }
         }
 
         function closeVideoModal() {
             document.getElementById('videoModal').style.display = 'none';
-            document.getElementById('videoIframe').src = '';
+            const iframe = document.getElementById('videoIframe');
+            iframe.src = ''; // إيقاف الفيديو عند الإغلاق
         }
 
         // ========================================
@@ -754,15 +773,14 @@
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
             
-            if (product.video) {
+            if (product.video && product.video.trim() !== '') {
                 playVideo(product.video);
             } else {
                 showProductDetails(productId);
             }
         }
 
-        // عرض المنتجات
-        function renderProducts() {
+        // عرض المنتجات        function renderProducts() {
             const container = document.getElementById('products-grid');
             let filtered = [...allProducts];
             
@@ -785,12 +803,16 @@
             document.getElementById('products-grid').classList.remove('hidden');
             document.getElementById('no-results').classList.add('hidden');
             
-            container.innerHTML = filtered.map(product => `
+            container.innerHTML = filtered.map(product => {
+                const hasVideo = product.video && product.video.trim() !== '';
+                const videoAttr = hasVideo ? `data-video="${escapeHtml(product.video)}"` : '';
+                
+                return `
                 <div class="akkad-card overflow-hidden fade-in-up">
                     <div class="product-media-container" onclick="handleImageClick('${product.id}')">
                         <img src="${product.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(product.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">
-                        ${product.video ? `
-                            <div class="video-play-btn" onclick="playVideo('${product.video}', event)">
+                        ${hasVideo ? `
+                            <div class="video-play-btn" onclick="playVideo('${escapeHtml(product.video)}', event)">
                                 <i class="fas fa-play"></i>
                             </div>
                             <div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>
@@ -808,7 +830,7 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // فتح الطلب السريع من بطاقة المنتج
