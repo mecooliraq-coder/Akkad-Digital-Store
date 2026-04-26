@@ -92,7 +92,6 @@
             max-width: 500px; width: 90%;
         }
 
-        /* نافذة الطلب السريع */
         .quick-order-modal {
             display: none;
             position: fixed; inset: 0;
@@ -112,7 +111,6 @@
             overflow-y: auto;
         }
 
-        /* حاوية الفيديو داخل صورة المنتج */
         .product-image-container {
             position: relative;
             overflow: hidden;
@@ -244,7 +242,7 @@
         </div>
     </main>
 
-    <!-- نافذة تفاصيل المنتج الأصلية -->
+    <!-- نافذة تفاصيل المنتج -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
@@ -288,7 +286,7 @@
         </div>
     </div>
 
-    <!-- نافذة عرض الفيديو المنبثقة -->
+    <!-- نافذة عرض الفيديو -->
     <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
         <div class="modal-content max-w-3xl" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-3">
@@ -302,9 +300,7 @@
     </div>
 
     <script>
-        // ========================================
         // إعدادات Firebase
-        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -318,18 +314,14 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ========================================
         // المتغيرات العامة
-        // ========================================
         let allProducts = [];
-        let categoryOrder = [];      // 👈 ترتيب الأقسام من لوحة التحكم
+        let categoriesMap = {};      // الأقسام من Firebase
+        let categoryOrder = [];      // ترتيب الأقسام
         let activeCategory = "الكل";
         let currentModalProduct = null;
         const STORE_WHATSAPP = "9647730492020";
 
-        // ========================================
-        // عرض الإشعارات
-        // ========================================
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
@@ -338,17 +330,11 @@
             setTimeout(() => toast.style.display = "none", 3000);
         }
 
-        // ========================================
-        // مشاركة المتجر
-        // ========================================
         function shareStore() {
             const url = window.location.href;
             window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
         }
 
-        // ========================================
-        // إغلاق النوافذ
-        // ========================================
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
             if (modalId === 'videoModal') {
@@ -356,18 +342,12 @@
             }
         }
 
-        // ========================================
-        // تشغيل الفيديو في نافذة منفصلة
-        // ========================================
         function playVideo(videoId) {
             const iframe = document.getElementById('videoFrame');
             iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
             document.getElementById('videoModal').style.display = "flex";
         }
 
-        // ========================================
-        // عرض التفاصيل مع دعم الفيديو
-        // ========================================
         function showDetails(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
@@ -377,7 +357,6 @@
             document.getElementById('modalTitle').innerHTML = product.name;
             document.getElementById('modalDesc').innerHTML = product.desc || "لا يوجد وصف تفصيلي";
             
-            // عرض فيديو في النافذة إذا وجد
             const videoContainer = document.getElementById('modalVideoContainer');
             if (product.video) {
                 let videoId = product.video;
@@ -400,15 +379,11 @@
             document.getElementById('descModal').style.display = "flex";
         }
 
-        // ========================================
-        // دوال الطلب السريع
-        // ========================================
         function openQuickOrder(productId, productName, productPrice) {
             currentModalProduct = { id: productId, name: productName, price: productPrice };
             document.getElementById('quickProductId').value = productId;
             document.getElementById('quickProductInfo').innerHTML = `🛍️ ${productName} - ${Number(productPrice).toLocaleString()} د.ع`;
             document.getElementById('quickOrderModal').style.display = "flex";
-            // تفريغ الحقول
             document.getElementById('quickCustomerName').value = '';
             document.getElementById('quickGovernorate').value = '';
             document.getElementById('quickCity').value = '';
@@ -427,7 +402,6 @@
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // إرسال الطلب إلى واتساب
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const customerName = document.getElementById('quickCustomerName').value.trim();
@@ -452,15 +426,11 @@
                 `💰 *السعر:* ${Number(product.price).toLocaleString()} د.ع%0A%0A` +
                 `_تم الإرسال من الطلب السريع في المتجر_`;
 
-            const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${message}`;
-            window.open(whatsappUrl, '_blank');
+            window.open(`https://wa.me/${STORE_WHATSAPP}?text=${message}`, '_blank');
             showToast("✅ تم توجيهك إلى واتساب لإكمال الطلب");
             closeQuickOrder();
         });
 
-        // ========================================
-        // عرض المنتجات مع دعم الفيديو
-        // ========================================
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -509,9 +479,6 @@
             });
         }
 
-        // ========================================
-        // تصفية المنتجات
-        // ========================================
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
@@ -546,29 +513,29 @@
         }
 
         // ========================================
-        // عرض الأقسام - المعدل ليدعم الترتيب من لوحة التحكم
+        // عرض الأقسام - يعرض جميع الأقسام من Firebase
         // ========================================
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
             
-            // الحصول على الأقسام الفريدة من المنتجات
-            const uniqueCategories = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            // الحصول على أسماء الأقسام من categoriesMap (نفس مصدر لوحة التحكم)
+            let categoriesList = Object.values(categoriesMap);
             
-            // ترتيب الأقسام حسب categoryOrder من لوحة التحكم
+            // ترتيب الأقسام حسب categoryOrder
             let sortedCategories = [];
             
-            // إضافة الأقسام حسب الترتيب المحفوظ
             if (categoryOrder && categoryOrder.length > 0) {
                 categoryOrder.forEach(catKey => {
-                    if (uniqueCategories.includes(catKey) && !sortedCategories.includes(catKey)) {
-                        sortedCategories.push(catKey);
+                    const catName = categoriesMap[catKey];
+                    if (catName && !sortedCategories.includes(catName)) {
+                        sortedCategories.push(catName);
                     }
                 });
             }
             
-            // إضافة الأقسام المتبقية (الجديدة)
-            uniqueCategories.forEach(cat => {
+            // إضافة الأقسام المتبقية
+            categoriesList.forEach(cat => {
                 if (!sortedCategories.includes(cat)) {
                     sortedCategories.push(cat);
                 }
@@ -586,17 +553,9 @@
             `).join('');
         }
 
-        // ========================================
-        // إعادة محاولة الاتصال
-        // ========================================
-        function retryConnection() {
-            loadProducts();
-        }
+        function retryConnection() { loadData(); }
 
-        // ========================================
-        // تحميل المنتجات وترتيب الأقسام من Firebase
-        // ========================================
-        function loadProducts() {
+        function loadData() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
             const loadingStatus = document.getElementById('loadingStatus');
@@ -604,46 +563,36 @@
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
             
-            loadingStatus.innerHTML = 'جاري تحميل المنتجات...';
+            loadingStatus.innerHTML = 'جاري تحميل الأقسام...';
             
-            // جلب المنتجات وترتيب الأقسام معاً
-            const productsPromise = db.ref('products').once('value');
-            const categoryOrderPromise = db.ref('categoryOrder').once('value');
-            
-            Promise.all([productsPromise, categoryOrderPromise])
-                .then(([productsSnapshot, catOrderSnapshot]) => {
-                    if (productsSnapshot.exists()) {
-                        const products = productsSnapshot.val();
-                        allProducts = Object.keys(products).map(key => ({
-                            id: key,
-                            ...products[key]
-                        }));
-                        
-                        // حفظ ترتيب الأقسام من لوحة التحكم
-                        categoryOrder = catOrderSnapshot.val() || [];
-                        console.log("📦 ترتيب الأقسام من لوحة التحكم:", categoryOrder);
-                        
-                        renderCategories();
-                        filterProducts();
-                        showToast(`✅ تم تحميل ${allProducts.length} منتج`);
-                    } else {
-                        allProducts = [];
-                        renderCategories();
-                        displayProducts([]);
-                        showToast("لا توجد منتجات حالياً", true);
-                    }
-                })
-                .catch(error => {
-                    console.error("خطأ:", error);
-                    loading.classList.add('hidden');
-                    errorMsg.classList.remove('hidden');
-                    document.getElementById('errorDetail').innerHTML = error.message;
-                    showToast("❌ فشل تحميل البيانات", true);
-                });
+            // جلب الأقسام
+            db.ref('categories').once('value').then(snapshot => {
+                categoriesMap = snapshot.val() || {};
+                loadingStatus.innerHTML = 'جاري تحميل ترتيب الأقسام...';
+                return db.ref('categoryOrder').once('value');
+            }).then(snapshot => {
+                categoryOrder = snapshot.val() || [];
+                loadingStatus.innerHTML = 'جاري تحميل المنتجات...';
+                return db.ref('products').once('value');
+            }).then(snapshot => {
+                const products = snapshot.val() || {};
+                allProducts = Object.keys(products).map(key => ({
+                    id: key,
+                    ...products[key]
+                }));
+                renderCategories();
+                filterProducts();
+                showToast(`✅ تم تحميل ${allProducts.length} منتج و ${Object.keys(categoriesMap).length} قسم`);
+            }).catch(error => {
+                console.error("خطأ:", error);
+                loading.classList.add('hidden');
+                errorMsg.classList.remove('hidden');
+                document.getElementById('errorDetail').innerHTML = error.message;
+                showToast("❌ فشل تحميل البيانات", true);
+            });
         }
 
-        // بدء التحميل
-        loadProducts();
+        loadData();
     </script>
 </body>
 </html>
