@@ -436,35 +436,16 @@
             line-height: 1.6;
         }
         
-        /* رسالة تأكيد الحذف */
-        .confirm-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
+        .whatsapp-icon-btn {
+            background: #25D366;
+            color: white;
+            transition: all 0.3s ease;
         }
         
-        .confirm-box {
-            background: rgba(15,26,36,0.98);
-            border: 1px solid rgba(201,169,97,0.5);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            max-width: 350px;
-            width: 90%;
-            text-align: center;
-        }
-        
-        /* تنسيق الطلبات في لوحة التحكم */
-        .order-card {
-            background: rgba(255,255,255,0.03);
-            border-radius: 0.75rem;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-right: 3px solid var(--akkad-gold);
+        .whatsapp-icon-btn:hover {
+            background: #128C7E;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
         }
     </style>
 </head>
@@ -539,7 +520,7 @@
         </div>
     </footer>
 
-    <!-- نافذة تفاصيل المنتج -->
+    <!-- نافذة تفاصيل المنتج (بدون زر طلب سريع) -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
@@ -547,12 +528,7 @@
                 <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
             </div>
             <div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div>
-            <div class="flex gap-3">
-                <button onclick="closeModal('descModal')" class="flex-1 bg-white/10 py-2 rounded-xl hover:bg-white/20 transition">إغلاق</button>
-                <button onclick="openQuickOrderFromModal()" class="flex-1 btn-akkad text-center py-2 rounded-xl flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp"></i> طلب سريع
-                </button>
-            </div>
+            <button onclick="closeModal('descModal')" class="w-full bg-white/10 py-2 rounded-xl hover:bg-white/20 transition">إغلاق</button>
         </div>
     </div>
 
@@ -568,7 +544,7 @@
     <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
         <div class="quick-order-form">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text"><i class="fas fa-shopping-cart ml-2"></i>طلب سريع</h3>
+                <h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
                 <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
             </div>
             <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div>
@@ -602,7 +578,7 @@
 
     <script>
         // ========================================
-        // إعدادات Firebase (نفس إعدادات لوحة التحكم)
+        // إعدادات Firebase
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
@@ -678,15 +654,12 @@
             try {
                 document.getElementById('loadingStatus').innerHTML = 'جاري تحميل الأقسام...';
                 
-                // تحميل الأقسام
                 const catsSnap = await db.ref('categories').once('value');
                 categories = catsSnap.val() || {};
                 
-                // تحميل ترتيب الأقسام
                 const orderSnap = await db.ref('categoryOrder').once('value');
                 categoryOrder = orderSnap.val() || [];
                 
-                // تحميل المنتجات
                 document.getElementById('loadingStatus').innerHTML = 'جاري تحميل المنتجات...';
                 const prodsSnap = await db.ref('products').once('value');
                 const products = prodsSnap.val() || {};
@@ -722,13 +695,12 @@
             loadData();
         }
 
-        // عرض الأقسام في الشريط
+        // عرض الأقسام
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
             
             let catsList = [];
-            // ترتيب حسب categoryOrder
             categoryOrder.forEach(key => {
                 if (categories[key]) catsList.push({ key, name: categories[key] });
             });
@@ -755,14 +727,12 @@
             });
         }
 
-        // تصفية حسب القسم
         function filterByCategory(categoryKey) {
             currentCategory = categoryKey;
             renderCategories();
             renderProducts();
         }
 
-        // البحث
         function searchProducts() {
             currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
             renderProducts();
@@ -775,17 +745,15 @@
             document.getElementById('no-results').classList.add('hidden');
         }
 
-        // عرض المنتجات
+        // عرض المنتجات مع زر واتساب بجانب زر التفاصيل
         function renderProducts() {
             const container = document.getElementById('products-grid');
             let filtered = [...allProducts];
             
-            // تصفية حسب القسم
             if (currentCategory !== 'all') {
                 filtered = filtered.filter(p => p.category === currentCategory);
             }
             
-            // تصفية حسب البحث
             if (currentSearchTerm) {
                 filtered = filtered.filter(p => 
                     p.name && p.name.toLowerCase().includes(currentSearchTerm)
@@ -815,14 +783,26 @@
                     </div>
                     <div class="p-4">
                         <h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(product.name)}</h3>
-                        <div class="text-[var(--akkad-gold)] font-bold text-lg mb-2">${Number(product.price).toLocaleString()} د.ع</div>
-                        <button onclick="showProductDetails('${product.id}')" class="btn-outline-akkad w-full py-2 rounded-lg text-sm transition">📖 تفاصيل</button>
+                        <div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(product.price).toLocaleString()} د.ع</div>
+                        <div class="flex gap-2">
+                            <button onclick="showProductDetails('${product.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button>
+                            <button onclick="openQuickOrderFromCard('${product.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg flex items-center justify-center transition">
+                                <i class="fab fa-whatsapp text-lg"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // عرض تفاصيل المنتج
+        // فتح الطلب السريع من بطاقة المنتج
+        function openQuickOrderFromCard(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            openQuickOrder(product);
+        }
+
+        // عرض تفاصيل المنتج (بدون زر طلب سريع)
         function showProductDetails(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
@@ -832,17 +812,11 @@
             descHtml += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(product.price).toLocaleString()} دينار عراقي</div>`;
             document.getElementById('modalDesc').innerHTML = descHtml;
             
-            currentProductForOrder = product;
             document.getElementById('descModal').style.display = 'flex';
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-        }
-
-        function openQuickOrderFromModal() {
-            closeModal('descModal');
-            openQuickOrder(currentProductForOrder);
         }
 
         // فتح نافذة الطلب السريع
@@ -860,7 +834,6 @@
                 </div>
             `;
             
-            // تفريغ الحقول
             document.getElementById('quickCustomerName').value = '';
             document.getElementById('quickGovernorate').value = '';
             document.getElementById('quickPhone').value = '';
@@ -908,10 +881,8 @@
             };
             
             try {
-                // حفظ الطلب في Firebase
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 
-                // إرسال إشعار واتساب إلى رقم المتجر
                 const adminWhatsapp = '9647730492020';
                 let message = `🛍️ *طلب جديد من متجر أكاد*\n\n`;
                 message += `👤 *الاسم:* ${name}\n`;
