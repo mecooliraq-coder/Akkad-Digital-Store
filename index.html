@@ -9,342 +9,105 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&family=Noto+Sans+Cuneiform&display=swap');
-        
-        :root {
-            --akkad-dark: #030508;
-            --akkad-deep: #0a1018;
-            --akkad-surface: #0f1a24;
-            --akkad-blue: #1a4d7a;
-            --akkad-gold: #c9a961;
-            --akkad-gold-light: #e2c47a;
-            --akkad-bronze: #8b6f47;
-            --glass-bg: rgba(15, 26, 36, 0.55);
-            --glass-border: rgba(201, 169, 97, 0.25);
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background: var(--akkad-dark); 
-            color: #f8fafc; 
-            min-height: 100vh;
-            line-height: 1.9;
-            overflow-x: hidden;
-        }
-
-        .bg-mesh {
-            position: fixed; inset: 0; z-index: -3;
-            background: radial-gradient(circle at 20% 30%, rgba(201,169,97,0.12) 0%, transparent 60%),
-                        radial-gradient(circle at 80% 70%, rgba(26,77,122,0.18) 0%, transparent 60%),
-                        linear-gradient(165deg, #030508 0%, #0a1018 50%, #0f1a24 100%);
-        }
-
-        .akkad-nav {
-            background: rgba(3,5,8,0.7); 
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(201,169,97,0.15);
-        }
-        
-        .akkad-logo-img { 
-            width: 52px; height: 52px; border-radius: 50%; 
-            border: 2px solid rgba(201,169,97,0.4); 
-            object-fit: cover; 
-        }
-        
-        .akkad-logo-text { 
-            font-size: 1.45rem; font-weight: 700; 
-            background: linear-gradient(135deg, #fff, var(--akkad-gold)); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-
-        .akkad-card { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 1.25rem;
-            transition: all 0.3s;
-        }
-        .akkad-card:hover { 
-            transform: translateY(-5px); 
-            border-color: rgba(201,169,97,0.45); 
-        }
-
-        .btn-akkad { 
-            background: linear-gradient(135deg, var(--akkad-gold), #8b6f47); 
-            color: #0a0f18; 
-            font-weight: 600; 
-        }
-        .btn-akkad:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,169,97,0.3); }
-        
-        .btn-outline-akkad { 
-            border: 1px solid rgba(201,169,97,0.35); 
-            color: var(--akkad-gold); 
-            background: rgba(201,169,97,0.04); 
-        }
-
-        .modal { 
-            display: none; 
-            position: fixed; inset: 0; 
-            background: rgba(3,5,8,0.9); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(10px);
-        }
-        .modal-content { 
-            background: rgba(15,26,36,0.98); 
-            border: 1px solid rgba(201,169,97,0.3); 
-            border-radius: 1.5rem; 
-            padding: 1.75rem; 
-            max-width: 500px; width: 90%;
-        }
-
-        .quick-order-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(3,5,8,0.95);
-            z-index: 1100;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
-        .quick-order-form {
-            background: rgba(15,26,36,0.98);
-            border: 1px solid rgba(201,169,97,0.4);
-            border-radius: 1.5rem;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 1.5rem;
-        }
-
-        .product-image-container {
-            position: relative;
-            overflow: hidden;
-            height: 180px;
-            cursor: pointer;
-        }
-        .product-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .video-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        .product-image-container:hover .video-overlay {
-            opacity: 1;
-        }
-        .play-icon {
-            background: #c9a961;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #030508;
-        }
-
-        .loader { 
-            border: 3px solid rgba(201,169,97,0.15); 
-            border-top: 3px solid var(--akkad-gold); 
-            border-radius: 50%; 
-            width: 45px; height: 45px; 
-            animation: spin 1s linear infinite; 
-            margin: 40px auto; 
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .category-chip.active {
-            background: rgba(201,169,97,0.25);
-            border-color: var(--akkad-gold);
-            color: var(--akkad-gold);
-        }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; }
-        
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #10b981;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px;
-            z-index: 9999;
-            animation: slideIn 0.3s;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: #030508; color: #fff; }
+        .glass-card { background: rgba(15,26,36,0.55); backdrop-filter: blur(16px); border: 1px solid rgba(201,169,97,0.2); border-radius: 1rem; }
+        .btn-gold { background: linear-gradient(135deg, #c9a961, #8b6f47); color: #0a0f18; font-weight: 600; }
+        .btn-outline { border: 1px solid rgba(201,169,97,0.35); color: #c9a961; background: rgba(201,169,97,0.04); }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(3,5,8,0.95); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-content { background: #0f1a24; border: 1px solid #c9a961; border-radius: 1.5rem; max-width: 500px; width: 90%; padding: 1.5rem; }
+        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s; }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .ticker-wrapper { 
-            overflow: hidden; 
-            white-space: nowrap; 
-            background: linear-gradient(90deg, rgba(201,169,97,0.06), rgba(10,15,24,0.85), rgba(201,169,97,0.06));
-            border-bottom: 1px solid rgba(201,169,97,0.1);
-        }
-        .ticker-content { 
-            display: inline-block; 
-            animation: ticker 50s linear infinite; 
-            padding: 10px 0; 
-        }
-        @keyframes ticker { 
-            0% { transform: translateX(-50%); } 
-            100% { transform: translateX(0%); } 
-        }
-        .ticker-item { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            margin: 0 25px; 
-            color: #cbd5e1; 
-            font-size: 11px; 
-        }
+        .loader { border: 3px solid rgba(201,169,97,0.15); border-top: 3px solid #c9a961; border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 40px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .category-chip.active { background: rgba(201,169,97,0.25); border-color: #c9a961; color: #c9a961; }
+        .product-img { height: 180px; object-fit: cover; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c9a961; border-radius: 3px; }
     </style>
 </head>
-<body>
-    <div class="bg-mesh"></div>
+<body class="p-4">
 
-    <nav class="akkad-nav sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center mb-3">
-                <a href="#" class="flex items-center gap-3">
-                    <img src="https://via.placeholder.com/52/1a4d7a/c9a961?text=A" alt="شعار أكاد" class="akkad-logo-img">
-                    <div>
-                        <div class="akkad-logo-text">أكاد</div>
-                        <div class="text-[10px] text-[var(--akkad-gold)] tracking-wider">DIGITAL STORE</div>
-                    </div>
-                </a>
-                <div class="flex gap-2">
-                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs" style="background: linear-gradient(135deg, #25D366, #128C7E);">
-                        <i class="fas fa-share-nodes"></i>
-                        <span class="hidden sm:inline">مشاركة</span>
-                    </button>
-                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                </div>
+    <div class="max-w-7xl mx-auto">
+        <!-- الهيدر -->
+        <div class="glass-card p-4 mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-[#c9a961]">🕌 متجر أكاد الرقمي</h1>
+                <p class="text-gray-400 text-sm">أفضل العروض والمنتجات الرقمية</p>
             </div>
-            
-            <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[var(--akkad-gold)]/20 rounded-2xl py-3 px-14 text-white" placeholder="🔍 ابحث عن منتج...">
-                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/50"></i>
+            <div class="flex gap-2">
+                <button onclick="shareStore()" class="px-3 py-2 rounded-xl text-xs" style="background: #25D366;"><i class="fab fa-whatsapp ml-1"></i> مشاركة</button>
+                <a href="admin-panel.html" class="bg-white/10 px-3 py-2 rounded-xl text-xs">لوحة التحكم</a>
             </div>
-            
-            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2" style="scrollbar-width: none;"></div>
         </div>
-    </nav>
 
-    <div class="ticker-wrapper">
-        <div id="product-ticker" class="ticker-content"></div>
-    </div>
-
-    <main class="container mx-auto px-4 py-10">
-        <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl font-bold mb-3">✨ كنوز أكاد الرقمية ✨</h2>
-            <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار</p>
+        <!-- بحث -->
+        <div class="relative max-w-md mx-auto mb-6">
+            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-white/5 border border-[#c9a961]/20 rounded-2xl py-3 px-12" placeholder="🔍 ابحث عن منتج...">
+            <i class="fas fa-search absolute right-4 top-3.5 text-[#c9a961]/50"></i>
         </div>
-        
+
+        <!-- الأقسام -->
+        <div id="categoriesContainer" class="flex gap-2 overflow-x-auto pb-2 mb-6"></div>
+
+        <!-- التحميل -->
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
-            <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
+            <p class="text-gray-400 mt-4">جاري تحميل المنتجات...</p>
         </div>
-        
-        <div id="error-message" class="hidden text-center py-20">
-            <div class="text-6xl mb-4">⚠️</div>
-            <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
-            <p id="errorDetail" class="text-gray-400 mb-4"></p>
-            <button onclick="retryLoad()" class="btn-akkad px-6 py-2 rounded-xl">
-                <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
-            </button>
-        </div>
-        
-        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
-        
-        <div id="no-results" class="hidden text-center py-20">
-            <p class="text-gray-400 text-lg">🔍 لا توجد منتجات مطابقة للبحث</p>
-            <button onclick="resetSearch()" class="btn-outline-akkad px-6 py-2 rounded-xl mt-4">عرض الكل</button>
-        </div>
-    </main>
 
-    <!-- نافذة تفاصيل المنتج -->
-    <div id="descModal" class="modal" onclick="closeModal('descModal')">
+        <!-- خطأ -->
+        <div id="errorMessage" class="hidden text-center py-20">
+            <p class="text-red-400">❌ فشل الاتصال بقاعدة البيانات</p>
+            <button onclick="loadData()" class="btn-gold px-4 py-2 rounded-xl mt-4">إعادة المحاولة</button>
+        </div>
+
+        <!-- المنتجات -->
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
+
+        <!-- لا توجد نتائج -->
+        <div id="noResults" class="hidden text-center py-20">
+            <p class="text-gray-400">🔍 لا توجد منتجات</p>
+        </div>
+    </div>
+
+    <!-- نافذة التفاصيل -->
+    <div id="detailsModal" class="modal" onclick="closeModal('detailsModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]"></h2>
-                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            <div class="flex justify-between items-center mb-3">
+                <h3 id="modalTitle" class="text-xl font-bold text-[#c9a961]"></h3>
+                <button onclick="closeModal('detailsModal')" class="text-2xl">&times;</button>
             </div>
-            <div id="modalVideoContainer" class="mb-4"></div>
-            <p id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6"></p>
-            <button onclick="openQuickOrderFromModal()" class="w-full btn-akkad py-2 rounded-xl flex items-center justify-center gap-2">
-                <i class="fab fa-whatsapp"></i> طلب سريع
-            </button>
+            <p id="modalDesc" class="text-gray-300 text-sm mb-4"></p>
+            <button onclick="openQuickOrderFromModal()" class="w-full btn-gold py-2 rounded-xl">📱 طلب سريع</button>
         </div>
     </div>
 
     <!-- نافذة الطلب السريع -->
-    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target === this) closeQuickOrder()">
-        <div class="quick-order-form">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-[var(--akkad-gold)]"><i class="fas fa-shopping-cart ml-2"></i>طلب سريع</h3>
-                <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+    <div id="quickModal" class="modal" onclick="if(event.target===this) closeQuickModal()">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-[#c9a961]">طلب سريع</h3>
+                <button onclick="closeQuickModal()" class="text-2xl">&times;</button>
             </div>
-            <div id="quickProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div>
-            <form id="quickOrderForm" class="space-y-3">
-                <input type="hidden" id="quickProductId">
-                <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="الاسم الكامل *" required>
-                <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white" required>
-                    <option value="">اختر المحافظة *</option>
-                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option>
-                    <option>كركوك</option><option>الأنبار</option><option>بابل</option><option>واسط</option><option>ذي قار</option>
-                    <option>المثنى</option><option>القادسية</option><option>صلاح الدين</option><option>ديالى</option><option>ميسان</option>
-                    <option>النجف</option><option>كربلاء</option>
+            <div id="quickProductInfo" class="bg-white/10 p-2 rounded-lg text-sm mb-3"></div>
+            <form id="quickForm">
+                <input type="text" id="qName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-2 mb-2 text-white" placeholder="الاسم الكامل *" required>
+                <select id="qGov" class="w-full bg-white/10 border border-gray-600 rounded-lg p-2 mb-2 text-white" required>
+                    <option value="">المحافظة *</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
                 </select>
-                <input type="text" id="quickCity" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="المدينة / الحي *" required>
-                <input type="text" id="quickLandmark" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="أقرب نقطة دالة (مدرسة/جامع/مستشفى)">
-                <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="رقم الموبايل *" required>
-                <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-lg transition"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب عبر واتساب</button>
+                <input type="text" id="qCity" class="w-full bg-white/10 border border-gray-600 rounded-lg p-2 mb-2 text-white" placeholder="المدينة/الحي *" required>
+                <input type="text" id="qLandmark" class="w-full bg-white/10 border border-gray-600 rounded-lg p-2 mb-2 text-white" placeholder="أقرب نقطة دالة">
+                <input type="tel" id="qPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-2 mb-3 text-white" placeholder="رقم الموبايل *" required>
+                <button type="submit" class="w-full btn-gold py-2 rounded-xl"><i class="fab fa-whatsapp ml-1"></i> إرسال</button>
             </form>
         </div>
     </div>
 
-    <!-- نافذة عرض الفيديو -->
-    <div id="videoModal" class="modal" onclick="closeModal('videoModal')">
-        <div class="modal-content max-w-3xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-[var(--akkad-gold)] font-bold">📹 فيديو المنتج</h3>
-                <button onclick="closeModal('videoModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-            </div>
-            <div class="relative pb-[56.25%] h-0">
-                <iframe id="videoFrame" class="absolute top-0 left-0 w-full h-full rounded-xl" frameborder="0" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // تهيئة Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -354,273 +117,149 @@
             messagingSenderId: "456810444639",
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         let allProducts = [];
-        let categoriesOrder = [];
-        let activeCategory = "الكل";
-        let currentModalProduct = null;
+        let categoryOrder = [];      // 👈 الترتيب من لوحة التحكم
+        let activeCategory = "all";
+        let currentProduct = null;
         const STORE_WHATSAPP = "9647730492020";
 
-        function showToast(message, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${message}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function showToast(msg, isErr = false) {
+            const t = document.createElement('div');
+            t.className = `toast ${isErr ? 'error' : ''}`;
+            t.innerHTML = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
 
         function shareStore() {
-            const url = window.location.href;
-            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + location.href)}`, '_blank');
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-            if (modalId === 'videoModal') {
-                document.getElementById('videoFrame').src = '';
-            }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        function closeQuickModal() { document.getElementById('quickModal').style.display = "none"; }
+
+        function openQuickOrder(p) {
+            currentProduct = p;
+            document.getElementById('quickProductInfo').innerHTML = `🛍️ ${p.name} - ${Number(p.price).toLocaleString()} د.ع`;
+            document.getElementById('quickModal').style.display = "flex";
+            ['qName', 'qCity', 'qPhone'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('qGov').value = '';
+            document.getElementById('qLandmark').value = '';
         }
 
-        function playVideoInModal(videoId) {
-            document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-            document.getElementById('videoModal').style.display = "flex";
-        }
-
-        function showDetails(product) {
-            currentModalProduct = product;
-            document.getElementById('modalTitle').innerHTML = product.name;
-            document.getElementById('modalDesc').innerHTML = product.desc || "لا يوجد وصف تفصيلي";
-            
-            const videoContainer = document.getElementById('modalVideoContainer');
-            if (product.video) {
-                let videoId = product.video;
-                if (videoId.includes('youtu.be')) videoId = videoId.split('/').pop();
-                if (videoId.includes('watch?v=')) videoId = videoId.split('v=')[1].split('&')[0];
-                videoContainer.innerHTML = `
-                    <div class="relative pb-[56.25%] h-0 rounded-xl overflow-hidden cursor-pointer" onclick="playVideoInModal('${videoId}')">
-                        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" class="absolute inset-0 w-full h-full object-cover">
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/40">
-                            <i class="fas fa-play-circle text-5xl text-[var(--akkad-gold)]"></i>
-                        </div>
-                    </div>
-                `;
-                videoContainer.style.display = 'block';
-            } else {
-                videoContainer.style.display = 'none';
-            }
-            
-            document.getElementById('descModal').style.display = "flex";
-        }
-
-        function openQuickOrder(productId, productName, productPrice) {
-            currentModalProduct = { id: productId, name: productName, price: productPrice };
-            document.getElementById('quickProductInfo').innerHTML = `🛍️ ${productName} - ${Number(productPrice).toLocaleString()} د.ع`;
-            document.getElementById('quickOrderModal').style.display = "flex";
-        }
-        
         function openQuickOrderFromModal() {
-            if(currentModalProduct) {
-                openQuickOrder(currentModalProduct.id, currentModalProduct.name, currentModalProduct.price);
-                closeModal('descModal');
-            }
-        }
-        
-        function closeQuickOrder() {
-            document.getElementById('quickOrderModal').style.display = "none";
+            if(currentProduct) openQuickOrder(currentProduct);
+            closeModal('detailsModal');
         }
 
-        document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
+        document.getElementById('quickForm')?.addEventListener('submit', (e) => {
             e.preventDefault();
-            const customerName = document.getElementById('quickCustomerName').value.trim();
-            const governorate = document.getElementById('quickGovernorate').value;
-            const city = document.getElementById('quickCity').value.trim();
-            const landmark = document.getElementById('quickLandmark').value.trim();
-            const phone = document.getElementById('quickPhone').value.trim();
-            const product = currentModalProduct;
-
-            if(!customerName || !governorate || !city || !phone || !product) {
-                showToast("❌ الرجاء ملء جميع الحقول المطلوبة", true);
+            const name = document.getElementById('qName').value.trim();
+            const gov = document.getElementById('qGov').value;
+            const city = document.getElementById('qCity').value.trim();
+            const landmark = document.getElementById('qLandmark').value.trim();
+            const phone = document.getElementById('qPhone').value.trim();
+            if(!name || !gov || !city || !phone || !currentProduct) {
+                showToast("❌ املأ جميع الحقول", true);
                 return;
             }
-
-            const message = `📦 *طلب جديد من متجر أكاد*%0A%0A` +
-                `👤 *الاسم:* ${customerName}%0A` +
-                `📍 *المحافظة:* ${governorate}%0A` +
-                `🏘️ *المدينة/الحي:* ${city}%0A` +
-                `🗺️ *أقرب نقطة دالة:* ${landmark || "غير محدد"}%0A` +
-                `📞 *رقم الموبايل:* ${phone}%0A` +
-                `🛍️ *المنتج:* ${product.name}%0A` +
-                `💰 *السعر:* ${Number(product.price).toLocaleString()} د.ع%0A%0A` +
-                `_تم الإرسال من الطلب السريع_`;
-
-            window.open(`https://wa.me/${STORE_WHATSAPP}?text=${message}`, '_blank');
-            showToast("✅ تم توجيهك إلى واتساب");
-            closeQuickOrder();
+            const msg = `📦 *طلب جديد*%0A👤 الاسم: ${name}%0A📍 المحافظة: ${gov}%0A🏘️ الحي: ${city}%0A🗺️ نقطة دالة: ${landmark || "غير محدد"}%0A📞 الجوال: ${phone}%0A🛍️ المنتج: ${currentProduct.name}%0A💰 السعر: ${Number(currentProduct.price).toLocaleString()} د.ع`;
+            window.open(`https://wa.me/${STORE_WHATSAPP}?text=${msg}`, '_blank');
+            showToast("✅ تم التوجيه إلى واتساب");
+            closeQuickModal();
         });
 
+        function showDetails(p) {
+            currentProduct = p;
+            document.getElementById('modalTitle').innerHTML = p.name;
+            document.getElementById('modalDesc').innerHTML = p.desc || "لا يوجد وصف";
+            document.getElementById('detailsModal').style.display = "flex";
+        }
+
         function displayProducts(products) {
-            const grid = document.getElementById('products-grid');
-            const noResults = document.getElementById('no-results');
+            const grid = document.getElementById('productsGrid');
             const loading = document.getElementById('loading');
-            const errorMsg = document.getElementById('error-message');
-            
-            if (!products || products.length === 0) {
-                grid.classList.add('hidden');
-                loading.classList.add('hidden');
-                errorMsg.classList.add('hidden');
-                noResults.classList.remove('hidden');
-                return;
+            const errorMsg = document.getElementById('errorMessage');
+            const noResults = document.getElementById('noResults');
+            if(!products.length) {
+                grid.classList.add('hidden'); loading.classList.add('hidden'); errorMsg.classList.add('hidden');
+                noResults.classList.remove('hidden'); return;
             }
-            
-            grid.classList.remove('hidden');
-            loading.classList.add('hidden');
-            errorMsg.classList.add('hidden');
-            noResults.classList.add('hidden');
-            
-            grid.innerHTML = products.map(product => `
-                <div class="akkad-card overflow-hidden">
-                    <div class="product-image-container" onclick="showDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
-                        <img src="${product.img || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
-                             onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
-                        ${product.video ? `<div class="video-overlay"><div class="play-icon"><i class="fas fa-play"></i></div></div>` : ''}
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
-                            <button onclick="event.stopPropagation(); openQuickOrder('${product.id}', '${escapeHtml(product.name).replace(/'/g, "\\'")}', '${product.price}')" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">طلب سريع</button>
-                        </div>
+            grid.classList.remove('hidden'); loading.classList.add('hidden'); errorMsg.classList.add('hidden'); noResults.classList.add('hidden');
+            grid.innerHTML = products.map(p => `
+                <div class="glass-card p-3 cursor-pointer" onclick="showDetails(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                    <img src="${p.img || 'https://via.placeholder.com/300'}" class="w-full h-40 object-cover rounded-lg mb-2" onerror="this.src='https://via.placeholder.com/300'">
+                    <h3 class="font-bold line-clamp-2">${escapeHtml(p.name)}</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-[#c9a961] font-bold">${Number(p.price).toLocaleString()} د.ع</span>
+                        <button onclick="event.stopPropagation(); openQuickOrder(${JSON.stringify(p).replace(/"/g, '&quot;')})" class="btn-outline px-2 py-1 rounded-lg text-xs">طلب سريع</button>
                     </div>
                 </div>
             `).join('');
         }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
 
-        // ========================================
-        // ⭐最关键: عرض الأقسام حسب ترتيب لوحة التحكم
-        // ========================================
+        function escapeHtml(t) { return t ? t.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]) : ''; }
+
+        // ========== عرض الأقسام حسب الترتيب من لوحة التحكم ==========
         function renderCategories() {
-            const container = document.getElementById('categories-nav');
-            if (!container) return;
-            
+            const container = document.getElementById('categoriesContainer');
+            if(!container) return;
             // استخراج الأقسام الفريدة من المنتجات
-            const uniqueCats = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
-            
-            // ترتيب الأقسام حسب categoryOrder من Firebase
-            let sortedCategories = [];
-            
-            // إضافة الأقسام حسب الترتيب المحفوظ
-            if (categoriesOrder && categoriesOrder.length > 0) {
-                categoriesOrder.forEach(catKey => {
-                    if (uniqueCats.includes(catKey) && !sortedCategories.includes(catKey)) {
-                        sortedCategories.push(catKey);
-                    }
+            const catsFromProducts = [...new Set(allProducts.map(p => p.category).filter(Boolean))];
+            // ترتيب حسب categoryOrder من Firebase
+            let sorted = [];
+            if(categoryOrder.length) {
+                categoryOrder.forEach(catKey => {
+                    if(catsFromProducts.includes(catKey) && !sorted.includes(catKey)) sorted.push(catKey);
                 });
             }
-            
-            // إضافة أي أقسام جديدة
-            uniqueCats.forEach(cat => {
-                if (!sortedCategories.includes(cat)) {
-                    sortedCategories.push(cat);
-                }
-            });
-            
-            const allCategories = ["الكل", ...sortedCategories];
-            
-            container.innerHTML = allCategories.map(cat => `
-                <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
-                        class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition
-                               ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50'}"
-                        style="font-size:13px">
-                    ${cat === "الكل" ? "🌟 الكل" : escapeHtml(cat)}
+            catsFromProducts.forEach(c => { if(!sorted.includes(c)) sorted.push(c); });
+            const allCats = ["all", ...sorted];
+            container.innerHTML = allCats.map(cat => `
+                <button onclick="filterByCategory('${cat}')" 
+                    class="px-4 py-1 rounded-full border text-sm whitespace-nowrap transition ${activeCategory === cat ? 'category-chip' : 'border-white/20'}">
+                    ${cat === "all" ? "🌟 الكل" : escapeHtml(cat)}
                 </button>
             `).join('');
         }
 
         function filterProducts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const search = document.getElementById('searchInput').value.toLowerCase();
             let filtered = [...allProducts];
-            
-            if (activeCategory !== "الكل") {
-                filtered = filtered.filter(p => p.category === activeCategory);
-            }
-            
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    (p.name && p.name.toLowerCase().includes(searchTerm)) || 
-                    (p.desc && p.desc.toLowerCase().includes(searchTerm))
-                );
-            }
-            
+            if(activeCategory !== "all") filtered = filtered.filter(p => p.category === activeCategory);
+            if(search) filtered = filtered.filter(p => p.name?.toLowerCase().includes(search) || p.desc?.toLowerCase().includes(search));
             displayProducts(filtered);
         }
 
         function searchProducts() { filterProducts(); }
-        
-        function resetSearch() {
-            document.getElementById('searchInput').value = '';
-            activeCategory = "الكل";
-            renderCategories();
-            filterProducts();
-        }
-        
-        function filterByCategory(category) {
-            activeCategory = category;
-            renderCategories();
-            filterProducts();
-        }
-
-        function updateTicker() {
-            const ticker = document.getElementById('product-ticker');
-            if (!ticker) return;
-            if (allProducts.length === 0) {
-                ticker.innerHTML = '<span class="ticker-item">⭐ مرحباً بك في متجر أكاد</span>';
-                return;
-            }
-            const html = allProducts.slice(0, 15).map(p => 
-                `<span class="ticker-item">📱 ${escapeHtml(p.name)} - ${(p.price || 0).toLocaleString()} د.ع</span>`
-            ).join('');
-            ticker.innerHTML = html + html;
-        }
-
-        function retryLoad() { loadData(); }
+        function filterByCategory(cat) { activeCategory = cat; renderCategories(); filterProducts(); }
+        function resetSearch() { document.getElementById('searchInput').value = ''; activeCategory = "all"; renderCategories(); filterProducts(); }
 
         function loadData() {
             const loading = document.getElementById('loading');
-            const errorMsg = document.getElementById('error-message');
-            
+            const errorMsg = document.getElementById('errorMessage');
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
-            
-            db.ref('products').once('value').then(snapshot => {
-                const products = snapshot.val() || {};
-                allProducts = Object.keys(products).map(key => ({ id: key, ...products[key] }));
+            // جلب المنتجات
+            db.ref('products').once('value').then(snap => {
+                const data = snap.val() || {};
+                allProducts = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                // جلب ترتيب الأقسام من Firebase (الأهم!)
                 return db.ref('categoryOrder').once('value');
-            }).then(catSnapshot => {
-                categoriesOrder = catSnapshot.val() || [];
-                console.log("📦 ترتيب الأقسام من Firebase:", categoriesOrder);
+            }).then(snap => {
+                categoryOrder = snap.val() || [];
+                console.log("✅ ترتيب الأقسام من Firebase:", categoryOrder);
                 renderCategories();
-                updateTicker();
                 filterProducts();
                 showToast(`✅ تم تحميل ${allProducts.length} منتج`);
-            }).catch(error => {
-                console.error("خطأ:", error);
+            }).catch(err => {
+                console.error(err);
                 loading.classList.add('hidden');
                 errorMsg.classList.remove('hidden');
-                document.getElementById('errorDetail').innerHTML = error.message;
-                showToast("❌ فشل تحميل البيانات", true);
+                showToast("❌ فشل التحميل", true);
             });
         }
 
