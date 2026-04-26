@@ -430,6 +430,11 @@
             border-top: 1px solid rgba(201,169,97,0.2);
             margin-top: 50px;
         }
+        
+        .product-description {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -510,7 +515,7 @@
                 <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] neon-text"></h2>
                 <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
             </div>
-            <p id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6"></p>
+            <div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div>
             <div class="flex gap-3">
                 <button onclick="closeModal('descModal')" class="flex-1 bg-white/10 py-2 rounded-xl hover:bg-white/20 transition">إغلاق</button>
                 <button onclick="openQuickOrderFromModal()" class="flex-1 btn-akkad text-center py-2 rounded-xl flex items-center justify-center gap-2">
@@ -639,18 +644,16 @@
             document.getElementById('videoModal').style.display = "none";
         }
 
-        // ====== عرض المنتج (صورة + علامة فيديو عند التمرير) ======
+        // ====== عرض المنتج ======
         function getMediaElement(product) {
             const imgUrl = product.img || product.image;
             const videoField = product.video || product.videoUrl || product.youtube || product.yt;
             
-            // التحقق من وجود فيديو صالح
             let videoId = null;
             if (videoField && videoField.toString().trim() !== "") {
                 videoId = extractYouTubeId(videoField);
             }
             
-            // إذا كان هناك فيديو صالح، نعرض الصورة + زر فيديو + شارة فيديو
             if (videoId) {
                 const thumbUrl = getYouTubeThumbnail(videoId);
                 return `
@@ -670,7 +673,6 @@
                     </div>`;
             }
             
-            // عرض الصورة فقط (بدون فيديو)
             return `
                 <div class="product-media-container">
                     <img src="${imgUrl || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
@@ -744,10 +746,18 @@
 
         function showDetails(productId) {
             const product = productsCache[productId];
-            if (!product) return;
+            if (!product) {
+                console.error('Product not found:', productId);
+                return;
+            }
             currentProductForOrder = product;
             document.getElementById('modalTitle').innerHTML = product.name;
-            document.getElementById('modalDesc').innerHTML = product.desc || "لا يوجد وصف تفصيلي";
+            
+            // عرض الوصف مع تحويل الأسطر الجديدة إلى <br>
+            let descText = product.desc || "لا يوجد وصف تفصيلي لهذا المنتج";
+            descText = descText.replace(/\n/g, '<br>');
+            document.getElementById('modalDesc').innerHTML = descText;
+            
             document.getElementById('descModal').style.display = "flex";
         }
 
