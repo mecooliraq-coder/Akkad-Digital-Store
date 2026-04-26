@@ -18,7 +18,6 @@ html_content = '''<!DOCTYPE html>
             --akkad-gold-bright: #e8d5a3;
             --glass-bg: rgba(15, 26, 36, 0.55);
             --neon-gold: rgba(201, 169, 97, 0.6);
-            --neon-gold-bright: rgba(201, 169, 97, 0.9);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,7 +30,6 @@ html_content = '''<!DOCTYPE html>
             overflow-x: hidden;
         }
 
-        /* خلفية متدرجة مع تأثير النيون */
         .bg-gradient-custom {
             position: fixed; inset: 0; z-index: -2;
             background: 
@@ -40,30 +38,13 @@ html_content = '''<!DOCTYPE html>
                 linear-gradient(165deg, #030508 0%, #0a1018 40%, #0f1a24 70%, #1a1205 100%);
         }
 
-        /* تأثير النيون الذهبي العائم */
-        .neon-glow {
-            box-shadow: 
-                0 0 5px var(--neon-gold),
-                0 0 10px var(--neon-gold),
-                0 0 20px rgba(201,169,97,0.3),
-                0 0 40px rgba(201,169,97,0.1);
-        }
-        
         .neon-text {
             text-shadow: 
                 0 0 5px var(--neon-gold),
                 0 0 10px var(--neon-gold),
                 0 0 20px rgba(201,169,97,0.5);
         }
-        
-        .neon-border {
-            border: 1px solid rgba(201,169,97,0.4);
-            box-shadow: 
-                inset 0 0 10px rgba(201,169,97,0.1),
-                0 0 10px rgba(201,169,97,0.2);
-        }
 
-        /* شريط التنقل */
         .akkad-nav {
             background: rgba(3,5,8,0.85); 
             backdrop-filter: blur(20px);
@@ -71,7 +52,6 @@ html_content = '''<!DOCTYPE html>
             box-shadow: 0 4px 30px rgba(201,169,97,0.1);
         }
         
-        /* اللوجو */
         .akkad-logo-img { 
             width: 52px; height: 52px; border-radius: 50%; 
             border: 2px solid rgba(201,169,97,0.6); 
@@ -92,7 +72,6 @@ html_content = '''<!DOCTYPE html>
             text-shadow: 0 0 20px rgba(201,169,97,0.3);
         }
 
-        /* بطاقة المنتج - بتصميم تاريخي/بابلي */
         .akkad-card { 
             background: var(--glass-bg); 
             backdrop-filter: blur(16px); 
@@ -103,7 +82,6 @@ html_content = '''<!DOCTYPE html>
             overflow: hidden;
         }
         
-        /* إطار تاريخي علوي للبطاقة */
         .akkad-card::before {
             content: '';
             position: absolute;
@@ -111,6 +89,7 @@ html_content = '''<!DOCTYPE html>
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
             opacity: 0.6;
+            z-index: 2;
         }
         
         .akkad-card:hover { 
@@ -122,7 +101,6 @@ html_content = '''<!DOCTYPE html>
                 0 0 40px rgba(201,169,97,0.08);
         }
 
-        /* زر أكاد */
         .btn-akkad { 
             background: linear-gradient(135deg, var(--akkad-gold), #8b6f47); 
             color: #0a0f18; 
@@ -165,7 +143,6 @@ html_content = '''<!DOCTYPE html>
             box-shadow: 0 0 15px rgba(201,169,97,0.2);
         }
 
-        /* النوافذ المنبثقة */
         .modal { 
             display: none; 
             position: fixed; inset: 0; 
@@ -211,7 +188,6 @@ html_content = '''<!DOCTYPE html>
                 0 0 40px rgba(201,169,97,0.15);
         }
 
-        /* المحمل */
         .loader { 
             border: 3px solid rgba(201,169,97,0.15); 
             border-top: 3px solid var(--akkad-gold); 
@@ -227,7 +203,6 @@ html_content = '''<!DOCTYPE html>
             100% { transform: rotate(360deg); } 
         }
 
-        /* رقائق الفئات */
         .category-chip {
             transition: all 0.3s ease;
             position: relative;
@@ -246,7 +221,6 @@ html_content = '''<!DOCTYPE html>
             box-shadow: 0 0 10px rgba(201,169,97,0.1);
         }
         
-        /* شريط التمرير */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(201,169,97,0.05); }
         ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; box-shadow: 0 0 5px rgba(201,169,97,0.3); }
@@ -258,7 +232,6 @@ html_content = '''<!DOCTYPE html>
             overflow: hidden;
         }
 
-        /* حقل البحث */
         .search-input {
             background: rgba(201,169,97,0.05);
             border: 1px solid rgba(201,169,97,0.2);
@@ -276,7 +249,6 @@ html_content = '''<!DOCTYPE html>
             font-family: 'Tajawal', sans-serif;
         }
 
-        /* تأثير النبض الذهبي */
         @keyframes goldPulse {
             0%, 100% { box-shadow: 0 0 5px rgba(201,169,97,0.3); }
             50% { box-shadow: 0 0 20px rgba(201,169,97,0.6), 0 0 40px rgba(201,169,97,0.2); }
@@ -286,7 +258,6 @@ html_content = '''<!DOCTYPE html>
             animation: goldPulse 3s ease-in-out infinite;
         }
 
-        /* زر المشاركة */
         .share-btn {
             background: linear-gradient(135deg, #25D366, #128C7E);
             transition: all 0.3s ease;
@@ -297,7 +268,6 @@ html_content = '''<!DOCTYPE html>
             box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
         }
 
-        /* عنوان القسم */
         .section-title {
             position: relative;
             display: inline-block;
@@ -315,67 +285,150 @@ html_content = '''<!DOCTYPE html>
             box-shadow: 0 0 10px rgba(201,169,97,0.5);
         }
 
-        /* تأثير الإطار الذهبي للصور */
+        /* ====== حاوية الوسائط مع زر الفيديو ====== */
         .product-media-container {
             position: relative;
             overflow: hidden;
+            height: 180px;
         }
         
-        .product-media-container::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 1px solid rgba(201,169,97,0.2);
-            pointer-events: none;
-        }
-        
-        .product-media-container video,
-        .product-media-container img {
+        .product-media-container img,
+        .product-media-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             transition: transform 0.5s ease;
         }
         
-        .akkad-card:hover .product-media-container video,
-        .akkad-card:hover .product-media-container img {
+        .akkad-card:hover .product-media-container img,
+        .akkad-card:hover .product-media-container video {
             transform: scale(1.08);
         }
 
-        /* أيقونة الفيديو */
-        .video-badge {
+        /* زر تشغيل الفيديو الكبير داخل الصورة */
+        .video-play-btn {
             position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(201,169,97,0.9);
-            color: #0a0f18;
-            width: 28px;
-            height: 28px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
+            background: rgba(201, 169, 97, 0.9);
+            border: 3px solid rgba(255,255,255,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            cursor: pointer;
+            z-index: 3;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 0 4px rgba(201,169,97,0.3),
+                0 4px 20px rgba(0,0,0,0.4);
+        }
+        
+        .video-play-btn:hover {
+            background: var(--akkad-gold);
+            transform: translate(-50%, -50%) scale(1.15);
+            box-shadow: 
+                0 0 0 6px rgba(201,169,97,0.4),
+                0 0 20px rgba(201,169,97,0.6),
+                0 4px 25px rgba(0,0,0,0.5);
+        }
+        
+        .video-play-btn i {
+            color: #0a0f18;
+            font-size: 20px;
+            margin-right: -2px;
+        }
+
+        /* شريط فيديو صغير في الأعلى */
+        .video-badge-bar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(201, 169, 97, 0.9);
+            color: #0a0f18;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* overlay داكن عند hover */
+        .media-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0);
+            transition: background 0.3s ease;
             z-index: 2;
-            box-shadow: 0 0 10px rgba(201,169,97,0.5);
+        }
+        
+        .product-media-container:hover .media-overlay {
+            background: rgba(0,0,0,0.2);
         }
 
         /* تأثير الظهور */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .fade-in-up {
             animation: fadeInUp 0.5s ease forwards;
         }
 
-        /* خط عتيق للعناوين */
         .amiri-font {
             font-family: 'Amiri', serif;
+        }
+
+        /* نافذة مشاهدة الفيديو */
+        .video-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(3,5,8,0.95);
+            z-index: 1200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+        
+        .video-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 2px solid rgba(201,169,97,0.4);
+            box-shadow: 0 0 50px rgba(201,169,97,0.2);
+        }
+        
+        .video-modal-content video {
+            max-width: 90vw;
+            max-height: 85vh;
+            display: block;
+        }
+        
+        .video-modal-close {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            color: var(--akkad-gold);
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: transform 0.2s;
+        }
+        
+        .video-modal-close:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -467,7 +520,7 @@ html_content = '''<!DOCTYPE html>
                 <h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text"><i class="fas fa-shopping-cart ml-2"></i>طلب سريع</h3>
                 <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
             </div>
-            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4 neon-border"></div>
+            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4" style="border:1px solid rgba(201,169,97,0.3); box-shadow:inset 0 0 10px rgba(201,169,97,0.05);"></div>
             <form id="quickOrderForm" class="space-y-3">
                 <input type="hidden" id="quickProductId">
                 <input type="hidden" id="quickProductName">
@@ -492,6 +545,14 @@ html_content = '''<!DOCTYPE html>
                 
                 <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-lg transition"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب عبر واتساب</button>
             </form>
+        </div>
+    </div>
+
+    <!-- نافذة مشاهدة الفيديو -->
+    <div id="videoModal" class="video-modal" onclick="closeVideoModal()">
+        <div class="video-modal-content" onclick="event.stopPropagation()">
+            <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
+            <video id="modalVideo" controls autoplay style="max-width:90vw;max-height:85vh;"></video>
         </div>
     </div>
 
@@ -571,6 +632,23 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
+        // ====== نافذة الفيديو ======
+        function openVideoModal(videoUrl) {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            video.src = videoUrl;
+            video.load();
+            modal.style.display = "flex";
+        }
+        
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            video.pause();
+            video.src = "";
+            modal.style.display = "none";
+        }
+
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const customerName = document.getElementById('quickCustomerName').value.trim();
@@ -600,49 +678,40 @@ html_content = '''<!DOCTYPE html>
             closeQuickOrder();
         });
 
-        // دالة لتحديد نوع الوسائط (فيديو أو صورة)
+        // ====== دالة عرض الوسائط مع زر الفيديو ======
         function getMediaElement(product) {
             const videoUrl = product.video || product.videoUrl;
             const imgUrl = product.img || product.image || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد';
             
             if (videoUrl) {
-                // التحقق من امتداد الفيديو
                 const isVideo = /\\.(mp4|webm|ogg|mov)$/i.test(videoUrl) || 
                                videoUrl.includes('video') || 
                                videoUrl.includes('firebasestorage');
                 
                 if (isVideo) {
-                    return {
-                        html: `<div class="product-media-container h-40 relative">
-                            <video 
-                                src="${videoUrl}" 
-                                class="w-full h-full object-cover"
-                                muted 
-                                loop 
-                                playsinline
-                                poster="${imgUrl}"
-                                onmouseenter="this.play()"
-                                onmouseleave="this.pause();this.currentTime=0;"
-                                onloadeddata="this.parentElement.querySelector('.video-loader').style.display='none'"
-                            ></video>
-                            <div class="video-loader absolute inset-0 flex items-center justify-center bg-[#0a1018]">
-                                <div class="loader" style="width:24px;height:24px;border-width:2px;margin:0;"></div>
+                    return `
+                        <div class="product-media-container">
+                            <img src="${imgUrl}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
+                            <div class="media-overlay"></div>
+                            <div class="video-badge-bar">
+                                <i class="fas fa-video"></i> فيديو
                             </div>
-                            <div class="video-badge"><i class="fas fa-play"></i></div>
-                        </div>`,
-                        hasVideo: true
-                    };
+                            <button onclick="event.stopPropagation(); openVideoModal('${videoUrl}')" 
+                                    class="video-play-btn" title="شاهد الفيديو">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>`;
                 }
             }
             
-            return {
-                html: `<div class="product-media-container h-40">
+            return `
+                <div class="product-media-container">
                     <img src="${imgUrl}" 
                          class="w-full h-full object-cover"
                          onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
-                </div>`,
-                hasVideo: false
-            };
+                </div>`;
         }
 
         function displayProducts(products) {
@@ -665,19 +734,25 @@ html_content = '''<!DOCTYPE html>
             noResults.classList.add('hidden');
             
             grid.innerHTML = products.map((product, index) => {
-                const media = getMediaElement(product);
+                const mediaHtml = getMediaElement(product);
                 return `
                 <div class="akkad-card overflow-hidden cursor-pointer fade-in-up" 
                      onclick="showDetails('${product.id}')"
                      style="animation-delay: ${index * 0.05}s">
-                    ${media.html}
+                    ${mediaHtml}
                     <div class="p-4">
                         <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center mb-2">
                             <span class="text-[var(--akkad-gold)] font-bold neon-text">${(product.price || 0).toLocaleString()} د.ع</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="event.stopPropagation(); showDetails('${product.id}')" 
+                                    class="flex-1 btn-outline-akkad px-2 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1">
+                                <i class="fas fa-info-circle"></i> تفاصيل
+                            </button>
                             <button onclick="event.stopPropagation(); openQuickOrder(${JSON.stringify(product).replace(/"/g, '&quot;')})" 
-                                    class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">
-                                طلب سريع
+                                    class="flex-1 btn-akkad px-2 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1">
+                                <i class="fab fa-whatsapp"></i> طلب سريع
                             </button>
                         </div>
                     </div>
@@ -792,9 +867,9 @@ html_content = '''<!DOCTYPE html>
 </body>
 </html>'''
 
-# Save the file
-with open('/mnt/agents/output/akkad_store.html', 'w', encoding='utf-8') as f:
+# Save the complete updated file
+with open('/mnt/agents/output/akkad_store_final.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("✅ تم حفظ الملف بنجاح!")
+print("✅ تم حفظ الكود الكامل المعدل بنجاح!")
 print(f"📄 حجم الملف: {len(html_content):,} حرف")
