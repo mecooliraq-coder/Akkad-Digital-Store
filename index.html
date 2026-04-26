@@ -302,6 +302,42 @@
             transform: scale(1.08);
         }
 
+        .video-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(201, 169, 97, 0.95);
+            border: 2px solid rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 4px rgba(201,169,97,0.3);
+        }
+        
+        .product-media-container:hover .video-play-btn {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .video-play-btn:hover {
+            background: var(--akkad-gold);
+            transform: translate(-50%, -50%) scale(1.15) !important;
+        }
+        
+        .video-play-btn i {
+            color: #0a0f18;
+            font-size: 20px;
+            margin-right: 2px;
+        }
+
         .video-badge-bar {
             position: absolute;
             top: 10px;
@@ -597,7 +633,8 @@
             return match ? match[1] : null;
         }
 
-        function playVideo(videoUrl) {
+        function playVideo(videoUrl, event) {
+            if (event) event.stopPropagation();
             if (!videoUrl) return;
             const videoId = getYouTubeId(videoUrl);
             if (videoId) {
@@ -724,7 +761,7 @@
             }
         }
 
-        // عرض المنتجات مع جعل الصورة قابلة للنقر
+        // عرض المنتجات
         function renderProducts() {
             const container = document.getElementById('products-grid');
             let filtered = [...allProducts];
@@ -753,6 +790,9 @@
                     <div class="product-media-container" onclick="handleImageClick('${product.id}')">
                         <img src="${product.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(product.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">
                         ${product.video ? `
+                            <div class="video-play-btn" onclick="playVideo('${product.video}', event)">
+                                <i class="fas fa-play"></i>
+                            </div>
                             <div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>
                         ` : ''}
                         <div class="media-overlay"></div>
