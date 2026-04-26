@@ -73,24 +73,10 @@
             border: 1px solid rgba(201,169,97,0.35); 
             color: var(--akkad-gold); 
             background: rgba(201,169,97,0.04); 
+            cursor: pointer;
         }
-
-        /* نوافذ منبثقة */
-        .modal { 
-            display: none; 
-            position: fixed; inset: 0; 
-            background: rgba(3,5,8,0.9); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(10px);
-        }
-        .modal-content { 
-            background: rgba(15,26,36,0.98); 
-            border: 1px solid rgba(201,169,97,0.3); 
-            border-radius: 1.5rem; 
-            padding: 1.75rem; 
-            max-width: 500px; width: 90%;
+        .btn-outline-akkad:hover {
+            background: rgba(201,169,97,0.15);
         }
 
         /* نافذة الطلب السريع */
@@ -118,13 +104,14 @@
         .product-image-container {
             position: relative;
             overflow: hidden;
-            border-radius: 1rem;
+            height: 160px;
             cursor: pointer;
         }
         .product-image-container img {
             width: 100%;
-            height: 180px;
+            height: 100%;
             object-fit: cover;
+            transition: 0.3s;
         }
         .video-overlay {
             position: absolute;
@@ -149,6 +136,23 @@
             justify-content: center;
             font-size: 20px;
             color: #030508;
+        }
+
+        .modal { 
+            display: none; 
+            position: fixed; inset: 0; 
+            background: rgba(3,5,8,0.9); 
+            z-index: 1000; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(10px);
+        }
+        .modal-content { 
+            background: rgba(15,26,36,0.98); 
+            border: 1px solid rgba(201,169,97,0.3); 
+            border-radius: 1.5rem; 
+            padding: 1.75rem; 
+            max-width: 500px; width: 90%;
         }
 
         .loader { 
@@ -190,15 +194,15 @@
         }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        input, select, textarea {
+            font-family: 'Tajawal', sans-serif;
+        }
     </style>
 </head>
 <body>
     <div class="bg-gradient-custom"></div>
 
-    <!-- شريط الإشعارات -->
-    <div id="toast" class="fixed top-5 left-5 z-50 px-4 py-2 rounded-lg hidden" style="background: #1a4d7a;"></div>
-
-    <!-- الهيدر مثل الأول -->
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
@@ -258,7 +262,7 @@
         </div>
     </main>
 
-    <!-- نافذة عرض التفاصيل -->
+    <!-- نافذة تفاصيل المنتج -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
@@ -272,7 +276,7 @@
         </div>
     </div>
 
-    <!-- نافذة الطلب السريع الكاملة -->
+    <!-- نافذة الطلب السريع -->
     <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target === this) closeQuickOrder()">
         <div class="quick-order-form p-6 space-y-4">
             <div class="flex justify-between items-center">
@@ -328,11 +332,11 @@
         const STORE_WHATSAPP = "9647730492020";
 
         function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
             toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${message}`;
-            toast.style.display = "block";
-            setTimeout(() => toast.style.display = "none", 3000);
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
         function shareStore() {
@@ -441,8 +445,8 @@
             noResults.classList.add('hidden');
             
             grid.innerHTML = products.map(product => `
-                <div class="akkad-card overflow-hidden cursor-pointer" onclick="showDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})">
-                    <div class="product-image-container" onclick="event.stopPropagation(); ${product.video ? `showVideoModal('${product.video}')` : `showDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})`}">
+                <div class="akkad-card overflow-hidden">
+                    <div class="product-image-container" onclick="${product.video ? `showVideoModal('${product.video}')` : `showDetails(${JSON.stringify(product).replace(/"/g, '&quot;')})`}">
                         <img src="${product.img || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
                              class="w-full h-full object-cover"
                              onerror="this.src='https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'">
@@ -450,7 +454,7 @@
                     </div>
                     <div class="p-4">
                         <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center">
                             <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
                             <button onclick="event.stopPropagation(); openQuickOrder('${product.id}', '${escapeHtml(product.name).replace(/'/g, "\\'")}', '${product.price}')" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">طلب سريع</button>
                         </div>
@@ -469,7 +473,7 @@
             });
         }
 
-        // عرض الأقسام مع الترتيب من لوحة التحكم
+        // عرض الأقسام حسب الترتيب من لوحة التحكم
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             
