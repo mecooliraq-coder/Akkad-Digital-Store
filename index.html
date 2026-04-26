@@ -38,16 +38,36 @@
             border-bottom: 1px solid rgba(201,169,97,0.15);
         }
         
-        .akkad-logo-img { 
-            width: 52px; height: 52px; border-radius: 50%; 
-            border: 2px solid rgba(201,169,97,0.4); 
-            object-fit: cover; 
+        .akkad-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
-        .akkad-logo-text { 
-            font-size: 1.45rem; font-weight: 700; 
-            background: linear-gradient(135deg, #fff, var(--akkad-gold)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        .akkad-logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #c9a961, #8b6f47);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #030508;
+            font-family: 'Amiri', serif;
+        }
+        .akkad-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--akkad-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Amiri', serif;
+        }
+        .akkad-logo-sub {
+            font-size: 10px;
+            color: rgba(201,169,97,0.7);
+            letter-spacing: 2px;
         }
 
         .akkad-card { 
@@ -75,7 +95,6 @@
             background: rgba(201,169,97,0.04); 
         }
 
-        /* نوافذ منبثقة */
         .modal { 
             display: none; 
             position: fixed; inset: 0; 
@@ -94,7 +113,6 @@
             width: 90%;
         }
 
-        /* نافذة الطلب السريع */
         .quick-order-modal {
             display: none;
             position: fixed;
@@ -115,7 +133,6 @@
             overflow-y: auto;
         }
 
-        /* حاوية صورة المنتج مع الفيديو */
         .product-image-container {
             position: relative;
             overflow: hidden;
@@ -192,6 +209,16 @@
         }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--akkad-gold);
+        }
+        .price small {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
@@ -200,16 +227,29 @@
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
-                <a href="#" class="flex items-center gap-3">
-                    <img src="https://via.placeholder.com/52/1a4d7a/c9a961?text=A" alt="شعار أكاد" class="akkad-logo-img">
+                <!-- الشعار الجديد المتناسق مع الاسم -->
+                <div class="akkad-logo">
+                    <div class="akkad-logo-icon">أ</div>
                     <div>
                         <div class="akkad-logo-text">أكاد</div>
-                        <div class="text-[10px] text-[var(--akkad-gold)] tracking-wider">DIGITAL STORE</div>
+                        <div class="akkad-logo-sub">ᴅɪɢɪᴛᴀʟ ꜱᴛᴏʀᴇ</div>
                     </div>
-                </a>
-                <a href="admin-panel.html" class="px-3 py-2 rounded-xl text-xs bg-white/10 hover:bg-white/20 transition">
-                    <i class="fas fa-cog ml-1"></i> لوحة التحكم
-                </a>
+                </div>
+                
+                <!-- أزرار المشاركة والواتساب -->
+                <div class="flex gap-2">
+                    <button onclick="shareStore()" class="px-4 py-2 rounded-xl flex items-center gap-2 text-sm" style="background: linear-gradient(135deg, #25D366, #128C7E);">
+                        <i class="fas fa-share-alt"></i>
+                        <span class="hidden sm:inline">مشاركة</span>
+                    </button>
+                    <a href="https://wa.me/9647730492020" target="_blank" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center hover:opacity-90 transition">
+                        <i class="fab fa-whatsapp text-xl"></i>
+                    </a>
+                    <a href="admin-panel.html" class="px-3 py-2 rounded-xl text-xs bg-white/10 hover:bg-white/20 transition flex items-center gap-1">
+                        <i class="fas fa-cog"></i>
+                        <span class="hidden sm:inline">لوحة التحكم</span>
+                    </a>
+                </div>
             </div>
             
             <div class="relative max-w-2xl mx-auto">
@@ -263,7 +303,7 @@
         </div>
     </div>
 
-    <!-- نافذة الطلب السريع الكاملة -->
+    <!-- نافذة الطلب السريع -->
     <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target === this) closeQuickOrder()">
         <div class="quick-order-form p-6 space-y-4">
             <div class="flex justify-between items-center">
@@ -297,9 +337,7 @@
     </div>
 
     <script>
-        // ========================================
         // إعدادات Firebase
-        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -310,25 +348,16 @@
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ========================================
-        // المتغيرات العامة
-        // ========================================
         let allProducts = [];
         let categoriesMap = {};
         let categoryOrder = [];
         let activeCategory = "الكل";
         let currentModalProduct = null;
-
-        // رقم واتساب المتجر (غيّره إلى رقمك)
         const STORE_WHATSAPP = "9647730492020";
 
-        // ========================================
-        // الإشعارات
-        // ========================================
         function showToast(message, isError = false) {
             const toast = document.createElement('div');
             toast.className = `toast ${isError ? 'error' : ''}`;
@@ -337,9 +366,11 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // ========================================
-        // دوال الفيديو
-        // ========================================
+        function shareStore() {
+            const url = window.location.href;
+            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي - أفضل العروض والمنتجات الرقمية\n' + url)}`, '_blank');
+        }
+
         function showVideoModal(videoId) {
             if(!videoId) return;
             const modal = document.getElementById('videoModal');
@@ -355,16 +386,11 @@
             modal.style.display = "none";
         }
 
-        // ========================================
-        // دوال الطلب السريع
-        // ========================================
         function openQuickOrder(productId, productName, productPrice) {
             currentModalProduct = { id: productId, name: productName, price: productPrice };
             document.getElementById('quickProductId').value = productId;
             document.getElementById('quickProductInfo').innerHTML = `🛍️ ${productName} - ${Number(productPrice).toLocaleString()} د.ع`;
             document.getElementById('quickOrderModal').style.display = "flex";
-            
-            // تفريغ الحقول السابقة
             document.getElementById('quickCustomerName').value = '';
             document.getElementById('quickGovernorate').value = '';
             document.getElementById('quickCity').value = '';
@@ -383,7 +409,6 @@
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // إرسال الطلب إلى واتساب
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const customerName = document.getElementById('quickCustomerName').value.trim();
@@ -414,9 +439,6 @@
             closeQuickOrder();
         });
 
-        // ========================================
-        // دوال العرض
-        // ========================================
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
@@ -457,8 +479,8 @@
                     </div>
                     <div class="p-4">
                         <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
+                        <div class="price mb-3">
+                            ${(product.price || 0).toLocaleString()} <small>د.ع</small>
                         </div>
                         <button onclick="openQuickOrder('${product.id}', '${escapeHtml(product.name).replace(/'/g, "\\'")}', '${product.price}')" 
                                 class="w-full btn-akkad py-2 rounded-lg text-sm flex items-center justify-center gap-2">
@@ -479,16 +501,11 @@
             });
         }
 
-        // ========================================
-        // عرض الأقسام (مع الترتيب من لوحة التحكم)
-        // ========================================
+        // عرض الأقسام حسب الترتيب من لوحة التحكم
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             
-            // بناء قائمة الأقسام حسب الترتيب من categoryOrder
             let sortedCategories = [];
-            
-            // أولاً: الأقسام المرتبة
             if(categoryOrder && categoryOrder.length > 0) {
                 categoryOrder.forEach(catKey => {
                     if(categoriesMap[catKey] && !sortedCategories.includes(categoriesMap[catKey])) {
@@ -497,7 +514,6 @@
                 });
             }
             
-            // ثانياً: إضافة أي أقسام مفقودة من categoriesMap
             Object.values(categoriesMap).forEach(cat => {
                 if(!sortedCategories.includes(cat)) {
                     sortedCategories.push(cat);
@@ -516,9 +532,6 @@
             `).join('');
         }
 
-        // ========================================
-        // التصفية والبحث
-        // ========================================
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
@@ -556,9 +569,6 @@
             loadData();
         }
 
-        // ========================================
-        // تحميل جميع البيانات
-        // ========================================
         function loadData() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
@@ -566,7 +576,6 @@
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
             
-            // تحميل الأقسام وترتيبها
             db.ref('categories').once('value').then(snapshot => {
                 categoriesMap = snapshot.val() || {};
                 return db.ref('categoryOrder').once('value');
@@ -582,7 +591,7 @@
                 }));
                 filterProducts();
             }).catch(error => {
-                console.error("خطأ في تحميل البيانات:", error);
+                console.error("خطأ:", error);
                 loading.classList.add('hidden');
                 errorMsg.classList.remove('hidden');
                 document.getElementById('errorDetail').innerHTML = error.message;
@@ -590,7 +599,6 @@
             });
         }
 
-        // بدء التحميل
         loadData();
     </script>
 </body>
