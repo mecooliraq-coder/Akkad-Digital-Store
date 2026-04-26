@@ -1,6 +1,4 @@
-
-# Create the COMPLETE fixed HTML with full debug capabilities
-fixed_html = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -432,32 +430,27 @@ fixed_html = '''<!DOCTYPE html>
             transform: scale(1.2);
         }
 
-        /* Debug Panel */
-        .debug-panel {
-            background: rgba(220, 38, 38, 0.1);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 12px;
-            color: #f87171;
-            font-family: 'Courier New', monospace;
-            direction: ltr;
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
+        /* تذييل الصفحة */
+        .footer {
+            background: rgba(3,5,8,0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(201,169,97,0.2);
+            margin-top: 50px;
         }
-        
-        .debug-panel .success { color: #4ade80; }
-        .debug-panel .error { color: #f87171; }
-        .debug-panel .info { color: #60a5fa; }
+
+        /* شريط التمرير السلس */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body>
     <div class="bg-gradient-custom"></div>
 
-    <div id="toast" class="fixed top-5 left-5 z-50 px-4 py-2 rounded-lg hidden" style="background: #1a4d7a; box-shadow: 0 0 15px rgba(26,77,122,0.5);"></div>
+    <!-- رسالة منبثقة -->
+    <div id="toast" class="fixed top-5 left-5 z-50 px-4 py-2 rounded-lg hidden transition-all duration-300" style="background: #1a4d7a; box-shadow: 0 0 15px rgba(26,77,122,0.5);"></div>
 
+    <!-- شريط التنقل -->
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
@@ -469,11 +462,11 @@ fixed_html = '''<!DOCTYPE html>
                     </div>
                 </a>
                 <div class="flex gap-2">
-                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs">
+                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs text-white">
                         <i class="fas fa-share-nodes"></i>
                         <span class="hidden sm:inline">مشاركة</span>
                     </button>
-                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center gold-pulse">
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center gold-pulse" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
@@ -488,6 +481,7 @@ fixed_html = '''<!DOCTYPE html>
         </div>
     </nav>
 
+    <!-- المحتوى الرئيسي -->
     <main class="container mx-auto px-4 py-10">
         <div class="text-center mb-10">
             <h2 class="text-2xl md:text-3xl font-bold mb-3 section-title amiri-font">✨ كنوز أكاد الرقمية ✨</h2>
@@ -498,14 +492,12 @@ fixed_html = '''<!DOCTYPE html>
             <div class="loader"></div>
             <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
             <p id="loadingStatus" class="text-gray-500 text-xs mt-2">جاري التهيئة...</p>
-            <div id="debugInfo" class="debug-panel hidden"></div>
         </div>
         
         <div id="error-message" class="hidden text-center py-20">
             <div class="text-6xl mb-4">⚠️</div>
             <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
             <p id="errorDetail" class="text-gray-400 mb-4"></p>
-            <div id="errorDebug" class="debug-panel" style="margin-bottom: 15px;"></div>
             <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
                 <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
             </button>
@@ -518,6 +510,14 @@ fixed_html = '''<!DOCTYPE html>
             <button onclick="resetSearch()" class="btn-outline-akkad px-6 py-2 rounded-xl mt-4">عرض الكل</button>
         </div>
     </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer py-6 text-center">
+        <div class="container mx-auto px-4">
+            <p class="text-gray-500 text-sm">© 2024 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
+            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين</p>
+        </div>
+    </footer>
 
     <!-- نافذة تفاصيل المنتج -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
@@ -580,33 +580,7 @@ fixed_html = '''<!DOCTYPE html>
     </div>
 
     <script>
-        // ====== Debug Logger ======
-        const debugLogs = [];
-        function log(type, message, data) {
-            const timestamp = new Date().toLocaleTimeString();
-            const entry = `[${timestamp}] [${type}] ${message}`;
-            debugLogs.push(entry);
-            console.log(entry, data || '');
-            updateDebugPanel();
-        }
-        
-        function updateDebugPanel() {
-            const panel = document.getElementById('debugInfo');
-            if (panel && !panel.classList.contains('hidden')) {
-                panel.innerHTML = debugLogs.slice(-10).map(line => {
-                    if (line.includes('[ERROR]')) return `<div class="error">${line}</div>`;
-                    if (line.includes('[SUCCESS]')) return `<div class="success">${line}</div>`;
-                    return `<div class="info">${line}</div>`;
-                }).join('');
-            }
-        }
-        
-        function showDebug() {
-            const panel = document.getElementById('debugInfo');
-            if (panel) panel.classList.remove('hidden');
-        }
-
-        // ====== Firebase Config ======
+        // ====== إعداد Firebase ======
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -617,20 +591,19 @@ fixed_html = '''<!DOCTYPE html>
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        // Initialize Firebase
+        // تهيئة Firebase
         let db;
         let firebaseApp;
         try {
-            log('INFO', 'Initializing Firebase...');
             firebaseApp = firebase.initializeApp(firebaseConfig);
             db = firebase.database();
-            log('SUCCESS', 'Firebase initialized successfully');
+            console.log('✅ Firebase initialized successfully');
         } catch (e) {
-            log('ERROR', 'Firebase init failed: ' + e.message);
-            showLoadingError("فشل تهيئة Firebase", e.message);
+            console.error('❌ Firebase init failed:', e);
+            showLoadingError("فشل تهيئة قاعدة البيانات", e.message);
         }
 
-        // ====== State ======
+        // ====== المتغيرات العامة ======
         let allProducts = [];
         let categoriesMap = {};
         let categoryOrder = [];
@@ -638,10 +611,8 @@ fixed_html = '''<!DOCTYPE html>
         let productsCache = {};
         let currentProductForOrder = null;
         const STORE_WHATSAPP = "9647730492020";
-        let loadTimeout;
-        let isLoading = false;
 
-        // ====== Toast ======
+        // ====== وظائف مساعدة ======
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
@@ -653,19 +624,16 @@ fixed_html = '''<!DOCTYPE html>
             setTimeout(() => toast.style.display = "none", 3000);
         }
 
-        // ====== Loading Error Handler ======
         function showLoadingError(message, debug = "") {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
             const errorDetail = document.getElementById('errorDetail');
-            const errorDebug = document.getElementById('errorDebug');
             
             loading.classList.add('hidden');
             errorMsg.classList.remove('hidden');
             errorDetail.textContent = message;
-            errorDebug.innerHTML = debug ? `<div class="error">${debug}</div>` : '';
             
-            log('ERROR', 'Loading Error: ' + message, debug);
+            console.error('Error:', message, debug);
         }
 
         function updateLoadingStatus(text) {
@@ -673,13 +641,12 @@ fixed_html = '''<!DOCTYPE html>
             if (el) el.textContent = text;
         }
 
-        // ====== Share ======
         function shareStore() {
             const url = window.location.href;
-            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\\n' + url)}`, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
         }
 
-        // ====== Modals ======
+        // ====== وظائف النوافذ ======
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
@@ -718,14 +685,14 @@ fixed_html = '''<!DOCTYPE html>
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // ====== YouTube Video Functions ======
+        // ====== وظائف الفيديو ======
         function extractYouTubeId(url) {
             if (!url) return null;
             if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
             const patterns = [
-                /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/|youtube\\.com\\/embed\\/|youtube\\.com\\/v\\/|youtube\\.com\\/shorts\\/)([a-zA-Z0-9_-]{11})/,
-                /youtube\\.com\\/watch\\?.*v=([a-zA-Z0-9_-]{11})/,
-                /youtu\\.be\\/([a-zA-Z0-9_-]{11})/
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/,
+                /youtu\.be\/([a-zA-Z0-9_-]{11})/
             ];
             for (let pattern of patterns) {
                 const match = url.match(pattern);
@@ -756,7 +723,7 @@ fixed_html = '''<!DOCTYPE html>
             modal.style.display = "none";
         }
 
-        // ====== Quick Order Form ======
+        // ====== نموذج الطلب السريع ======
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const customerName = document.getElementById('quickCustomerName').value.trim();
@@ -786,7 +753,7 @@ fixed_html = '''<!DOCTYPE html>
             closeQuickOrder();
         });
 
-        // ====== Media Element with Video Support ======
+        // ====== عرض الوسائط (صور/فيديو) ======
         function getMediaElement(product) {
             const videoField = product.video || product.videoUrl || product.youtube || product.yt;
             const imgUrl = product.img || product.image;
@@ -821,7 +788,7 @@ fixed_html = '''<!DOCTYPE html>
                 </div>`;
         }
 
-        // ====== Display Products ======
+        // ====== عرض المنتجات ======
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -870,7 +837,7 @@ fixed_html = '''<!DOCTYPE html>
         
         function escapeHtml(text) {
             if (!text) return '';
-            return text.replace(/[&<>]/g, function(m) {
+            return String(text).replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
@@ -878,7 +845,7 @@ fixed_html = '''<!DOCTYPE html>
             });
         }
 
-        // ====== Filter & Search ======
+        // ====== فلترة وبحث ======
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
@@ -909,12 +876,14 @@ fixed_html = '''<!DOCTYPE html>
             filterProducts();
         }
 
-        // ====== Render Categories ======
+        // ====== عرض الأقسام ======
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
+            
             let categoryNames = Object.values(categoriesMap);
             let sortedCategories = [];
+            
             if (categoryOrder && categoryOrder.length > 0) {
                 categoryOrder.forEach(catKey => {
                     const catName = categoriesMap[catKey];
@@ -928,78 +897,54 @@ fixed_html = '''<!DOCTYPE html>
                     sortedCategories.push(catName);
                 }
             });
+            
             const categories = ["الكل", ...sortedCategories];
             container.innerHTML = categories.map(cat => `
                 <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
-                    class="category-chip px-4 py-1.5 rounded-full border text-sm whitespace-nowrap ${activeCategory === cat ? 'active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50 text-gray-300'}"
+                    class="category-chip px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition-all ${activeCategory === cat ? 'active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50 text-gray-300'}"
                     style="font-size:13px">
                     ${cat === "الكل" ? "🌟 الكل" : escapeHtml(cat)}
                 </button>
             `).join('');
         }
 
-        // ====== Retry ======
+        // ====== إعادة المحاولة ======
         function retryConnection() { 
-            log('INFO', 'Retrying connection...');
             loadData(); 
         }
 
-        // ====== Load Data with Timeout & Debug ======
+        // ====== تحميل البيانات ======
         function loadData() {
-            if (isLoading) {
-                log('WARN', 'Load already in progress, skipping');
-                return;
-            }
-            
-            isLoading = true;
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
-            const debugInfo = document.getElementById('debugInfo');
             
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
-            showDebug();
-            
-            // Timeout to prevent infinite loading
-            if (loadTimeout) clearTimeout(loadTimeout);
-            loadTimeout = setTimeout(() => {
-                isLoading = false;
-                showLoadingError(
-                    "انتهى وقت الانتظار (10 ثوانٍ).",
-                    "POSSIBLE CAUSES:\n1. Firebase Rules block read access\n2. No internet connection\n3. Database is empty\n4. Wrong database URL"
-                );
-                log('ERROR', 'Load timeout after 10s');
-            }, 10000);
 
             updateLoadingStatus('جاري تحميل الأقسام...');
-            log('INFO', 'Loading categories...');
             
             db.ref('categories').once('value')
                 .then(snapshot => {
                     categoriesMap = snapshot.val() || {};
-                    log('SUCCESS', `Categories loaded: ${Object.keys(categoriesMap).length} categories`);
+                    console.log('✅ Categories loaded:', Object.keys(categoriesMap).length);
                     updateLoadingStatus('جاري تحميل ترتيب الأقسام...');
                     return db.ref('categoryOrder').once('value');
                 })
                 .then(snapshot => {
                     categoryOrder = snapshot.val() || [];
-                    log('SUCCESS', `CategoryOrder loaded: ${categoryOrder.length} items`);
+                    console.log('✅ CategoryOrder loaded:', categoryOrder.length);
                     updateLoadingStatus('جاري تحميل المنتجات...');
                     return db.ref('products').once('value');
                 })
                 .then(snapshot => {
-                    clearTimeout(loadTimeout);
-                    isLoading = false;
-                    
                     const products = snapshot.val() || {};
                     const productKeys = Object.keys(products);
-                    log('SUCCESS', `Products loaded: ${productKeys.length} products`);
+                    console.log('✅ Products loaded:', productKeys.length);
                     
                     if (productKeys.length === 0) {
-                        log('WARN', 'No products found in database');
                         showLoadingError(
-                            "لا توجد منتجات في قاعدة البيانات.",
-                            "Database path 'products' is empty.\\nAdd products via Firebase Console."
+                            "لا توجد منتجات في قاعدة البيانات حالياً",
+                            "سيتم إضافة منتجات قريباً"
                         );
                         return;
                     }
@@ -1013,60 +958,28 @@ fixed_html = '''<!DOCTYPE html>
                     showToast(`✅ تم تحميل ${allProducts.length} منتج`);
                 })
                 .catch(error => {
-                    clearTimeout(loadTimeout);
-                    isLoading = false;
+                    console.error('❌ Firebase Error:', error);
                     
-                    log('ERROR', 'Firebase Error: ' + error.code + ' - ' + error.message);
-                    
-                    let userMsg = "فشل الاتصال بقاعدة البيانات.";
-                    let debugMsg = `Error Code: ${error.code || 'N/A'}\\nMessage: ${error.message}`;
-                    
+                    let userMsg = "فشل الاتصال بقاعدة البيانات";
                     if (error.code === 'PERMISSION_DENIED') {
-                        userMsg = "تم رفض الوصول! قواعد Firebase تحظر القراءة.";
-                        debugMsg += "\\n\\nSOLUTION: Go to Firebase Console → Database → Rules and paste:\\n" +
-                                   '{\\n  \"rules\": {\\n    \".read\": false,\\n    \".write\": false,\\n    \"products\": { \".read\": true },\\n    \"categories\": { \".read\": true },\\n    \"categoryOrder\": { \".read\": true }\\n  }\\n}';
-                    } else if (error.code === 'NETWORK_ERROR' || error.message.includes('network')) {
-                        userMsg = "مشكلة في الاتصال بالإنترنت.";
-                        debugMsg += "\\n\\nSOLUTION: Check your internet connection.";
-                    } else if (error.code === 'DISCONNECTED') {
-                        userMsg = "انقطع الاتصال بقاعدة البيانات.";
-                        debugMsg += "\\n\\nSOLUTION: Check Firebase project status.";
-                    } else if (error.message.includes('app/duplicate-app')) {
-                        userMsg = "تم تهيئة Firebase مسبقاً.";
-                        debugMsg += "\\n\\nSOLUTION: Refresh the page.";
+                        userMsg = "تم رفض الوصول! يرجى التحقق من قواعد أمان Firebase";
+                    } else if (error.message.includes('network')) {
+                        userMsg = "مشكلة في الاتصال بالإنترنت";
+                    } else {
+                        userMsg = "خطأ في الاتصال بقاعدة البيانات";
                     }
                     
-                    showLoadingError(userMsg, debugMsg);
+                    showLoadingError(userMsg, error.message);
                     showToast("❌ " + userMsg, true);
                 });
         }
 
-        // ====== Start ======
+        // ====== بدء التحميل ======
         if (db) {
-            log('INFO', 'Starting data load...');
             loadData();
         } else {
-            log('ERROR', 'Database not initialized');
-            showLoadingError(
-                "Firebase لم يتم تهيئته بشكل صحيح.",
-                "Check console for initialization errors."
-            );
+            showLoadingError("لم يتم تهيئة قاعدة البيانات", "تأكد من إعدادات Firebase");
         }
     </script>
 </body>
-</html>'''
-
-with open('/mnt/agents/output/akkad_store_DEBUG.html', 'w', encoding='utf-8') as f:
-    f.write(fixed_html)
-
-print("✅ تم إنشاء النسخة الكاملة مع Debug!")
-print(f"📄 الحجم: {len(fixed_html):,} حرف")
-print("\n" + "="*60)
-print("🔧 المميزات الجديدة:")
-print("1. لوحة Debug تفاعلية تظهر أثناء التحميل")
-print("2. مؤقت 10 ثوانٍ يوقف التحميل اللانهائي")
-print("3. رسائل خطأ مفصلة بالعربية + English debug")
-print("4. كشف PERMISSION_DENIED وإرشادات الإصلاح")
-print("5. كشف قاعدة البيانات الفارغة")
-print("6. منع التحميل المتكرر (isLoading flag)")
-print("="*60)
+</html>
