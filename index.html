@@ -92,6 +92,26 @@
             max-width: 500px; width: 90%;
         }
 
+        /* نافذة الطلب السريع */
+        .quick-order-modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(3,5,8,0.95);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .quick-order-form {
+            background: rgba(15,26,36,0.98);
+            border: 1px solid rgba(201,169,97,0.4);
+            border-radius: 1.5rem;
+            max-width: 500px; width: 90%;
+            padding: 1.5rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
         .loader { 
             border: 3px solid rgba(201,169,97,0.15); 
             border-top: 3px solid var(--akkad-gold); 
@@ -116,6 +136,10 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+
+        input, select {
+            font-family: 'Tajawal', sans-serif;
         }
     </style>
 </head>
@@ -183,6 +207,7 @@
         </div>
     </main>
 
+    <!-- نافذة تفاصيل المنتج -->
     <div id="descModal" class="modal" onclick="closeModal('descModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
@@ -192,10 +217,50 @@
             <p id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6"></p>
             <div class="flex gap-3">
                 <button onclick="closeModal('descModal')" class="flex-1 bg-white/10 py-2 rounded-xl">إغلاق</button>
-                <a id="modalOrderBtn" href="#" target="_blank" class="flex-1 btn-akkad text-center py-2 rounded-xl flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp"></i> اطلب الآن
-                </a>
+                <button onclick="openQuickOrderFromModal()" class="flex-1 btn-akkad text-center py-2 rounded-xl flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp"></i> طلب سريع
+                </button>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة الطلب السريع الكاملة -->
+    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
+        <div class="quick-order-form">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-[var(--akkad-gold)]"><i class="fas fa-shopping-cart ml-2"></i>طلب سريع</h3>
+                <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div>
+            <form id="quickOrderForm" class="space-y-3">
+                <input type="hidden" id="quickProductId">
+                <input type="hidden" id="quickProductName">
+                <input type="hidden" id="quickProductPrice">
+                
+                <!-- اسم الزبون -->
+                <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="👤 الاسم الكامل *" required>
+                
+                <!-- المحافظة -->
+                <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white" required>
+                    <option value="">🏛️ اختر المحافظة *</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                    <option>السليمانية</option><option>كركوك</option><option>الأنبار</option><option>بابل</option>
+                    <option>واسط</option><option>ذي قار</option><option>المثنى</option><option>القادسية</option>
+                    <option>صلاح الدين</option><option>ديالى</option><option>ميسان</option><option>النجف</option>
+                    <option>كربلاء</option>
+                </select>
+                
+                <!-- المدينة / الحي -->
+                <input type="text" id="quickCity" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="🏘️ المدينة / الحي *" required>
+                
+                <!-- أقرب نقطة دالة -->
+                <input type="text" id="quickLandmark" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="🗺️ أقرب نقطة دالة (مدرسة/جامع/مستشفى)">
+                
+                <!-- رقم الموبايل -->
+                <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="📞 رقم الموبايل *" required>
+                
+                <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-lg transition"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب عبر واتساب</button>
+            </form>
         </div>
     </div>
 
@@ -220,10 +285,12 @@
         // المتغيرات العامة
         // ========================================
         let allProducts = [];
-        let categoriesMap = {};      // الأقسام من Firebase (مثل لوحة التحكم)
-        let categoryOrder = [];      // ترتيب الأقسام
+        let categoriesMap = {};
+        let categoryOrder = [];
         let activeCategory = "الكل";
         let productsCache = {};
+        let currentProductForOrder = null;
+        const STORE_WHATSAPP = "9647730492020";
 
         // ========================================
         // عرض الإشعارات
@@ -245,7 +312,7 @@
         }
 
         // ========================================
-        // إغلاق النافذة
+        // إغلاق النوافذ
         // ========================================
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
@@ -258,18 +325,81 @@
             const product = productsCache[productId];
             if (!product) return;
             
+            currentProductForOrder = product;
+            
             document.getElementById('modalTitle').innerHTML = product.name;
             document.getElementById('modalDesc').innerHTML = product.desc || "لا يوجد وصف تفصيلي";
-            
-            const price = product.price || 0;
-            const orderText = `🛍️ أريد شراء: ${product.name}\n💰 السعر: ${price.toLocaleString()} د.ع`;
-            document.getElementById('modalOrderBtn').href = `https://wa.me/9647730492020?text=${encodeURIComponent(orderText)}`;
             
             document.getElementById('descModal').style.display = "flex";
         }
 
         // ========================================
-        // عرض المنتجات
+        // فتح نافذة الطلب السريع
+        // ========================================
+        function openQuickOrder(product) {
+            currentProductForOrder = product;
+            document.getElementById('quickProductId').value = product.id;
+            document.getElementById('quickProductName').value = product.name;
+            document.getElementById('quickProductPrice').value = product.price;
+            document.getElementById('quickProductInfo').innerHTML = `🛍️ ${product.name} - ${Number(product.price).toLocaleString()} د.ع`;
+            
+            // تفريغ الحقول
+            document.getElementById('quickCustomerName').value = '';
+            document.getElementById('quickGovernorate').value = '';
+            document.getElementById('quickCity').value = '';
+            document.getElementById('quickLandmark').value = '';
+            document.getElementById('quickPhone').value = '';
+            
+            document.getElementById('quickOrderModal').style.display = "flex";
+        }
+        
+        function openQuickOrderFromModal() {
+            if(currentProductForOrder) {
+                openQuickOrder(currentProductForOrder);
+                closeModal('descModal');
+            }
+        }
+        
+        function closeQuickOrder() {
+            document.getElementById('quickOrderModal').style.display = "none";
+        }
+
+        // ========================================
+        // إرسال الطلب إلى واتساب
+        // ========================================
+        document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const customerName = document.getElementById('quickCustomerName').value.trim();
+            const governorate = document.getElementById('quickGovernorate').value;
+            const city = document.getElementById('quickCity').value.trim();
+            const landmark = document.getElementById('quickLandmark').value.trim();
+            const phone = document.getElementById('quickPhone').value.trim();
+            const product = currentProductForOrder;
+
+            if(!customerName || !governorate || !city || !phone || !product) {
+                showToast("❌ الرجاء ملء جميع الحقول المطلوبة", true);
+                return;
+            }
+
+            const message = `📦 *طلب جديد من متجر أكاد*%0A%0A` +
+                `👤 *الاسم:* ${customerName}%0A` +
+                `📍 *المحافظة:* ${governorate}%0A` +
+                `🏘️ *المدينة/الحي:* ${city}%0A` +
+                `🗺️ *أقرب نقطة دالة:* ${landmark || "غير محدد"}%0A` +
+                `📞 *رقم الموبايل:* ${phone}%0A` +
+                `🛍️ *المنتج:* ${product.name}%0A` +
+                `💰 *السعر:* ${Number(product.price).toLocaleString()} د.ع%0A%0A` +
+                `_تم الإرسال من الطلب السريع في المتجر_`;
+
+            const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+            showToast("✅ تم توجيهك إلى واتساب لإكمال الطلب");
+            closeQuickOrder();
+        });
+
+        // ========================================
+        // عرض المنتجات مع زر الطلب السريع
         // ========================================
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
@@ -301,7 +431,7 @@
                         <h3 class="font-bold text-sm line-clamp-2 mb-2">${escapeHtml(product.name)}</h3>
                         <div class="flex justify-between items-center">
                             <span class="text-[var(--akkad-gold)] font-bold">${(product.price || 0).toLocaleString()} د.ع</span>
-                            <button onclick="event.stopPropagation(); showDetails('${product.id}')" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">تفاصيل</button>
+                            <button onclick="event.stopPropagation(); openQuickOrder(${JSON.stringify(product).replace(/"/g, '&quot;')})" class="btn-outline-akkad px-3 py-1 rounded-lg text-xs">طلب سريع</button>
                         </div>
                     </div>
                 </div>
@@ -355,16 +485,13 @@
         }
 
         // ========================================
-        // عرض الأقسام - يقرأ من Firebase مباشرة مثل لوحة التحكم
+        // عرض الأقسام
         // ========================================
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
             
-            // الحصول على قائمة أسماء الأقسام من categoriesMap (نفس مصدر لوحة التحكم)
             let categoryNames = Object.values(categoriesMap);
-            
-            // ترتيب الأقسام حسب categoryOrder
             let sortedCategories = [];
             
             if (categoryOrder && categoryOrder.length > 0) {
@@ -376,7 +503,6 @@
                 });
             }
             
-            // إضافة أي أقسام جديدة غير موجودة في الترتيب
             categoryNames.forEach(catName => {
                 if (!sortedCategories.includes(catName)) {
                     sortedCategories.push(catName);
@@ -403,7 +529,7 @@
         }
 
         // ========================================
-        // تحميل جميع البيانات (الأقسام، الترتيب، المنتجات)
+        // تحميل البيانات
         // ========================================
         function loadData() {
             const loading = document.getElementById('loading');
@@ -415,15 +541,12 @@
             
             loadingStatus.innerHTML = 'جاري تحميل الأقسام...';
             
-            // الخطوة 1: تحميل الأقسام من Firebase
             db.ref('categories').once('value').then(snapshot => {
                 categoriesMap = snapshot.val() || {};
-                console.log("📁 الأقسام من Firebase:", categoriesMap);
                 loadingStatus.innerHTML = 'جاري تحميل ترتيب الأقسام...';
                 return db.ref('categoryOrder').once('value');
             }).then(snapshot => {
                 categoryOrder = snapshot.val() || [];
-                console.log("📊 ترتيب الأقسام:", categoryOrder);
                 loadingStatus.innerHTML = 'جاري تحميل المنتجات...';
                 return db.ref('products').once('value');
             }).then(snapshot => {
@@ -435,10 +558,9 @@
                 productsCache = {};
                 allProducts.forEach(p => { productsCache[p.id] = p; });
                 
-                // عرض الأقسام والمنتجات
                 renderCategories();
                 filterProducts();
-                showToast(`✅ تم تحميل ${allProducts.length} منتج و ${Object.keys(categoriesMap).length} قسم`);
+                showToast(`✅ تم تحميل ${allProducts.length} منتج`);
             }).catch(error => {
                 console.error("خطأ:", error);
                 loading.classList.add('hidden');
@@ -448,7 +570,6 @@
             });
         }
 
-        // بدء التحميل
         loadData();
     </script>
 </body>
