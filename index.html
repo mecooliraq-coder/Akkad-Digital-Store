@@ -625,58 +625,47 @@
             }
         }
 
-        // استخراج معرف الفيديو من يوتيوب (دعم جميع صيغ الروابط)
+        // استخراج معرف الفيديو من يوتيوب
         function getYouTubeId(url) {
             if (!url) return null;
-            
-            // قائمة بأنماط روابط يوتيوب المدعومة
             const patterns = [
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\?#]+)/,
                 /youtube\.com\/shorts\/([^&\?#]+)/
             ];
-            
             for (let pattern of patterns) {
                 const match = url.match(pattern);
-                if (match && match[1]) {
-                    return match[1];
-                }
+                if (match && match[1]) return match[1];
             }
             return null;
         }
 
-        // تشغيل الفيديو
         function playVideo(videoUrl, event) {
             if (event) event.stopPropagation();
             if (!videoUrl) {
-                showToast('⚠️ لا يوجد رابط فيديو لهذا المنتج', 'error');
+                showToast('⚠️ لا يوجد رابط فيديو', 'error');
                 return;
             }
-            
             const videoId = getYouTubeId(videoUrl);
             if (videoId) {
                 const iframe = document.getElementById('videoIframe');
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                iframe.src = embedUrl;
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
                 document.getElementById('videoModal').style.display = 'flex';
             } else {
-                showToast('⚠️ رابط الفيديو غير صالح (يوتيوب فقط)', 'error');
-                console.log('رابط الفيديو غير صالح:', videoUrl);
+                showToast('⚠️ رابط الفيديو غير صالح', 'error');
             }
         }
 
         function closeVideoModal() {
             document.getElementById('videoModal').style.display = 'none';
-            const iframe = document.getElementById('videoIframe');
-            iframe.src = ''; // إيقاف الفيديو عند الإغلاق
+            document.getElementById('videoIframe').src = '';
         }
 
         // ========================================
-        // تحميل البيانات من Firebase
+        // تحميل البيانات
         // ========================================
         async function loadData() {
             try {
                 document.getElementById('loadingStatus').innerHTML = 'جاري تحميل الأقسام...';
-                
                 const catsSnap = await db.ref('categories').once('value');
                 categories = catsSnap.val() || {};
                 
@@ -693,32 +682,21 @@
                 
                 renderCategories();
                 renderProducts();
-                updateLoadingStatus('تم التحميل بنجاح ✅');
                 
             } catch (error) {
-                console.error('خطأ في التحميل:', error);
+                console.error(error);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('error-message').classList.remove('hidden');
                 document.getElementById('errorDetail').innerHTML = error.message;
             }
         }
 
-        function updateLoadingStatus(msg) {
-            const status = document.getElementById('loadingStatus');
-            if (status) status.innerHTML = msg;
-            setTimeout(() => {
-                if (status && status.innerHTML === msg) status.innerHTML = '';
-            }, 2000);
-        }
-
         function retryConnection() {
             document.getElementById('error-message').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('loadingStatus').innerHTML = 'جاري إعادة المحاولة...';
             loadData();
         }
 
-        // عرض الأقسام
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
@@ -732,22 +710,15 @@
             });
             
             let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === 'all' ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">🏠 الكل</button>`;
-            
             catsList.forEach(cat => {
                 html += `<button onclick="filterByCategory('${cat.key}')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === cat.key ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">📁 ${escapeHtml(cat.name)}</button>`;
             });
-            
             container.innerHTML = html;
         }
 
         function escapeHtml(text) {
             if (!text) return '';
-            return String(text).replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
+            return String(text).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
         }
 
         function filterByCategory(categoryKey) {
@@ -768,30 +739,25 @@
             document.getElementById('no-results').classList.add('hidden');
         }
 
-        // الضغط على الصورة: إذا كان هناك فيديو يشغله، وإلا يفتح التفاصيل
         function handleImageClick(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
-            
-            if (product.video && product.video.trim() !== '') {
+            if (product.video && product.video.trim()) {
                 playVideo(product.video);
             } else {
                 showProductDetails(productId);
             }
         }
 
-        // عرض المنتجات        function renderProducts() {
+        function renderProducts() {
             const container = document.getElementById('products-grid');
             let filtered = [...allProducts];
             
             if (currentCategory !== 'all') {
                 filtered = filtered.filter(p => p.category === currentCategory);
             }
-            
             if (currentSearchTerm) {
-                filtered = filtered.filter(p => 
-                    p.name && p.name.toLowerCase().includes(currentSearchTerm)
-                );
+                filtered = filtered.filter(p => p.name && p.name.toLowerCase().includes(currentSearchTerm));
             }
             
             if (filtered.length === 0) {
@@ -804,9 +770,7 @@
             document.getElementById('no-results').classList.add('hidden');
             
             container.innerHTML = filtered.map(product => {
-                const hasVideo = product.video && product.video.trim() !== '';
-                const videoAttr = hasVideo ? `data-video="${escapeHtml(product.video)}"` : '';
-                
+                const hasVideo = product.video && product.video.trim();
                 return `
                 <div class="akkad-card overflow-hidden fade-in-up">
                     <div class="product-media-container" onclick="handleImageClick('${product.id}')">
@@ -829,27 +793,22 @@
                             </button>
                         </div>
                     </div>
-                </div>
-            `}).join('');
+                </div>`;
+            }).join('');
         }
 
-        // فتح الطلب السريع من بطاقة المنتج
         function openQuickOrderFromCard(productId) {
             const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            openQuickOrder(product);
+            if (product) openQuickOrder(product);
         }
 
-        // عرض تفاصيل المنتج
         function showProductDetails(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
-            
             document.getElementById('modalTitle').innerHTML = product.name;
             let descHtml = product.desc ? `<div class="mb-4">${escapeHtml(product.desc).replace(/\n/g, '<br>')}</div>` : '';
             descHtml += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(product.price).toLocaleString()} دينار عراقي</div>`;
             document.getElementById('modalDesc').innerHTML = descHtml;
-            
             document.getElementById('descModal').style.display = 'flex';
         }
 
@@ -857,27 +816,23 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // فتح نافذة الطلب السريع
         function openQuickOrder(product) {
             if (!product) return;
             currentProductForOrder = product;
             document.getElementById('quickProductId').value = product.id;
             document.getElementById('quickProductName').value = product.name;
             document.getElementById('quickProductPrice').value = product.price;
-            
             document.getElementById('quickProductInfo').innerHTML = `
                 <div class="flex justify-between items-center">
                     <span class="font-bold">${escapeHtml(product.name)}</span>
                     <span class="text-[var(--akkad-gold)] font-bold">${Number(product.price).toLocaleString()} د.ع</span>
                 </div>
             `;
-            
             document.getElementById('quickCustomerName').value = '';
             document.getElementById('quickGovernorate').value = '';
             document.getElementById('quickPhone').value = '';
             document.getElementById('quickAddress').value = '';
             document.getElementById('quickNotes').value = '';
-            
             document.getElementById('quickOrderModal').style.display = 'flex';
         }
 
@@ -885,10 +840,8 @@
             document.getElementById('quickOrderModal').style.display = 'none';
         }
 
-        // إرسال الطلب
         document.getElementById('quickOrderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const name = document.getElementById('quickCustomerName').value.trim();
             const governorate = document.getElementById('quickGovernorate').value;
             const phone = document.getElementById('quickPhone').value.trim();
@@ -920,34 +873,19 @@
             
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
-                
                 const adminWhatsapp = '9647730492020';
-                let message = `🛍️ *طلب جديد من متجر أكاد*\n\n`;
-                message += `👤 *الاسم:* ${name}\n`;
-                message += `📱 *الهاتف:* ${phone}\n`;
-                message += `🏛️ *المحافظة:* ${governorate}\n`;
-                message += `📦 *المنتج:* ${productName}\n`;
-                message += `💰 *السعر:* ${Number(productPrice).toLocaleString()} د.ع\n`;
-                if (address) message += `📍 *العنوان:* ${address}\n`;
-                if (notes) message += `💬 *ملاحظات:* ${notes}\n`;
-                message += `\n📅 ${new Date().toLocaleString('ar-IQ')}`;
-                
-                const whatsappUrl = `https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                
-                showToast('✅ تم إرسال الطلب بنجاح! سيتم تحويلك للواتساب');
-                
-                setTimeout(() => {
-                    closeQuickOrder();
-                }, 1500);
-                
+                let message = `🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${governorate}\n📦 *المنتج:* ${productName}\n💰 *السعر:* ${Number(productPrice).toLocaleString()} د.ع`;
+                if (address) message += `\n📍 *العنوان:* ${address}`;
+                if (notes) message += `\n💬 *ملاحظات:* ${notes}`;
+                message += `\n\n📅 ${new Date().toLocaleString('ar-IQ')}`;
+                window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(message)}`, '_blank');
+                showToast('✅ تم إرسال الطلب بنجاح!');
+                setTimeout(() => closeQuickOrder(), 1500);
             } catch (error) {
-                console.error('خطأ في حفظ الطلب:', error);
-                showToast('❌ فشل إرسال الطلب، حاول مرة أخرى', 'error');
+                showToast('❌ فشل إرسال الطلب', 'error');
             }
         });
 
-        // بدء التحميل
         loadData();
     </script>
 </body>
