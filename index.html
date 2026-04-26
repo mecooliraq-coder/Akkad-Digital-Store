@@ -1,5 +1,17 @@
 
-html_content = '''<!DOCTYPE html>
+# Let's create a debug version that shows exactly what's happening
+import json
+
+# First, let's check what the actual error might be
+# The issue could be:
+# 1. No data in database
+# 2. Wrong database path
+# 3. CORS issues
+# 4. The code hangs somewhere
+
+# Let's create an improved version with better error handling and loading timeout
+
+improved_html = '''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -391,7 +403,7 @@ html_content = '''<!DOCTYPE html>
             font-family: 'Amiri', serif;
         }
 
-        /* نافذة مشاهدة الفيديو */
+        /* نافذة مشاهدة فيديو يوتيوب */
         .video-modal {
             display: none;
             position: fixed;
@@ -435,6 +447,20 @@ html_content = '''<!DOCTYPE html>
         
         .video-modal-close:hover {
             transform: scale(1.2);
+        }
+
+        /* Debug info */
+        .debug-info {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #f87171;
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
         }
     </style>
 </head>
@@ -483,12 +509,14 @@ html_content = '''<!DOCTYPE html>
             <div class="loader"></div>
             <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
             <p id="loadingStatus" class="text-gray-500 text-xs mt-2"></p>
+            <div id="debugInfo" class="debug-info hidden"></div>
         </div>
         
         <div id="error-message" class="hidden text-center py-20">
             <div class="text-6xl mb-4">⚠️</div>
             <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
             <p id="errorDetail" class="text-gray-400 mb-4"></p>
+            <div id="errorDebug" class="debug-info" style="margin-bottom: 15px;"></div>
             <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
                 <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
             </button>
@@ -563,6 +591,7 @@ html_content = '''<!DOCTYPE html>
     </div>
 
     <script>
+        // ====== Firebase Config ======
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -573,9 +602,18 @@ html_content = '''<!DOCTYPE html>
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // Initialize Firebase with error handling
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log("✅ Firebase initialized successfully");
+        } catch (e) {
+            console.error("❌ Firebase init error:", e);
+            showLoadingError("فشل تهيئة Firebase: " + e.message);
+        }
 
+        // ====== State ======
         let allProducts = [];
         let categoriesMap = {};
         let categoryOrder = [];
@@ -583,7 +621,9 @@ html_content = '''<!DOCTYPE html>
         let productsCache = {};
         let currentProductForOrder = null;
         const STORE_WHATSAPP = "9647730492020";
+        let loadTimeout;
 
+        // ====== Toast ======
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
@@ -595,11 +635,32 @@ html_content = '''<!DOCTYPE html>
             setTimeout(() => toast.style.display = "none", 3000);
         }
 
+        // ====== Loading Error Handler ======
+        function showLoadingError(message, debug = "") {
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('error-message');
+            const errorDetail = document.getElementById('errorDetail');
+            const errorDebug = document.getElementById('errorDebug');
+            
+            loading.classList.add('hidden');
+            errorMsg.classList.remove('hidden');
+            errorDetail.textContent = message;
+            errorDebug.textContent = debug || "No additional debug info";
+            
+            console.error("Loading Error:", message, debug);
+        }
+
+        function updateLoadingStatus(text) {
+            document.getElementById('loadingStatus').textContent = text;
+        }
+
+        // ====== Share ======
         function shareStore() {
             const url = window.location.href;
             window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\\n' + url)}`, '_blank');
         }
 
+        // ====== Modals ======
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
@@ -638,14 +699,10 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // ====== دوال فيديو يوتيوب ======
-        
-        // استخراج معرف يوتيوب من أي رابط
+        // ====== YouTube Video Functions ======
         function extractYouTubeId(url) {
             if (!url) return null;
-            // إذا كان المعرف مباشرة (11 حرف)
             if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-            // استخراج من رابط
             const patterns = [
                 /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/|youtube\\.com\\/embed\\/|youtube\\.com\\/v\\/|youtube\\.com\\/shorts\\/)([a-zA-Z0-9_-]{11})/,
                 /youtube\\.com\\/watch\\?.*v=([a-zA-Z0-9_-]{11})/,
@@ -658,12 +715,10 @@ html_content = '''<!DOCTYPE html>
             return null;
         }
         
-        // الحصول على صورة مصغرة من يوتيوب
         function getYouTubeThumbnail(videoId) {
             return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
         }
         
-        // فتح نافذة الفيديو
         function openVideoModal(videoIdOrUrl) {
             const videoId = extractYouTubeId(videoIdOrUrl);
             if (!videoId) {
@@ -675,7 +730,6 @@ html_content = '''<!DOCTYPE html>
             document.getElementById('videoModal').style.display = "flex";
         }
         
-        // إغلاق نافذة الفيديو
         function closeVideoModal() {
             const modal = document.getElementById('videoModal');
             const container = document.getElementById('videoContainer');
@@ -683,6 +737,7 @@ html_content = '''<!DOCTYPE html>
             modal.style.display = "none";
         }
 
+        // ====== Quick Order Form ======
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const customerName = document.getElementById('quickCustomerName').value.trim();
@@ -712,7 +767,7 @@ html_content = '''<!DOCTYPE html>
             closeQuickOrder();
         });
 
-        // ====== دالة عرض الوسائط مع زر الفيديو يوتيوب ======
+        // ====== Media Element with Video Support ======
         function getMediaElement(product) {
             const videoField = product.video || product.videoUrl || product.youtube || product.yt;
             const imgUrl = product.img || product.image;
@@ -720,7 +775,6 @@ html_content = '''<!DOCTYPE html>
             const videoId = extractYouTubeId(videoField);
             
             if (videoId) {
-                // استخدام صورة يوتيوب المصغرة
                 const thumbUrl = getYouTubeThumbnail(videoId);
                 return `
                     <div class="product-media-container">
@@ -739,7 +793,6 @@ html_content = '''<!DOCTYPE html>
                     </div>`;
             }
             
-            // منتج بدون فيديو - عرض الصورة العادية
             return `
                 <div class="product-media-container">
                     <img src="${imgUrl || 'https://via.placeholder.com/300/1a4d7a/c9a961?text=أكاد'}" 
@@ -749,6 +802,7 @@ html_content = '''<!DOCTYPE html>
                 </div>`;
         }
 
+        // ====== Display Products ======
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -805,6 +859,7 @@ html_content = '''<!DOCTYPE html>
             });
         }
 
+        // ====== Filter & Search ======
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
@@ -835,6 +890,7 @@ html_content = '''<!DOCTYPE html>
             filterProducts();
         }
 
+        // ====== Render Categories ======
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
@@ -863,48 +919,96 @@ html_content = '''<!DOCTYPE html>
             `).join('');
         }
 
-        function retryConnection() { loadData(); }
+        // ====== Retry ======
+        function retryConnection() { 
+            loadData(); 
+        }
 
+        // ====== Load Data with Timeout ======
         function loadData() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
             const loadingStatus = document.getElementById('loadingStatus');
+            const debugInfo = document.getElementById('debugInfo');
+            
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
-            loadingStatus.innerHTML = 'جاري تحميل الأقسام...';
-            db.ref('categories').once('value').then(snapshot => {
-                categoriesMap = snapshot.val() || {};
-                loadingStatus.innerHTML = 'جاري تحميل ترتيب الأقسام...';
-                return db.ref('categoryOrder').once('value');
-            }).then(snapshot => {
-                categoryOrder = snapshot.val() || [];
-                loadingStatus.innerHTML = 'جاري تحميل المنتجات...';
-                return db.ref('products').once('value');
-            }).then(snapshot => {
-                const products = snapshot.val() || {};
-                allProducts = Object.keys(products).map(key => ({ id: key, ...products[key] }));
-                productsCache = {};
-                allProducts.forEach(p => { productsCache[p.id] = p; });
-                renderCategories();
-                filterProducts();
-                showToast(`✅ تم تحميل ${allProducts.length} منتج`);
-            }).catch(error => {
-                console.error("خطأ:", error);
-                loading.classList.add('hidden');
-                errorMsg.classList.remove('hidden');
-                document.getElementById('errorDetail').innerHTML = error.message;
-                showToast("❌ فشل تحميل البيانات", true);
-            });
+            debugInfo.classList.add('hidden');
+            
+            // Set timeout to prevent infinite loading
+            if (loadTimeout) clearTimeout(loadTimeout);
+            loadTimeout = setTimeout(() => {
+                showLoadingError(
+                    "انتهى وقت الانتظار. قد تكون قواعد Firebase تحظر الوصول أو لا توجد بيانات.",
+                    "Timeout after 10s. Check: 1) Firebase Rules 2) Internet connection 3) Database has data"
+                );
+            }, 10000);
+
+            updateLoadingStatus('جاري تحميل الأقسام...');
+            
+            db.ref('categories').once('value')
+                .then(snapshot => {
+                    categoriesMap = snapshot.val() || {};
+                    updateLoadingStatus('جاري تحميل ترتيب الأقسام...');
+                    return db.ref('categoryOrder').once('value');
+                })
+                .then(snapshot => {
+                    categoryOrder = snapshot.val() || [];
+                    updateLoadingStatus('جاري تحميل المنتجات...');
+                    return db.ref('products').once('value');
+                })
+                .then(snapshot => {
+                    clearTimeout(loadTimeout);
+                    const products = snapshot.val() || {};
+                    allProducts = Object.keys(products).map(key => ({ id: key, ...products[key] }));
+                    productsCache = {};
+                    allProducts.forEach(p => { productsCache[p.id] = p; });
+                    renderCategories();
+                    filterProducts();
+                    showToast(`✅ تم تحميل ${allProducts.length} منتج`);
+                })
+                .catch(error => {
+                    clearTimeout(loadTimeout);
+                    console.error("Firebase Error:", error);
+                    let errorMsg = error.message;
+                    let debug = `Code: ${error.code || 'N/A'}\\n`;
+                    
+                    if (error.code === 'PERMISSION_DENIED') {
+                        errorMsg = "تم رفض الوصول. قواعد Firebase تحظر القراءة.";
+                        debug += "SOLUTION: Update Firebase Rules to allow .read on products/categories/categoryOrder";
+                    } else if (error.code === 'NETWORK_ERROR') {
+                        errorMsg = "مشكلة في الاتصال بالإنترنت.";
+                        debug += "SOLUTION: Check internet connection";
+                    } else if (error.code === 'DISCONNECTED') {
+                        errorMsg = "انقطع الاتصال بقاعدة البيانات.";
+                        debug += "SOLUTION: Check Firebase project status";
+                    }
+                    
+                    showLoadingError(errorMsg, debug);
+                    showToast("❌ " + errorMsg, true);
+                });
         }
 
-        loadData();
+        // ====== Start ======
+        if (db) {
+            loadData();
+        } else {
+            showLoadingError("Firebase لم يتم تهيئته بشكل صحيح.");
+        }
     </script>
 </body>
 </html>'''
 
-# Save the complete updated file
-with open('/mnt/agents/output/akkad_store_youtube.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
+with open('/mnt/agents/output/akkad_store_FIXED.html', 'w', encoding='utf-8') as f:
+    f.write(improved_html)
 
-print("✅ تم حفظ الكود الكامل المعدل لدعم يوتيوب بنجاح!")
-print(f"📄 حجم الملف: {len(html_content):,} حرف")
+print("✅ تم إنشاء النسخة المُصلحة!")
+print(f"📄 الحجم: {len(improved_html):,} حرف")
+print("\n" + "="*60)
+print("🔧 التحسينات:")
+print("1. معالجة أخطاء Firebase محسّنة")
+print("2. مؤقت 10 ثوانٍ لمنع التحميل اللانهائي")
+print("3. رسائل خطأ واضحة بالعربية")
+print("4. معلومات Debug تفصيلية")
+print("5. التحقق من تهيئة Firebase قبل التحميل")
+print("="*60)
