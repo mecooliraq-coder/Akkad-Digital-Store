@@ -92,7 +92,6 @@
             max-width: 500px; width: 90%;
         }
 
-        /* نافذة الطلب السريع */
         .quick-order-modal {
             display: none;
             position: fixed; inset: 0;
@@ -152,7 +151,8 @@
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="flex items-center gap-3">
-                    <img src="https://via.placeholder.com/52/1a4d7a/c9a961?text=A" alt="شعار أكاد" class="akkad-logo-img">
+                    <!-- اللوجو الأصلي -->
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='https://via.placeholder.com/52/1a4d7a/c9a961?text=أ'">
                     <div>
                         <div class="akkad-logo-text">أكاد</div>
                         <div class="text-[10px] text-[var(--akkad-gold)] tracking-wider">DIGITAL STORE</div>
@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <!-- نافذة الطلب السريع الكاملة -->
+    <!-- نافذة الطلب السريع -->
     <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
         <div class="quick-order-form">
             <div class="flex justify-between items-center mb-4">
@@ -237,10 +237,8 @@
                 <input type="hidden" id="quickProductName">
                 <input type="hidden" id="quickProductPrice">
                 
-                <!-- اسم الزبون -->
                 <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="👤 الاسم الكامل *" required>
                 
-                <!-- المحافظة -->
                 <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white" required>
                     <option value="">🏛️ اختر المحافظة *</option>
                     <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
@@ -250,13 +248,10 @@
                     <option>كربلاء</option>
                 </select>
                 
-                <!-- المدينة / الحي -->
                 <input type="text" id="quickCity" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="🏘️ المدينة / الحي *" required>
                 
-                <!-- أقرب نقطة دالة -->
                 <input type="text" id="quickLandmark" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="🗺️ أقرب نقطة دالة (مدرسة/جامع/مستشفى)">
                 
-                <!-- رقم الموبايل -->
                 <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400" placeholder="📞 رقم الموبايل *" required>
                 
                 <button type="submit" class="w-full btn-akkad font-bold py-3 rounded-lg transition"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب عبر واتساب</button>
@@ -265,9 +260,6 @@
     </div>
 
     <script>
-        // ========================================
-        // إعدادات Firebase
-        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -281,9 +273,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ========================================
-        // المتغيرات العامة
-        // ========================================
         let allProducts = [];
         let categoriesMap = {};
         let categoryOrder = [];
@@ -292,9 +281,6 @@
         let currentProductForOrder = null;
         const STORE_WHATSAPP = "9647730492020";
 
-        // ========================================
-        // عرض الإشعارات
-        // ========================================
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.style.backgroundColor = isError ? "#dc2626" : "#1a4d7a";
@@ -303,53 +289,35 @@
             setTimeout(() => toast.style.display = "none", 3000);
         }
 
-        // ========================================
-        // مشاركة المتجر
-        // ========================================
         function shareStore() {
             const url = window.location.href;
             window.open(`https://wa.me/?text=${encodeURIComponent('🛍️ متجر أكاد الرقمي\n' + url)}`, '_blank');
         }
 
-        // ========================================
-        // إغلاق النوافذ
-        // ========================================
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = "none";
         }
 
-        // ========================================
-        // عرض التفاصيل
-        // ========================================
         function showDetails(productId) {
             const product = productsCache[productId];
             if (!product) return;
-            
             currentProductForOrder = product;
-            
             document.getElementById('modalTitle').innerHTML = product.name;
             document.getElementById('modalDesc').innerHTML = product.desc || "لا يوجد وصف تفصيلي";
-            
             document.getElementById('descModal').style.display = "flex";
         }
 
-        // ========================================
-        // فتح نافذة الطلب السريع
-        // ========================================
         function openQuickOrder(product) {
             currentProductForOrder = product;
             document.getElementById('quickProductId').value = product.id;
             document.getElementById('quickProductName').value = product.name;
             document.getElementById('quickProductPrice').value = product.price;
             document.getElementById('quickProductInfo').innerHTML = `🛍️ ${product.name} - ${Number(product.price).toLocaleString()} د.ع`;
-            
-            // تفريغ الحقول
             document.getElementById('quickCustomerName').value = '';
             document.getElementById('quickGovernorate').value = '';
             document.getElementById('quickCity').value = '';
             document.getElementById('quickLandmark').value = '';
             document.getElementById('quickPhone').value = '';
-            
             document.getElementById('quickOrderModal').style.display = "flex";
         }
         
@@ -364,12 +332,8 @@
             document.getElementById('quickOrderModal').style.display = "none";
         }
 
-        // ========================================
-        // إرسال الطلب إلى واتساب
-        // ========================================
         document.getElementById('quickOrderForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            
             const customerName = document.getElementById('quickCustomerName').value.trim();
             const governorate = document.getElementById('quickGovernorate').value;
             const city = document.getElementById('quickCity').value.trim();
@@ -390,17 +354,13 @@
                 `📞 *رقم الموبايل:* ${phone}%0A` +
                 `🛍️ *المنتج:* ${product.name}%0A` +
                 `💰 *السعر:* ${Number(product.price).toLocaleString()} د.ع%0A%0A` +
-                `_تم الإرسال من الطلب السريع في المتجر_`;
+                `_تم الإرسال من الطلب السريع_`;
 
-            const whatsappUrl = `https://wa.me/${STORE_WHATSAPP}?text=${message}`;
-            window.open(whatsappUrl, '_blank');
-            showToast("✅ تم توجيهك إلى واتساب لإكمال الطلب");
+            window.open(`https://wa.me/${STORE_WHATSAPP}?text=${message}`, '_blank');
+            showToast("✅ تم توجيهك إلى واتساب");
             closeQuickOrder();
         });
 
-        // ========================================
-        // عرض المنتجات مع زر الطلب السريع
-        // ========================================
         function displayProducts(products) {
             const grid = document.getElementById('products-grid');
             const noResults = document.getElementById('no-results');
@@ -448,24 +408,18 @@
             });
         }
 
-        // ========================================
-        // تصفية المنتجات
-        // ========================================
         function filterProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = [...allProducts];
-            
             if (activeCategory !== "الكل") {
                 filtered = filtered.filter(p => p.category === activeCategory);
             }
-            
             if (searchTerm) {
                 filtered = filtered.filter(p => 
                     (p.name && p.name.toLowerCase().includes(searchTerm)) || 
                     (p.desc && p.desc.toLowerCase().includes(searchTerm))
                 );
             }
-            
             displayProducts(filtered);
         }
 
@@ -484,16 +438,11 @@
             filterProducts();
         }
 
-        // ========================================
-        // عرض الأقسام
-        // ========================================
         function renderCategories() {
             const container = document.getElementById('categories-nav');
             if (!container) return;
-            
             let categoryNames = Object.values(categoriesMap);
             let sortedCategories = [];
-            
             if (categoryOrder && categoryOrder.length > 0) {
                 categoryOrder.forEach(catKey => {
                     const catName = categoriesMap[catKey];
@@ -502,45 +451,30 @@
                     }
                 });
             }
-            
             categoryNames.forEach(catName => {
                 if (!sortedCategories.includes(catName)) {
                     sortedCategories.push(catName);
                 }
             });
-            
             const categories = ["الكل", ...sortedCategories];
-            
             container.innerHTML = categories.map(cat => `
                 <button onclick="filterByCategory('${cat.replace(/'/g, "\\'")}')" 
-                        class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition
-                               ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50'}"
-                        style="font-size:13px">
+                    class="px-4 py-1.5 rounded-full border text-sm whitespace-nowrap transition ${activeCategory === cat ? 'category-chip active bg-[var(--akkad-gold)]/20 border-[var(--akkad-gold)] text-[var(--akkad-gold)]' : 'border-white/20 hover:border-[var(--akkad-gold)]/50'}"
+                    style="font-size:13px">
                     ${cat === "الكل" ? "🌟 الكل" : escapeHtml(cat)}
                 </button>
             `).join('');
         }
 
-        // ========================================
-        // إعادة محاولة الاتصال
-        // ========================================
-        function retryConnection() {
-            loadData();
-        }
+        function retryConnection() { loadData(); }
 
-        // ========================================
-        // تحميل البيانات
-        // ========================================
         function loadData() {
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-message');
             const loadingStatus = document.getElementById('loadingStatus');
-            
             loading.classList.remove('hidden');
             errorMsg.classList.add('hidden');
-            
             loadingStatus.innerHTML = 'جاري تحميل الأقسام...';
-            
             db.ref('categories').once('value').then(snapshot => {
                 categoriesMap = snapshot.val() || {};
                 loadingStatus.innerHTML = 'جاري تحميل ترتيب الأقسام...';
@@ -551,13 +485,9 @@
                 return db.ref('products').once('value');
             }).then(snapshot => {
                 const products = snapshot.val() || {};
-                allProducts = Object.keys(products).map(key => ({
-                    id: key,
-                    ...products[key]
-                }));
+                allProducts = Object.keys(products).map(key => ({ id: key, ...products[key] }));
                 productsCache = {};
                 allProducts.forEach(p => { productsCache[p.id] = p; });
-                
                 renderCategories();
                 filterProducts();
                 showToast(`✅ تم تحميل ${allProducts.length} منتج`);
