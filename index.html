@@ -8,9 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Swiper JS للشريط المتحرك -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:wght@400;700&family=Lateef&display=swap');
         
@@ -18,11 +15,8 @@
             --mesopotamia-dark: #0a0f12;
             --akkad-gold: #d4af37;
             --sumerian-blue: #1a4d8c;
-            --cuneiform-brown: #8b5a2b;
-            --sand-stone: #c2a575;
-            --clay-red: #9e5e3a;
             --glass-bg: rgba(10, 15, 18, 0.65);
-            --gold-glow: rgba(212, 175, 55, 0.5);
+            --gold-glow: rgba(212, 175, 55, 0.4);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +29,6 @@
             overflow-x: hidden;
         }
 
-        /* خلفية بلاد الرافدين مع تأثير متحرك */
         .bg-mesopotamia {
             position: fixed; inset: 0; z-index: -2;
             background: 
@@ -43,213 +36,99 @@
                 radial-gradient(ellipse at 80% 70%, rgba(26, 77, 140, 0.1) 0%, transparent 50%),
                 repeating-linear-gradient(45deg, rgba(139, 90, 43, 0.03) 0px, rgba(139, 90, 43, 0.03) 2px, transparent 2px, transparent 8px),
                 linear-gradient(145deg, #0a0f12 0%, #141a1f 40%, #1a1510 100%);
-            animation: slowZoom 20s ease-in-out infinite alternate;
-        }
-        
-        @keyframes slowZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
-        }
-
-        /* زخارف مسمارية عشوائية متحركة */
-        .cuneiform-particle {
-            position: fixed;
-            font-family: 'Lateef', cursive;
-            font-size: 20px;
-            color: rgba(212, 175, 55, 0.08);
-            pointer-events: none;
-            z-index: -1;
-            animation: float 15s infinite linear;
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
         .zigzag-pattern {
             background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(212, 175, 55, 0.15) 20px, rgba(212, 175, 55, 0.15) 22px);
-            height: 3px;
+            height: 2px;
             width: 100%;
-        }
-
-        .neon-text-gold {
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.2);
         }
 
         .akkad-nav {
             background: rgba(10, 15, 18, 0.95); 
             backdrop-filter: blur(20px);
             border-bottom: 2px solid var(--akkad-gold);
-            box-shadow: 0 4px 30px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 4px 30px rgba(212, 175, 55, 0.1);
             position: relative;
         }
-        
-        .akkad-nav::before {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0; right: 0;
-            height: 2px;
-            background: repeating-linear-gradient(90deg, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold));
-        }
 
-        /* شعار أكبر */
+        /* اللوجو الأصلي */
         .akkad-logo-img { 
-            width: 70px; 
-            height: 70px; 
+            width: 55px; 
+            height: 55px; 
             border-radius: 50%; 
-            border: 3px solid var(--akkad-gold); 
+            border: 2px solid var(--akkad-gold); 
             background: #1a1108;
             object-fit: cover;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.5), 0 0 50px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
             transition: all 0.3s ease;
         }
         
         .akkad-logo-img:hover {
-            box-shadow: 0 0 35px rgba(212, 175, 55, 0.7), 0 0 70px rgba(212, 175, 55, 0.3);
-            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+            transform: scale(1.05);
         }
         
         .akkad-logo-text { 
-            font-size: 1.8rem; 
+            font-size: 1.5rem; 
             font-weight: 800; 
             background: linear-gradient(135deg, #f0e6d0, var(--akkad-gold), #e8c97a); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         .akkad-subtitle {
             font-family: 'Amiri', serif;
-            font-size: 0.75rem;
-            letter-spacing: 4px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
             color: var(--akkad-gold);
         }
 
-        /* تأثير ذهبي عند تمرير الماوس */
         .akkad-card { 
             background: linear-gradient(145deg, rgba(20, 26, 31, 0.85), rgba(10, 15, 18, 0.75));
             backdrop-filter: blur(12px); 
             border: 1px solid rgba(212, 175, 55, 0.25); 
             border-radius: 1rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-        }
-        
-        .akkad-card::before {
-            content: '𒀀𒅗𒁺';
-            position: absolute;
-            bottom: 5px;
-            right: 10px;
-            font-family: 'Lateef', cursive;
-            font-size: 12px;
-            color: rgba(212, 175, 55, 0.1);
-            pointer-events: none;
         }
         
         .akkad-card::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold), transparent);
-            opacity: 0.6;
-            z-index: 2;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
+            opacity: 0.5;
         }
         
         .akkad-card:hover { 
-            transform: translateY(-8px); 
+            transform: translateY(-5px); 
             border-color: rgba(212, 175, 55, 0.6);
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.5),
-                0 0 25px rgba(212, 175, 55, 0.3);
-        }
-        
-        /* تأثير اللمعة الذهبية عند التمرير */
-        .akkad-card:hover .gold-shimmer {
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.15), transparent);
-            animation: shimmer 1.5s ease-in-out;
-            z-index: 10;
-            pointer-events: none;
-        }
-        
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 200%; }
-        }
-
-        /* شريط المنتجات المتحرك */
-        .product-slider {
-            background: rgba(10, 15, 18, 0.5);
-            border-radius: 1rem;
-            padding: 1rem 0;
-            margin: 1rem 0;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        
-        .slider-card {
-            background: linear-gradient(145deg, rgba(20, 26, 31, 0.9), rgba(10, 15, 18, 0.8));
-            border-radius: 0.75rem;
-            overflow: hidden;
-            margin: 0 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        
-        .slider-card:hover {
-            transform: scale(1.02);
-            border-color: var(--akkad-gold);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
-        }
-        
-        .slider-card img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-        }
-        
-        .swiper-button-next, .swiper-button-prev {
-            color: var(--akkad-gold) !important;
-            background: rgba(10, 15, 18, 0.7);
-            width: 35px !important;
-            height: 35px !important;
-            border-radius: 50%;
-        }
-        
-        .swiper-button-next:after, .swiper-button-prev:after {
-            font-size: 16px !important;
-        }
-        
-        .swiper-pagination-bullet-active {
-            background: var(--akkad-gold) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4), 0 0 20px rgba(212, 175, 55, 0.15);
         }
 
         .btn-akkad { 
             background: linear-gradient(135deg, var(--akkad-gold), #b8942e); 
             color: #0a0f12; 
             font-weight: 700;
-            letter-spacing: 0.5px;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
         
         .btn-akkad:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
         }
         
         .btn-outline-akkad { 
             border: 1px solid rgba(212, 175, 55, 0.5); 
             color: var(--akkad-gold); 
             background: rgba(212, 175, 55, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
         .btn-outline-akkad:hover {
@@ -257,38 +136,134 @@
             border-color: var(--akkad-gold);
         }
 
+        /* أزرار التفاصيل والطلب */
+        .whatsapp-icon-btn {
+            background: #25D366;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .whatsapp-icon-btn:hover {
+            background: #128C7E;
+            transform: scale(1.05);
+        }
+
+        .modal, .quick-order-modal, .video-modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(10, 15, 18, 0.96);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+        }
+        
+        .modal-content, .quick-order-form {
+            background: linear-gradient(145deg, rgba(20, 26, 31, 0.98), rgba(10, 15, 18, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 500px; width: 90%;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 90vw;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+        }
+        
+        .video-modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-modal-close {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            color: var(--akkad-gold);
+            font-size: 28px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .loader { 
+            border: 3px solid rgba(212, 175, 55, 0.15); 
+            border-top: 3px solid var(--akkad-gold); 
+            border-radius: 50%; 
+            width: 45px; height: 45px; 
+            animation: spin 1s linear infinite; 
+            margin: 40px auto;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .category-chip {
+            transition: all 0.3s ease;
+            background: rgba(10, 15, 18, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            cursor: pointer;
+        }
+        
+        .category-chip.active {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--akkad-gold);
+            color: var(--akkad-gold);
+        }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(212, 175, 55, 0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; }
+
+        .search-input {
+            background: rgba(10, 15, 18, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            color: #f0e6d0;
+        }
+        
+        .search-input:focus {
+            background: rgba(10, 15, 18, 0.9);
+            border-color: var(--akkad-gold);
+            outline: none;
+        }
+
+        /* عنوان بدون ظل ملون */
         .section-title {
             position: relative;
             display: inline-block;
             font-family: 'Amiri', serif;
-        }
-        
-        .section-title::before {
-            content: '𒀀𒅗𒁺';
-            position: absolute;
-            right: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'Lateef', cursive;
-            font-size: 22px;
-            color: rgba(212, 175, 55, 0.25);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f0e6d0;
         }
         
         .section-title::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
+            width: 60px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold), transparent);
+            background: var(--akkad-gold);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
         }
 
         .product-media-container {
             position: relative;
             overflow: hidden;
-            height: 190px;
+            height: 180px;
             cursor: pointer;
         }
         
@@ -300,7 +275,7 @@
         }
         
         .akkad-card:hover .product-media-container img {
-            transform: scale(1.08);
+            transform: scale(1.05);
         }
 
         .video-play-btn {
@@ -308,11 +283,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            width: 48px;
-            height: 48px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: rgba(212, 175, 55, 0.95);
-            border: 2px solid rgba(255,255,255,0.95);
+            border: 2px solid white;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -327,34 +302,22 @@
             transform: translate(-50%, -50%) scale(1);
         }
         
-        .video-play-btn i { color: #0a0f12; font-size: 18px; }
+        .video-play-btn i { color: #0a0f12; font-size: 16px; }
 
         .video-badge-bar {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            background: rgba(212, 175, 55, 0.95);
+            top: 10px;
+            left: 10px;
+            background: rgba(212, 175, 55, 0.9);
             color: #0a0f12;
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 3px 8px;
+            border-radius: 15px;
             font-size: 10px;
             font-weight: 700;
-            z-index: 3;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             pointer-events: none;
-        }
-
-        .whatsapp-icon-btn {
-            background: #25D366;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .whatsapp-icon-btn:hover {
-            background: #128C7E;
-            transform: scale(1.05);
         }
 
         .footer {
@@ -368,8 +331,8 @@
             bottom: 20px; 
             left: 20px; 
             background: var(--sumerian-blue); 
-            color: #f0e6d0; 
-            padding: 12px 20px; 
+            color: white; 
+            padding: 10px 18px; 
             border-radius: 10px; 
             z-index: 9999; 
             animation: slideIn 0.3s; 
@@ -380,52 +343,101 @@
             to { transform: translateX(0); opacity: 1; } 
         }
 
-        /* عداد الزوار */
-        .visitor-counter {
-            background: rgba(10, 15, 18, 0.6);
-            border-radius: 30px;
-            padding: 4px 12px;
+        /* شريط المنتجات المتحرك البسيط */
+        .simple-slider {
+            background: rgba(10, 15, 18, 0.4);
+            border-radius: 1rem;
+            padding: 1rem 0;
+            margin: 1rem 0;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            white-space: nowrap;
+        }
+        
+        .simple-slider::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .slider-item {
+            display: inline-block;
+            width: 150px;
+            margin: 0 8px;
+            vertical-align: top;
+            background: rgba(20, 26, 31, 0.8);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .slider-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--akkad-gold);
+        }
+        
+        .slider-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        
+        .slider-item .info {
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .slider-item .name {
             font-size: 12px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            font-weight: bold;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .slider-item .price {
+            font-size: 11px;
+            color: var(--akkad-gold);
+            font-weight: bold;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
     <div class="bg-mesopotamia"></div>
-    
-    <!-- جزيئات مسمارية عشوائية -->
-    <div id="cuneiformParticles"></div>
 
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="flex items-center gap-3">
-                    <div class="relative">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Lamassu_at_Pergamon_Museum.jpg/200px-Lamassu_at_Pergamon_Museum.jpg" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23d4af37%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%230a0f12%22 font-size=%2235%22 font-weight=%22bold%22%3E𒀀𒅗𒁺%3C/text%3E%3C/svg%3E'">
-                    </div>
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23d4af37%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%230a0f12%22 font-size=%2235%22 font-weight=%22bold%22%3Eأ%3C/text%3E%3C/svg%3E'">
                     <div>
-                        <div class="akkad-logo-text">𒀀𒅗𒁺 | أَكَّد</div>
-                        <div class="akkad-subtitle">Akkad Digital Store | من قلب بلاد الرافدين</div>
+                        <div class="akkad-logo-text">أَكَّد</div>
+                        <div class="akkad-subtitle">Akkad Digital Store</div>
                     </div>
                 </a>
-                <div class="flex gap-2 items-center">
-                    <div class="visitor-counter hidden sm:flex items-center gap-2">
-                        <i class="fas fa-eye"></i>
-                        <span id="visitorCount">12,847</span>
-                        <span class="text-[10px]">زائر</span>
-                    </div>
+                <div class="flex gap-2">
                     <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs text-white bg-[#25D366] hover:bg-[#128C7E] transition">
                         <i class="fas fa-share-nodes"></i>
                         <span class="hidden sm:inline">مشاركة</span>
                     </button>
-                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center gold-pulse" target="_blank">
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] text-white w-10 h-10 rounded-xl flex items-center justify-center" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
             </div>
             
             <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="search-input w-full rounded-2xl py-3 px-14 text-white placeholder-gray-400 bg-black/30 border border-[rgba(212,175,55,0.3)] focus:border-[var(--akkad-gold)] outline-none" placeholder="🔍 ابحث عن منتج...">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="search-input w-full rounded-2xl py-3 px-14 text-white placeholder-gray-400" placeholder="🔍 ابحث عن منتج...">
                 <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/50"></i>
             </div>
             
@@ -435,41 +447,28 @@
 
     <main class="container mx-auto px-4 py-6">
         
-        <!-- شريط المنتجات المتحرك -->
-        <div class="product-slider">
-            <div class="flex justify-between items-center px-4 mb-3">
-                <h3 class="text-lg font-bold text-[var(--akkad-gold)]"><i class="fas fa-star-of-life ml-2"></i>أشهر المنتجات 🔥</h3>
-                <span class="text-xs text-gray-400">اسحب للمزيد →</span>
-            </div>
-            <div class="swiper productSwiper">
-                <div class="swiper-wrapper" id="slider-wrapper">
-                    <!-- ستتم تعبئتها بالجافاسكريبت -->
-                </div>
-                <div class="swiper-pagination"></div>
-            </div>
+        <!-- شريط المنتجات المتحرك البسيط -->
+        <div class="simple-slider" id="productSlider">
+            <div id="sliderItems" class="d-inline-block"></div>
         </div>
         
         <div class="zigzag-pattern my-6 w-full"></div>
         
         <div class="text-center mb-8">
-            <h2 class="text-3xl md:text-4xl font-bold mb-3 section-title amiri-font">كنوز أكاد الرقمية</h2>
-            <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار | مستوحى من حضارة بلاد الرافدين الخالدة</p>
+            <h2 class="section-title">كنوز أكاد الرقمية</h2>
+            <p class="text-gray-400 text-sm mt-3">أحدث الأجهزة والمستلزمات بأفضل الأسعار</p>
             <div class="zigzag-pattern mt-4 w-64 mx-auto"></div>
         </div>
         
         <div id="loading" class="text-center py-20">
             <div class="loader"></div>
             <p class="text-gray-400 mt-5">جاري الاتصال بقاعدة البيانات...</p>
-            <p id="loadingStatus" class="text-gray-500 text-xs mt-2">جاري التهيئة...</p>
         </div>
         
         <div id="error-message" class="hidden text-center py-20">
             <div class="text-6xl mb-4">⚠️</div>
             <h3 class="text-xl font-bold text-red-400 mb-2">فشل الاتصال</h3>
-            <p id="errorDetail" class="text-gray-400 mb-4"></p>
-            <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">
-                <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
-            </button>
+            <button onclick="retryConnection()" class="btn-akkad px-6 py-2 rounded-xl">إعادة المحاولة</button>
         </div>
         
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
@@ -482,16 +481,56 @@
 
     <footer class="footer py-6 text-center">
         <div class="container mx-auto px-4">
-            <div class="zigzag-pattern mb-4 w-32 mx-auto"></div>
-            <p class="text-gray-500 text-sm">© 2024 𒀀𒅗𒁺 - متجر أكاد الرقمي</p>
-            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين | مستوحى من حضارة أكاد العريقة</p>
+            <p class="text-gray-500 text-sm">© 2024 متجر أكاد الرقمي</p>
+            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين</p>
         </div>
     </footer>
 
     <!-- نوافذ -->
-    <div id="descModal" class="modal" onclick="closeModal('descModal')"><div class="modal-content" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] neon-text-gold"></h2><button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div><button onclick="closeModal('descModal')" class="w-full bg-white/10 py-2 rounded-xl hover:bg-white/20">إغلاق</button></div></div>
-    <div id="videoModal" class="video-modal" onclick="closeVideoModal()"><div class="video-modal-content" onclick="event.stopPropagation()"><button class="video-modal-close" onclick="closeVideoModal()">&times;</button><iframe id="videoIframe" src="" allowfullscreen></iframe></div></div>
-    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()"><div class="quick-order-form"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text-gold"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3><button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div><form id="quickOrderForm" class="space-y-3"><input type="hidden" id="quickProductId"><input type="hidden" id="quickProductName"><input type="hidden" id="quickProductPrice"><input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="👤 الاسم الكامل *" required><select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white outline-none" required><option value="">🏛️ اختر المحافظة *</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option><option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option><option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option><option>ميسان</option><option>النجف</option><option>كربلاء</option></select><input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none dir-ltr" placeholder="📱 رقم الهاتف *" required><textarea id="quickAddress" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="📍 العنوان التفصيلي (اختياري)"></textarea><textarea id="quickNotes" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="💬 ملاحظات إضافية (اختياري)"></textarea><button type="submit" class="btn-akkad w-full py-3 rounded-xl flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> إرسال الطلب</button></form></div></div>
+    <div id="descModal" class="modal" onclick="closeModal('descModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)]"></h2>
+                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6"></div>
+            <button onclick="closeModal('descModal')" class="w-full bg-white/10 py-2 rounded-xl hover:bg-white/20">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="videoModal" class="video-modal" onclick="closeVideoModal()">
+        <div class="video-modal-content" onclick="event.stopPropagation()">
+            <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
+            <iframe id="videoIframe" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
+        <div class="quick-order-form">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-[var(--akkad-gold)]"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
+                <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div>
+            <form id="quickOrderForm" class="space-y-3">
+                <input type="hidden" id="quickProductId">
+                <input type="hidden" id="quickProductName">
+                <input type="hidden" id="quickProductPrice">
+                <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="👤 الاسم الكامل *" required>
+                <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white outline-none" required>
+                    <option value="">🏛️ اختر المحافظة *</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option>
+                    <option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option>
+                    <option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option>
+                    <option>ميسان</option><option>النجف</option><option>كربلاء</option>
+                </select>
+                <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="📱 رقم الهاتف *" required>
+                <textarea id="quickAddress" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="📍 العنوان التفصيلي (اختياري)"></textarea>
+                <textarea id="quickNotes" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="💬 ملاحظات إضافية (اختياري)"></textarea>
+                <button type="submit" class="btn-akkad w-full py-3 rounded-xl flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> إرسال الطلب</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         // ========================================
@@ -510,47 +549,44 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let allProducts = [], categories = {}, categoryOrder = [], currentSearchTerm = '', currentCategory = 'all', currentProductForOrder = null;
-        let swiper = null;
+        let allProducts = [], categories = {}, categoryOrder = [], currentSearchTerm = '', currentCategory = 'all';
 
-        // جزيئات مسمارية
-        function createCuneiformParticles() {
-            const container = document.getElementById('cuneiformParticles');
-            const symbols = ['𒀀', '𒅗', '𒁺', '𒀭', '𒂗', '𒈪', '𒀜', '𒁾', '𒊬', '𒄑'];
-            for(let i = 0; i < 25; i++) {
-                let div = document.createElement('div');
-                div.className = 'cuneiform-particle';
-                div.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                div.style.left = Math.random() * 100 + '%';
-                div.style.animationDuration = 10 + Math.random() * 20 + 's';
-                div.style.animationDelay = Math.random() * 20 + 's';
-                div.style.fontSize = (15 + Math.random() * 25) + 'px';
-                container.appendChild(div);
-            }
+        function showToast(msg, type = 'success') { 
+            let t = document.createElement('div'); 
+            t.className = `toast ${type === 'error' ? 'error' : ''}`; 
+            t.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`; 
+            document.body.appendChild(t); 
+            setTimeout(() => t.remove(), 3000); 
         }
-        createCuneiformParticles();
+        
+        function shareStore() { 
+            if (navigator.share) navigator.share({ title: 'متجر أكاد الرقمي', url: window.location.href }); 
+            else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } 
+        }
 
-        // عداد زوار متحرك (تأثير بصري)
-        let visitorCount = 12847;
-        setInterval(() => {
-            visitorCount += Math.floor(Math.random() * 3);
-            document.getElementById('visitorCount').innerText = visitorCount.toLocaleString();
-        }, 30000);
-
-        function showToast(msg, type = 'success') { let t = document.createElement('div'); t.className = `toast ${type === 'error' ? 'error' : ''}`; t.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-        function shareStore() { if (navigator.share) navigator.share({ title: 'متجر أكاد الرقمي', url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } }
-
+        // دالة تحويل ID الفيديو إلى رابط
         function normalizeVideoUrl(input) {
             if (!input || input.trim() === '') return null;
             let video = input.trim();
-            if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) return `https://www.youtube.com/watch?v=${video}`;
-            if (video.includes('youtu.be/')) { let id = video.split('youtu.be/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
-            if (video.includes('youtube.com/embed/')) { let id = video.split('embed/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
-            if (video.includes('youtube.com/shorts/')) { let id = video.split('shorts/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
-            let match = video.match(/[?&]v=([^&]+)/);
-            if (match && match[1]) return `https://www.youtube.com/watch?v=${match[1]}`;
-            let cleanId = video.replace(/[^a-zA-Z0-9_-]/g, '');
-            if (cleanId.length === 11) return `https://www.youtube.com/watch?v=${cleanId}`;
+            // إذا كان النص عبارة عن 11 حرفًا (ID يوتيوب)
+            if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) {
+                return `https://www.youtube.com/watch?v=${video}`;
+            }
+            // إذا كان رابط youtu.be
+            if (video.includes('youtu.be/')) {
+                let id = video.split('youtu.be/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
+            // إذا كان رابط embed
+            if (video.includes('youtube.com/embed/')) {
+                let id = video.split('embed/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
+            // إذا كان رابط shorts
+            if (video.includes('youtube.com/shorts/')) {
+                let id = video.split('shorts/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
             return video;
         }
 
@@ -573,62 +609,108 @@
                 let iframe = document.getElementById('videoIframe');
                 iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
                 document.getElementById('videoModal').style.display = 'flex';
-            } else { showToast('⚠️ رابط الفيديو غير صالح', 'error'); }
+            } else { 
+                showToast('⚠️ رابط الفيديو غير صالح', 'error'); 
+            }
         }
-        function closeVideoModal() { document.getElementById('videoModal').style.display = 'none'; document.getElementById('videoIframe').src = ''; }
+        
+        function closeVideoModal() { 
+            document.getElementById('videoModal').style.display = 'none'; 
+            document.getElementById('videoIframe').src = ''; 
+        }
 
         async function loadData() {
             try {
-                let catsSnap = await db.ref('categories').once('value'); categories = catsSnap.val() || {};
-                let orderSnap = await db.ref('categoryOrder').once('value'); categoryOrder = orderSnap.val() || [];
-                let prodsSnap = await db.ref('products').once('value'); let products = prodsSnap.val() || {};
+                let catsSnap = await db.ref('categories').once('value'); 
+                categories = catsSnap.val() || {};
+                let orderSnap = await db.ref('categoryOrder').once('value'); 
+                categoryOrder = orderSnap.val() || [];
+                let prodsSnap = await db.ref('products').once('value'); 
+                let products = prodsSnap.val() || {};
                 allProducts = Object.entries(products).map(([id, val]) => ({ id, ...val }));
+                
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('products-grid').classList.remove('hidden');
                 renderCategories(); 
                 renderProducts();
-                renderSlider(); // تعبئة الشريط المتحرك
-                initSwiper(); // تهيئة السوايبر
-            } catch(e) { console.error(e); document.getElementById('loading').classList.add('hidden'); document.getElementById('error-message').classList.remove('hidden'); document.getElementById('errorDetail').innerHTML = e.message; }
+                renderSlider();
+            } catch(e) { 
+                console.error(e); 
+                document.getElementById('loading').classList.add('hidden'); 
+                document.getElementById('error-message').classList.remove('hidden'); 
+            }
         }
         
-        function initSwiper() {
-            if (swiper) swiper.destroy(true, true);
-            swiper = new Swiper('.productSwiper', {
-                slidesPerView: 2.5,
-                spaceBetween: 12,
-                pagination: { el: '.swiper-pagination', clickable: true },
-                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                breakpoints: { 640: { slidesPerView: 3.5, spaceBetween: 15 }, 768: { slidesPerView: 4.5, spaceBetween: 15 }, 1024: { slidesPerView: 6, spaceBetween: 15 } }
-            });
+        function retryConnection() { 
+            document.getElementById('error-message').classList.add('hidden'); 
+            document.getElementById('loading').classList.remove('hidden'); 
+            loadData(); 
+        }
+        
+        function escapeHtml(t) { 
+            if(!t) return ''; 
+            return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); 
         }
         
         function renderSlider() {
-            let container = document.getElementById('slider-wrapper');
-            let topProducts = [...allProducts].sort((a,b) => (b.price || 0) - (a.price || 0)).slice(0, 12);
-            container.innerHTML = topProducts.map(p => `<div class="swiper-slide"><div class="slider-card" onclick="handleImageClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}"><div class="p-2"><p class="text-xs font-bold truncate">${escapeHtml(p.name)}</p><p class="text-[var(--akkad-gold)] text-xs font-bold">${Number(p.price).toLocaleString()} د.ع</p></div></div></div>`).join('');
+            let container = document.getElementById('sliderItems');
+            let topProducts = [...allProducts].slice(0, 12);
+            container.innerHTML = topProducts.map(p => `
+                <div class="slider-item" onclick="handleImageClick('${p.id}')">
+                    <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}">
+                    <div class="info">
+                        <div class="name">${escapeHtml(p.name.length > 25 ? p.name.substring(0, 22) + '...' : p.name)}</div>
+                        <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
+                    </div>
+                </div>
+            `).join('');
         }
-        
-        function retryConnection() { document.getElementById('error-message').classList.add('hidden'); document.getElementById('loading').classList.remove('hidden'); loadData(); }
-        function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
         
         function renderCategories() {
             let container = document.getElementById('categories-nav');
             let catsList = [];
             categoryOrder.forEach(k => { if(categories[k]) catsList.push({key:k, name:categories[k]}); });
             Object.keys(categories).forEach(k => { if(!categoryOrder.includes(k)) catsList.push({key:k, name:categories[k]}); });
-            let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory==='all'?'active':''}" style="border-color:rgba(212,175,55,0.3);background:rgba(10,15,18,0.6)">🏠 الكل</button>`;
-            catsList.forEach(c => { html += `<button onclick="filterByCategory('${c.key}')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory===c.key?'active':''}" style="border-color:rgba(212,175,55,0.3);background:rgba(10,15,18,0.6)">📁 ${escapeHtml(c.name)}</button>`; });
+            let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory==='all'?'active':''}">🏠 الكل</button>`;
+            catsList.forEach(c => { html += `<button onclick="filterByCategory('${c.key}')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory===c.key?'active':''}">📁 ${escapeHtml(c.name)}</button>`; });
             container.innerHTML = html;
         }
         
         function filterByCategory(k) { currentCategory = k; renderCategories(); renderProducts(); }
         function searchProducts() { currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase(); renderProducts(); }
         function resetSearch() { document.getElementById('searchInput').value = ''; currentSearchTerm = ''; renderProducts(); document.getElementById('no-results').classList.add('hidden'); }
-        function handleImageClick(pid) { let p = allProducts.find(p=>p.id===pid); if(p && p.video && p.video.trim()) playVideo(p.video); else showProductDetails(pid); }
-        function showProductDetails(pid) { let p = allProducts.find(p=>p.id===pid); if(!p) return; document.getElementById('modalTitle').innerHTML = p.name; let dh = p.desc ? `<div class="mb-4">${escapeHtml(p.desc).replace(/\n/g,'<br>')}</div>` : ''; dh += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(p.price).toLocaleString()} د.ع</div>`; document.getElementById('modalDesc').innerHTML = dh; document.getElementById('descModal').style.display = 'flex'; }
-        function openQuickOrderFromCard(pid) { let p = allProducts.find(p=>p.id===pid); if(p) openQuickOrder(p); }
-        function openQuickOrder(p) { if(!p) return; currentProductForOrder=p; document.getElementById('quickProductId').value=p.id; document.getElementById('quickProductName').value=p.name; document.getElementById('quickProductPrice').value=p.price; document.getElementById('quickProductInfo').innerHTML=`<div class="flex justify-between"><span class="font-bold">${escapeHtml(p.name)}</span><span class="text-[var(--akkad-gold)] font-bold">${Number(p.price).toLocaleString()} د.ع</span></div>`; ['quickCustomerName','quickGovernorate','quickPhone','quickAddress','quickNotes'].forEach(id=>{ let el=document.getElementById(id); if(el && el.tagName==='SELECT') el.value=''; else if(el) el.value=''; }); document.getElementById('quickOrderModal').style.display='flex'; }
+        
+        function handleImageClick(pid) { 
+            let p = allProducts.find(p=>p.id===pid); 
+            if(p && p.video && p.video.trim()) playVideo(p.video); 
+            else showProductDetails(pid); 
+        }
+        
+        function showProductDetails(pid) { 
+            let p = allProducts.find(p=>p.id===pid); 
+            if(!p) return; 
+            document.getElementById('modalTitle').innerHTML = p.name; 
+            let dh = p.desc ? `<div class="mb-4">${escapeHtml(p.desc).replace(/\n/g,'<br>')}</div>` : ''; 
+            dh += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(p.price).toLocaleString()} د.ع</div>`; 
+            document.getElementById('modalDesc').innerHTML = dh; 
+            document.getElementById('descModal').style.display = 'flex'; 
+        }
+        
+        function openQuickOrderFromCard(pid) { 
+            let p = allProducts.find(p=>p.id===pid); 
+            if(p) openQuickOrder(p); 
+        }
+        
+        function openQuickOrder(p) { 
+            if(!p) return; 
+            document.getElementById('quickProductId').value = p.id; 
+            document.getElementById('quickProductName').value = p.name; 
+            document.getElementById('quickProductPrice').value = p.price; 
+            document.getElementById('quickProductInfo').innerHTML = `<div class="flex justify-between"><span class="font-bold">${escapeHtml(p.name)}</span><span class="text-[var(--akkad-gold)] font-bold">${Number(p.price).toLocaleString()} د.ع</span></div>`; 
+            ['quickCustomerName','quickGovernorate','quickPhone','quickAddress','quickNotes'].forEach(id=>{ let el=document.getElementById(id); if(el && el.tagName==='SELECT') el.value=''; else if(el) el.value=''; }); 
+            document.getElementById('quickOrderModal').style.display = 'flex'; 
+        }
+        
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function closeQuickOrder() { document.getElementById('quickOrderModal').style.display = 'none'; }
         
@@ -637,12 +719,43 @@
             let filtered = [...allProducts];
             if(currentCategory !== 'all') filtered = filtered.filter(p=>p.category === currentCategory);
             if(currentSearchTerm) filtered = filtered.filter(p=>p.name && p.name.toLowerCase().includes(currentSearchTerm));
-            if(filtered.length === 0) { document.getElementById('products-grid').classList.add('hidden'); document.getElementById('no-results').classList.remove('hidden'); return; }
-            document.getElementById('products-grid').classList.remove('hidden'); document.getElementById('no-results').classList.add('hidden');
-            container.innerHTML = filtered.map(p => { let hasVideo = p.video && p.video.trim(); return `<div class="akkad-card overflow-hidden fade-in-up"><div class="gold-shimmer"></div><div class="product-media-container" onclick="handleImageClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">${hasVideo ? `<div class="video-play-btn" onclick="playVideo('${escapeHtml(p.video)}', event)"><i class="fas fa-play"></i></div><div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>` : ''}<div class="media-overlay"></div></div><div class="p-4"><h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(p.name)}</h3><div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(p.price).toLocaleString()} د.ع</div><div class="flex gap-2"><button onclick="showProductDetails('${p.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button><button onclick="openQuickOrderFromCard('${p.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg flex items-center justify-center transition"><i class="fab fa-whatsapp text-lg"></i></button></div></div></div>`; }).join('');
+            if(filtered.length === 0) { 
+                document.getElementById('products-grid').classList.add('hidden'); 
+                document.getElementById('no-results').classList.remove('hidden'); 
+                return; 
+            }
+            document.getElementById('products-grid').classList.remove('hidden'); 
+            document.getElementById('no-results').classList.add('hidden');
+            
+            container.innerHTML = filtered.map(p => { 
+                let hasVideo = p.video && p.video.trim(); 
+                return `<div class="akkad-card overflow-hidden"><div class="product-media-container" onclick="handleImageClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">${hasVideo ? `<div class="video-play-btn" onclick="playVideo('${escapeHtml(p.video)}', event)"><i class="fas fa-play"></i></div><div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>` : ''}</div><div class="p-4"><h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(p.name)}</h3><div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(p.price).toLocaleString()} د.ع</div><div class="flex gap-2"><button onclick="showProductDetails('${p.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button><button onclick="openQuickOrderFromCard('${p.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg transition"><i class="fab fa-whatsapp text-lg"></i></button></div></div></div>`; 
+            }).join('');
         }
 
-        document.getElementById('quickOrderForm').addEventListener('submit', async function(e) { e.preventDefault(); let name=document.getElementById('quickCustomerName').value.trim(); let gov=document.getElementById('quickGovernorate').value; let phone=document.getElementById('quickPhone').value.trim(); let addr=document.getElementById('quickAddress').value.trim(); let notes=document.getElementById('quickNotes').value.trim(); let pid=document.getElementById('quickProductId').value; let pname=document.getElementById('quickProductName').value; let pprice=document.getElementById('quickProductPrice').value; if(!name||!gov||!phone){ showToast('⚠️ الرجاء ملء الحقول المطلوبة','error'); return; } let orderData={orderId:Date.now().toString(),customerName:name,governorate:gov,phone:phone,address:addr,notes:notes,productId:pid,productName:pname,productPrice:pprice,status:'جديد',createdAt:new Date().toISOString(),createdAtTimestamp:Date.now()}; try{ await db.ref('orders/'+orderData.orderId).set(orderData); let msg=`🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${gov}\n📦 *المنتج:* ${pname}\n💰 *السعر:* ${Number(pprice).toLocaleString()} د.ع`; if(addr) msg+=`\n📍 *العنوان:* ${addr}`; if(notes) msg+=`\n💬 *ملاحظات:* ${notes}`; msg+=`\n\n📅 ${new Date().toLocaleString('ar-IQ')}`; window.open(`https://wa.me/9647730492020?text=${encodeURIComponent(msg)}`,'_blank'); showToast('✅ تم إرسال الطلب بنجاح!'); setTimeout(()=>closeQuickOrder(),1500); } catch(err){ showToast('❌ فشل إرسال الطلب','error'); } });
+        document.getElementById('quickOrderForm').addEventListener('submit', async function(e) { 
+            e.preventDefault(); 
+            let name = document.getElementById('quickCustomerName').value.trim(); 
+            let gov = document.getElementById('quickGovernorate').value; 
+            let phone = document.getElementById('quickPhone').value.trim(); 
+            let addr = document.getElementById('quickAddress').value.trim(); 
+            let notes = document.getElementById('quickNotes').value.trim(); 
+            let pid = document.getElementById('quickProductId').value; 
+            let pname = document.getElementById('quickProductName').value; 
+            let pprice = document.getElementById('quickProductPrice').value; 
+            if(!name || !gov || !phone) { showToast('⚠️ الرجاء ملء الحقول المطلوبة','error'); return; } 
+            let orderData = { orderId: Date.now().toString(), customerName: name, governorate: gov, phone: phone, address: addr, notes: notes, productId: pid, productName: pname, productPrice: pprice, status: 'جديد', createdAt: new Date().toISOString(), createdAtTimestamp: Date.now() }; 
+            try { 
+                await db.ref('orders/' + orderData.orderId).set(orderData); 
+                let msg = `🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${gov}\n📦 *المنتج:* ${pname}\n💰 *السعر:* ${Number(pprice).toLocaleString()} د.ع`; 
+                if(addr) msg += `\n📍 *العنوان:* ${addr}`; 
+                if(notes) msg += `\n💬 *ملاحظات:* ${notes}`; 
+                msg += `\n\n📅 ${new Date().toLocaleString('ar-IQ')}`; 
+                window.open(`https://wa.me/9647730492020?text=${encodeURIComponent(msg)}`, '_blank'); 
+                showToast('✅ تم إرسال الطلب بنجاح!'); 
+                setTimeout(() => closeQuickOrder(), 1500); 
+            } catch(err) { showToast('❌ فشل إرسال الطلب', 'error'); } 
+        });
         
         loadData();
     </script>
