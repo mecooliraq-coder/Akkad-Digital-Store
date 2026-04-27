@@ -3,1309 +3,1267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وعد الهوية البصرية | أكاد</title>
+    <title>متجر أكاد التاريخي | من قلب بلاد الرافدين</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
+        
         :root {
-            --akkad-gold: #C9A961;
-            --akkad-gold-light: #E8D5A3;
-            --akkad-gold-dark: #8B6F47;
-            --lapis: #1B3A5C;
-            --lapis-light: #2660A4;
-            --lapis-deep: #0D1F33;
-            --obsidian: #08080C;
-            --obsidian-soft: #0F1014;
-            --terracotta: #B85C38;
-            --terracotta-light: #D4845A;
-            --papyrus: #F5E6C8;
-            --papyrus-dark: #D4C4A0;
-            --bronze: #6B5B3E;
-            --copper: #B87333;
-            --clay: #9B7653;
+            --akkad-dark: #080604;
+            --akkad-gold: #c9a961;
+            --akkad-gold-bright: #e8d5a3;
+            --akkad-bronze: #a07840;
+            --akkad-terracotta: #b86e4a;
+            --akkad-sand: #d4c5a0;
+            --akkad-parchment: rgba(40, 32, 20, 0.6);
+            --glass-bg: rgba(20, 16, 10, 0.65);
+            --neon-gold: rgba(201, 169, 97, 0.6);
         }
-
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--obsidian);
-            color: #fff;
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: var(--akkad-dark); 
+            color: #fff; 
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--obsidian); }
-        ::-webkit-scrollbar-thumb { background: var(--akkad-gold-dark); border-radius: 3px; }
-
-        /* ===== أنماط عامة ===== */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
-            opacity: 0.3;
-            margin: 0 auto;
-            max-width: 600px;
+        /* خلفية تاريخية متدرجة */
+        .bg-gradient-custom {
+            position: fixed; inset: 0; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(184,110,74,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,169,97,0.08) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 50%, rgba(160,120,64,0.06) 0%, transparent 60%),
+                linear-gradient(170deg, #080604 0%, #0f0c08 30%, #1a1408 55%, #12100a 80%, #0a0806 100%);
         }
 
-        .gold-line {
-            width: 80px;
+        /* نمط مسماري خفيف كخلفية */
+        .cuneiform-pattern {
+            position: fixed; inset: 0; z-index: -1;
+            opacity: 0.025;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 58px, rgba(201,169,97,0.3) 58px, rgba(201,169,97,0.3) 59px),
+                repeating-linear-gradient(90deg, transparent, transparent 58px, rgba(201,169,97,0.3) 58px, rgba(201,169,97,0.3) 59px);
+            pointer-events: none;
+        }
+
+        /* زخرفة حدود تاريخية */
+        .ancient-border-top {
+            position: relative;
+        }
+        .ancient-border-top::before {
+            content: '𒀭 𒁕 𒂗 𒀭 𒁕 𒂗 𒀭 𒁕 𒂗';
+            position: absolute;
+            top: -1px; left: 0; right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: rgba(201,169,97,0.2);
+            letter-spacing: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .neon-text {
+            text-shadow: 
+                0 0 5px var(--neon-gold),
+                0 0 10px var(--neon-gold),
+                0 0 20px rgba(201,169,97,0.5);
+        }
+
+        .akkad-nav {
+            background: rgba(8,6,4,0.9); 
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(201,169,97,0.25);
+            box-shadow: 0 4px 30px rgba(201,169,97,0.08), inset 0 -1px 0 rgba(201,169,97,0.1);
+            position: relative;
+        }
+        
+        .akkad-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--akkad-gold), var(--akkad-gold-light));
-            box-shadow: 0 0 10px rgba(201,169,97,0.4);
-            margin: 0 auto;
+            background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(201,169,97,0.15) 8px, rgba(201,169,97,0.15) 10px);
         }
-
-        .section-label {
-            font-size: 11px;
-            letter-spacing: 4px;
+        
+        .akkad-logo-img { 
+            width: 52px; height: 52px; border-radius: 50%; 
+            border: 2px solid rgba(201,169,97,0.6); 
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(201,169,97,0.4), 0 0 30px rgba(201,169,97,0.15), inset 0 0 10px rgba(201,169,97,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .akkad-logo-img:hover {
+            box-shadow: 0 0 20px rgba(201,169,97,0.6), 0 0 40px rgba(201,169,97,0.25);
+            transform: scale(1.05);
+        }
+        
+        .akkad-logo-text { 
+            font-size: 1.45rem; font-weight: 700; 
+            background: linear-gradient(135deg, #fff 10%, var(--akkad-gold) 50%, var(--akkad-terracotta) 90%); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .akkad-logo-sub {
+            font-size: 10px;
             color: var(--akkad-gold);
-            text-transform: uppercase;
+            letter-spacing: 3px;
             opacity: 0.7;
         }
 
-        /* ===== خلفية نجوم إشhtar ===== */
-        .ishtar-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(201,169,97,0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 80%, rgba(27,58,92,0.15) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(184,92,56,0.04) 0%, transparent 50%),
-                var(--obsidian);
-        }
-
-        /* ===== نمط المسمار المسماري ===== */
-        .cuneiform-border {
-            border-image: repeating-linear-gradient(
-                90deg,
-                var(--akkad-gold) 0px, var(--akkad-gold) 8px,
-                transparent 8px, transparent 16px,
-                var(--akkad-gold-dark) 16px, var(--akkad-gold-dark) 20px,
-                transparent 20px, transparent 28px
-            ) 1;
-            border-width: 2px 0;
-            border-style: solid;
-        }
-
-        /* ===== نجمة إشhtar كـ SVG ===== */
-        .ishtar-star {
-            display: inline-block;
-            width: 60px;
-            height: 60px;
-            filter: drop-shadow(0 0 8px rgba(201,169,97,0.5));
-        }
-
-        .ishtar-star-lg {
-            width: 120px;
-            height: 120px;
-            filter: drop-shadow(0 0 20px rgba(201,169,97,0.6));
-        }
-
-        .ishtar-star-glow {
-            animation: starGlow 4s ease-in-out infinite;
-        }
-
-        @keyframes starGlow {
-            0%, 100% { filter: drop-shadow(0 0 15px rgba(201,169,97,0.4)); }
-            50% { filter: drop-shadow(0 0 35px rgba(201,169,97,0.8)) drop-shadow(0 0 60px rgba(201,169,97,0.3)); }
-        }
-
-        /* ===== بطاقات الألوان ===== */
-        .color-swatch {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 16px;
+        .akkad-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(201,169,97,0.2); 
+            border-radius: 1.25rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
         }
-
-        .color-swatch:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-        }
-
-        .color-swatch::after {
+        
+        .akkad-card::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-            pointer-events: none;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 5%, var(--akkad-bronze) 30%, var(--akkad-gold) 50%, var(--akkad-bronze) 70%, transparent 95%);
+            opacity: 0.5;
+            z-index: 2;
+        }
+        
+        /* زخرفة سفلية للبطاقة */
+        .akkad-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(201,169,97,0.15) 4px, rgba(201,169,97,0.15) 6px);
+            z-index: 1;
+        }
+        
+        .akkad-card:hover { 
+            transform: translateY(-8px); 
+            border-color: rgba(201,169,97,0.5);
+            box-shadow: 
+                0 12px 40px rgba(0,0,0,0.5),
+                0 0 25px rgba(201,169,97,0.12),
+                0 0 50px rgba(160,120,64,0.06),
+                inset 0 0 30px rgba(201,169,97,0.03);
         }
 
-        /* ===== بطاقة نمط ===== */
-        .pattern-card {
-            background: rgba(15,16,20,0.8);
-            border: 1px solid rgba(201,169,97,0.15);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.4s;
-        }
-
-        .pattern-card:hover {
-            border-color: rgba(201,169,97,0.4);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px rgba(201,169,97,0.08);
-            transform: translateY(-4px);
-        }
-
-        .pattern-preview {
-            height: 140px;
+        .btn-akkad { 
+            background: linear-gradient(135deg, var(--akkad-gold) 0%, var(--akkad-bronze) 50%, var(--akkad-terracotta) 100%); 
+            color: #0a0806; 
+            font-weight: 600;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .btn-akkad::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+        
+        .btn-akkad:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(201,169,97,0.4), 0 0 15px rgba(184,110,74,0.2);
+        }
+        
+        .btn-akkad:hover::after {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+        
+        .btn-outline-akkad { 
+            border: 1px solid rgba(201,169,97,0.35); 
+            color: var(--akkad-gold); 
+            background: rgba(201,169,97,0.04);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-akkad:hover {
+            background: rgba(201,169,97,0.12);
+            border-color: var(--akkad-gold);
+            box-shadow: 0 0 15px rgba(201,169,97,0.15);
         }
 
-        /* ===== نمط الزقورة ===== */
-        .ziggurat-pattern {
-            background:
-                linear-gradient(180deg,
-                    var(--akkad-gold) 0%, var(--akkad-gold) 15%,
-                    transparent 15%, transparent 20%,
-                    var(--akkad-gold-dark) 20%, var(--akkad-gold-dark) 32%,
-                    transparent 32%, transparent 37%,
-                    var(--bronze) 37%, var(--bronze) 47%,
-                    transparent 47%, transparent 52%,
-                    var(--clay) 52%, var(--clay) 60%,
-                    transparent 60%, transparent 65%,
-                    var(--copper) 65%, var(--copper) 72%,
-                    transparent 72%, transparent 77%,
-                    var(--terracotta) 77%, var(--terracotta) 83%,
-                    transparent 83%, transparent 88%,
-                    var(--lapis) 88%, var(--lapis) 93%,
-                    transparent 93%
-                );
-            background-size: 100% 200px;
+        .modal { 
+            display: none; 
+            position: fixed; inset: 0; 
+            background: rgba(8,6,4,0.92); 
+            z-index: 1000; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(15px);
+        }
+        
+        .modal-content { 
+            background: rgba(20,16,10,0.98); 
+            border: 1px solid rgba(201,169,97,0.35); 
+            border-radius: 1.5rem; 
+            padding: 1.75rem; 
+            max-width: 500px; width: 90%;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.6),
+                0 0 30px rgba(201,169,97,0.08),
+                inset 0 1px 0 rgba(201,169,97,0.15);
+            position: relative;
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--akkad-terracotta), var(--akkad-gold), transparent);
+            border-radius: 1.5rem 1.5rem 0 0;
         }
 
-        /* ===== نمط المسماري ===== */
-        .cuneiform-pattern {
-            background-color: var(--obsidian-soft);
-            background-image:
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 10 L18 18 L12 18 Z' fill='%23C9A96115'/%3E%3Cpath d='M30 5 L30 15 L38 15' fill='none' stroke='%23C9A96112' stroke-width='2'/%3E%3Cpath d='M45 12 L48 20 L42 20 Z' fill='%23C9A96110'/%3E%3Cpath d='M10 30 L20 30 L20 38' fill='none' stroke='%23C9A96110' stroke-width='2'/%3E%3Cpath d='M35 35 L38 43 L32 43 Z' fill='%23C9A96115'/%3E%3Cpath d='M50 30 L50 40 L42 40' fill='none' stroke='%23C9A96112' stroke-width='2'/%3E%3C/svg%3E");
+        .quick-order-modal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(8,6,4,0.95);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+        }
+        
+        .quick-order-form {
+            background: rgba(20,16,10,0.98);
+            border: 1px solid rgba(201,169,97,0.4);
+            border-radius: 1.5rem;
+            max-width: 500px; width: 90%;
+            padding: 1.5rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.6),
+                0 0 40px rgba(201,169,97,0.1);
+            position: relative;
+        }
+        
+        .quick-order-form::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--akkad-terracotta), var(--akkad-gold), transparent);
+            border-radius: 1.5rem 1.5rem 0 0;
         }
 
-        /* ===== نمط الختم الأسطواني ===== */
-        .seal-pattern {
-            background-color: var(--obsidian-soft);
-            background-image:
-                url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='18' fill='none' stroke='%23C9A96112' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='12' fill='none' stroke='%23C9A9610D' stroke-width='0.5'/%3E%3Cpath d='M40 22 L40 10 M40 58 L40 70 M22 40 L10 40 M58 40 L70 40' stroke='%23C9A9610A' stroke-width='0.5'/%3E%3Ccircle cx='40' cy='40' r='4' fill='%23C9A96108'/%3E%3C/svg%3E");
+        .loader { 
+            border: 3px solid rgba(201,169,97,0.15); 
+            border-top: 3px solid var(--akkad-gold); 
+            border-right: 3px solid var(--akkad-terracotta);
+            border-radius: 50%; 
+            width: 50px; height: 50px; 
+            animation: spin 1.2s linear infinite; 
+            margin: 40px auto;
+            box-shadow: 0 0 15px rgba(201,169,97,0.2);
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
         }
 
-        /* ===== نمط النجوم ===== */
-        .stars-pattern {
-            background-color: var(--lapis-deep);
-            background-image:
-                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='50,15 54,40 80,40 59,55 66,80 50,65 34,80 41,55 20,40 46,40' fill='none' stroke='%23C9A96115' stroke-width='0.5'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%23C9A96110'/%3E%3C/svg%3E");
+        .category-chip {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(201,169,97,0.15);
+            background: rgba(201,169,97,0.03);
+        }
+        
+        .category-chip.active {
+            background: linear-gradient(135deg, rgba(201,169,97,0.2), rgba(184,110,74,0.15));
+            border-color: var(--akkad-gold);
+            color: var(--akkad-gold);
+            box-shadow: 0 0 15px rgba(201,169,97,0.15), inset 0 0 10px rgba(201,169,97,0.05);
+        }
+        
+        .category-chip:hover:not(.active) {
+            border-color: rgba(201,169,97,0.4);
+            background: rgba(201,169,97,0.06);
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(201,169,97,0.03); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--akkad-gold), var(--akkad-bronze)); 
+            border-radius: 3px; 
+            box-shadow: 0 0 5px rgba(201,169,97,0.2); 
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        /* ===== نمط الأمواج الرافدين ===== */
-        .rivers-pattern {
-            background-color: var(--obsidian-soft);
-            background-image:
-                url("data:image/svg+xml,%3Csvg width='120' height='40' viewBox='0 0 120 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q15 5 30 20 Q45 35 60 20 Q75 5 90 20 Q105 35 120 20' fill='none' stroke='%231B3A5C20' stroke-width='1.5'/%3E%3Cpath d='M0 25 Q15 10 30 25 Q45 40 60 25 Q75 10 90 25 Q105 40 120 25' fill='none' stroke='%23C9A96108' stroke-width='0.8'/%3E%3C/svg%3E");
+        .search-input {
+            background: rgba(201,169,97,0.04);
+            border: 1px solid rgba(201,169,97,0.18);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            background: rgba(201,169,97,0.07);
+            border-color: rgba(201,169,97,0.45);
+            box-shadow: 0 0 20px rgba(201,169,97,0.1);
+            outline: none;
         }
 
-        /* ===== خطوط الطباعة ===== */
-        .font-tajawal { font-family: 'Tajawal', sans-serif; }
-        .font-amiri { font-family: 'Amiri', serif; }
-        .font-naskh { font-family: 'Noto Naskh Arabic', serif; }
+        input, select, textarea {
+            font-family: 'Tajawal', sans-serif;
+        }
 
-        /* ===== أيقونات أكاد ===== */
-        .akkad-icon {
-            width: 48px;
-            height: 48px;
+        @keyframes goldPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(201,169,97,0.3); }
+            50% { box-shadow: 0 0 20px rgba(201,169,97,0.5), 0 0 40px rgba(184,110,74,0.2); }
+        }
+        
+        .gold-pulse {
+            animation: goldPulse 3s ease-in-out infinite;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #25D366, #1a8a4a);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, transparent, transparent 3px, var(--akkad-gold) 3px, var(--akkad-gold) 6px);
+            box-shadow: 0 0 8px rgba(201,169,97,0.3);
+        }
+        
+        .section-title::before {
+            content: '𒀭';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(201,169,97,0.3);
+            font-size: 14px;
+        }
+
+        .product-media-container {
+            position: relative;
+            overflow: hidden;
+            height: 180px;
+            cursor: pointer;
+            border-radius: 1.25rem 1.25rem 0 0;
+        }
+        
+        .product-media-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .akkad-card:hover .product-media-container img {
+            transform: scale(1.08);
+        }
+
+        .video-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-terracotta));
+            border: 2px solid rgba(255,255,255,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            background: rgba(201,169,97,0.08);
-            border: 1px solid rgba(201,169,97,0.2);
-            color: var(--akkad-gold);
-            transition: all 0.3s;
-        }
-
-        .akkad-icon:hover {
-            background: rgba(201,169,97,0.15);
-            border-color: var(--akkad-gold);
-            box-shadow: 0 0 15px rgba(201,169,97,0.2);
-            transform: translateY(-2px);
-        }
-
-        /* ===== تطبيقات ===== */
-        .app-mockup {
-            background: rgba(15,16,20,0.9);
-            border: 1px solid rgba(201,169,97,0.15);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.4s;
-        }
-
-        .app-mockup:hover {
-            border-color: rgba(201,169,97,0.4);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(201,169,97,0.1);
-            transform: translateY(-6px);
-        }
-
-        /* ===== حركة الظهور ===== */
-        .reveal {
+            cursor: pointer;
+            z-index: 3;
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 4px rgba(201,169,97,0.25);
         }
-
-        .reveal.visible {
+        
+        .product-media-container:hover .video-play-btn {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .video-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.15) !important;
+            box-shadow: 0 0 0 6px rgba(201,169,97,0.3);
+        }
+        
+        .video-play-btn i {
+            color: #0a0806;
+            font-size: 20px;
+            margin-right: 2px;
         }
 
-        /* ===== وعد الهوية - بطاقة خاصة ===== */
-        .promise-card {
-            background: linear-gradient(135deg, rgba(201,169,97,0.05), rgba(27,58,92,0.08));
-            border: 1px solid rgba(201,169,97,0.25);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .promise-card::before {
-            content: '';
+        .video-badge-bar {
             position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(201,169,97,0.05), transparent, rgba(27,58,92,0.05), transparent);
-            animation: promiseRotate 20s linear infinite;
-        }
-
-        @keyframes promiseRotate {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===== نافذة نسخ اللون ===== */
-        .color-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(201,169,97,0.95);
-            color: var(--obsidian);
-            padding: 10px 24px;
-            border-radius: 12px;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, var(--akkad-gold), var(--akkad-terracotta));
+            color: #0a0806;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 700;
-            font-size: 14px;
-            z-index: 9999;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             pointer-events: none;
         }
 
-        .color-toast.show {
-            transform: translateX(-50%) translateY(0);
+        .media-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(8,6,4,0.6) 100%);
+            z-index: 2;
+            pointer-events: none;
+            border-radius: 1.25rem 1.25rem 0 0;
+        }
+        
+        .product-media-container:hover .media-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(8,6,4,0.5) 100%);
         }
 
-        /* ===== قائمة التنقل الجانبية ===== */
-        .side-nav {
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .amiri-font {
+            font-family: 'Amiri', serif;
+        }
+
+        .video-modal {
+            display: none;
             position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            inset: 0;
+            background: rgba(8,6,4,0.96);
+            z-index: 1200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
         }
-
-        .side-nav-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(201,169,97,0.2);
-            border: 1px solid rgba(201,169,97,0.3);
+        
+        .video-modal-content {
+            position: relative;
+            width: 90vw;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 2px solid rgba(201,169,97,0.35);
+            box-shadow: 0 0 50px rgba(201,169,97,0.15), 0 0 100px rgba(184,110,74,0.08);
+        }
+        
+        .video-modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-modal-close {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            color: var(--akkad-gold);
+            font-size: 32px;
             cursor: pointer;
-            transition: all 0.3s;
+            background: none;
+            border: none;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        
+        .video-modal-close:hover {
+            transform: scale(1.2);
         }
 
-        .side-nav-dot.active {
+        .footer {
+            background: rgba(8,6,4,0.85);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(201,169,97,0.15);
+            margin-top: 50px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 10%; right: 10%;
+            height: 1px;
+            background: repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(201,169,97,0.2) 6px, rgba(201,169,97,0.2) 8px);
+        }
+        
+        .product-description {
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+        
+        .whatsapp-icon-btn {
+            background: linear-gradient(135deg, #25D366, #1a8a4a);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .whatsapp-icon-btn:hover {
+            background: linear-gradient(135deg, #1a8a4a, #128C7E);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .toast { 
+            position: fixed; 
+            bottom: 20px; 
+            left: 20px; 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            z-index: 9999; 
+            animation: slideIn 0.3s; 
+            box-shadow: 0 8px 25px rgba(16,185,129,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.error { 
+            background: linear-gradient(135deg, #dc2626, #b91c1c); 
+            box-shadow: 0 8px 25px rgba(220,38,38,0.3);
+        }
+        @keyframes slideIn { 
+            from { transform: translateX(-100%); opacity: 0; } 
+            to { transform: translateX(0); opacity: 1; } 
+        }
+
+        /* زخرفة الشعار التاريخية */
+        .historical-ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 8px 0;
+            opacity: 0.4;
+        }
+        .historical-ornament span {
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--akkad-gold));
+        }
+        .historical-ornament span:last-child {
+            background: linear-gradient(90deg, var(--akkad-gold), transparent);
+        }
+        .historical-ornament i {
+            color: var(--akkad-gold);
+            font-size: 8px;
+        }
+
+        /* شريط زخرفي علوي */
+        .top-ornament-bar {
+            height: 4px;
+            background: repeating-linear-gradient(90deg, 
+                var(--akkad-gold) 0px, var(--akkad-gold) 4px, 
+                transparent 4px, transparent 8px, 
+                var(--akkad-terracotta) 8px, var(--akkad-terracotta) 10px, 
+                transparent 10px, transparent 16px
+            );
+            opacity: 0.4;
+        }
+
+        /* تأثير التوهج الدافئ */
+        .warm-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,169,97,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: floatGlow 15s ease-in-out infinite;
+        }
+        
+        .warm-glow-1 { top: 10%; right: 5%; }
+        .warm-glow-2 { bottom: 20%; left: 10%; animation-delay: -7s; width: 400px; height: 400px; }
+        
+        @keyframes floatGlow {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -20px); }
+            66% { transform: translate(-20px, 30px); }
+        }
+
+        /* حقل إدخال الطلب */
+        .order-input {
+            background: rgba(201,169,97,0.05);
+            border: 1px solid rgba(201,169,97,0.2);
+            color: #fff;
+            border-radius: 0.75rem;
+            padding: 10px 14px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .order-input:focus {
+            outline: none;
+            border-color: rgba(201,169,97,0.5);
+            box-shadow: 0 0 15px rgba(201,169,97,0.1);
+            background: rgba(201,169,97,0.08);
+        }
+        .order-input::placeholder { color: rgba(255,255,255,0.3); }
+
+        /* ختم أكاد التاريخي */
+        .akkad-seal {
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgba(201,169,97,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+        .akkad-seal::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(201,169,97,0.15);
+            border-radius: 50%;
+        }
+        .akkad-seal span {
+            font-family: 'Amiri', serif;
+            font-size: 22px;
+            color: var(--akkad-gold);
+            opacity: 0.7;
+        }
+
+        /* تأثير ظل دافئ للنص */
+        .warm-text-shadow {
+            text-shadow: 0 2px 10px rgba(201,169,97,0.2);
+        }
+
+        @keyframes ancientFade {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .ancient-fade-in {
+            animation: ancientFade 0.6s ease forwards;
+        }
+
+        /* نقطة زخرفية بين العناصر */
+        .dot-separator {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
             background: var(--akkad-gold);
-            box-shadow: 0 0 10px rgba(201,169,97,0.5);
-            transform: scale(1.3);
-        }
-
-        .side-nav-dot:hover {
-            background: rgba(201,169,97,0.6);
-        }
-
-        @media (max-width: 1024px) {
-            .side-nav { display: none; }
-        }
-
-        /* ===== نبضة ذهبية ===== */
-        @keyframes goldPulseSlow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
-        }
-
-        .gold-pulse-slow {
-            animation: goldPulseSlow 4s ease-in-out infinite;
-        }
-
-        /* ===== كتابة مسمارية متحركة ===== */
-        @keyframes cuneiformWrite {
-            0% { clip-path: inset(0 100% 0 0); }
-            100% { clip-path: inset(0 0 0 0); }
-        }
-
-        .cuneiform-animate {
-            animation: cuneiformWrite 2s ease forwards;
-        }
-
-        /* ===== تدرج ذهبي متحرك ===== */
-        @keyframes goldShimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
-
-        .gold-shimmer-text {
-            background: linear-gradient(90deg, var(--akkad-gold-dark), var(--akkad-gold), var(--akkad-gold-light), var(--akkad-gold), var(--akkad-gold-dark));
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: goldShimmer 6s linear infinite;
-        }
-
-        .grid-pattern-bg {
-            background-image:
-                linear-gradient(rgba(201,169,97,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(201,169,97,0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        .typography-sample {
-            background: rgba(15,16,20,0.6);
-            border: 1px solid rgba(201,169,97,0.1);
-            border-radius: 12px;
-            padding: 24px;
-            transition: all 0.3s;
-        }
-
-        .typography-sample:hover {
-            border-color: rgba(201,169,97,0.3);
-            background: rgba(15,16,20,0.8);
-        }
-
-        .do-dont {
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid;
-        }
-
-        .do-card {
-            border-color: rgba(16,185,129,0.3);
-            background: rgba(16,185,129,0.04);
-        }
-
-        .dont-card {
-            border-color: rgba(220,38,38,0.3);
-            background: rgba(220,38,38,0.04);
+            border-radius: 50%;
+            opacity: 0.5;
+            margin: 0 8px;
+            vertical-align: middle;
         }
     </style>
 </head>
-<body class="grid-pattern-bg">
-    <div class="ishtar-bg"></div>
+<body>
+    <div class="bg-gradient-custom"></div>
+    <div class="cuneiform-pattern"></div>
+    <div class="warm-glow warm-glow-1"></div>
+    <div class="warm-glow warm-glow-2"></div>
 
-    <!-- شريط تنقل جانبي -->
-    <nav class="side-nav" id="sideNav">
-        <div class="side-nav-dot active" data-section="hero" title="البداية"></div>
-        <div class="side-nav-dot" data-section="promise" title="الوعد"></div>
-        <div class="side-nav-dot" data-section="colors" title="الألوان"></div>
-        <div class="side-nav-dot" data-section="typography" title="الطباعة"></div>
-        <div class="side-nav-dot" data-section="patterns" title="الأنماط"></div>
-        <div class="side-nav-dot" data-section="symbols" title="الرموز"></div>
-        <div class="side-nav-dot" data-section="applications" title="التطبيقات"></div>
-        <div class="side-nav-dot" data-section="rules" title="القواعد"></div>
+    <div class="top-ornament-bar"></div>
+
+    <nav class="akkad-nav sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center mb-3">
+                <a href="#" class="flex items-center gap-3">
+                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد التاريخي" class="akkad-logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23c9a961%22/%3E%3Ctext x=%2250%22 y=%2265%22 text-anchor=%22middle%22 fill=%22%23080604%22 font-size=%2235%22 font-weight=%22bold%22 font-family=%22serif%22%3E𒀭%3C/text%3E%3C/svg%3E'">
+                    <div>
+                        <div class="akkad-logo-text">أكاد التاريخي</div>
+                        <div class="akkad-logo-sub">HISTORICAL STORE</div>
+                    </div>
+                </a>
+                <div class="flex gap-2">
+                    <button onclick="shareStore()" class="share-btn px-3 py-2 rounded-xl flex items-center gap-2 text-xs text-white">
+                        <i class="fas fa-share-nodes"></i>
+                        <span class="hidden sm:inline">مشاركة</span>
+                    </button>
+                    <a href="https://wa.me/9647730492020" class="whatsapp-icon-btn w-10 h-10 rounded-xl flex items-center justify-center gold-pulse" target="_blank">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="relative max-w-2xl mx-auto">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="search-input w-full rounded-2xl py-3 px-14 text-white placeholder-gray-400" placeholder="🔍 ابحث في كنوز أكاد...">
+                <i class="fas fa-search absolute right-5 top-3.5 text-[var(--akkad-gold)]/40"></i>
+            </div>
+            
+            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2" style="scrollbar-width: none;"></div>
+        </div>
     </nav>
 
-    <!-- إشعار نسخ اللون -->
-    <div class="color-toast" id="colorToast">تم نسخ اللون!</div>
-
-    <!-- ============================= -->
-    <!--       القسم الرئيسي          -->
-    <!-- ============================= -->
-    <section id="hero" class="min-h-screen flex items-center justify-center relative px-4">
-        <div class="text-center max-w-4xl mx-auto">
-            <!-- نجمة إشhtar -->
-            <div class="mb-8 flex justify-center">
-                <svg class="ishtar-star ishtar-star-lg ishtar-star-glow" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="starGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#E8D5A3"/>
-                            <stop offset="50%" style="stop-color:#C9A961"/>
-                            <stop offset="100%" style="stop-color:#8B6F47"/>
-                        </linearGradient>
-                    </defs>
-                    <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="url(#starGold)" opacity="0.9"/>
-                    <circle cx="50" cy="50" r="8" fill="#08080C" opacity="0.6"/>
-                    <circle cx="50" cy="50" r="4" fill="url(#starGold)"/>
-                </svg>
-            </div>
-
-            <p class="section-label mb-4">VISUAL IDENTITY PROMISE</p>
-
-            <h1 class="font-amiri text-6xl md:text-8xl font-bold mb-4 gold-shimmer-text leading-tight">
-                أكاد
-            </h1>
-
-            <div class="flex items-center justify-center gap-4 mb-6">
-                <div class="h-px w-16 bg-gradient-to-l from-[var(--akkad-gold)] to-transparent"></div>
-                <p class="text-[var(--akkad-gold)] text-sm tracking-[6px] font-light">AKKAD DIGITAL STORE</p>
-                <div class="h-px w-16 bg-gradient-to-r from-[var(--akkad-gold)] to-transparent"></div>
-            </div>
-
-            <p class="text-gray-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10 font-light">
-                وعد الهوية البصرية لمتجر <span class="text-[var(--akkad-gold)] font-medium">أكاد</span> — حيث يلتقي
-                <span class="text-[var(--lapis-light)]">الماضي العريق</span>
-                بـ
-                <span class="text-[var(--terracotta-light)]">المستقبل الرقمي</span>
-            </p>
-
-            <div class="flex flex-wrap justify-center gap-3 text-xs text-gray-500">
-                <span class="px-4 py-2 rounded-full border border-gray-800">منذ 2334 ق.م</span>
-                <span class="px-4 py-2 rounded-full border border-gray-800">بلاد الرافدين</span>
-                <span class="px-4 py-2 rounded-full border border-gray-800">سارغون الأكدي</span>
-                <span class="px-4 py-2 rounded-full border border-gray-800">أول إمبراطورية في التاريخ</span>
-            </div>
-
-            <!-- سهم للأسفل -->
-            <div class="mt-16 gold-pulse-slow">
-                <i class="fas fa-chevron-down text-[var(--akkad-gold)] text-xl"></i>
-            </div>
+    <main class="container mx-auto px-4 py-10">
+        <!-- زخرفة مقدمة -->
+        <div class="historical-ornament">
+            <span></span>
+            <i class="fas fa-diamond"></i>
+            <i class="fas fa-diamond"></i>
+            <span></span>
         </div>
-    </section>
 
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--        وعد الهوية             -->
-    <!-- ============================= -->
-    <section id="promise" class="py-24 px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">THE PROMISE</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">وعد الهوية البصرية</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">ما تقدمه هوية أكاد البصرية لكل من يتعامل معها</p>
+        <div class="text-center mb-10">
+            <div class="akkad-seal">
+                <span>𒀭</span>
             </div>
-
-            <div class="promise-card p-8 md:p-12 reveal">
-                <div class="relative z-10">
-                    <blockquote class="font-amiri text-2xl md:text-3xl leading-relaxed text-center mb-10 text-[var(--papyrus)]">
-                        "نعدك بهوية بصرية تنبض بروح <span class="text-[var(--akkad-gold)]">أكاد العظيمة</span> —
-                        حيث <span class="text-[var(--lapis-light)]">اللازورد</span> يلتقي
-                        بـ<span class="text-[var(--terracotta-light)]">التراب الأصيل</span>،
-                        و<span class="text-[var(--akkad-gold)]">الذهب</span> يزيّن كل تفصيل،
-                        فتبدو كل قطعة رقمية وكأنها <span class="text-[var(--akkad-gold-light)]">قطعة أثرية</span>
-                        من قلب أول إمبراطورية عرفها التاريخ"
-                    </blockquote>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-                        <div class="text-center p-6">
-                            <div class="text-3xl mb-3">🏛️</div>
-                            <h4 class="text-[var(--akkad-gold)] font-bold mb-2">العظمة الأكادية</h4>
-                            <p class="text-gray-500 text-sm leading-relaxed">كل عنصر بصري يحمل ثقل حضارة أسست مفهوم الإمبراطورية والقوة</p>
-                        </div>
-                        <div class="text-center p-6">
-                            <div class="text-3xl mb-3">✨</div>
-                            <h4 class="text-[var(--akkad-gold)] font-bold mb-2">الأناقة الرقمية</h4>
-                            <p class="text-gray-500 text-sm leading-relaxed">نحول الإرث الحضاري إلى تجربة بصرية عصرية تناسب المتجر الرقمي</p>
-                        </div>
-                        <div class="text-center p-6">
-                            <div class="text-3xl mb-3">🔗</div>
-                            <h4 class="text-[var(--akkad-gold)] font-bold mb-2">الاتصال بالجذور</h4>
-                            <p class="text-gray-500 text-sm leading-relaxed">كل لون وخط ونمط يربط العميل بأرض الرافدين وتراثه العميق</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- أعمدة الهوية -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 reveal">
-                <div class="text-center p-5 rounded-2xl border border-[rgba(201,169,97,0.12)] bg-[rgba(201,169,97,0.03)]">
-                    <div class="text-2xl mb-2">🎨</div>
-                    <p class="text-xs text-[var(--akkad-gold)] font-bold">ألوان الأرض</p>
-                </div>
-                <div class="text-center p-5 rounded-2xl border border-[rgba(27,58,92,0.2)] bg-[rgba(27,58,92,0.05)]">
-                    <div class="text-2xl mb-2">📝</div>
-                    <p class="text-xs text-[var(--lapis-light)] font-bold">خطوط الرافدين</p>
-                </div>
-                <div class="text-center p-5 rounded-2xl border border-[rgba(184,92,56,0.2)] bg-[rgba(184,92,56,0.05)]">
-                    <div class="text-2xl mb-2"> mga</div>
-                    <p class="text-xs text-[var(--terracotta-light)] font-bold">أنماط مسمارية</p>
-                </div>
-                <div class="text-center p-5 rounded-2xl border border-[rgba(201,169,97,0.12)] bg-[rgba(201,169,97,0.03)]">
-                    <div class="text-2xl mb-2">⭐</div>
-                    <p class="text-xs text-[var(--akkad-gold)] font-bold">رموز إشhtar</p>
-                </div>
-            </div>
+            <h2 class="text-2xl md:text-3xl font-bold mb-3 section-title amiri-font warm-text-shadow">كنوز أكاد التاريخية</h2>
+            <p class="text-gray-400 text-sm mt-6">من عبق الحضارة إلى يدك<span class="dot-separator"></span>أجود المنتجات بأثمنة عادلة</p>
         </div>
-    </section>
 
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--         لوحة الألوان          -->
-    <!-- ============================= -->
-    <section id="colors" class="py-24 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">COLOR PALETTE</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">ألوان الأرض الأكادية</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">كل لون مستوحى من مادة حقيقية استخدمها الأكاديون — الذهب، اللازورد، الطين، النحاس</p>
-            </div>
-
-            <!-- الألوان الرئيسية -->
-            <div class="mb-12 reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-6 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--akkad-gold)]"></span>
-                    الألوان الأساسية
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #C9A961, #E8D5A3);" onclick="copyColor('#C9A961')"></div>
-                        <p class="mt-3 font-bold text-sm">ذهب أكاد</p>
-                        <p class="text-xs text-gray-500 mt-1">#C9A961</p>
-                        <p class="text-[10px] text-gray-600 mt-1">الأتربة الذهبية لبلاد الرافدين</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #1B3A5C, #2660A4);" onclick="copyColor('#1B3A5C')"></div>
-                        <p class="mt-3 font-bold text-sm">لازورد سومر</p>
-                        <p class="text-xs text-gray-500 mt-1">#1B3A5C</p>
-                        <p class="text-[10px] text-gray-600 mt-1">أحجار اللازورد الأفغانية</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #08080C, #1a1a24);" onclick="copyColor('#08080C')"></div>
-                        <p class="mt-3 font-bold text-sm">أوبسيديان</p>
-                        <p class="text-xs text-gray-500 mt-1">#08080C</p>
-                        <p class="text-[10px] text-gray-600 mt-1">الزجاج البركاني الأسود</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #B85C38, #D4845A);" onclick="copyColor('#B85C38')"></div>
-                        <p class="mt-3 font-bold text-sm">طوب أكدي</p>
-                        <p class="text-xs text-gray-500 mt-1">#B85C38</p>
-                        <p class="text-[10px] text-gray-600 mt-1">الطوب المحروق المائل للحمرة</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #F5E6C8, #D4C4A0);" onclick="copyColor('#F5E6C8')"></div>
-                        <p class="mt-3 font-bold text-sm">بردي قديم</p>
-                        <p class="text-xs text-gray-500 mt-1">#F5E6C8</p>
-                        <p class="text-[10px] text-gray-600 mt-1">لون ألواح البردي المكتوبة</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ألوان ثانوية -->
-            <div class="mb-12 reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-6 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--bronze)]"></span>
-                    ألوان مساندة
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #8B6F47, #A8895E);" onclick="copyColor('#8B6F47')"></div>
-                        <p class="mt-3 font-bold text-sm">برونز</p>
-                        <p class="text-xs text-gray-500 mt-1">#8B6F47</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #B87333, #D4944F);" onclick="copyColor('#B87333')"></div>
-                        <p class="mt-3 font-bold text-sm">نحاس</p>
-                        <p class="text-xs text-gray-500 mt-1">#B87333</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #9B7653, #B8916A);" onclick="copyColor('#9B7653')"></div>
-                        <p class="mt-3 font-bold text-sm">طين</p>
-                        <p class="text-xs text-gray-500 mt-1">#9B7653</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="color-swatch" style="background: linear-gradient(135deg, #0D1F33, #1B3A5C);" onclick="copyColor('#0D1F33')"></div>
-                        <p class="mt-3 font-bold text-sm">لازورد عميق</p>
-                        <p class="text-xs text-gray-500 mt-1">#0D1F33</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- تدرجات -->
-            <div class="reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-6 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--akkad-gold)]"></span>
-                    التدرجات المستخدمة
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="rounded-2xl h-28 relative overflow-hidden" style="background: linear-gradient(135deg, #08080C, #0a1018, #0f1a24, #1a1205);">
-                        <div class="absolute bottom-3 right-4 text-xs bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">الخلفية الرئيسية</div>
-                    </div>
-                    <div class="rounded-2xl h-28 relative overflow-hidden" style="background: linear-gradient(135deg, #C9A961, #8B6F47);">
-                        <div class="absolute bottom-3 right-4 text-xs bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm text-white">الأزرار الرئيسية</div>
-                    </div>
-                    <div class="rounded-2xl h-28 relative overflow-hidden" style="background: linear-gradient(90deg, transparent, rgba(201,169,97,0.15), transparent);">
-                        <div class="absolute bottom-3 right-4 text-xs bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">الفواصل الذهبية</div>
-                    </div>
-                    <div class="rounded-2xl h-28 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(201,169,97,0.05), rgba(27,58,92,0.08));">
-                        <div class="absolute bottom-3 right-4 text-xs bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">بطاقات الزجاج</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- نسب الاستخدام -->
-            <div class="mt-12 reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-6 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--akkad-gold)]"></span>
-                    نسب استخدام الألوان
-                </h3>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>أوبسيديان (أسود)</span>
-                            <span class="text-gray-500">60%</span>
-                        </div>
-                        <div class="h-2 rounded-full bg-gray-900 overflow-hidden">
-                            <div class="h-full rounded-full" style="width:60%; background: linear-gradient(90deg, #08080C, #1a1a24);"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-[var(--akkad-gold)]">ذهب أكاد</span>
-                            <span class="text-gray-500">20%</span>
-                        </div>
-                        <div class="h-2 rounded-full bg-gray-900 overflow-hidden">
-                            <div class="h-full rounded-full" style="width:20%; background: linear-gradient(90deg, #8B6F47, #C9A961, #E8D5A3);"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-[var(--lapis-light)]">لازورد سومر</span>
-                            <span class="text-gray-500">12%</span>
-                        </div>
-                        <div class="h-2 rounded-full bg-gray-900 overflow-hidden">
-                            <div class="h-full rounded-full" style="width:12%; background: linear-gradient(90deg, #0D1F33, #1B3A5C, #2660A4);"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-[var(--terracotta-light)]">طوب أكدي + مساندة</span>
-                            <span class="text-gray-500">8%</span>
-                        </div>
-                        <div class="h-2 rounded-full bg-gray-900 overflow-hidden">
-                            <div class="h-full rounded-full" style="width:8%; background: linear-gradient(90deg, #9B7653, #B85C38, #D4845A);"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="historical-ornament mb-10">
+            <span></span>
+            <i class="fas fa-diamond"></i>
+            <span></span>
         </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--          الطباعة              -->
-    <!-- ============================= -->
-    <section id="typography" class="py-24 px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">TYPOGRAPHY</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">خطوط الرافدين</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">كما نُقشت المخطوطات على ألواح الطين، نختار خطوطاً تحمل هيبة الحضارة</p>
-            </div>
-
-            <div class="space-y-6 reveal">
-                <!-- أميري -->
-                <div class="typography-sample">
-                    <div class="flex flex-wrap items-center gap-4 mb-4">
-                        <span class="px-3 py-1 rounded-full text-xs bg-[rgba(201,169,97,0.15)] text-[var(--akkad-gold)] font-bold">عنوان رئيسي</span>
-                        <span class="text-xs text-gray-500">Amiri — وزن 700</span>
-                    </div>
-                    <p class="font-amiri text-4xl md:text-5xl font-bold text-[var(--papyrus)] leading-relaxed">
-                        متجر أكاد الرقمي
-                    </p>
-                    <p class="text-xs text-gray-600 mt-3">يُستخدم للعناوين الكبيرة والعناوين الفرعية — يعطي إحساس المخطوطات العربية الكلاسيكية</p>
-                </div>
-
-                <!-- تجوال -->
-                <div class="typography-sample">
-                    <div class="flex flex-wrap items-center gap-4 mb-4">
-                        <span class="px-3 py-1 rounded-full text-xs bg-[rgba(27,58,92,0.2)] text-[var(--lapis-light)] font-bold">نص واجهة</span>
-                        <span class="text-xs text-gray-500">Tajawal — أوزان 400, 500, 700</span>
-                    </div>
-                    <p class="font-tajawal text-2xl font-bold text-white mb-2">كنوز أكاد الرقمية</p>
-                    <p class="font-tajawal text-base text-gray-400 leading-relaxed">
-                        أحدث الأجهزة والمستلزمات بأفضل الأسعار من قلب بغداد. تشكيلة واسعة من المنتجات الرقمية المختارة بعناية لتلبية احتياجاتك.
-                    </p>
-                    <p class="text-xs text-gray-600 mt-3">يُستخدم لجميع النصوص في الواجهة — واضح، حديث، ومريح للقراءة على الشاشات</p>
-                </div>
-
-                <!-- نسخ عربي -->
-                <div class="typography-sample">
-                    <div class="flex flex-wrap items-center gap-4 mb-4">
-                        <span class="px-3 py-1 rounded-full text-xs bg-[rgba(184,92,56,0.2)] text-[var(--terracotta-light)] font-bold">نصوص طويلة</span>
-                        <span class="text-xs text-gray-500">Noto Naskh Arabic — وزن 400</span>
-                    </div>
-                    <p class="font-naskh text-lg text-[var(--papyrus-dark)] leading-loose">
-                        في بلاد الرافدين، حيث نشأت أولى الحضارات، كان الكتابة المسمارية لغة التداول والإدارة. اليوم، يحمل متجر أكاد هذا الإرث ليكون وجهتك الأولى للمنتجات الرقمية في العراق.
-                    </p>
-                    <p class="text-xs text-gray-600 mt-3">يُستخدم للوصف الطويل ومحتوى المقالات — يعطي إحساس النصوص المطبوعة التقليدية</p>
-                </div>
-            </div>
-
-            <!-- سلم المقاسات -->
-            <div class="mt-12 reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-6 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--akkad-gold)]"></span>
-                    سلم أحجام الخطوط
-                </h3>
-                <div class="space-y-4">
-                    <div class="flex items-baseline gap-4 border-b border-gray-800/50 pb-3">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">72px</span>
-                        <span class="font-amiri text-5xl md:text-7xl font-bold text-[var(--akkad-gold)]">أكاد</span>
-                    </div>
-                    <div class="flex items-baseline gap-4 border-b border-gray-800/50 pb-3">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">36px</span>
-                        <span class="font-amiri text-3xl font-bold text-[var(--papyrus)]">عنوان القسم</span>
-                    </div>
-                    <div class="flex items-baseline gap-4 border-b border-gray-800/50 pb-3">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">20px</span>
-                        <span class="font-tajawal text-xl font-bold text-white">عنوان المنتج</span>
-                    </div>
-                    <div class="flex items-baseline gap-4 border-b border-gray-800/50 pb-3">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">16px</span>
-                        <span class="font-tajawal text-base text-gray-300">النص الأساسي في الواجهة</span>
-                    </div>
-                    <div class="flex items-baseline gap-4 border-b border-gray-800/50 pb-3">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">14px</span>
-                        <span class="font-tajawal text-sm text-gray-400">نصوص ثانوية وتفاصيل</span>
-                    </div>
-                    <div class="flex items-baseline gap-4">
-                        <span class="text-xs text-gray-600 w-16 shrink-0">11px</span>
-                        <span class="font-tajawal text-xs text-gray-500">تسميات صغيرة وملاحظات</span>
-                    </div>
-                </div>
-            </div>
+        
+        <div id="loading" class="text-center py-20">
+            <div class="loader"></div>
+            <p class="text-gray-400 mt-5 amiri-font text-lg">جاري فتح أرشيف أكاد...</p>
+            <p id="loadingStatus" class="text-gray-500 text-xs mt-2">تحميل السجلات المسمارية...</p>
         </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--         الأنماط               -->
-    <!-- ============================= -->
-    <section id="patterns" class="py-24 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">PATTERNS & TEXTURES</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">أنماط مسمارية</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">أنماط هندسية مستوحاة من الأختام الأسطوانية والزخارف المسمارية الأكادية</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 reveal">
-                <!-- نمط الزقورة -->
-                <div class="pattern-card">
-                    <div class="pattern-preview ziggurat-pattern"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط الزقورة</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">طبقات متدرجة مستوحاة من زقورة أور الكبرى — هرم مدرج رمزي للسلطة الإلهية</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(201,169,97,0.1)] text-[var(--akkad-gold)]">خلفيات الأقسام</span>
-                    </div>
-                </div>
-
-                <!-- نمط مسماري -->
-                <div class="pattern-card">
-                    <div class="pattern-preview cuneiform-pattern"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط المسماري</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">إسفينات وخطوط مستوحاة من الكتابة المسمارية على ألواح الطين الرطبة</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(201,169,97,0.1)] text-[var(--akkad-gold)]">خلفيات ثانوية</span>
-                    </div>
-                </div>
-
-                <!-- نمط الختم -->
-                <div class="pattern-card">
-                    <div class="pattern-preview seal-pattern"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط الختم الأسطواني</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">دوائر متداخلة تحاكي الأختام الأسطوانية الأكادية المستخدمة لتوقيع الوثائق</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(201,169,97,0.1)] text-[var(--akkad-gold)]">حدود وإطارات</span>
-                    </div>
-                </div>
-
-                <!-- نمط النجوم -->
-                <div class="pattern-card">
-                    <div class="pattern-preview stars-pattern"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط نجوم إشhtar</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">نجوم ثمانية منتظمة ترمز للإلهة إشhtar — إلهة الحب والحرب في الميثولوجيا الأكادية</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(27,58,92,0.2)] text-[var(--lapis-light)]">خلفيات مميزة</span>
-                    </div>
-                </div>
-
-                <!-- نمط الأنهار -->
-                <div class="pattern-card">
-                    <div class="pattern-preview rivers-pattern"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط الأنهار</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">تموجات مائية تمثل دجلة والفرات — شريانا الحياة اللذان نشأت على ضفافهما الحضارة</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(27,58,92,0.2)] text-[var(--lapis-light)]">فواصل أقسام</span>
-                    </div>
-                </div>
-
-                <!-- نمط الشبكة -->
-                <div class="pattern-card">
-                    <div class="pattern-preview grid-pattern-bg" style="background-color: var(--obsidian-soft);"></div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-sm mb-1">نمط الشبكة الهندسية</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">خطوط متقاطعة دقيقة تستحضر التخطيط الهندسي الذي اشتهر به الأكاديون في البناء</p>
-                        <span class="inline-block mt-3 text-[10px] px-2 py-1 rounded bg-[rgba(201,169,97,0.1)] text-[var(--akkad-gold)]">خلفية عامة</span>
-                    </div>
-                </div>
-            </div>
+        
+        <div id="error-message" class="hidden text-center py-20">
+            <div class="text-6xl mb-4">🏛️</div>
+            <h3 class="text-xl font-bold text-red-400 mb-2">انقطاع الاتصال بالأرشيف</h3>
+            <p id="errorDetail" class="text-gray-400 mb-4"></p>
+            <button onclick="retryConnection()" class="btn-akkad px-6 py-2.5 rounded-xl">
+                <i class="fas fa-sync-alt ml-2"></i>إعادة المحاولة
+            </button>
         </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--          الرموز               -->
-    <!-- ============================= -->
-    <section id="symbols" class="py-24 px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">SYMBOLS & ICONS</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">رموز إشhtar</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">نجمة إشhtar الثمانية هي الرمز المركزي — تحولت إلى نظام أيقوني متكامل</p>
-            </div>
-
-            <!-- النجمة بأنواعها -->
-            <div class="mb-14 reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-8 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--akkad-gold)]"></span>
-                    نجمة إشhtar — أشكال الاستخدام
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="text-center">
-                        <div class="flex justify-center mb-4">
-                            <svg width="80" height="80" viewBox="0 0 100 100">
-                                <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="#C9A961"/>
-                            </svg>
-                        </div>
-                        <p class="text-sm font-bold">مملوءة</p>
-                        <p class="text-[10px] text-gray-500 mt-1">الشعار الرئيسي</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="flex justify-center mb-4">
-                            <svg width="80" height="80" viewBox="0 0 100 100">
-                                <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="none" stroke="#C9A961" stroke-width="3"/>
-                            </svg>
-                        </div>
-                        <p class="text-sm font-bold">مخططة</p>
-                        <p class="text-[10px] text-gray-500 mt-1">أيقونات وحدود</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="flex justify-center mb-4">
-                            <svg width="80" height="80" viewBox="0 0 100 100">
-                                <defs><linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#E8D5A3"/><stop offset="100%" style="stop-color:#8B6F47"/></linearGradient></defs>
-                                <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="url(#sg1)"/>
-                            </svg>
-                        </div>
-                        <p class="text-sm font-bold">متدرجة</p>
-                        <p class="text-[10px] text-gray-500 mt-1">عناصر مميزة</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="flex justify-center mb-4">
-                            <svg width="80" height="80" viewBox="0 0 100 100">
-                                <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="none" stroke="#1B3A5C" stroke-width="2"/>
-                                <polygon points="50,18 54,38 78,38 59,52 65,76 50,62 35,76 41,52 22,38 46,38" fill="none" stroke="#C9A961" stroke-width="1.5"/>
-                            </svg>
-                        </div>
-                        <p class="text-sm font-bold">مزدوجة</p>
-                        <p class="text-[10px] text-gray-500 mt-1">زخارف متقدمة</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الأيقونات -->
-            <div class="reveal">
-                <h3 class="text-lg font-bold text-[var(--papyrus-dark)] mb-8 flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-[var(--lapis-light)]"></span>
-                    أيقونات المتجر
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-bag-shopping"></i></div>
-                        <p class="text-[10px] text-gray-500">المنتجات</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-magnifying-glass"></i></div>
-                        <p class="text-[10px] text-gray-500">البحث</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fab fa-whatsapp"></i></div>
-                        <p class="text-[10px] text-gray-500">طلب</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-share-nodes"></i></div>
-                        <p class="text-[10px] text-gray-500">مشاركة</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-play"></i></div>
-                        <p class="text-[10px] text-gray-500">فيديو</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-book-open"></i></div>
-                        <p class="text-[10px] text-gray-500">تفاصيل</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-folder"></i></div>
-                        <p class="text-[10px] text-gray-500">أقسام</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-star"></i></div>
-                        <p class="text-[10px] text-gray-500">مميز</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-location-dot"></i></div>
-                        <p class="text-[10px] text-gray-500">التوصيل</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-shield-halved"></i></div>
-                        <p class="text-[10px] text-gray-500">ضمان</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-phone"></i></div>
-                        <p class="text-[10px] text-gray-500">تواصل</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="akkad-icon mx-auto mb-2"><i class="fas fa-circle-check"></i></div>
-                        <p class="text-[10px] text-gray-500">تأكيد</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- المنطقة المحمية -->
-            <div class="mt-14 reveal">
-                <div class="border border-red-900/40 rounded-2xl p-6 bg-red-950/10">
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-triangle-exclamation text-red-500 mt-1"></i>
-                        <div>
-                            <h4 class="font-bold text-red-400 text-sm mb-2">المنطقة المحمية — لا تُعدّل</h4>
-                            <p class="text-xs text-gray-500 leading-relaxed">نجمة إشhtar الثمانية المستخدمة كشعار رئيسي لا يجوز تدويرها أو تشويهها أو تغيير نسبها. يجب الحفاظ على شكلها الهندسي الثماني الأصلي في كل الاستخدامات. يُسمح بتغيير الحجم واللون فقط ضمن لوحة الألوان المعتمدة.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
+        
+        <div id="no-results" class="hidden text-center py-20">
+            <div class="text-5xl mb-4">🔍</div>
+            <p class="text-gray-400 text-lg amiri-font">لم يُعثر على كنوز مطابقة</p>
+            <button onclick="resetSearch()" class="btn-outline-akkad px-6 py-2 rounded-xl mt-4">عرض كل الكنوز</button>
         </div>
-    </section>
+    </main>
 
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--         التطبيقات             -->
-    <!-- ============================= -->
-    <section id="applications" class="py-24 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">APPLICATIONS</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">تطبيقات الهوية</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">كيف تظهر هوية أكاد في سياقات استخدام حقيقية</p>
+    <footer class="footer py-8 text-center">
+        <div class="container mx-auto px-4">
+            <div class="historical-ornament mb-4">
+                <span></span>
+                <i class="fas fa-diamond"></i>
+                <span></span>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal">
-                <!-- بطاقة منتج -->
-                <div class="app-mockup">
-                    <div class="p-5 border-b border-gray-800/50">
-                        <span class="text-[10px] text-gray-500">بطاقة منتج</span>
-                    </div>
-                    <div class="p-5">
-                        <div class="rounded-xl h-40 mb-4 relative overflow-hidden" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                            <div class="absolute inset-0 cuneiform-pattern opacity-50"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-5xl opacity-40">📦</span>
-                            </div>
-                            <div class="absolute top-3 left-3 bg-[rgba(201,169,97,0.9)] text-black text-[10px] font-bold px-2 py-1 rounded-full">فيديو</div>
-                        </div>
-                        <h4 class="font-bold text-sm mb-1">سماعات لاسلكية برو</h4>
-                        <p class="text-[var(--akkad-gold)] font-bold mb-3">85,000 د.ع</p>
-                        <div class="flex gap-2">
-                            <div class="flex-1 py-2 rounded-lg text-center text-xs border border-[rgba(201,169,97,0.3)] text-[var(--akkad-gold)]">تفاصيل</div>
-                            <div class="w-9 h-9 rounded-lg bg-[#25D366] flex items-center justify-center text-white"><i class="fab fa-whatsapp text-sm"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- زر رئيسي -->
-                <div class="app-mockup">
-                    <div class="p-5 border-b border-gray-800/50">
-                        <span class="text-[10px] text-gray-500">أزرار وعناصر تفاعلية</span>
-                    </div>
-                    <div class="p-5 space-y-4">
-                        <div>
-                            <p class="text-[10px] text-gray-600 mb-2">زر رئيسي</p>
-                            <div class="py-3 rounded-xl text-center text-sm font-bold" style="background: linear-gradient(135deg, #C9A961, #8B6F47); color: #0a0f18;">إرسال الطلب</div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-600 mb-2">زر ثانوي</p>
-                            <div class="py-3 rounded-xl text-center text-sm border border-[rgba(201,169,97,0.4)] text-[var(--akkad-gold)]" style="background: rgba(201,169,97,0.06);">عرض التفاصيل</div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-600 mb-2">حقل إدخال</p>
-                            <div class="py-3 px-4 rounded-xl text-sm text-gray-500 border border-[rgba(201,169,97,0.2)]" style="background: rgba(201,169,97,0.05);">🔍 ابحث عن منتج...</div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-600 mb-2">شريحة قسم</p>
-                            <div class="inline-block py-2 px-4 rounded-full text-xs border border-[rgba(201,169,97,0.5)] text-[var(--akkad-gold)]" style="background: rgba(201,169,97,0.2); box-shadow: 0 0 15px rgba(201,169,97,0.2);">📁 سماعات</div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-600 mb-2">إشعار</p>
-                            <div class="inline-block py-2 px-4 rounded-xl text-xs bg-[#10b981] text-white"><i class="fas fa-check-circle ml-1"></i> تم إرسال الطلب</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- شريط التنقل -->
-                <div class="app-mockup">
-                    <div class="p-5 border-b border-gray-800/50">
-                        <span class="text-[10px] text-gray-500">شريط التنقل العلوي</span>
-                    </div>
-                    <div class="p-5">
-                        <div class="rounded-xl p-4 border border-[rgba(201,169,97,0.3)]" style="background: rgba(3,5,8,0.85); backdrop-filter: blur(20px);">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full border-2 border-[rgba(201,169,97,0.6)] flex items-center justify-center" style="box-shadow: 0 0 10px rgba(201,169,97,0.3);">
-                                        <svg width="16" height="16" viewBox="0 0 100 100"><polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="#C9A961"/></svg>
-                                    </div>
-                                    <span class="font-bold text-sm" style="background: linear-gradient(135deg, #fff, #C9A961); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">أكاد</span>
-                                </div>
-                                <div class="flex gap-1">
-                                    <div class="w-8 h-8 rounded-lg bg-[#25D366] flex items-center justify-center text-white text-xs"><i class="fab fa-whatsapp"></i></div>
-                                </div>
-                            </div>
-                            <div class="rounded-xl py-2 px-3 text-xs text-gray-500 border border-[rgba(201,169,97,0.2)]" style="background: rgba(201,169,97,0.05);">🔍 ابحث...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- إشعار واتساب -->
-                <div class="app-mockup">
-                    <div class="p-5 border-b border-gray-800/50">
-                        <span class="text-[10px] text-gray-500">رسالة طلب واتساب</span>
-                    </div>
-                    <div class="p-5">
-                        <div class="rounded-xl p-4 bg-[#075E54] text-sm leading-loose text-white font-naskh">
-                            <p>🛍️ <b>طلب جديد من متجر أكاد</b></p>
-                            <p>👤 <b>الاسم:</b> أحمد محمد</p>
-                            <p>📱 <b>الهاتف:</b> 07701234567</p>
-                            <p>🏛️ <b>المحافظة:</b> بغداد</p>
-                            <p>📦 <b>المنتج:</b> سماعات برو</p>
-                            <p>💰 <b>السعر:</b> 85,000 د.ع</p>
-                            <p class="text-green-200 text-xs mt-2">📅 2024/12/15</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--         قواعد الهوية          -->
-    <!-- ============================= -->
-    <section id="rules" class="py-24 px-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-16 reveal">
-                <p class="section-label mb-3">DO'S & DON'TS</p>
-                <h2 class="font-amiri text-4xl md:text-5xl font-bold text-[var(--akkad-gold)] mb-4">قواعد الهوية</h2>
-                <div class="gold-line mb-6"></div>
-                <p class="text-gray-400 max-w-xl mx-auto">ما يجوز وما لا يجوز عند استخدام عناصر هوية أكاد</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal">
-                <!-- صح -->
-                <div class="do-card">
-                    <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-circle-check text-green-500"></i>
-                        <h3 class="font-bold text-green-400">يجوز</h3>
-                    </div>
-                    <ul class="space-y-4 text-sm text-gray-300">
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>استخدام الألوان ضمن النسب المحددة (60% أسود، 20% ذهب، 12% أزرق، 8% مساندة)</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>تكبير أو تصغير نجمة إشhtar مع الحفاظ على نسبها الأصلية</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>تغيير لون النجمة ضمن لوحة الألوان المعتمدة</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>استخدام الأنماط كخلفيات شفافة أو حدود زخرفية</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>استخدام تأثير الزجاج المعتم (Glass) مع حدود ذهبية</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-check text-green-600 mt-1 text-xs"></i>
-                            <span>إضافة توهج ذهبي خفيف (glow) للعناوين المهمة</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- خطأ -->
-                <div class="dont-card">
-                    <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-circle-xmark text-red-500"></i>
-                        <h3 class="font-bold text-red-400">لا يجوز</h3>
-                    </div>
-                    <ul class="space-y-4 text-sm text-gray-300">
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>استخدام ألوان خارج لوحة الألوان المعتمدة (أحمر صارخ، بنفسجي، أخضر فاتح)</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>تدوير أو تشويه أو تحريف نجمة إشhtar</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>وضع النجمة على خلفية فاتحة بدون إطار أو ظل فاصل</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>استخدام أكثر من خطين في نفس الشاشة/القطعة</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>استخدام توهج مفرط يُضعف قابلية القراءة</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-xmark text-red-600 mt-1 text-xs"></i>
-                            <span>حذف الحد الذهبي من البطاقات الزجاجية بالكامل</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- ملخص سريع -->
-            <div class="mt-12 reveal">
-                <div class="promise-card p-8">
-                    <div class="relative z-10 text-center">
-                        <svg class="ishtar-star mx-auto mb-4 ishtar-star-glow" viewBox="0 0 100 100" width="50" height="50">
-                            <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="url(#starGold)" opacity="0.9"/>
-                        </svg>
-                        <p class="font-amiri text-xl text-[var(--papyrus)] leading-relaxed max-w-lg mx-auto">
-                            القاعدة الذهبية: إذا أغمضت عينيك وفتحتها وشعرت أنك
-                            <span class="text-[var(--akkad-gold)] font-bold">في معبد أكادي</span>
-                            وليس في متجر عادي — فالهوية صحيحة
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ============================= -->
-    <!--          الفوتر               -->
-    <!-- ============================= -->
-    <footer class="py-16 px-4 text-center">
-        <div class="max-w-2xl mx-auto">
-            <svg class="ishtar-star mx-auto mb-4" viewBox="0 0 100 100" width="40" height="40" style="opacity: 0.4;">
-                <polygon points="50,5 56,35 90,35 63,55 72,88 50,68 28,88 37,55 10,35 44,35" fill="#C9A961"/>
-            </svg>
-            <p class="font-amiri text-lg text-[var(--akkad-gold)] mb-2" style="opacity: 0.6;">أكاد</p>
-            <p class="text-xs text-gray-600">دليل الهوية البصرية — نسخة 1.0</p>
-            <p class="text-[10px] text-gray-700 mt-2">من قلب بلاد الرافدين — <span id="footerYear"></span></p>
+            <p class="text-gray-400 text-sm amiri-font">© 2024 متجر أكاد التاريخي — جميع الحقوق محفوظة</p>
+            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين<span class="dot-separator"></span>حيث بدأت الحضارة</p>
         </div>
     </footer>
 
-    <script>
-        // السنة الديناميكية
-        document.getElementById('footerYear').textContent = new Date().getFullYear();
+    <div class="top-ornament-bar" style="transform: scaleY(-1);"></div>
 
-        // نسخ اللون
-        function copyColor(hex) {
-            navigator.clipboard.writeText(hex).then(() => {
-                const toast = document.getElementById('colorToast');
-                toast.textContent = `تم نسخ ${hex}`;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
-            });
+    <!-- نافذة تفاصيل المنتج -->
+    <div id="descModal" class="modal" onclick="closeModal('descModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] neon-text amiri-font"></h2>
+                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-[var(--akkad-gold)] text-2xl transition">&times;</button>
+            </div>
+            <div class="historical-ornament mb-4" style="justify-content: flex-start;">
+                <span></span>
+                <i class="fas fa-diamond"></i>
+                <span style="flex:1;"></span>
+            </div>
+            <div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div>
+            <button onclick="closeModal('descModal')" class="w-full btn-outline-akkad py-2.5 rounded-xl transition">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة الفيديو -->
+    <div id="videoModal" class="video-modal" onclick="closeVideoModal()">
+        <div class="video-modal-content" onclick="event.stopPropagation()">
+            <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
+            <iframe id="videoIframe" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- نافذة الطلب السريع -->
+    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
+        <div class="quick-order-form" onclick="event.stopPropagation()">
+            <div class="text-center mb-5">
+                <div class="akkad-seal" style="width:55px;height:55px;">
+                    <span style="font-size:18px;">𒁹</span>
+                </div>
+                <h3 class="text-lg font-bold text-[var(--akkad-gold)] amiri-font warm-text-shadow">طلب شراء سريع</h3>
+                <p class="text-gray-500 text-xs mt-1">أرسل طلبك مباشرة عبر واتساب</p>
+            </div>
+            
+            <div id="quickOrderContent">
+                <div class="mb-4 p-3 rounded-xl" style="background: rgba(201,169,97,0.06); border: 1px solid rgba(201,169,97,0.15);">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                            <img id="qoImg" src="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p id="qoName" class="text-sm font-bold text-[var(--akkad-gold)] truncate"></p>
+                            <p id="qoPrice" class="text-xs text-gray-400"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-xs text-gray-400 mb-1 block">الاسم الكامل</label>
+                    <input type="text" id="qoNameInput" class="order-input" placeholder="أدخل اسمك...">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-xs text-gray-400 mb-1 block">رقم الهاتف</label>
+                    <input type="tel" id="qoPhone" class="order-input" placeholder="07XX XXX XXXX">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="text-xs text-gray-400 mb-1 block">المحافظة / العنوان</label>
+                    <input type="text" id="qoAddress" class="order-input" placeholder="مثال: بغداد - الكرادة">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-400 mb-1 block">الكمية المطلوبة</label>
+                    <div class="flex items-center gap-3">
+                        <button onclick="changeQty(-1)" class="btn-outline-akkad w-10 h-10 rounded-xl flex items-center justify-center text-lg">−</button>
+                        <input type="number" id="qoQty" value="1" min="1" class="order-input text-center w-20" style="-moz-appearance: textfield;">
+                        <button onclick="changeQty(1)" class="btn-outline-akkad w-10 h-10 rounded-xl flex items-center justify-center text-lg">+</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-400 mb-1 block">ملاحظات إضافية (اختياري)</label>
+                    <textarea id="qoNotes" class="order-input" rows="2" placeholder="أي تفاصيل إضافية..."></textarea>
+                </div>
+                
+                <div class="mb-4 p-3 rounded-xl" style="background: rgba(201,169,97,0.04); border: 1px dashed rgba(201,169,97,0.2);">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">المجموع:</span>
+                        <span id="qoTotal" class="text-[var(--akkad-gold)] font-bold"></span>
+                    </div>
+                </div>
+                
+                <button onclick="submitQuickOrder()" class="w-full btn-akkad py-3 rounded-xl text-sm flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    إرسال الطلب عبر واتساب
+                </button>
+            </div>
+            
+            <button onclick="closeQuickOrder()" class="w-full mt-3 text-gray-500 text-xs hover:text-gray-300 transition py-2">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات فايربيس
+        const firebaseConfig = {
+            apiKey: "AIzaSyB6Lk3qW0OFKzB0qRYMRN0KEBQU5M5mFpM",
+            authDomain: "akkad-store.firebaseapp.com",
+            databaseURL: "https://akkad-store-default-rtdb.firebaseio.com",
+            projectId: "akkad-store",
+            storageBucket: "akkad-store.appspot.com",
+            messagingSenderId: "1082377047652",
+            appId: "1:1082377047652:web:d7f0e3f3c9b8a1e2d3f4g5"
+        };
+
+        let allProducts = [];
+        let currentCategory = 'الكل';
+        let currentQuickOrder = null;
+
+        // تهيئة فايربيس
+        function initFirebase() {
+            try {
+                document.getElementById('loadingStatus').textContent = 'الاتصال بقاعدة البيانات...';
+                firebase.initializeApp(firebaseConfig);
+                const db = firebase.database();
+                
+                document.getElementById('loadingStatus').textContent = 'جاري تحميل المنتجات...';
+                
+                db.ref('products').once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val();
+                        if (data) {
+                            allProducts = Object.values(data);
+                            extractCategories();
+                            renderProducts(allProducts);
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('products-grid').classList.remove('hidden');
+                        } else {
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('no-results').classList.remove('hidden');
+                            document.getElementById('no-results').querySelector('p').textContent = 'لا توجد منتجات حالياً في الأرشيف';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showError('فشل في تحميل البيانات: ' + err.message);
+                    });
+            } catch (err) {
+                console.error(err);
+                showError('فشل تهيئة التطبيق: ' + err.message);
+            }
         }
 
-        // تأثير الظهور عند التمرير
-        const revealElements = document.querySelectorAll('.reveal');
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, index * 100);
-                    revealObserver.unobserve(entry.target);
+        // استخراج التصنيفات
+        function extractCategories() {
+            const cats = new Set();
+            cats.add('الكل');
+            allProducts.forEach(p => {
+                if (p.category) cats.add(p.category);
+            });
+            renderCategories([...cats]);
+        }
+
+        // عرض التصنيفات
+        function renderCategories(categories) {
+            const nav = document.getElementById('categories-nav');
+            nav.innerHTML = categories.map(cat => `
+                <button onclick="filterByCategory('${cat}')" 
+                    class="category-chip px-4 py-2 rounded-xl text-xs whitespace-nowrap ${cat === 'الكل' ? 'active' : ''}">
+                    ${cat === 'الكل' ? '🏛️' : '📜'} ${cat}
+                </button>
+            `).join('');
+        }
+
+        // عرض المنتجات
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            
+            if (products.length === 0) {
+                grid.classList.add('hidden');
+                document.getElementById('no-results').classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            document.getElementById('no-results').classList.add('hidden');
+            
+            grid.innerHTML = products.map((p, i) => {
+                const isVideo = p.videoUrl && p.videoUrl.trim() !== '';
+                const mediaHtml = isVideo 
+                    ? `<div class="product-media-container" onclick="openVideoModal('${p.videoUrl}')">
+                            <img src="${p.imageUrl || ''}" alt="${p.name}" onerror="this.src='https://picsum.photos/seed/${i}/400/300'">
+                            <div class="media-overlay"></div>
+                            <div class="video-badge-bar"><i class="fas fa-play"></i> فيديو</div>
+                            <div class="video-play-btn"><i class="fas fa-play"></i></div>
+                       </div>`
+                    : `<div class="product-media-container">
+                            <img src="${p.imageUrl || ''}" alt="${p.name}" onerror="this.src='https://picsum.photos/seed/${i}/400/300'">
+                            <div class="media-overlay"></div>
+                       </div>`;
+                
+                const descBtn = p.description && p.description.trim() 
+                    ? `<button onclick="openDescModal('${escapeStr(p.name)}', '${escapeStr(p.description)}')" 
+                            class="text-[10px] text-[var(--akkad-gold)] hover:underline opacity-70 hover:opacity-100 transition">
+                            <i class="fas fa-scroll ml-1"></i>التفاصيل
+                       </button>` 
+                    : '';
+
+                return `
+                    <div class="akkad-card fade-in-up" style="animation-delay: ${i * 0.08}s; opacity: 0;">
+                        ${mediaHtml}
+                        <div class="p-3.5 relative z-10">
+                            <h3 class="text-sm font-bold text-white mb-1.5 line-clamp-2 leading-relaxed">${p.name}</h3>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[var(--akkad-gold)] font-bold text-base amiri-font">${p.price ? formatPrice(p.price) : 'اتصل بنا'}</span>
+                                ${descBtn}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick='openQuickOrder(${JSON.stringify(p).replace(/'/g, "&#39;")})' 
+                                    class="flex-1 btn-akkad py-2 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                                    <i class="fab fa-whatsapp"></i>اطلب
+                                </button>
+                                <button onclick="shareProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})" 
+                                    class="btn-outline-akkad w-9 h-9 rounded-xl flex items-center justify-center text-xs">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // تنسيق السعر
+        function formatPrice(price) {
+            const num = parseInt(price);
+            if (isNaN(num)) return price;
+            return num.toLocaleString('ar-IQ') + ' د.ع';
+        }
+
+        // تهريب النصوص
+        function escapeStr(str) {
+            return (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+        }
+
+        // البحث
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            let filtered = allProducts;
+            
+            if (currentCategory !== 'الكل') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+            
+            if (query) {
+                filtered = filtered.filter(p => 
+                    (p.name && p.name.toLowerCase().includes(query)) || 
+                    (p.description && p.description.toLowerCase().includes(query)) ||
+                    (p.category && p.category.toLowerCase().includes(query))
+                );
+            }
+            
+            renderProducts(filtered);
+        }
+
+        // فلترة بالتصنيف
+        function filterByCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.textContent.trim().includes(cat));
+            });
+            searchProducts();
+        }
+
+        // إعادة تعيين البحث
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentCategory = 'الكل';
+            document.querySelectorAll('.category-chip').forEach((chip, i) => {
+                chip.classList.toggle('active', i === 0);
+            });
+            renderProducts(allProducts);
+        }
+
+        // نافذة التفاصيل
+        function openDescModal(name, desc) {
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalDesc').textContent = desc.replace(/\\n/g, '\n');
+            document.getElementById('descModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // نافذة الفيديو
+        function openVideoModal(url) {
+            let embedUrl = url;
+            if (url.includes('watch?v=')) {
+                embedUrl = url.replace('watch?v=', 'embed/');
+            } else if (url.includes('youtu.be/')) {
+                embedUrl = 'https://www.youtube.com/embed/' + url.split('youtu.be/')[1].split('?')[0];
+            }
+            document.getElementById('videoIframe').src = embedUrl;
+            document.getElementById('videoModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal() {
+            document.getElementById('videoIframe').src = '';
+            document.getElementById('videoModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // الطلب السريع
+        function openQuickOrder(product) {
+            currentQuickOrder = product;
+            document.getElementById('qoImg').src = product.imageUrl || 'https://picsum.photos/seed/qo/100/100';
+            document.getElementById('qoName').textContent = product.name;
+            document.getElementById('qoPrice').textContent = product.price ? formatPrice(product.price) : '';
+            document.getElementById('qoQty').value = 1;
+            document.getElementById('qoNameInput').value = '';
+            document.getElementById('qoPhone').value = '';
+            document.getElementById('qoAddress').value = '';
+            document.getElementById('qoNotes').value = '';
+            updateTotal();
+            document.getElementById('quickOrderModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQuickOrder() {
+            document.getElementById('quickOrderModal').style.display = 'none';
+            document.body.style.overflow = '';
+            currentQuickOrder = null;
+        }
+
+        function changeQty(delta) {
+            const input = document.getElementById('qoQty');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, val + delta);
+            input.value = val;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            if (!currentQuickOrder || !currentQuickOrder.price) {
+                document.getElementById('qoTotal').textContent = 'اتصل بنا';
+                return;
+            }
+            const price = parseInt(currentQuickOrder.price) || 0;
+            const qty = parseInt(document.getElementById('qoQty').value) || 1;
+            document.getElementById('qoTotal').textContent = formatPrice(price * qty);
+        }
+
+        // مراقبة تغيير الكمية
+        document.getElementById('qoQty').addEventListener('input', updateTotal);
+
+        function submitQuickOrder() {
+            const name = document.getElementById('qoNameInput').value.trim();
+            const phone = document.getElementById('qoPhone').value.trim();
+            const address = document.getElementById('qoAddress').value.trim();
+            const qty = document.getElementById('qoQty').value;
+            const notes = document.getElementById('qoNotes').value.trim();
+
+            if (!name) { showToast('يرجى إدخال الاسم', 'error'); return; }
+            if (!phone) { showToast('يرجى إدخال رقم الهاتف', 'error'); return; }
+            if (!address) { showToast('يرجى إدخال المحافظة / العنوان', 'error'); return; }
+
+            const total = currentQuickOrder.price ? formatPrice(parseInt(currentQuickOrder.price) * (parseInt(qty) || 1)) : 'اتصل بنا';
+
+            let msg = `🏛️ *طلب جديد من أكاد التاريخي*\n\n`;
+            msg += `📦 *المنتج:* ${currentQuickOrder.name}\n`;
+            msg += `💰 *السعر:* ${currentQuickOrder.price ? formatPrice(currentQuickOrder.price) : 'اتصل بنا'}\n`;
+            msg += `🔢 *الكمية:* ${qty}\n`;
+            msg += `💵 *المجموع:* ${total}\n\n`;
+            msg += `👤 *الاسم:* ${name}\n`;
+            msg += `📞 *الهاتف:* ${phone}\n`;
+            msg += `📍 *العنوان:* ${address}\n`;
+            if (notes) msg += `📝 *ملاحظات:* ${notes}\n`;
+            msg += `\n_أُرسل عبر متجر أكاد التاريخي_`;
+
+            const url = `https://wa.me/9647730492020?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+            closeQuickOrder();
+            showToast('تم تحويلك إلى واتساب ✓');
+        }
+
+        // مشاركة المتجر
+        function shareStore() {
+            const text = '🏛️ متجر أكاد التاريخي — من قلب بلاد الرافدين\nأجود المنتجات بأثمنة عادلة\n\n' + window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: 'متجر أكاد التاريخي', text: text, url: window.location.href });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }
+
+        // مشاركة منتج
+        function shareProduct(product) {
+            const text = `🏛️ *من أكاد التاريخي*\n\n📦 ${product.name}\n💰 ${product.price ? formatPrice(product.price) : 'اتصل بنا'}\n\n${window.location.href}`;
+            if (navigator.share) {
+                navigator.share({ title: product.name, text: text.replace(/\*/g, '') });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }
+
+        // إظهار خطأ
+        function showError(detail) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('errorDetail').textContent = detail;
+        }
+
+        // إعادة المحاولة
+        function retryConnection() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loadingStatus').textContent = 'إعادة الاتصال...';
+            
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
                 }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+                firebase.database().ref('products').once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val();
+                        if (data) {
+                            allProducts = Object.values(data);
+                            extractCategories();
+                            renderProducts(allProducts);
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('products-grid').classList.remove('hidden');
+                        } else {
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('no-results').classList.remove('hidden');
+                        }
+                    })
+                    .catch(err => showError('فشل الاتصال: ' + err.message));
+            } catch (err) {
+                showError('فشل: ' + err.message);
+            }
+        }
 
-        revealElements.forEach(el => revealObserver.observe(el));
+        // إشعار
+        function showToast(msg, type = '') {
+            const toast = document.createElement('div');
+            toast.className = 'toast' + (type === 'error' ? ' error' : '');
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-        // التنقل الجانبي
-        const sections = document.querySelectorAll('section[id]');
-        const navDots = document.querySelectorAll('.side-nav-dot');
-
-        navDots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                const targetId = dot.getAttribute('data-section');
-                document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
-        const sectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.getAttribute('id');
-                    navDots.forEach(d => d.classList.remove('active'));
-                    const activeDot = document.querySelector(`.side-nav-dot[data-section="${id}"]`);
-                    if (activeDot) activeDot.classList.add('active');
-                }
-            });
-        }, { threshold: 0.3 });
-
-        sections.forEach(s => sectionObserver.observe(s));
-
-        // حركة خفيفة للماوس على البطل
-        const hero = document.getElementById('hero');
-        hero.addEventListener('mousemove', (e) => {
-            const rect = hero.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width - 0.5;
-            const y = (e.clientY - rect.top) / rect.height - 0.5;
-            const star = hero.querySelector('.ishtar-star-lg');
-            if (star) {
-                star.style.transform = `translate(${x * 15}px, ${y * 15}px) rotate(${x * 5}deg)`;
+        // إغلاق النوافذ بمفتاح Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                closeModal('descModal');
+                closeVideoModal();
+                closeQuickOrder();
             }
         });
 
-        hero.addEventListener('mouseleave', () => {
-            const star = hero.querySelector('.ishtar-star-lg');
-            if (star) star.style.transform = 'translate(0, 0) rotate(0deg)';
-        });
+        // بدء التحميل
+        initFirebase();
     </script>
 </body>
 </html>
