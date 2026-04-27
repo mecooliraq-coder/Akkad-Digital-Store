@@ -29,6 +29,7 @@
             overflow-x: hidden;
         }
 
+        /* خلفية بلاد الرافدين */
         .bg-mesopotamia {
             position: fixed; inset: 0; z-index: -2;
             background: 
@@ -36,6 +37,35 @@
                 radial-gradient(ellipse at 80% 70%, rgba(26, 77, 140, 0.1) 0%, transparent 50%),
                 repeating-linear-gradient(45deg, rgba(139, 90, 43, 0.03) 0px, rgba(139, 90, 43, 0.03) 2px, transparent 2px, transparent 8px),
                 linear-gradient(145deg, #0a0f12 0%, #141a1f 40%, #1a1510 100%);
+        }
+
+        /* الحروف المسمارية المتحركة */
+        .cuneiform-particle {
+            position: fixed;
+            font-family: 'Lateef', cursive;
+            font-size: 22px;
+            color: rgba(212, 175, 55, 0.12);
+            pointer-events: none;
+            z-index: -1;
+            white-space: nowrap;
+            animation: floatCuneiform linear infinite;
+        }
+        
+        @keyframes floatCuneiform {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .zigzag-pattern {
@@ -50,9 +80,9 @@
             border-bottom: 2px solid var(--akkad-gold);
             box-shadow: 0 4px 30px rgba(212, 175, 55, 0.1);
             position: relative;
+            z-index: 100;
         }
 
-        /* اللوجو الأصلي */
         .akkad-logo-img { 
             width: 55px; 
             height: 55px; 
@@ -136,7 +166,6 @@
             border-color: var(--akkad-gold);
         }
 
-        /* أزرار التفاصيل والطلب */
         .whatsapp-icon-btn {
             background: #25D366;
             color: white;
@@ -238,7 +267,6 @@
             outline: none;
         }
 
-        /* عنوان بدون ظل ملون */
         .section-title {
             position: relative;
             display: inline-block;
@@ -343,51 +371,66 @@
             to { transform: translateX(0); opacity: 1; } 
         }
 
-        /* شريط المنتجات المتحرك البسيط */
-        .simple-slider {
-            background: rgba(10, 15, 18, 0.4);
-            border-radius: 1rem;
-            padding: 1rem 0;
-            margin: 1rem 0;
-            overflow-x: auto;
-            scrollbar-width: thin;
-            white-space: nowrap;
+        /* ======================================== */
+        /* شريط المنتجات المتداول (Carousel) */
+        /* ======================================== */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding: 10px 0;
+            margin: 20px 0;
         }
         
-        .simple-slider::-webkit-scrollbar {
-            height: 4px;
+        .slider-track {
+            display: flex;
+            gap: 16px;
+            animation: scrollProducts 30s linear infinite;
+            width: fit-content;
         }
         
-        .slider-item {
-            display: inline-block;
-            width: 150px;
-            margin: 0 8px;
-            vertical-align: top;
-            background: rgba(20, 26, 31, 0.8);
-            border-radius: 0.75rem;
+        .slider-container:hover .slider-track {
+            animation-play-state: paused;
+        }
+        
+        @keyframes scrollProducts {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .slider-product {
+            flex-shrink: 0;
+            width: 160px;
+            background: linear-gradient(145deg, rgba(20, 26, 31, 0.9), rgba(10, 15, 18, 0.8));
+            border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.25);
         }
         
-        .slider-item:hover {
-            transform: translateY(-3px);
+        .slider-product:hover {
+            transform: translateY(-5px);
             border-color: var(--akkad-gold);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
         }
         
-        .slider-item img {
+        .slider-product img {
             width: 100%;
-            height: 100px;
+            height: 110px;
             object-fit: cover;
         }
         
-        .slider-item .info {
+        .slider-product .info {
             padding: 8px;
             text-align: center;
         }
         
-        .slider-item .name {
+        .slider-product .name {
             font-size: 12px;
             font-weight: bold;
             white-space: normal;
@@ -396,12 +439,33 @@
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+            height: 32px;
         }
         
-        .slider-item .price {
-            font-size: 11px;
+        .slider-product .price {
+            font-size: 12px;
             color: var(--akkad-gold);
             font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .slider-fade {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        .slider-fade-left {
+            left: 0;
+            background: linear-gradient(to left, transparent, var(--mesopotamia-dark));
+        }
+        
+        .slider-fade-right {
+            right: 0;
+            background: linear-gradient(to right, transparent, var(--mesopotamia-dark));
         }
         
         .line-clamp-2 {
@@ -414,6 +478,8 @@
 </head>
 <body>
     <div class="bg-mesopotamia"></div>
+    
+    <!-- الحروف المسمارية المتحركة ستضاف بالجافاسكريبت -->
 
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
@@ -447,9 +513,13 @@
 
     <main class="container mx-auto px-4 py-6">
         
-        <!-- شريط المنتجات المتحرك البسيط -->
-        <div class="simple-slider" id="productSlider">
-            <div id="sliderItems" class="d-inline-block"></div>
+        <!-- شريط المنتجات المتداول -->
+        <div class="slider-container">
+            <div class="slider-track" id="sliderTrack">
+                <!-- ستتم تعبئتها بالجافاسكريبت -->
+            </div>
+            <div class="slider-fade slider-fade-left"></div>
+            <div class="slider-fade slider-fade-right"></div>
         </div>
         
         <div class="zigzag-pattern my-6 w-full"></div>
@@ -551,6 +621,25 @@
 
         let allProducts = [], categories = {}, categoryOrder = [], currentSearchTerm = '', currentCategory = 'all';
 
+        // ========================================
+        // الحروف المسمارية المتحركة
+        // ========================================
+        function createCuneiformParticles() {
+            const symbols = ['𒀀', '𒅗', '𒁺', '𒀭', '𒂗', '𒈪', '𒀜', '𒁾', '𒊬', '𒄑', '𒆠', '𒌷', '𒉺', '𒋰', '𒍣'];
+            for (let i = 0; i < 35; i++) {
+                let particle = document.createElement('div');
+                particle.className = 'cuneiform-particle';
+                particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = 8 + Math.random() * 15 + 's';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.fontSize = (16 + Math.random() * 28) + 'px';
+                particle.style.opacity = 0.1 + Math.random() * 0.2;
+                document.body.appendChild(particle);
+            }
+        }
+        createCuneiformParticles();
+
         function showToast(msg, type = 'success') { 
             let t = document.createElement('div'); 
             t.className = `toast ${type === 'error' ? 'error' : ''}`; 
@@ -564,25 +653,21 @@
             else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } 
         }
 
-        // دالة تحويل ID الفيديو إلى رابط
+        // دوال الفيديو
         function normalizeVideoUrl(input) {
             if (!input || input.trim() === '') return null;
             let video = input.trim();
-            // إذا كان النص عبارة عن 11 حرفًا (ID يوتيوب)
             if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) {
                 return `https://www.youtube.com/watch?v=${video}`;
             }
-            // إذا كان رابط youtu.be
             if (video.includes('youtu.be/')) {
                 let id = video.split('youtu.be/')[1]?.split('?')[0];
                 if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
             }
-            // إذا كان رابط embed
             if (video.includes('youtube.com/embed/')) {
                 let id = video.split('embed/')[1]?.split('?')[0];
                 if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
             }
-            // إذا كان رابط shorts
             if (video.includes('youtube.com/shorts/')) {
                 let id = video.split('shorts/')[1]?.split('?')[0];
                 if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
@@ -652,18 +737,26 @@
             return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); 
         }
         
+        // شريط المنتجات المتداول (مكرر مرتين للحركة المستمرة)
         function renderSlider() {
-            let container = document.getElementById('sliderItems');
+            let container = document.getElementById('sliderTrack');
             let topProducts = [...allProducts].slice(0, 12);
-            container.innerHTML = topProducts.map(p => `
-                <div class="slider-item" onclick="handleImageClick('${p.id}')">
-                    <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}">
-                    <div class="info">
-                        <div class="name">${escapeHtml(p.name.length > 25 ? p.name.substring(0, 22) + '...' : p.name)}</div>
-                        <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
-                    </div>
-                </div>
-            `).join('');
+            let html = '';
+            // نكرر المنتجات مرتين للحصول على حركة مستمرة
+            for (let repeat = 0; repeat < 2; repeat++) {
+                topProducts.forEach(p => {
+                    html += `
+                        <div class="slider-product" onclick="handleImageClick('${p.id}')">
+                            <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}">
+                            <div class="info">
+                                <div class="name">${escapeHtml(p.name.length > 25 ? p.name.substring(0, 22) + '...' : p.name)}</div>
+                                <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            container.innerHTML = html;
         }
         
         function renderCategories() {
