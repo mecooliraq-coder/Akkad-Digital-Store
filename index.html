@@ -561,4 +561,395 @@
     <!-- نافذة الطلب السريع -->
     <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
         <div class="quick-order-form">
-       
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
+                <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
+            </div>
+            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div>
+            <form id="quickOrderForm" class="space-y-3">
+                <input type="hidden" id="quickProductId">
+                <input type="hidden" id="quickProductName">
+                <input type="hidden" id="quickProductPrice">
+                
+                <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="👤 الاسم الكامل *" required>
+                
+                <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white outline-none" required>
+                    <option value="">🏛️ اختر المحافظة *</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option>
+                    <option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option>
+                    <option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option>
+                    <option>ميسان</option><option>النجف</option><option>كربلاء</option>
+                </select>
+                
+                <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none dir-ltr" placeholder="📱 رقم الهاتف *" required>
+                
+                <textarea id="quickAddress" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="📍 العنوان التفصيلي (اختياري)"></textarea>
+                
+                <textarea id="quickNotes" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="💬 ملاحظات إضافية (اختياري)"></textarea>
+                
+                <button type="submit" class="btn-akkad w-full py-3 rounded-xl flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp"></i> إرسال الطلب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // إعدادات Firebase
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
+            authDomain: "akkad-store-ab5a1.firebaseapp.com",
+            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com",
+            projectId: "akkad-store-ab5a1",
+            storageBucket: "akkad-store-ab5a1.firebasestorage.app",
+            messagingSenderId: "456810444639",
+            appId: "1:456810444639:web:a706dc19781cd7738e28ea"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let allProducts = [];
+        let categories = {};
+        let categoryOrder = [];
+        let currentSearchTerm = '';
+        let currentCategory = 'all';
+        let currentProductForOrder = null;
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function shareStore() {
+            if (navigator.share) {
+                navigator.share({ title: 'متجر أكاد الرقمي', url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('✅ تم نسخ رابط المتجر');
+            }
+        }
+
+        // ========================================
+        // 🔥 دالة تحويل أي قيمة إلى رابط يوتيوب صالح
+        // تدعم: ID فقط (11 حرف) أو رابط كامل
+        // ========================================
+        function normalizeVideoUrl(input) {
+            if (!input || input.trim() === '') return null;
+            
+            let video = input.trim();
+            
+            // إذا كان النص عبارة عن 11 حرفًا فقط (ID يوتيوب)
+            if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) {
+                return `https://www.youtube.com/watch?v=${video}`;
+            }
+            
+            // إذا كان رابط يوتيوب قصير (youtu.be/xxx)
+            if (video.includes('youtu.be/')) {
+                let id = video.split('youtu.be/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
+            
+            // إذا كان رابط embed
+            if (video.includes('youtube.com/embed/')) {
+                let id = video.split('embed/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
+            
+            // إذا كان رابط shorts
+            if (video.includes('youtube.com/shorts/')) {
+                let id = video.split('shorts/')[1]?.split('?')[0];
+                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
+            }
+            
+            // إذا كان رابط watch عادي
+            if (video.includes('youtube.com/watch')) {
+                return video;
+            }
+            
+            // إذا كان الرابط يحتوي على ID داخل query string
+            let match = video.match(/[?&]v=([^&]+)/);
+            if (match && match[1]) {
+                return `https://www.youtube.com/watch?v=${match[1]}`;
+            }
+            
+            // أخيراً: إذا كان النص يبدو أنه ID (11 حرف) ولكن به مسافات أو علامات
+            let cleanId = video.replace(/[^a-zA-Z0-9_-]/g, '');
+            if (cleanId.length === 11) {
+                return `https://www.youtube.com/watch?v=${cleanId}`;
+            }
+            
+            return video;
+        }
+
+        // استخراج ID الفيديو من الرابط
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            let cleanUrl = url.trim();
+            let match = cleanUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+            if (match) return match[1];
+            match = cleanUrl.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+            if (match) return match[1];
+            if (cleanUrl.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(cleanUrl)) return cleanUrl;
+            return null;
+        }
+
+        function playVideo(videoInput, event) {
+            if (event) event.stopPropagation();
+            
+            // تطبيع الرابط (تحويل ID إلى رابط كامل)
+            let videoUrl = normalizeVideoUrl(videoInput);
+            
+            if (!videoUrl) {
+                showToast('⚠️ لا يوجد رابط فيديو صالح', 'error');
+                return;
+            }
+            
+            let videoId = extractYouTubeId(videoUrl);
+            
+            if (videoId) {
+                let iframe = document.getElementById('videoIframe');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                document.getElementById('videoModal').style.display = 'flex';
+            } else {
+                showToast('⚠️ رابط الفيديو غير صالح', 'error');
+            }
+        }
+
+        function closeVideoModal() {
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('videoIframe').src = '';
+        }
+
+        async function loadData() {
+            try {
+                document.getElementById('loadingStatus').innerHTML = 'جاري تحميل الأقسام...';
+                const catsSnap = await db.ref('categories').once('value');
+                categories = catsSnap.val() || {};
+                
+                const orderSnap = await db.ref('categoryOrder').once('value');
+                categoryOrder = orderSnap.val() || [];
+                
+                document.getElementById('loadingStatus').innerHTML = 'جاري تحميل المنتجات...';
+                const prodsSnap = await db.ref('products').once('value');
+                const products = prodsSnap.val() || {};
+                allProducts = Object.entries(products).map(([id, val]) => ({ id, ...val }));
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('products-grid').classList.remove('hidden');
+                
+                renderCategories();
+                renderProducts();
+                
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('errorDetail').innerHTML = error.message;
+            }
+        }
+
+        function retryConnection() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            loadData();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-nav');
+            if (!container) return;
+            
+            let catsList = [];
+            categoryOrder.forEach(key => {
+                if (categories[key]) catsList.push({ key, name: categories[key] });
+            });
+            Object.keys(categories).forEach(key => {
+                if (!categoryOrder.includes(key)) catsList.push({ key, name: categories[key] });
+            });
+            
+            let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === 'all' ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">🏠 الكل</button>`;
+            catsList.forEach(cat => {
+                html += `<button onclick="filterByCategory('${cat.key}')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === cat.key ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">📁 ${escapeHtml(cat.name)}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterByCategory(categoryKey) {
+            currentCategory = categoryKey;
+            renderCategories();
+            renderProducts();
+        }
+
+        function searchProducts() {
+            currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            renderProducts();
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearchTerm = '';
+            renderProducts();
+            document.getElementById('no-results').classList.add('hidden');
+        }
+
+        function handleImageClick(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            if (product.video && product.video.trim()) {
+                playVideo(product.video);
+            } else {
+                showProductDetails(productId);
+            }
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-grid');
+            let filtered = [...allProducts];
+            
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+            if (currentSearchTerm) {
+                filtered = filtered.filter(p => p.name && p.name.toLowerCase().includes(currentSearchTerm));
+            }
+            
+            if (filtered.length === 0) {
+                document.getElementById('products-grid').classList.add('hidden');
+                document.getElementById('no-results').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('products-grid').classList.remove('hidden');
+            document.getElementById('no-results').classList.add('hidden');
+            
+            container.innerHTML = filtered.map(product => {
+                const hasVideo = product.video && product.video.trim();
+                return `
+                <div class="akkad-card overflow-hidden fade-in-up">
+                    <div class="product-media-container" onclick="handleImageClick('${product.id}')">
+                        <img src="${product.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(product.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">
+                        ${hasVideo ? `
+                            <div class="video-play-btn" onclick="playVideo('${escapeHtml(product.video)}', event)">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>
+                        ` : ''}
+                        <div class="media-overlay"></div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(product.name)}</h3>
+                        <div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(product.price).toLocaleString()} د.ع</div>
+                        <div class="flex gap-2">
+                            <button onclick="showProductDetails('${product.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button>
+                            <button onclick="openQuickOrderFromCard('${product.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg flex items-center justify-center transition">
+                                <i class="fab fa-whatsapp text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openQuickOrderFromCard(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (product) openQuickOrder(product);
+        }
+
+        function showProductDetails(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            document.getElementById('modalTitle').innerHTML = product.name;
+            let descHtml = product.desc ? `<div class="mb-4">${escapeHtml(product.desc).replace(/\n/g, '<br>')}</div>` : '';
+            descHtml += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(product.price).toLocaleString()} دينار عراقي</div>`;
+            document.getElementById('modalDesc').innerHTML = descHtml;
+            document.getElementById('descModal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openQuickOrder(product) {
+            if (!product) return;
+            currentProductForOrder = product;
+            document.getElementById('quickProductId').value = product.id;
+            document.getElementById('quickProductName').value = product.name;
+            document.getElementById('quickProductPrice').value = product.price;
+            document.getElementById('quickProductInfo').innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="font-bold">${escapeHtml(product.name)}</span>
+                    <span class="text-[var(--akkad-gold)] font-bold">${Number(product.price).toLocaleString()} د.ع</span>
+                </div>
+            `;
+            document.getElementById('quickCustomerName').value = '';
+            document.getElementById('quickGovernorate').value = '';
+            document.getElementById('quickPhone').value = '';
+            document.getElementById('quickAddress').value = '';
+            document.getElementById('quickNotes').value = '';
+            document.getElementById('quickOrderModal').style.display = 'flex';
+        }
+
+        function closeQuickOrder() {
+            document.getElementById('quickOrderModal').style.display = 'none';
+        }
+
+        document.getElementById('quickOrderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('quickCustomerName').value.trim();
+            const governorate = document.getElementById('quickGovernorate').value;
+            const phone = document.getElementById('quickPhone').value.trim();
+            const address = document.getElementById('quickAddress').value.trim();
+            const notes = document.getElementById('quickNotes').value.trim();
+            const productId = document.getElementById('quickProductId').value;
+            const productName = document.getElementById('quickProductName').value;
+            const productPrice = document.getElementById('quickProductPrice').value;
+            
+            if (!name || !governorate || !phone) {
+                showToast('⚠️ الرجاء ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            const orderData = {
+                orderId: Date.now().toString(),
+                customerName: name,
+                governorate: governorate,
+                phone: phone,
+                address: address,
+                notes: notes,
+                productId: productId,
+                productName: productName,
+                productPrice: productPrice,
+                status: 'جديد',
+                createdAt: new Date().toISOString(),
+                createdAtTimestamp: Date.now()
+            };
+            
+            try {
+                await db.ref('orders/' + orderData.orderId).set(orderData);
+                const adminWhatsapp = '9647730492020';
+                let message = `🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${governorate}\n📦 *المنتج:* ${productName}\n💰 *السعر:* ${Number(productPrice).toLocaleString()} د.ع`;
+                if (address) message += `\n📍 *العنوان:* ${address}`;
+                if (notes) message += `\n💬 *ملاحظات:* ${notes}`;
+                message += `\n\n📅 ${new Date().toLocaleString('ar-IQ')}`;
+                window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(message)}`, '_blank');
+                showToast('✅ تم إرسال الطلب بنجاح!');
+                setTimeout(() => closeQuickOrder(), 1500);
+            } catch (error) {
+                showToast('❌ فشل إرسال الطلب', 'error');
+            }
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
