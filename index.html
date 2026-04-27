@@ -3,264 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة أكاد | العصر الرقمي</title>
+    <title>متجر أكاد | AKKAD STORE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Amiri:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Amiri:wght@700&display=swap');
         
         :root {
-            --akkad-dark: #05070a;
+            --akkad-dark: #030508;
             --akkad-gold: #c9a961;
-            --neon-blue: #00f2ff;
-            --glass-bg: rgba(10, 15, 24, 0.85);
+            --neon-cyan: #00f2ff;
             --neon-glow: 0 0 15px rgba(0, 242, 255, 0.4);
-            --gold-glow: 0 0 20px rgba(201, 169, 97, 0.2);
         }
 
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background: var(--akkad-dark); 
-            color: #e2e8f0; 
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(201, 169, 97, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 20%);
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--akkad-dark);
+            color: #fff;
+            background-image: radial-gradient(circle at top right, rgba(201,169,97,0.05), transparent),
+                              radial-gradient(circle at bottom left, rgba(0,242,255,0.05), transparent);
         }
 
-        /* تأثير النيون للبطاقات */
-        .card { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(15px); 
-            border: 1px solid rgba(201, 169, 97, 0.2); 
-            border-radius: 1.25rem; 
-            padding: 1.5rem; 
-            box-shadow: var(--gold-glow);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .neon-border {
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            transition: all 0.3s ease;
         }
 
-        .card:hover {
-            border-color: var(--neon-blue);
+        .neon-border:hover {
+            border-color: var(--neon-cyan);
             box-shadow: var(--neon-glow);
             transform: translateY(-5px);
         }
 
-        /* الأزرار النيونية */
-        .btn { 
-            background: transparent; 
-            border: 1px solid var(--akkad-gold);
-            color: var(--akkad-gold); 
-            padding: 0.7rem 1.5rem; 
-            border-radius: 0.75rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-transform: uppercase;
-        }
-
-        .btn:hover { 
-            background: var(--akkad-gold);
-            color: #000;
-            box-shadow: 0 0 20px var(--akkad-gold);
-        }
-
-        .btn-blue {
-            border-color: var(--neon-blue);
-            color: var(--neon-blue);
-        }
-
-        .btn-blue:hover {
-            background: var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
-        }
-
-        .input { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(201, 169, 97, 0.3); 
-            color: white; 
-            padding: 0.8rem; 
-            border-radius: 0.75rem; 
-            width: 100%; 
+        .gold-text { color: var(--akkad-gold); font-family: 'Amiri', serif; }
+        
+        .category-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(201, 169, 97, 0.2);
             transition: 0.3s;
         }
 
-        .input:focus { 
-            outline: none; 
-            border-color: var(--neon-blue); 
-            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
-            background: rgba(255, 255, 255, 0.07);
+        .category-btn.active {
+            background: var(--akkad-gold);
+            color: #000;
+            box-shadow: 0 0 15px var(--akkad-gold);
         }
 
-        .login-overlay { 
-            position: fixed; inset: 0; background: #030508; 
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 1000;
+        /* موديول التفاصيل */
+        .modal-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
         }
-
-        .toast { 
-            position: fixed; bottom: 20px; right: 20px; 
-            background: var(--glass-bg); border-left: 4px solid var(--neon-blue);
-            color: white; padding: 15px 25px; border-radius: 10px; z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.4s;
-        }
-
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        img.thumb { 
-            width: 50px; height: 50px; object-fit: cover; border-radius: 10px;
-            border: 1px solid var(--akkad-gold);
-        }
-
-        /* تخصيص السكرول بار */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--akkad-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 10px; }
-
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="min-h-screen">
 
-    <div id="loginScreen" class="login-overlay">
-        <div class="card w-full max-w-md text-center border-t-4 border-t-[var(--akkad-gold)]">
-            <h2 class="text-3xl font-bold text-[var(--akkad-gold)] mb-2 font-[Amiri] tracking-widest">AKKAD ADMIN</h2>
-            <p class="text-gray-400 text-sm mb-6">بوابة إدارة الإرث الرقمي</p>
-            <form id="loginForm" class="space-y-4">
-                <input type="email" id="email" class="input" placeholder="البريد الإحترافي" required>
-                <input type="password" id="pass" class="input" placeholder="رمز الدخول" required>
-                <button type="submit" class="btn w-full">دخول النظام</button>
-            </form>
-        </div>
-    </div>
+    <header class="py-12 text-center border-b border-white/5">
+        <h1 class="text-6xl gold-text tracking-widest mb-2 uppercase">AKKAD</h1>
+        <p class="text-cyan-400 text-xs tracking-[0.5em] uppercase">The Digital Civilization</p>
+    </header>
 
-    <div id="dashboard" class="hidden max-w-7xl mx-auto space-y-8">
-        
-        <header class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-right">
-                <h1 class="text-3xl font-bold text-[var(--akkad-gold)] font-[Amiri] flex items-center gap-3">
-                    <i class="fas fa-scroll"></i> لوحة إدارة أكاد
-                </h1>
-                <p class="text-cyan-400 text-xs tracking-[0.2em] uppercase mt-1">Digital Legacy Control</p>
+    <nav class="sticky top-0 z-40 bg-[#030508]/80 backdrop-blur-md py-4 border-b border-white/5">
+        <div id="categoriesNav" class="flex justify-center gap-3 overflow-x-auto px-4 no-scrollbar">
             </div>
-            <div class="flex gap-4">
-                <a href="index.html" target="_blank" class="btn btn-blue text-sm">
-                    <i class="fas fa-external-link-alt"></i> معاينة المتجر
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            </div>
+    </main>
+
+    <div id="detailsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-blur">
+        <div class="bg-[#0a0f18] border border-cyan-500/30 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl">
+            <div id="modalBody" class="p-0"></div>
+            <div class="p-6 bg-black/20 flex justify-between items-center">
+                <button onclick="closeDetails()" class="text-gray-400 hover:text-white px-4 py-2">إغلاق</button>
+                <a id="whatsappLink" href="#" target="_blank" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-full flex items-center gap-2 transition">
+                    <i class="fab fa-whatsapp"></i> طلب المنتج
                 </a>
-                <button onclick="logout()" class="btn border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white">
-                    <i class="fas fa-power-off"></i> خروج
-                </button>
             </div>
-        </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="card text-center relative overflow-hidden group">
-                <div class="text-3xl font-bold text-[var(--neon-blue)]" id="stat-prod">0</div>
-                <div class="text-xs text-gray-400 uppercase mt-1">إجمالي المنتجات</div>
-            </div>
-            <div class="card text-center">
-                <div class="text-3xl font-bold text-[var(--akkad-gold)]" id="stat-cat">0</div>
-                <div class="text-xs text-gray-400 uppercase mt-1">الأقسام النشطة</div>
-            </div>
-            <div class="card text-center">
-                <div class="text-3xl font-bold text-green-400" id="stat-merch">0</div>
-                <div class="text-xs text-gray-400 uppercase mt-1">شركاء النجاح</div>
-            </div>
-            <div class="card text-center border-dashed">
-                <div class="text-xs text-gray-500" id="last-update">جاري المزامنة...</div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="card flex flex-col h-full">
-                <h3 class="font-bold text-[var(--akkad-gold)] mb-6 flex items-center gap-2">
-                    <i class="fas fa-th-large"></i> الأقسام التاريخية
-                </h3>
-                <div class="flex gap-2 mb-6">
-                    <input type="text" id="newCat" class="input" placeholder="اسم القسم...">
-                    <button onclick="addCat()" class="btn btn-blue px-4"><i class="fas fa-plus"></i></button>
-                </div>
-                <div id="catList" class="space-y-3 overflow-y-auto flex-grow max-h-[400px]"></div>
-            </div>
-
-            <div class="card lg:col-span-2">
-                <h3 class="font-bold text-[var(--akkad-gold)] mb-6 flex items-center gap-2">
-                    <i class="fas fa-box-open"></i> تسجيل قطعة رقمية جديدة
-                </h3>
-                <form id="prodForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="hidden" id="editId">
-                    <div class="space-y-4">
-                        <input type="text" id="pName" class="input" placeholder="اسم المنتج *" required>
-                        <input type="number" id="pPrice" class="input" placeholder="السعر (د.ع) *" required>
-                        <select id="pCat" class="input" required><option value="">اختر القسم التاريخي *</option></select>
-                    </div>
-                    <div class="space-y-4">
-                        <input type="text" id="pImg" class="input" placeholder="رابط الصورة (URL)">
-                        <input type="text" id="pVideo" class="input" placeholder="رابط يوتيوب (اختياري)">
-                        <textarea id="pDesc" class="input h-[108px]" placeholder="وصف القطعة وقصتها..."></textarea>
-                    </div>
-                    <div class="md:col-span-2 flex gap-3">
-                        <button type="submit" class="btn btn-blue flex-grow">
-                            <i class="fas fa-save"></i> حفظ في الأرشيف
-                        </button>
-                        <button type="button" onclick="resetProdForm()" class="btn border-gray-600 text-gray-400 w-1/4">
-                            <i class="fas fa-undo"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-[var(--akkad-gold)] text-xl">📦 مستودع المنتجات</h3>
-                <span class="bg-cyan-500/10 text-cyan-400 px-4 py-1 rounded-full text-xs" id="prod-count">0 منتج</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-right">
-                    <thead class="text-gray-500 text-xs uppercase border-b border-gray-800">
-                        <tr>
-                            <th class="p-4">المنتج</th>
-                            <th class="p-4">التصنيف</th>
-                            <th class="p-4">القيمة</th>
-                            <th class="p-4 text-center">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="prodTable" class="text-sm"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 class="font-bold text-[var(--akkad-gold)] mb-6 flex items-center gap-2 text-xl">
-                <i class="fas fa-handshake"></i> سجل التجار والشركاء
-            </h3>
-            <form id="merchForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <input type="hidden" id="merchEditId">
-                <input type="text" id="mName" class="input" placeholder="اسم التاجر" required>
-                <input type="tel" id="mWhatsapp" class="input dir-ltr text-right" placeholder="964xxxxxxxxxx" required>
-                <input type="number" id="mTotal" class="input" placeholder="المبلغ">
-                <button type="submit" class="btn btn-blue"><i class="fas fa-check"></i> تأمين البيانات</button>
-            </form>
-            <div id="merchTableContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                </div>
-        </div>
-    </div>
-
-    <div id="detailsModal" class="hidden fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-        <div class="card max-w-2xl w-full border-t-4 border-cyan-400">
-            <div id="modalContent"></div>
-            <button onclick="closeDetails()" class="btn w-full mt-6">إغلاق النافذة</button>
         </div>
     </div>
 
     <script>
-        // تكوين Firebase
+        // إعدادات Firebase (نفس إعداداتك الأصلية)
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -273,230 +101,94 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const auth = firebase.auth();
 
-        let cats = {}, catOrder = [], productsList = [], merchantsList = [];
+        let allProducts = [];
+        let currentCat = "الكل";
 
-        // --- وظائف التنبيهات ---
-        function showToast(msg, error = false) {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            if(error) t.style.borderColor = '#ff4444';
-            t.innerHTML = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+        // جلب البيانات
+        function loadStore() {
+            // جلب الأقسام
+            db.ref('categories').on('value', s => {
+                const cats = s.val() || {};
+                renderCategories(Object.values(cats));
+            });
 
-        // --- المصادقة ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.remove('hidden');
-                initData();
-            } else {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('dashboard').classList.add('hidden');
-            }
-        });
-
-        document.getElementById('loginForm').onsubmit = e => {
-            e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('pass').value)
-                .catch(err => showToast("خطأ في الدخول: " + err.message, true));
-        };
-
-        function logout() { auth.signOut(); }
-
-        // --- مزامنة البيانات ---
-        function initData() {
-            db.ref('categories').on('value', s => { cats = s.val() || {}; renderCats(); updateCatSelect(); });
-            db.ref('categoryOrder').on('value', s => { catOrder = s.val() || []; renderCats(); });
+            // جلب المنتجات
             db.ref('products').on('value', s => {
                 const data = s.val() || {};
-                productsList = Object.entries(data).map(([id, val]) => ({id, ...val}));
-                renderProds();
-                updateStats();
-            });
-            db.ref('merchants').on('value', s => {
-                const data = s.val() || {};
-                merchantsList = Object.entries(data).map(([id, val]) => ({id, ...val}));
-                renderMerchants();
-                updateStats();
+                allProducts = Object.entries(data).map(([id, val]) => ({id, ...val}));
+                filterProducts(currentCat);
             });
         }
 
-        function updateStats() {
-            document.getElementById('stat-prod').innerText = productsList.length;
-            document.getElementById('stat-cat').innerText = Object.keys(cats).length;
-            document.getElementById('stat-merch').innerText = merchantsList.length;
-            document.getElementById('last-update').innerText = "تحديث: " + new Date().toLocaleTimeString('ar-IQ');
-        }
-
-        // --- إدارة الأقسام ---
-        async function addCat() {
-            const name = document.getElementById('newCat').value.trim();
-            if(!name) return;
-            const key = Date.now().toString();
-            await db.ref(`categories/${key}`).set(name);
-            await db.ref('categoryOrder').set([...catOrder, key]);
-            document.getElementById('newCat').value = '';
-            showToast("تم إضافة القسم الملكي");
-        }
-
-        function renderCats() {
-            const container = document.getElementById('catList');
-            container.innerHTML = catOrder.map((key, i) => {
-                if(!cats[key]) return '';
-                return `
-                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 hover:border-cyan-500/50 transition">
-                    <span class="text-sm font-bold text-gray-300">${cats[key]}</span>
-                    <div class="flex gap-1">
-                        <button onclick="moveCat('${key}', -1)" class="p-1 text-gray-500 hover:text-cyan-400"><i class="fas fa-chevron-up text-xs"></i></button>
-                        <button onclick="moveCat('${key}', 1)" class="p-1 text-gray-500 hover:text-cyan-400"><i class="fas fa-chevron-down text-xs"></i></button>
-                        <button onclick="deleteCat('${key}')" class="p-1 text-red-500/50 hover:text-red-500"><i class="fas fa-times text-xs"></i></button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        async function moveCat(key, dir) {
-            let idx = catOrder.indexOf(key);
-            if((idx === 0 && dir === -1) || (idx === catOrder.length-1 && dir === 1)) return;
-            let newOrder = [...catOrder];
-            [newOrder[idx], newOrder[idx+dir]] = [newOrder[idx+dir], newOrder[idx]];
-            await db.ref('categoryOrder').set(newOrder);
-        }
-
-        function deleteCat(key) {
-            if(confirm('هل تريد حذف القسم؟')) {
-                db.ref(`categories/${key}`).remove();
-                db.ref('categoryOrder').set(catOrder.filter(k => k !== key));
-            }
-        }
-
-        function updateCatSelect() {
-            const s = document.getElementById('pCat');
-            s.innerHTML = '<option value="">اختر القسم التاريخي *</option>' + 
-                Object.values(cats).map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
-        // --- إدارة المنتجات ---
-        document.getElementById('prodForm').onsubmit = async e => {
-            e.preventDefault();
-            const id = document.getElementById('editId').value || Date.now().toString();
-            const prod = {
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
-                category: document.getElementById('pCat').value,
-                image: document.getElementById('pImg').value || 'https://via.placeholder.com/300?text=Akkad+Store',
-                video: document.getElementById('pVideo').value,
-                description: document.getElementById('pDesc').value
-            };
-            await db.ref(`products/${id}`).set(prod);
-            showToast("تم الحفظ في الأرشيف");
-            resetProdForm();
-        };
-
-        function renderProds() {
-            document.getElementById('prodTable').innerHTML = productsList.map(p => `
-                <tr class="group border-b border-white/5 hover:bg-white/[0.02] transition">
-                    <td class="p-4 flex items-center gap-3">
-                        <img src="${p.image}" class="thumb group-hover:scale-110 transition">
-                        <div>
-                            <div class="font-bold text-gray-200">${p.name}</div>
-                            <div class="text-[10px] text-gray-500">ID: ${p.id.slice(-5)}</div>
-                        </div>
-                    </td>
-                    <td class="p-4"><span class="text-cyan-400/80 text-xs border border-cyan-400/20 px-2 py-1 rounded">${p.category}</span></td>
-                    <td class="p-4 font-bold text-[var(--akkad-gold)]">${Number(p.price).toLocaleString()} <span class="text-[10px]">د.ع</span></td>
-                    <td class="p-4">
-                        <div class="flex justify-center gap-2">
-                            <button onclick="viewDetails('${p.id}')" class="p-2 text-cyan-400 hover:bg-cyan-400/10 rounded-lg" title="قراءة التفاصيل"><i class="fas fa-eye"></i></button>
-                            <button onclick="editProd('${p.id}')" class="p-2 text-yellow-500 hover:bg-yellow-500/10 rounded-lg"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProd('${p.id}')" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
+        function renderCategories(catList) {
+            const nav = document.getElementById('categoriesNav');
+            const items = ["الكل", ...catList];
+            nav.innerHTML = items.map(c => `
+                <button onclick="filterProducts('${c}')" 
+                        class="category-btn px-6 py-2 rounded-full text-sm font-bold whitespace-nowrap ${currentCat === c ? 'active' : ''}">
+                    ${c}
+                </button>
             `).join('');
         }
 
-        function viewDetails(id) {
-            const p = productsList.find(x => x.id === id);
-            document.getElementById('modalContent').innerHTML = `
-                <div class="flex flex-col md:flex-row gap-6">
-                    <img src="${p.image}" class="w-full md:w-1/2 rounded-xl border border-white/10 shadow-2xl">
-                    <div class="space-y-4">
-                        <h2 class="text-2xl font-bold text-[var(--akkad-gold)] font-[Amiri]">${p.name}</h2>
-                        <p class="text-cyan-400 text-sm italic">تصنيف: ${p.category}</p>
-                        <p class="text-gray-300 leading-relaxed">${p.description || 'لا يوجد وصف متاح لهذه القطعة.'}</p>
-                        <div class="text-2xl font-bold text-white">${Number(p.price).toLocaleString()} د.ع</div>
-                        ${p.video ? `<a href="${p.video}" target="_blank" class="text-red-400 flex items-center gap-2"><i class="fab fa-youtube"></i> شاهد عرض الفيديو</a>` : ''}
+        function filterProducts(cat) {
+            currentCat = cat;
+            renderCategories(Array.from(new Set(allProducts.map(p => p.category))));
+            
+            const filtered = cat === "الكل" ? allProducts : allProducts.filter(p => p.category === cat);
+            const grid = document.getElementById('productsGrid');
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="neon-border bg-[#0a0f18] rounded-2xl overflow-hidden flex flex-col">
+                    <div class="relative group cursor-pointer" onclick="openDetails('${p.id}')">
+                        <img src="${p.image}" class="w-full h-64 object-cover transition duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <span class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-sm font-bold">
+                                قراءة التفاصيل
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <h3 class="text-lg font-bold mb-2 text-gray-100">${p.name}</h3>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-xl font-bold text-[var(--neon-cyan)]">${Number(p.price).toLocaleString()} <small class="text-[10px]">د.ع</small></span>
+                            <button onclick="openDetails('${p.id}')" class="text-[var(--akkad-gold)] hover:underline text-sm">التفاصيل</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openDetails(id) {
+            const p = allProducts.find(x => x.id === id);
+            const modal = document.getElementById('detailsModal');
+            const body = document.getElementById('modalBody');
+            const wa = document.getElementById('whatsappLink');
+
+            body.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-0">
+                    <img src="${p.image}" class="w-full h-full object-cover max-h-[400px]">
+                    <div class="p-8 space-y-4">
+                        <h2 class="text-3xl gold-text">${p.name}</h2>
+                        <span class="inline-block bg-cyan-500/10 text-cyan-400 text-xs px-3 py-1 rounded-full">${p.category}</span>
+                        <p class="text-gray-400 leading-relaxed text-sm">${p.description || 'لا يوجد وصف متوفر لهذه القطعة.'}</p>
+                        <div class="text-3xl font-bold text-white pt-4 border-t border-white/5">
+                            ${Number(p.price).toLocaleString()} د.ع
+                        </div>
                     </div>
                 </div>
             `;
-            document.getElementById('detailsModal').classList.remove('hidden');
+
+            wa.href = `https://wa.me/9647800000000?text=مرحباً، أريد طلب: ${p.name}`; // استبدل بالرقم الخاص بك
+            modal.classList.remove('hidden');
         }
 
-        function closeDetails() { document.getElementById('detailsModal').classList.add('hidden'); }
-
-        function editProd(id) {
-            const p = productsList.find(x => x.id === id);
-            document.getElementById('editId').value = p.id;
-            document.getElementById('pName').value = p.name;
-            document.getElementById('pPrice').value = p.price;
-            document.getElementById('pCat').value = p.category;
-            document.getElementById('pImg').value = p.image;
-            document.getElementById('pVideo').value = p.video || '';
-            document.getElementById('pDesc').value = p.description || '';
-            window.scrollTo({top: 0, behavior: 'smooth'});
+        function closeDetails() {
+            document.getElementById('detailsModal').classList.add('hidden');
         }
 
-        function deleteProd(id) { if(confirm('حذف من الأرشيف؟')) db.ref(`products/${id}`).remove(); }
-
-        function resetProdForm() {
-            document.getElementById('prodForm').reset();
-            document.getElementById('editId').value = '';
-        }
-
-        // --- إدارة التجار ---
-        document.getElementById('merchForm').onsubmit = async e => {
-            e.preventDefault();
-            const id = document.getElementById('merchEditId').value || Date.now().toString();
-            await db.ref(`merchants/${id}`).set({
-                name: document.getElementById('mName').value,
-                whatsapp: document.getElementById('mWhatsapp').value,
-                total: document.getElementById('mTotal').value || 0
-            });
-            document.getElementById('merchForm').reset();
-            document.getElementById('merchEditId').value = '';
-            showToast("تم تأمين بيانات الشريك");
-        };
-
-        function renderMerchants() {
-            document.getElementById('merchTableContainer').innerHTML = merchantsList.map(m => `
-                <div class="bg-white/5 border border-white/5 p-4 rounded-2xl hover:border-green-500/30 transition">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="font-bold text-gray-200">${m.name}</div>
-                        <div class="text-green-400 text-xs font-mono">${Number(m.total).toLocaleString()} د.ع</div>
-                    </div>
-                    <div class="text-xs text-gray-500 mb-4"><i class="fab fa-whatsapp ml-1"></i> ${m.whatsapp}</div>
-                    <div class="flex gap-2">
-                        <button onclick="editMerch('${m.id}')" class="text-xs text-yellow-500/70 hover:text-yellow-500">تعديل</button>
-                        <button onclick="deleteMerch('${m.id}')" class="text-xs text-red-500/70 hover:text-red-500">حذف</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function editMerch(id) {
-            const m = merchantsList.find(x => x.id === id);
-            document.getElementById('merchEditId').value = m.id;
-            document.getElementById('mName').value = m.name;
-            document.getElementById('mWhatsapp').value = m.whatsapp;
-            document.getElementById('mTotal').value = m.total;
-        }
-
-        function deleteMerch(id) { if(confirm('حذف التاجر؟')) db.ref(`merchants/${id}`).remove(); }
+        loadStore();
     </script>
 </body>
 </html>
