@@ -3,291 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر أكاد الرقمي | من قلب بلاد الرافدين</title>
+    <title>أكاد | متجر بلاد الرافدين الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Amiri:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Amiri:wght@400;700&family=Lateef&display=swap');
         
         :root {
-            --akkad-dark: #030508;
-            --akkad-gold: #c9a961;
-            --akkad-gold-bright: #e8d5a3;
-            --glass-bg: rgba(15, 26, 36, 0.55);
-            --neon-gold: rgba(201, 169, 97, 0.6);
+            --mesopotamia-dark: #0a0f12;
+            --akkad-gold: #d4af37;
+            --sumerian-blue: #1a4d8c;
+            --cuneiform-brown: #8b5a2b;
+            --sand-stone: #c2a575;
+            --clay-red: #9e5e3a;
+            --glass-bg: rgba(10, 15, 18, 0.65);
+            --gold-glow: rgba(212, 175, 55, 0.5);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             font-family: 'Tajawal', sans-serif; 
-            background: var(--akkad-dark); 
-            color: #fff; 
+            background: var(--mesopotamia-dark); 
+            color: #f0e6d0; 
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        .bg-gradient-custom {
+        /* خلفية مستوحاة من بلاد الرافدين */
+        .bg-mesopotamia {
             position: fixed; inset: 0; z-index: -2;
             background: 
-                radial-gradient(circle at 20% 30%, rgba(201,169,97,0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(201,169,97,0.08) 0%, transparent 40%),
-                linear-gradient(165deg, #030508 0%, #0a1018 40%, #0f1a24 70%, #1a1205 100%);
+                radial-gradient(ellipse at 30% 40%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(26, 77, 140, 0.1) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, rgba(139, 90, 43, 0.03) 0px, rgba(139, 90, 43, 0.03) 2px, transparent 2px, transparent 8px),
+                linear-gradient(145deg, #0a0f12 0%, #141a1f 40%, #1a1510 100%);
         }
 
-        .neon-text {
-            text-shadow: 
-                0 0 5px var(--neon-gold),
-                0 0 10px var(--neon-gold),
-                0 0 20px rgba(201,169,97,0.5);
+        /* زخرفة الخط المسماري */
+        .cuneiform-decoration {
+            position: absolute;
+            font-family: 'Lateef', cursive;
+            font-size: 24px;
+            color: rgba(212, 175, 55, 0.1);
+            pointer-events: none;
+            white-space: nowrap;
+            transform: rotate(-5deg);
+        }
+
+        /* نقشة زقورة */
+        .zigzag-pattern {
+            background: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(212, 175, 55, 0.08) 20px, rgba(212, 175, 55, 0.08) 22px);
+            height: 3px;
+            width: 100%;
+        }
+
+        .neon-text-gold {
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.4), 0 0 16px rgba(212, 175, 55, 0.2);
         }
 
         .akkad-nav {
-            background: rgba(3,5,8,0.85); 
+            background: rgba(10, 15, 18, 0.9); 
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(201,169,97,0.3);
-            box-shadow: 0 4px 30px rgba(201,169,97,0.1);
+            border-bottom: 2px solid var(--akkad-gold);
+            box-shadow: 0 4px 30px rgba(212, 175, 55, 0.15);
+            position: relative;
         }
         
+        .akkad-nav::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0; right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold));
+        }
+
         .akkad-logo-img { 
-            width: 52px; height: 52px; border-radius: 50%; 
-            border: 2px solid rgba(201,169,97,0.6); 
+            width: 56px; height: 56px; border-radius: 50%; 
+            border: 2px solid var(--akkad-gold); 
+            background: #1a1108;
             object-fit: cover;
-            box-shadow: 0 0 15px rgba(201,169,97,0.4), 0 0 30px rgba(201,169,97,0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 0 40px rgba(212, 175, 55, 0.15);
             transition: all 0.3s ease;
         }
         
         .akkad-logo-img:hover {
-            box-shadow: 0 0 20px rgba(201,169,97,0.6), 0 0 40px rgba(201,169,97,0.3);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6), 0 0 60px rgba(212, 175, 55, 0.3);
             transform: scale(1.05);
         }
         
         .akkad-logo-text { 
-            font-size: 1.45rem; font-weight: 700; 
-            background: linear-gradient(135deg, #fff, var(--akkad-gold), var(--akkad-gold-bright)); 
+            font-size: 1.6rem; font-weight: 800; 
+            background: linear-gradient(135deg, #f0e6d0, var(--akkad-gold), #e8c97a); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(201,169,97,0.3);
+            letter-spacing: 2px;
+        }
+
+        .akkad-subtitle {
+            font-family: 'Amiri', serif;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--akkad-gold);
         }
 
         .akkad-card { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(201,169,97,0.25); 
-            border-radius: 1.25rem;
+            background: linear-gradient(145deg, rgba(20, 26, 31, 0.85), rgba(10, 15, 18, 0.75));
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(212, 175, 55, 0.25); 
+            border-radius: 1rem;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
         
         .akkad-card::before {
+            content: '𒀀𒅗𒁺';
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-family: 'Lateef', cursive;
+            font-size: 12px;
+            color: rgba(212, 175, 55, 0.1);
+            pointer-events: none;
+        }
+        
+        .akkad-card::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold), transparent);
             opacity: 0.6;
             z-index: 2;
         }
         
         .akkad-card:hover { 
             transform: translateY(-8px); 
-            border-color: rgba(201,169,97,0.6);
+            border-color: rgba(212, 175, 55, 0.6);
             box-shadow: 
-                0 10px 40px rgba(0,0,0,0.4),
-                0 0 20px rgba(201,169,97,0.15),
-                0 0 40px rgba(201,169,97,0.08);
+                0 15px 35px rgba(0,0,0,0.5),
+                0 0 25px rgba(212, 175, 55, 0.2);
         }
 
         .btn-akkad { 
-            background: linear-gradient(135deg, var(--akkad-gold), #8b6f47); 
-            color: #0a0f18; 
-            font-weight: 600;
+            background: linear-gradient(135deg, var(--akkad-gold), #b8942e); 
+            color: #0a0f12; 
+            font-weight: 700;
+            letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-        }
-        
-        .btn-akkad::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s;
-            opacity: 0;
+            border: none;
         }
         
         .btn-akkad:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 8px 25px rgba(201,169,97,0.4), 0 0 15px rgba(201,169,97,0.2);
-        }
-        
-        .btn-akkad:hover::after {
-            opacity: 1;
-            transform: rotate(45deg) translate(50%, 50%);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+            background: linear-gradient(135deg, #e8c97a, var(--akkad-gold));
         }
         
         .btn-outline-akkad { 
-            border: 1px solid rgba(201,169,97,0.4); 
+            border: 1px solid rgba(212, 175, 55, 0.5); 
             color: var(--akkad-gold); 
-            background: rgba(201,169,97,0.06);
+            background: rgba(212, 175, 55, 0.08);
             transition: all 0.3s ease;
         }
         
         .btn-outline-akkad:hover {
-            background: rgba(201,169,97,0.15);
+            background: rgba(212, 175, 55, 0.18);
             border-color: var(--akkad-gold);
-            box-shadow: 0 0 15px rgba(201,169,97,0.2);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
         }
 
-        .modal { 
-            display: none; 
-            position: fixed; inset: 0; 
-            background: rgba(3,5,8,0.92); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(15px);
-        }
-        
-        .modal-content { 
-            background: rgba(15,26,36,0.98); 
-            border: 1px solid rgba(201,169,97,0.4); 
-            border-radius: 1.5rem; 
-            padding: 1.75rem; 
-            max-width: 500px; width: 90%;
-            box-shadow: 
-                0 25px 50px rgba(0,0,0,0.5),
-                0 0 30px rgba(201,169,97,0.1),
-                inset 0 0 30px rgba(201,169,97,0.05);
-        }
-
-        .quick-order-modal {
+        .modal, .quick-order-modal, .video-modal {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(3,5,8,0.95);
-            z-index: 1100;
+            background: rgba(10, 15, 18, 0.96);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(15px);
         }
         
-        .quick-order-form {
-            background: rgba(15,26,36,0.98);
-            border: 1px solid rgba(201,169,97,0.5);
-            border-radius: 1.5rem;
+        .modal-content, .quick-order-form {
+            background: linear-gradient(145deg, rgba(20, 26, 31, 0.98), rgba(10, 15, 18, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 1.25rem;
+            padding: 1.75rem;
             max-width: 500px; width: 90%;
-            padding: 1.5rem;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 
-                0 25px 50px rgba(0,0,0,0.5),
-                0 0 40px rgba(201,169,97,0.15);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 40px rgba(212, 175, 55, 0.1);
         }
 
         .loader { 
-            border: 3px solid rgba(201,169,97,0.15); 
+            border: 3px solid rgba(212, 175, 55, 0.15); 
             border-top: 3px solid var(--akkad-gold); 
             border-radius: 50%; 
             width: 45px; height: 45px; 
             animation: spin 1s linear infinite; 
             margin: 40px auto;
-            box-shadow: 0 0 10px rgba(201,169,97,0.3);
         }
         
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .category-chip {
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            background: rgba(10, 15, 18, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
         
         .category-chip.active {
-            background: rgba(201,169,97,0.2);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.08));
             border-color: var(--akkad-gold);
             color: var(--akkad-gold);
-            box-shadow: 0 0 15px rgba(201,169,97,0.2), inset 0 0 10px rgba(201,169,97,0.1);
-        }
-        
-        .category-chip:hover:not(.active) {
-            border-color: rgba(201,169,97,0.5);
-            box-shadow: 0 0 10px rgba(201,169,97,0.1);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
         }
         
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(201,169,97,0.05); }
-        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; box-shadow: 0 0 5px rgba(201,169,97,0.3); }
-        
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        ::-webkit-scrollbar-track { background: rgba(212, 175, 55, 0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 3px; }
 
         .search-input {
-            background: rgba(201,169,97,0.05);
-            border: 1px solid rgba(201,169,97,0.2);
+            background: rgba(10, 15, 18, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
             transition: all 0.3s ease;
+            color: #f0e6d0;
         }
         
         .search-input:focus {
-            background: rgba(201,169,97,0.08);
-            border-color: rgba(201,169,97,0.5);
-            box-shadow: 0 0 15px rgba(201,169,97,0.15);
+            background: rgba(10, 15, 18, 0.9);
+            border-color: var(--akkad-gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
             outline: none;
-        }
-
-        input, select, textarea {
-            font-family: 'Tajawal', sans-serif;
-        }
-
-        @keyframes goldPulse {
-            0%, 100% { box-shadow: 0 0 5px rgba(201,169,97,0.3); }
-            50% { box-shadow: 0 0 20px rgba(201,169,97,0.6), 0 0 40px rgba(201,169,97,0.2); }
-        }
-        
-        .gold-pulse {
-            animation: goldPulse 3s ease-in-out infinite;
-        }
-
-        .share-btn {
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            transition: all 0.3s ease;
-        }
-        
-        .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
         }
 
         .section-title {
             position: relative;
             display: inline-block;
+            font-family: 'Amiri', serif;
+        }
+        
+        .section-title::before {
+            content: '𒀀𒅗𒁺';
+            position: absolute;
+            right: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Lateef', cursive;
+            font-size: 20px;
+            color: rgba(212, 175, 55, 0.3);
         }
         
         .section-title::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
+            width: 80px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--akkad-gold), transparent);
-            box-shadow: 0 0 10px rgba(201,169,97,0.5);
+            background: linear-gradient(90deg, transparent, var(--akkad-gold), var(--sumerian-blue), var(--akkad-gold), transparent);
         }
 
         .product-media-container {
             position: relative;
             overflow: hidden;
-            height: 180px;
+            height: 190px;
             cursor: pointer;
         }
         
@@ -307,11 +290,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: rgba(201, 169, 97, 0.95);
-            border: 2px solid rgba(255,255,255,0.9);
+            background: rgba(212, 175, 55, 0.95);
+            border: 2px solid rgba(255,255,255,0.95);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -319,7 +302,7 @@
             z-index: 3;
             opacity: 0;
             transition: all 0.3s ease;
-            box-shadow: 0 0 0 4px rgba(201,169,97,0.3);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3);
         }
         
         .product-media-container:hover .video-play-btn {
@@ -327,118 +310,26 @@
             transform: translate(-50%, -50%) scale(1);
         }
         
-        .video-play-btn:hover {
-            background: var(--akkad-gold);
-            transform: translate(-50%, -50%) scale(1.15) !important;
-        }
-        
-        .video-play-btn i {
-            color: #0a0f18;
-            font-size: 20px;
-            margin-right: 2px;
-        }
+        .video-play-btn i { color: #0a0f12; font-size: 18px; margin-right: 3px; }
 
         .video-badge-bar {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(201, 169, 97, 0.9);
-            color: #0a0f18;
+            top: 12px;
+            left: 12px;
+            background: rgba(212, 175, 55, 0.95);
+            color: #0a0f12;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             z-index: 3;
             display: flex;
             align-items: center;
             gap: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             pointer-events: none;
+            font-family: 'Tajawal', sans-serif;
         }
 
-        .media-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0);
-            transition: background 0.3s ease;
-            z-index: 2;
-            pointer-events: none;
-        }
-        
-        .product-media-container:hover .media-overlay {
-            background: rgba(0,0,0,0.2);
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease forwards;
-        }
-
-        .amiri-font {
-            font-family: 'Amiri', serif;
-        }
-
-        .video-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(3,5,8,0.95);
-            z-index: 1200;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(20px);
-        }
-        
-        .video-modal-content {
-            position: relative;
-            width: 90vw;
-            max-width: 900px;
-            aspect-ratio: 16/9;
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 2px solid rgba(201,169,97,0.4);
-            box-shadow: 0 0 50px rgba(201,169,97,0.2);
-        }
-        
-        .video-modal-content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .video-modal-close {
-            position: absolute;
-            top: -50px;
-            left: 0;
-            color: var(--akkad-gold);
-            font-size: 32px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            transition: transform 0.2s;
-            z-index: 10;
-        }
-        
-        .video-modal-close:hover {
-            transform: scale(1.2);
-        }
-
-        .footer {
-            background: rgba(3,5,8,0.8);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(201,169,97,0.2);
-            margin-top: 50px;
-        }
-        
-        .product-description {
-            white-space: pre-wrap;
-            line-height: 1.6;
-        }
-        
         .whatsapp-icon-btn {
             background: #25D366;
             color: white;
@@ -451,35 +342,52 @@
             box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
         }
 
+        .footer {
+            background: rgba(10, 15, 18, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            margin-top: 50px;
+        }
+
         .toast { 
             position: fixed; 
             bottom: 20px; 
             left: 20px; 
-            background: #10b981; 
-            color: white; 
+            background: var(--sumerian-blue); 
+            color: #f0e6d0; 
             padding: 12px 20px; 
             border-radius: 10px; 
             z-index: 9999; 
             animation: slideIn 0.3s; 
         }
-        .toast.error { background: #dc2626; }
+        .toast.error { background: #9e5e3a; }
         @keyframes slideIn { 
             from { transform: translateX(-100%); opacity: 0; } 
             to { transform: translateX(0); opacity: 1; } 
         }
+
+        .price-tag {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.12);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
-    <div class="bg-gradient-custom"></div>
+    <div class="bg-mesopotamia"></div>
 
     <nav class="akkad-nav sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
                 <a href="#" class="flex items-center gap-3">
-                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23c9a961%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23030508%22 font-size=%2240%22 font-weight=%22bold%22%3Eأ%3C/text%3E%3C/svg%3E'">
+                    <div class="relative">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Lamassu_at_Pergamon_Museum.jpg/200px-Lamassu_at_Pergamon_Museum.jpg" alt="شعار أكاد" class="akkad-logo-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23d4af37%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%230a0f12%22 font-size=%2235%22 font-weight=%22bold%22%3E𒀀𒅗𒁺%3C/text%3E%3C/svg%3E'">
+                    </div>
                     <div>
-                        <div class="akkad-logo-text">أكاد</div>
-                        <div class="text-[10px] text-[var(--akkad-gold)] tracking-wider neon-text">DIGITAL STORE</div>
+                        <div class="akkad-logo-text">𒀀𒅗𒁺 | أَكَّد</div>
+                        <div class="akkad-subtitle">Akkad Digital Store | من قلب بلاد الرافدين</div>
                     </div>
                 </a>
                 <div class="flex gap-2">
@@ -504,8 +412,9 @@
 
     <main class="container mx-auto px-4 py-10">
         <div class="text-center mb-10">
-            <h2 class="text-2xl md:text-3xl font-bold mb-3 section-title amiri-font">✨ كنوز أكاد الرقمية ✨</h2>
-            <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-3 section-title amiri-font">✨ كنوز أكاد الرقمية ✨</h2>
+            <p class="text-gray-400 text-sm">أحدث الأجهزة والمستلزمات بأفضل الأسعار | مستوحى من حضارة بلاد الرافدين الخالدة</p>
+            <div class="zigzag-pattern mt-4 w-64 mx-auto"></div>
         </div>
         
         <div id="loading" class="text-center py-20">
@@ -533,66 +442,16 @@
 
     <footer class="footer py-6 text-center">
         <div class="container mx-auto px-4">
-            <p class="text-gray-500 text-sm">© 2024 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
-            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين</p>
+            <div class="zigzag-pattern mb-4 w-32 mx-auto"></div>
+            <p class="text-gray-500 text-sm">© 2024 𒀀𒅗𒁺 - متجر أكاد الرقمي</p>
+            <p class="text-gray-600 text-xs mt-2">من قلب بلاد الرافدين | مستوحى من حضارة أكاد العريقة</p>
         </div>
     </footer>
 
-    <!-- نافذة تفاصيل المنتج -->
-    <div id="descModal" class="modal" onclick="closeModal('descModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] neon-text"></h2>
-                <button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
-            </div>
-            <div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div>
-            <button onclick="closeModal('descModal')" class="w-full bg-white/10 py-2 rounded-xl hover:bg-white/20 transition">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- نافذة الفيديو -->
-    <div id="videoModal" class="video-modal" onclick="closeVideoModal()">
-        <div class="video-modal-content" onclick="event.stopPropagation()">
-            <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
-            <iframe id="videoIframe" src="" allowfullscreen></iframe>
-        </div>
-    </div>
-
-    <!-- نافذة الطلب السريع -->
-    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()">
-        <div class="quick-order-form">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
-                <button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl transition">&times;</button>
-            </div>
-            <div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div>
-            <form id="quickOrderForm" class="space-y-3">
-                <input type="hidden" id="quickProductId">
-                <input type="hidden" id="quickProductName">
-                <input type="hidden" id="quickProductPrice">
-                
-                <input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="👤 الاسم الكامل *" required>
-                
-                <select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white outline-none" required>
-                    <option value="">🏛️ اختر المحافظة *</option>
-                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option>
-                    <option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option>
-                    <option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option>
-                    <option>ميسان</option><option>النجف</option><option>كربلاء</option>
-                </select>
-                
-                <input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none dir-ltr" placeholder="📱 رقم الهاتف *" required>
-                
-                <textarea id="quickAddress" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="📍 العنوان التفصيلي (اختياري)"></textarea>
-                
-                <textarea id="quickNotes" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="💬 ملاحظات إضافية (اختياري)"></textarea>
-                
-                <button type="submit" class="btn-akkad w-full py-3 rounded-xl flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp"></i> إرسال الطلب
-                </button>
-            </form>
-        </div>
-    </div>
+    <!-- نوافذ -->
+    <div id="descModal" class="modal" onclick="closeModal('descModal')"><div class="modal-content" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] neon-text-gold"></h2><button onclick="closeModal('descModal')" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div id="modalDesc" class="text-gray-300 text-sm leading-relaxed mb-6 product-description"></div><button onclick="closeModal('descModal')" class="w-full bg-white/10 py-2 rounded-xl hover:bg-white/20">إغلاق</button></div></div>
+    <div id="videoModal" class="video-modal" onclick="closeVideoModal()"><div class="video-modal-content" onclick="event.stopPropagation()"><button class="video-modal-close" onclick="closeVideoModal()">&times;</button><iframe id="videoIframe" src="" allowfullscreen></iframe></div></div>
+    <div id="quickOrderModal" class="quick-order-modal" onclick="if(event.target===this) closeQuickOrder()"><div class="quick-order-form"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-[var(--akkad-gold)] neon-text-gold"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3><button onclick="closeQuickOrder()" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><div id="quickProductInfo" class="bg-white/10 p-3 rounded-lg text-sm mb-4"></div><form id="quickOrderForm" class="space-y-3"><input type="hidden" id="quickProductId"><input type="hidden" id="quickProductName"><input type="hidden" id="quickProductPrice"><input type="text" id="quickCustomerName" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" placeholder="👤 الاسم الكامل *" required><select id="quickGovernorate" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white outline-none" required><option value="">🏛️ اختر المحافظة *</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option><option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option><option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option><option>ميسان</option><option>النجف</option><option>كربلاء</option></select><input type="tel" id="quickPhone" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none dir-ltr" placeholder="📱 رقم الهاتف *" required><textarea id="quickAddress" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="📍 العنوان التفصيلي (اختياري)"></textarea><textarea id="quickNotes" class="w-full bg-white/10 border border-gray-600 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[var(--akkad-gold)] outline-none" rows="2" placeholder="💬 ملاحظات إضافية (اختياري)"></textarea><button type="submit" class="btn-akkad w-full py-3 rounded-xl flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> إرسال الطلب</button></form></div></div>
 
     <script>
         // ========================================
@@ -611,344 +470,92 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let allProducts = [];
-        let categories = {};
-        let categoryOrder = [];
-        let currentSearchTerm = '';
-        let currentCategory = 'all';
-        let currentProductForOrder = null;
+        let allProducts = [], categories = {}, categoryOrder = [], currentSearchTerm = '', currentCategory = 'all', currentProductForOrder = null;
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${message}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
+        function showToast(msg, type = 'success') { let t = document.createElement('div'); t.className = `toast ${type === 'error' ? 'error' : ''}`; t.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        function shareStore() { if (navigator.share) navigator.share({ title: 'متجر أكاد الرقمي', url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } }
 
-        function shareStore() {
-            if (navigator.share) {
-                navigator.share({ title: 'متجر أكاد الرقمي', url: window.location.href });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                showToast('✅ تم نسخ رابط المتجر');
-            }
-        }
-
-        // ========================================
-        // 🔥 دالة تحويل أي قيمة إلى رابط يوتيوب صالح
-        // تدعم: ID فقط (11 حرف) أو رابط كامل
-        // ========================================
         function normalizeVideoUrl(input) {
             if (!input || input.trim() === '') return null;
-            
             let video = input.trim();
-            
-            // إذا كان النص عبارة عن 11 حرفًا فقط (ID يوتيوب)
-            if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) {
-                return `https://www.youtube.com/watch?v=${video}`;
-            }
-            
-            // إذا كان رابط يوتيوب قصير (youtu.be/xxx)
-            if (video.includes('youtu.be/')) {
-                let id = video.split('youtu.be/')[1]?.split('?')[0];
-                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
-            }
-            
-            // إذا كان رابط embed
-            if (video.includes('youtube.com/embed/')) {
-                let id = video.split('embed/')[1]?.split('?')[0];
-                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
-            }
-            
-            // إذا كان رابط shorts
-            if (video.includes('youtube.com/shorts/')) {
-                let id = video.split('shorts/')[1]?.split('?')[0];
-                if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`;
-            }
-            
-            // إذا كان رابط watch عادي
-            if (video.includes('youtube.com/watch')) {
-                return video;
-            }
-            
-            // إذا كان الرابط يحتوي على ID داخل query string
+            if (video.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(video)) return `https://www.youtube.com/watch?v=${video}`;
+            if (video.includes('youtu.be/')) { let id = video.split('youtu.be/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
+            if (video.includes('youtube.com/embed/')) { let id = video.split('embed/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
+            if (video.includes('youtube.com/shorts/')) { let id = video.split('shorts/')[1]?.split('?')[0]; if (id && id.length === 11) return `https://www.youtube.com/watch?v=${id}`; }
             let match = video.match(/[?&]v=([^&]+)/);
-            if (match && match[1]) {
-                return `https://www.youtube.com/watch?v=${match[1]}`;
-            }
-            
-            // أخيراً: إذا كان النص يبدو أنه ID (11 حرف) ولكن به مسافات أو علامات
+            if (match && match[1]) return `https://www.youtube.com/watch?v=${match[1]}`;
             let cleanId = video.replace(/[^a-zA-Z0-9_-]/g, '');
-            if (cleanId.length === 11) {
-                return `https://www.youtube.com/watch?v=${cleanId}`;
-            }
-            
+            if (cleanId.length === 11) return `https://www.youtube.com/watch?v=${cleanId}`;
             return video;
         }
 
-        // استخراج ID الفيديو من الرابط
         function extractYouTubeId(url) {
             if (!url) return null;
-            let cleanUrl = url.trim();
-            let match = cleanUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+            let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
             if (match) return match[1];
-            match = cleanUrl.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+            match = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
             if (match) return match[1];
-            if (cleanUrl.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(cleanUrl)) return cleanUrl;
+            if (url.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
             return null;
         }
 
         function playVideo(videoInput, event) {
             if (event) event.stopPropagation();
-            
-            // تطبيع الرابط (تحويل ID إلى رابط كامل)
             let videoUrl = normalizeVideoUrl(videoInput);
-            
-            if (!videoUrl) {
-                showToast('⚠️ لا يوجد رابط فيديو صالح', 'error');
-                return;
-            }
-            
+            if (!videoUrl) { showToast('⚠️ لا يوجد رابط فيديو صالح', 'error'); return; }
             let videoId = extractYouTubeId(videoUrl);
-            
             if (videoId) {
                 let iframe = document.getElementById('videoIframe');
                 iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
                 document.getElementById('videoModal').style.display = 'flex';
-            } else {
-                showToast('⚠️ رابط الفيديو غير صالح', 'error');
-            }
+            } else { showToast('⚠️ رابط الفيديو غير صالح', 'error'); }
         }
-
-        function closeVideoModal() {
-            document.getElementById('videoModal').style.display = 'none';
-            document.getElementById('videoIframe').src = '';
-        }
+        function closeVideoModal() { document.getElementById('videoModal').style.display = 'none'; document.getElementById('videoIframe').src = ''; }
 
         async function loadData() {
             try {
-                document.getElementById('loadingStatus').innerHTML = 'جاري تحميل الأقسام...';
-                const catsSnap = await db.ref('categories').once('value');
-                categories = catsSnap.val() || {};
-                
-                const orderSnap = await db.ref('categoryOrder').once('value');
-                categoryOrder = orderSnap.val() || [];
-                
-                document.getElementById('loadingStatus').innerHTML = 'جاري تحميل المنتجات...';
-                const prodsSnap = await db.ref('products').once('value');
-                const products = prodsSnap.val() || {};
+                let catsSnap = await db.ref('categories').once('value'); categories = catsSnap.val() || {};
+                let orderSnap = await db.ref('categoryOrder').once('value'); categoryOrder = orderSnap.val() || [];
+                let prodsSnap = await db.ref('products').once('value'); let products = prodsSnap.val() || {};
                 allProducts = Object.entries(products).map(([id, val]) => ({ id, ...val }));
-                
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('products-grid').classList.remove('hidden');
-                
-                renderCategories();
-                renderProducts();
-                
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('error-message').classList.remove('hidden');
-                document.getElementById('errorDetail').innerHTML = error.message;
-            }
+                renderCategories(); renderProducts();
+            } catch(e) { console.error(e); document.getElementById('loading').classList.add('hidden'); document.getElementById('error-message').classList.remove('hidden'); document.getElementById('errorDetail').innerHTML = e.message; }
         }
-
-        function retryConnection() {
-            document.getElementById('error-message').classList.add('hidden');
-            document.getElementById('loading').classList.remove('hidden');
-            loadData();
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
-        }
-
+        function retryConnection() { document.getElementById('error-message').classList.add('hidden'); document.getElementById('loading').classList.remove('hidden'); loadData(); }
+        function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
         function renderCategories() {
-            const container = document.getElementById('categories-nav');
-            if (!container) return;
-            
+            let container = document.getElementById('categories-nav');
             let catsList = [];
-            categoryOrder.forEach(key => {
-                if (categories[key]) catsList.push({ key, name: categories[key] });
-            });
-            Object.keys(categories).forEach(key => {
-                if (!categoryOrder.includes(key)) catsList.push({ key, name: categories[key] });
-            });
-            
-            let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === 'all' ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">🏠 الكل</button>`;
-            catsList.forEach(cat => {
-                html += `<button onclick="filterByCategory('${cat.key}')" class="category-chip px-4 py-2 rounded-full text-sm border transition whitespace-nowrap ${currentCategory === cat.key ? 'active' : ''}" style="border-color: rgba(201,169,97,0.3);">📁 ${escapeHtml(cat.name)}</button>`;
-            });
+            categoryOrder.forEach(k => { if(categories[k]) catsList.push({key:k, name:categories[k]}); });
+            Object.keys(categories).forEach(k => { if(!categoryOrder.includes(k)) catsList.push({key:k, name:categories[k]}); });
+            let html = `<button onclick="filterByCategory('all')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory==='all'?'active':''}" style="border-color:rgba(212,175,55,0.3)">🏠 الكل</button>`;
+            catsList.forEach(c => { html += `<button onclick="filterByCategory('${c.key}')" class="category-chip px-4 py-2 rounded-full text-sm transition whitespace-nowrap ${currentCategory===c.key?'active':''}" style="border-color:rgba(212,175,55,0.3)">📁 ${escapeHtml(c.name)}</button>`; });
             container.innerHTML = html;
         }
-
-        function filterByCategory(categoryKey) {
-            currentCategory = categoryKey;
-            renderCategories();
-            renderProducts();
-        }
-
-        function searchProducts() {
-            currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            renderProducts();
-        }
-
-        function resetSearch() {
-            document.getElementById('searchInput').value = '';
-            currentSearchTerm = '';
-            renderProducts();
-            document.getElementById('no-results').classList.add('hidden');
-        }
-
-        function handleImageClick(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            if (product.video && product.video.trim()) {
-                playVideo(product.video);
-            } else {
-                showProductDetails(productId);
-            }
-        }
-
+        function filterByCategory(k) { currentCategory = k; renderCategories(); renderProducts(); }
+        function searchProducts() { currentSearchTerm = document.getElementById('searchInput').value.trim().toLowerCase(); renderProducts(); }
+        function resetSearch() { document.getElementById('searchInput').value = ''; currentSearchTerm = ''; renderProducts(); document.getElementById('no-results').classList.add('hidden'); }
+        function handleImageClick(pid) { let p = allProducts.find(p=>p.id===pid); if(p && p.video && p.video.trim()) playVideo(p.video); else showProductDetails(pid); }
+        function showProductDetails(pid) { let p = allProducts.find(p=>p.id===pid); if(!p) return; document.getElementById('modalTitle').innerHTML = p.name; let dh = p.desc ? `<div class="mb-4">${escapeHtml(p.desc).replace(/\n/g,'<br>')}</div>` : ''; dh += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(p.price).toLocaleString()} د.ع</div>`; document.getElementById('modalDesc').innerHTML = dh; document.getElementById('descModal').style.display = 'flex'; }
+        function openQuickOrderFromCard(pid) { let p = allProducts.find(p=>p.id===pid); if(p) openQuickOrder(p); }
+        function openQuickOrder(p) { if(!p) return; currentProductForOrder=p; document.getElementById('quickProductId').value=p.id; document.getElementById('quickProductName').value=p.name; document.getElementById('quickProductPrice').value=p.price; document.getElementById('quickProductInfo').innerHTML=`<div class="flex justify-between"><span class="font-bold">${escapeHtml(p.name)}</span><span class="text-[var(--akkad-gold)] font-bold">${Number(p.price).toLocaleString()} د.ع</span></div>`; ['quickCustomerName','quickGovernorate','quickPhone','quickAddress','quickNotes'].forEach(id=>{ let el=document.getElementById(id); if(el && el.tagName==='SELECT') el.value=''; else if(el) el.value=''; }); document.getElementById('quickOrderModal').style.display='flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeQuickOrder() { document.getElementById('quickOrderModal').style.display = 'none'; }
+        
         function renderProducts() {
-            const container = document.getElementById('products-grid');
+            let container = document.getElementById('products-grid');
             let filtered = [...allProducts];
-            
-            if (currentCategory !== 'all') {
-                filtered = filtered.filter(p => p.category === currentCategory);
-            }
-            if (currentSearchTerm) {
-                filtered = filtered.filter(p => p.name && p.name.toLowerCase().includes(currentSearchTerm));
-            }
-            
-            if (filtered.length === 0) {
-                document.getElementById('products-grid').classList.add('hidden');
-                document.getElementById('no-results').classList.remove('hidden');
-                return;
-            }
-            
-            document.getElementById('products-grid').classList.remove('hidden');
-            document.getElementById('no-results').classList.add('hidden');
-            
-            container.innerHTML = filtered.map(product => {
-                const hasVideo = product.video && product.video.trim();
-                return `
-                <div class="akkad-card overflow-hidden fade-in-up">
-                    <div class="product-media-container" onclick="handleImageClick('${product.id}')">
-                        <img src="${product.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(product.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23c9a961%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">
-                        ${hasVideo ? `
-                            <div class="video-play-btn" onclick="playVideo('${escapeHtml(product.video)}', event)">
-                                <i class="fas fa-play"></i>
-                            </div>
-                            <div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>
-                        ` : ''}
-                        <div class="media-overlay"></div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(product.name)}</h3>
-                        <div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(product.price).toLocaleString()} د.ع</div>
-                        <div class="flex gap-2">
-                            <button onclick="showProductDetails('${product.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button>
-                            <button onclick="openQuickOrderFromCard('${product.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg flex items-center justify-center transition">
-                                <i class="fab fa-whatsapp text-lg"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            if(currentCategory !== 'all') filtered = filtered.filter(p=>p.category === currentCategory);
+            if(currentSearchTerm) filtered = filtered.filter(p=>p.name && p.name.toLowerCase().includes(currentSearchTerm));
+            if(filtered.length === 0) { document.getElementById('products-grid').classList.add('hidden'); document.getElementById('no-results').classList.remove('hidden'); return; }
+            document.getElementById('products-grid').classList.remove('hidden'); document.getElementById('no-results').classList.add('hidden');
+            container.innerHTML = filtered.map(p => { let hasVideo = p.video && p.video.trim(); return `<div class="akkad-card overflow-hidden fade-in-up"><div class="product-media-container" onclick="handleImageClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22 font-size=%2240%22%3E📦%3C/text%3E%3C/svg%3E'">${hasVideo ? `<div class="video-play-btn" onclick="playVideo('${escapeHtml(p.video)}', event)"><i class="fas fa-play"></i></div><div class="video-badge-bar"><i class="fas fa-video"></i> فيديو</div>` : ''}<div class="media-overlay"></div></div><div class="p-4"><h3 class="font-bold text-base mb-1 line-clamp-2">${escapeHtml(p.name)}</h3><div class="text-[var(--akkad-gold)] font-bold text-lg mb-3">${Number(p.price).toLocaleString()} د.ع</div><div class="flex gap-2"><button onclick="showProductDetails('${p.id}')" class="btn-outline-akkad flex-1 py-2 rounded-lg text-sm transition">📖 تفاصيل</button><button onclick="openQuickOrderFromCard('${p.id}')" class="whatsapp-icon-btn w-10 h-10 rounded-lg flex items-center justify-center transition"><i class="fab fa-whatsapp text-lg"></i></button></div></div></div>`; }).join('');
         }
 
-        function openQuickOrderFromCard(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (product) openQuickOrder(product);
-        }
-
-        function showProductDetails(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            document.getElementById('modalTitle').innerHTML = product.name;
-            let descHtml = product.desc ? `<div class="mb-4">${escapeHtml(product.desc).replace(/\n/g, '<br>')}</div>` : '';
-            descHtml += `<div class="bg-white/5 p-3 rounded-lg"><span class="text-[var(--akkad-gold)]">💰 السعر:</span> ${Number(product.price).toLocaleString()} دينار عراقي</div>`;
-            document.getElementById('modalDesc').innerHTML = descHtml;
-            document.getElementById('descModal').style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function openQuickOrder(product) {
-            if (!product) return;
-            currentProductForOrder = product;
-            document.getElementById('quickProductId').value = product.id;
-            document.getElementById('quickProductName').value = product.name;
-            document.getElementById('quickProductPrice').value = product.price;
-            document.getElementById('quickProductInfo').innerHTML = `
-                <div class="flex justify-between items-center">
-                    <span class="font-bold">${escapeHtml(product.name)}</span>
-                    <span class="text-[var(--akkad-gold)] font-bold">${Number(product.price).toLocaleString()} د.ع</span>
-                </div>
-            `;
-            document.getElementById('quickCustomerName').value = '';
-            document.getElementById('quickGovernorate').value = '';
-            document.getElementById('quickPhone').value = '';
-            document.getElementById('quickAddress').value = '';
-            document.getElementById('quickNotes').value = '';
-            document.getElementById('quickOrderModal').style.display = 'flex';
-        }
-
-        function closeQuickOrder() {
-            document.getElementById('quickOrderModal').style.display = 'none';
-        }
-
-        document.getElementById('quickOrderForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('quickCustomerName').value.trim();
-            const governorate = document.getElementById('quickGovernorate').value;
-            const phone = document.getElementById('quickPhone').value.trim();
-            const address = document.getElementById('quickAddress').value.trim();
-            const notes = document.getElementById('quickNotes').value.trim();
-            const productId = document.getElementById('quickProductId').value;
-            const productName = document.getElementById('quickProductName').value;
-            const productPrice = document.getElementById('quickProductPrice').value;
-            
-            if (!name || !governorate || !phone) {
-                showToast('⚠️ الرجاء ملء جميع الحقول المطلوبة', 'error');
-                return;
-            }
-            
-            const orderData = {
-                orderId: Date.now().toString(),
-                customerName: name,
-                governorate: governorate,
-                phone: phone,
-                address: address,
-                notes: notes,
-                productId: productId,
-                productName: productName,
-                productPrice: productPrice,
-                status: 'جديد',
-                createdAt: new Date().toISOString(),
-                createdAtTimestamp: Date.now()
-            };
-            
-            try {
-                await db.ref('orders/' + orderData.orderId).set(orderData);
-                const adminWhatsapp = '9647730492020';
-                let message = `🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${governorate}\n📦 *المنتج:* ${productName}\n💰 *السعر:* ${Number(productPrice).toLocaleString()} د.ع`;
-                if (address) message += `\n📍 *العنوان:* ${address}`;
-                if (notes) message += `\n💬 *ملاحظات:* ${notes}`;
-                message += `\n\n📅 ${new Date().toLocaleString('ar-IQ')}`;
-                window.open(`https://wa.me/${adminWhatsapp}?text=${encodeURIComponent(message)}`, '_blank');
-                showToast('✅ تم إرسال الطلب بنجاح!');
-                setTimeout(() => closeQuickOrder(), 1500);
-            } catch (error) {
-                showToast('❌ فشل إرسال الطلب', 'error');
-            }
-        });
-
+        document.getElementById('quickOrderForm').addEventListener('submit', async function(e) { e.preventDefault(); let name=document.getElementById('quickCustomerName').value.trim(); let gov=document.getElementById('quickGovernorate').value; let phone=document.getElementById('quickPhone').value.trim(); let addr=document.getElementById('quickAddress').value.trim(); let notes=document.getElementById('quickNotes').value.trim(); let pid=document.getElementById('quickProductId').value; let pname=document.getElementById('quickProductName').value; let pprice=document.getElementById('quickProductPrice').value; if(!name||!gov||!phone){ showToast('⚠️ الرجاء ملء الحقول المطلوبة','error'); return; } let orderData={orderId:Date.now().toString(),customerName:name,governorate:gov,phone:phone,address:addr,notes:notes,productId:pid,productName:pname,productPrice:pprice,status:'جديد',createdAt:new Date().toISOString(),createdAtTimestamp:Date.now()}; try{ await db.ref('orders/'+orderData.orderId).set(orderData); let msg=`🛍️ *طلب جديد من متجر أكاد*\n\n👤 *الاسم:* ${name}\n📱 *الهاتف:* ${phone}\n🏛️ *المحافظة:* ${gov}\n📦 *المنتج:* ${pname}\n💰 *السعر:* ${Number(pprice).toLocaleString()} د.ع`; if(addr) msg+=`\n📍 *العنوان:* ${addr}`; if(notes) msg+=`\n💬 *ملاحظات:* ${notes}`; msg+=`\n\n📅 ${new Date().toLocaleString('ar-IQ')}`; window.open(`https://wa.me/9647730492020?text=${encodeURIComponent(msg)}`,'_blank'); showToast('✅ تم إرسال الطلب بنجاح!'); setTimeout(()=>closeQuickOrder(),1500); } catch(err){ showToast('❌ فشل إرسال الطلب','error'); } });
+        
         loadData();
     </script>
 </body>
