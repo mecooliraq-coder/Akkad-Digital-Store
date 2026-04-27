@@ -1,81 +1,202 @@
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
-        authDomain: "://firebaseapp.com",
-        databaseURL: "https://firebaseio.com",
-        projectId: "akkad-store-ab5a1",
-        storageBucket: "akkad-store-ab5a1.firebasestorage.app",
-        messagingSenderId: "456810444639",
-        appId: "1:456810444639:web:a706dc19781cd7738e28ea"
-    };
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر أكاد الرقمي | إرث الرافدين</title>
     
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <!-- Scripts -->
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+    <link href="https://cloudflare.com" rel="stylesheet">
+    
+    <style>
+        @import url('https://googleapis.com');
+        
+        :root {
+            --akkad-deep: #060a0f;
+            --akkad-gold: #c9a961;
+            --glass: rgba(18, 31, 51, 0.8);
+        }
 
-    let products = [];
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: var(--akkad-deep); 
+            color: #e2e8f0;
+            margin: 0;
+            min-height: 100vh;
+        }
 
-    function loadData() {
-        const loader = document.getElementById('loader');
-        loader.style.display = 'flex';
+        .bg-royal {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(201, 169, 97, 0.05) 0%, transparent 70%),
+                        linear-gradient(165deg, #060a0f 0%, #0c1624 100%);
+        }
 
-        // 1. جلب الفئات أولاً (لأنه مسموح بقراءتها في قواعدك)
-        db.ref('categories').once('value', (snapshot) => {
-            const cats = snapshot.val();
-            if (cats) {
-                const catBar = document.getElementById('category-bar');
-                catBar.innerHTML = '<div class="category-chip active" onclick="filterItems(\'الكل\', this)">الكل</div>';
-                Object.values(cats).forEach(cat => {
-                    catBar.innerHTML += `<div class="category-chip" onclick="filterItems('${cat.name}', this)">${cat.name}</div>`;
-                });
-            }
-        });
+        .akkad-nav {
+            background: rgba(6, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--akkad-gold);
+            position: sticky; top: 0; z-index: 100;
+        }
 
-        // 2. جلب المنتجات
-        db.ref('products').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // تحويل الكائن إلى مصفوفة مع الحفاظ على الـ ID
-                products = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key]
-                }));
-                displayProducts(products);
-            } else {
-                document.getElementById('products-grid').innerHTML = 
-                    '<p class="text-center col-span-full text-gold-500 opacity-50 py-10">خزانة أكاد فارغة حالياً..</p>';
-            }
-            loader.style.display = 'none';
-        }, (error) => {
-            console.error(error);
-            alert("خطأ في جلب البيانات: " + error.message);
-            loader.style.display = 'none';
-        });
-    }
+        .akkad-logo {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(to bottom, #fff, var(--akkad-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
 
-    function displayProducts(items) {
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = items.map(item => `
-            <div class="akkad-card p-5 animate-fade-in">
-                <img src="${item.image || 'https://placeholder.com'}" 
-                     class="w-full h-52 object-cover rounded mb-4 border border-gold-500/10">
-                <h3 class="text-xl font-bold text-white mb-2">${item.name}</h3>
-                <div class="flex justify-between items-center mt-6">
-                    <span class="text-gold-500 font-bold">${item.price} د.ع</span>
-                    <button class="btn-akkad px-5 py-2 text-sm">اقتناء</button>
-                </div>
+        .akkad-card {
+            background: var(--glass);
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .akkad-card:hover {
+            border-color: var(--akkad-gold);
+            transform: translateY(-5px);
+        }
+
+        .btn-akkad {
+            background: linear-gradient(135deg, var(--akkad-gold), #8b6f47);
+            color: #060a0f;
+            font-weight: bold;
+            padding: 8px 20px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .category-chip {
+            padding: 8px 20px;
+            border: 1px solid rgba(201, 169, 97, 0.3);
+            cursor: pointer;
+            background: rgba(201, 169, 97, 0.05);
+            white-space: nowrap;
+        }
+
+        .category-chip.active {
+            background: var(--akkad-gold);
+            color: var(--akkad-deep);
+        }
+
+        #loader {
+            display: flex; justify-content: center; align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(201, 169, 97, 0.1);
+            border-top: 4px solid var(--akkad-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="bg-royal"></div>
+
+    <nav class="akkad-nav px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="akkad-logo">أكاد السومري</h1>
+            <div class="text-gold-500 text-2xl cursor-pointer">
+                <i class="fa-solid fa-shopping-cart"></i>
             </div>
-        `).join('');
-    }
+        </div>
+    </nav>
 
-    function filterItems(category, element) {
-        // تحديث شكل الأزرار
-        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
-        element.classList.add('active');
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- الفئات -->
+        <div id="category-bar" class="flex gap-3 mb-10 overflow-x-auto pb-2">
+            <div class="category-chip active" onclick="filterData('الكل', this)">الكل</div>
+        </div>
 
-        // الفلترة
-        const filtered = category === 'الكل' ? products : products.filter(p => p.category === category);
-        displayProducts(filtered);
-    }
+        <!-- التحميل -->
+        <div id="loader"><div class="spinner"></div></div>
 
-    window.onload = loadData;
-</script>
+        <!-- الشبكة -->
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </main>
+
+    <script>
+        // إعدادات Firebase الخاصة بك
+        const config = {
+            apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://firebaseio.com",
+            projectId: "akkad-store-ab5a1",
+            storageBucket: "akkad-store-ab5a1.firebasestorage.app",
+            messagingSenderId: "456810444639",
+            appId: "1:456810444639:web:a706dc19781cd7738e28ea"
+        };
+
+        // تشغيل Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(config);
+        }
+        const database = firebase.database();
+
+        let allProducts = [];
+
+        // جلب البيانات
+        function fetchData() {
+            // جلب الفئات
+            database.ref('categories').once('value', (snap) => {
+                const cats = snap.val();
+                if(cats) {
+                    const bar = document.getElementById('category-bar');
+                    Object.values(cats).forEach(c => {
+                        bar.innerHTML += `<div class="category-chip" onclick="filterData('${c.name}', this)">${c.name}</div>`;
+                    });
+                }
+            });
+
+            // جلب المنتجات
+            database.ref('products').on('value', (snap) => {
+                const data = snap.val();
+                document.getElementById('loader').style.display = 'none';
+                if(data) {
+                    allProducts = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    renderGrid(allProducts);
+                } else {
+                    document.getElementById('products-grid').innerHTML = "<p class='text-center col-span-full'>لا توجد بيانات حالياً</p>";
+                }
+            }, (error) => {
+                console.error(error);
+                alert("فشل الاتصال بـ Firebase: تأكد من الـ Database URL");
+            });
+        }
+
+        function renderGrid(items) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = items.map(item => `
+                <div class="akkad-card">
+                    <img src="${item.image || 'https://placeholder.com'}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2">${item.name}</h3>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-gold-500 font-bold">${item.price} د.ع</span>
+                            <button class="btn-akkad text-sm">اقتناء</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterData(name, el) {
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            const filtered = name === 'الكل' ? allProducts : allProducts.filter(p => p.category === name);
+            renderGrid(filtered);
+        }
+
+        // تشغيل الوظيفة عند تحميل الصفحة
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
