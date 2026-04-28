@@ -1,116 +1,296 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>خلفية الكتابة المسمارية المتحركة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أكاد | متجر بلاد الرافدين الرقمي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Lateef&display=swap');
+        
         :root {
-            --bg-color: #0a0f12; /* لون الخلفية الأساسي */
-            --cuneiform-color: rgba(212, 175, 55, 0.15); /* لون ذهبي شفاف جداً */
+            --mesopotamia-dark: #0a0f12;
+            --akkad-gold: #d4af37;
+            --cuneiform-glow: rgba(212, 175, 55, 0.12);
         }
-
-        body, html {
+        
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: var(--mesopotamia-dark); 
+            color: #f0e6d0; 
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            overflow: hidden; /* لمنع ظهور شريط التمرير */
+            overflow-x: hidden;
         }
 
-        /* حاوية الخلفية */
-        #cuneiform-container {
+        /* حاوية الخلفية المتحركة */
+        #cuneiform-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* لجعلها خلف العناصر الأخرى */
-            pointer-events: none; /* لكي لا تعيق النقر على الأزرار */
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, #141a1f 0%, #0a0f12 100%);
         }
 
-        /* تصميم الحرف الواحد */
         .cuneiform-char {
             position: absolute;
-            font-family: 'serif';
-            color: var(--cuneiform-color);
+            color: var(--cuneiform-glow);
             user-select: none;
-            white-space: nowrap;
-            filter: blur(0.5px); /* لمسة جمالية لجعلها تبدو قديمة */
-            animation: move linear infinite;
+            filter: blur(0.3px);
+            animation: floatUp linear infinite;
         }
 
-        /* حركة الصعود من الأسفل للأعلى مع الدوران */
-        @keyframes move {
-            0% {
-                transform: translateY(110vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-20vh) rotate(360deg);
-                opacity: 0;
-            }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
         }
+
+        /* تنسيق المتجر */
+        .akkad-nav {
+            background: rgba(10, 15, 18, 0.85); 
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid var(--akkad-gold);
+        }
+
+        .akkad-card { 
+            background: rgba(20, 26, 31, 0.6);
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(212, 175, 55, 0.2); 
+            border-radius: 1rem;
+            transition: 0.4s;
+        }
+        
+        .akkad-card:hover { 
+            border-color: var(--akkad-gold);
+            transform: translateY(-5px);
+            background: rgba(20, 26, 31, 0.8);
+        }
+
+        .btn-akkad { 
+            background: linear-gradient(135deg, var(--akkad-gold), #b8942e); 
+            color: #0a0f12; font-weight: 800;
+        }
+
+        .btn-specs {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .product-media-container { height: 160px; overflow: hidden; position: relative; border-radius: 1rem 1rem 0 0; }
+        .product-media-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.9); z-index: 1000;
+            align-items: center; justify-content: center; backdrop-filter: blur(10px);
+        }
+
+        /* تخصيص السكرول بار */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--mesopotamia-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="cuneiform-container"></div>
+    <div id="cuneiform-background"></div>
 
-    <div style="position: relative; z-index: 1; color: white; text-align: center; margin-top: 20%; font-family: sans-serif;">
-        <h1 style="color: #d4af37; font-size: 3rem;">أَكَّد</h1>
-        <p>خلفية متحركة برموز مسمارية أصلية</p>
+    <nav class="akkad-nav sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 text-center md:text-right">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-3">
+                    <img src="https://www.raed.net/img?id=1539063" class="w-12 h-12 rounded-full border-2 border-[var(--akkad-gold)]">
+                    <div class="text-right">
+                        <div class="text-xl font-black text-[var(--akkad-gold)] leading-none">أَكَّد</div>
+                        <div class="text-[7px] tracking-[0.3em] opacity-60 uppercase">Digital Heritage</div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="shareStore()" class="bg-white/10 p-2 rounded-lg"><i class="fas fa-share-nodes"></i></button>
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] px-4 py-2 rounded-lg text-white font-bold text-xs"><i class="fab fa-whatsapp ml-1"></i> واتساب</a>
+                </div>
+            </div>
+            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-center outline-none focus:border-[var(--akkad-gold)] transition" placeholder="ابحث في كنوز أكاد...">
+            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar"></div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <div id="loading" class="text-center py-20">
+            <div class="w-10 h-10 border-2 border-[var(--akkad-gold)] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 hidden"></div>
+
+        <div id="no-results" class="hidden text-center py-20 opacity-40">
+            <i class="fas fa-search text-3xl mb-3"></i>
+            <p>لا توجد نتائج تطابق بحثك</p>
+        </div>
+    </main>
+
+    <div id="descModal" class="modal" onclick="this.style.display='none'">
+        <div class="bg-[#141a1f] border border-white/10 p-6 rounded-2xl max-w-md w-[90%] text-right" onclick="event.stopPropagation()">
+            <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] mb-4 border-b border-white/5 pb-2"></h2>
+            <div id="modalDesc" class="text-sm opacity-80 leading-loose mb-6 max-h-[60vh] overflow-y-auto"></div>
+            <button onclick="document.getElementById('descModal').style.display='none'" class="w-full bg-white/10 py-3 rounded-xl font-bold">فهمت</button>
+        </div>
+    </div>
+
+    <div id="quickOrderModal" class="modal">
+        <div class="bg-[#141a1f] border border-[var(--akkad-gold)] p-6 rounded-2xl max-w-md w-[90%]" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-bold mb-4 text-center">تأكيد الطلب</h3>
+            <form id="quickOrderForm" class="space-y-4">
+                <input type="text" id="custName" placeholder="الاسم الكامل" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
+                <select id="custGov" class="w-full bg-[#0a0f12] border border-white/10 p-3 rounded-xl outline-none" required>
+                    <option value="">اختر المحافظة</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                    <option>النجف</option><option>كربلاء</option><option>ذي قار</option><option>بابل</option>
+                </select>
+                <input type="tel" id="custPhone" placeholder="رقم الهاتف" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
+                <button type="submit" class="btn-akkad w-full py-4 rounded-xl text-sm">إتمام الطلب عبر واتساب</button>
+                <button type="button" onclick="closeModal('quickOrderModal')" class="w-full text-xs opacity-50 py-2">إلغاء</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        const container = document.getElementById('cuneiform-container');
-        
-        // قائمة ببعض الحروف المسمارية الحقيقية من نظام اليونيكود
-        const cuneiformChars = [
-            '𒀀', '𒀁', '𒀂', '𒀃', '𒀄', '𒀅', '𒀆', '𒀇', '𒀈', '𒀉', 
-            '𒀊', '𒀋', '𒀌', '𒀍', '𒀎', '𒀏', '𒀐', '嶙', '𒀭', '𒂗', 'ުން'
-        ];
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
+            authDomain: "akkad-store-ab5a1.firebaseapp.com",
+            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com",
+            projectId: "akkad-store-ab5a1",
+            storageBucket: "akkad-store-ab5a1.firebasestorage.app",
+            messagingSenderId: "456810444639",
+            appId: "1:456810444639:web:a706dc19781cd7738e28ea"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function createChar() {
-            const charElement = document.createElement('div');
-            charElement.className = 'cuneiform-char';
+        let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '';
+        let selectedProduct = null;
+
+        // 1. نظام الخلفية المسمارية
+        const cuneiformChars = ['𒀀', '𒀁', '𒀂', '𒀃', '𒀄', '𒀅', '𒀆', '𒀇', '𒀈', '𒀉', '𒀊', '𒀋', '𒀌'];
+        function createCuneiform() {
+            const container = document.getElementById('cuneiform-background');
+            const char = document.createElement('div');
+            char.className = 'cuneiform-char';
+            char.textContent = cuneiformChars[Math.floor(Math.random() * cuneiformChars.length)];
             
-            // اختيار حرف عشوائي
-            const randomChar = cuneiformChars[Math.floor(Math.random() * cuneiformChars.length)];
-            charElement.textContent = randomChar;
+            const size = Math.random() * 25 + 15;
+            char.style.fontSize = `${size}px`;
+            char.style.left = `${Math.random() * 100}%`;
+            char.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            char.style.animationDelay = `${Math.random() * 5}s`;
 
-            // إعدادات عشوائية لكل حرف
-            const size = Math.random() * (40 - 15) + 15; // حجم بين 15px و 40px
-            const left = Math.random() * 100; // موقع أفقي عشوائي
-            const duration = Math.random() * (20 - 10) + 10; // سرعة الحركة بين 10 و 20 ثانية
-            const delay = Math.random() * 5; // تأخير البداية لجعل الحركة مستمرة وغير منتظمة
+            container.appendChild(char);
+            setTimeout(() => char.remove(), 20000);
+        }
+        setInterval(createCuneiform, 600);
 
-            charElement.style.fontSize = `${size}px`;
-            charElement.style.left = `${left}%`;
-            charElement.style.animationDuration = `${duration}s`;
-            charElement.style.animationDelay = `${delay}s`;
-
-            container.appendChild(charElement);
-
-            // إزالة العنصر بعد انتهاء الحركة لتوفير الذاكرة
-            setTimeout(() => {
-                charElement.remove();
-            }, (duration + delay) * 1000);
+        // 2. تحميل البيانات
+        async function loadStore() {
+            const [pSnap, cSnap] = await Promise.all([
+                db.ref('products').once('value'),
+                db.ref('categories').once('value')
+            ]);
+            allProducts = Object.entries(pSnap.val() || {}).map(([id, data]) => ({id, ...data}));
+            categories = cSnap.val() || {};
+            renderCategories();
+            renderProducts();
+            document.getElementById('loading').style.display = 'none';
         }
 
-        // إنشاء حروف جديدة بانتظام
-        setInterval(createChar, 400); // ينشئ حرفاً جديداً كل 400 مللي ثانية
-
-        // إنشاء دفعة أولى فورية عند التحميل
-        for(let i = 0; i < 20; i++) {
-            createChar();
+        function renderCategories() {
+            const nav = document.getElementById('categories-nav');
+            let html = `<button onclick="filterCat('all')" class="px-6 py-2 rounded-full border border-white/10 text-xs whitespace-nowrap active">الكل</button>`;
+            for(let id in categories) {
+                html += `<button onclick="filterCat('${id}')" class="px-6 py-2 rounded-full border border-white/10 text-xs whitespace-nowrap">${categories[id]}</button>`;
+            }
+            nav.innerHTML = html;
         }
+
+        function filterCat(id) {
+            currentCategory = id;
+            renderProducts();
+        }
+
+        function searchProducts() {
+            currentSearch = document.getElementById('searchInput').value.toLowerCase();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const filtered = allProducts.filter(p => {
+                const matchCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchSearch = p.name.toLowerCase().includes(currentSearch);
+                return matchCat && matchSearch;
+            });
+
+            if(filtered.length === 0) {
+                grid.classList.add('hidden');
+                document.getElementById('no-results').classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                document.getElementById('no-results').classList.add('hidden');
+                grid.innerHTML = filtered.map(p => `
+                    <div class="akkad-card">
+                        <div class="product-media-container">
+                            <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-[11px] font-bold h-8 overflow-hidden mb-1">${p.name}</h3>
+                            <div class="text-[var(--akkad-gold)] text-sm font-black mb-3">${Number(p.price).toLocaleString()} د.ع</div>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="openOrder('${p.id}')" class="btn-akkad w-full py-2 rounded-lg text-[10px]">شراء الآن</button>
+                                <button onclick="showDetails('${p.id}')" class="btn-specs w-full py-2 rounded-lg text-[10px] flex items-center justify-center gap-2">
+                                    <i class="fas fa-list-ul"></i> المواصفات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function showDetails(id) {
+            const p = allProducts.find(x => x.id === id);
+            document.getElementById('modalTitle').innerText = p.name;
+            document.getElementById('modalDesc').innerText = p.desc || 'المواصفات غير متوفرة لهذا المنتج حالياً.';
+            document.getElementById('descModal').style.display = 'flex';
+        }
+
+        function openOrder(id) {
+            selectedProduct = allProducts.find(x => x.id === id);
+            document.getElementById('quickOrderModal').style.display = 'flex';
+        }
+
+        document.getElementById('quickOrderForm').onsubmit = function(e) {
+            e.preventDefault();
+            const msg = `*طلب شراء من متجر أَكَّد*%0A------------------%0A*المنتج:* ${selectedProduct.name}%0A*الاسم:* ${document.getElementById('custName').value}%0A*المحافظة:* ${document.getElementById('custGov').value}%0A*الهاتف:* ${document.getElementById('custPhone').value}`;
+            window.open(`https://wa.me/9647730492020?text=${msg}`);
+            closeModal('quickOrderModal');
+        };
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function shareStore() {
+            const url = window.location.href;
+            if (navigator.share) navigator.share({ title: 'أكاد', url });
+            else { navigator.clipboard.writeText(url); alert("تم نسخ الرابط"); }
+        }
+
+        loadStore();
     </script>
 </body>
 </html>
