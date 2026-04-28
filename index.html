@@ -14,7 +14,7 @@
         :root {
             --mesopotamia-dark: #0a0f12;
             --akkad-gold: #d4af37;
-            --cuneiform-glow: rgba(212, 175, 55, 0.12);
+            --cuneiform-glow: rgba(212, 175, 55, 0.12); /* شفافية مناسبة */
         }
         
         body { 
@@ -26,20 +26,21 @@
             overflow-x: hidden;
         }
 
-        /* حاوية الخلفية المتحركة */
+        /* 1. نظام الخلفية المسمارية المتحركة */
         #cuneiform-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -1; /* خلف كل العناصر */
             pointer-events: none;
             background: radial-gradient(circle at center, #141a1f 0%, #0a0f12 100%);
         }
 
         .cuneiform-char {
             position: absolute;
+            font-family: 'serif';
             color: var(--cuneiform-glow);
             user-select: none;
             filter: blur(0.3px);
@@ -61,11 +62,12 @@
         }
 
         .akkad-card { 
-            background: rgba(20, 26, 31, 0.6);
+            background: rgba(20, 26, 31, 0.6); /* خلفية بطاقة شفافة قليلاً */
             backdrop-filter: blur(10px); 
             border: 1px solid rgba(212, 175, 55, 0.2); 
             border-radius: 1rem;
             transition: 0.4s;
+            overflow: hidden; /* لضمان عدم خروج الصورة عن البطاقة */
         }
         
         .akkad-card:hover { 
@@ -85,16 +87,26 @@
             transition: 0.3s;
         }
 
-        .product-media-container { height: 160px; overflow: hidden; position: relative; border-radius: 1rem 1rem 0 0; }
-        .product-media-container img { width: 100%; height: 100%; object-fit: cover; }
+        .product-media-container { 
+            height: 160px; 
+            overflow: hidden; 
+            position: relative; 
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .product-media-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: block; /* يضمن عدم وجود مسافات غريبة */
+        }
 
         .modal {
             display: none; position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.9); z-index: 1000;
+            background: rgba(0, 0, 0, 0.92); z-index: 1000;
             align-items: center; justify-content: center; backdrop-filter: blur(10px);
         }
 
-        /* تخصيص السكرول بار */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--mesopotamia-dark); }
         ::-webkit-scrollbar-thumb { background: var(--akkad-gold); border-radius: 10px; }
@@ -116,11 +128,11 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="shareStore()" class="bg-white/10 p-2 rounded-lg"><i class="fas fa-share-nodes"></i></button>
-                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] px-4 py-2 rounded-lg text-white font-bold text-xs"><i class="fab fa-whatsapp ml-1"></i> واتساب</a>
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] px-4 py-2 rounded-lg text-white font-bold text-xs flex items-center gap-1"><i class="fab fa-whatsapp"></i> واتساب</a>
                 </div>
             </div>
             <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-center outline-none focus:border-[var(--akkad-gold)] transition" placeholder="ابحث في كنوز أكاد...">
-            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar"></div>
+            <div id="categories-nav" class="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar text-xs"></div>
         </div>
     </nav>
 
@@ -140,25 +152,39 @@
     <div id="descModal" class="modal" onclick="this.style.display='none'">
         <div class="bg-[#141a1f] border border-white/10 p-6 rounded-2xl max-w-md w-[90%] text-right" onclick="event.stopPropagation()">
             <h2 id="modalTitle" class="text-xl font-bold text-[var(--akkad-gold)] mb-4 border-b border-white/5 pb-2"></h2>
-            <div id="modalDesc" class="text-sm opacity-80 leading-loose mb-6 max-h-[60vh] overflow-y-auto"></div>
-            <button onclick="document.getElementById('descModal').style.display='none'" class="w-full bg-white/10 py-3 rounded-xl font-bold">فهمت</button>
+            <div id="modalDesc" class="text-sm opacity-80 leading-loose mb-6 max-h-[60vh] overflow-y-auto whitespace-pre-line relative z-10"></div>
+            <button onclick="document.getElementById('descModal').style.display='none'" class="w-full bg-white/10 py-3 rounded-xl font-bold relative z-10">فهمت</button>
         </div>
     </div>
 
     <div id="quickOrderModal" class="modal">
         <div class="bg-[#141a1f] border border-[var(--akkad-gold)] p-6 rounded-2xl max-w-md w-[90%]" onclick="event.stopPropagation()">
-            <h3 class="text-lg font-bold mb-4 text-center">تأكيد الطلب</h3>
+            <h3 class="text-lg font-bold mb-4 text-center text-[var(--akkad-gold)]">تأكيد طلب الشراء</h3>
+            <div id="quickProductInfo" class="bg-black/30 p-3 rounded-lg text-xs mb-4 text-center"></div>
             <form id="quickOrderForm" class="space-y-4">
-                <input type="text" id="custName" placeholder="الاسم الكامل" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
-                <select id="custGov" class="w-full bg-[#0a0f12] border border-white/10 p-3 rounded-xl outline-none" required>
-                    <option value="">اختر المحافظة</option>
-                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
-                    <option>النجف</option><option>كربلاء</option><option>ذي قار</option><option>بابل</option>
-                </select>
-                <input type="tel" id="custPhone" placeholder="رقم الهاتف" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
-                <button type="submit" class="btn-akkad w-full py-4 rounded-xl text-sm">إتمام الطلب عبر واتساب</button>
+                <input type="text" id="custName" placeholder="الاسم الكامل للزبون" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="custGov" class="w-full bg-[#0a0f12] border border-white/10 p-3 rounded-xl outline-none text-xs" required>
+                        <option value="">اختر المحافظة</option>
+                        <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                        <option>النجف</option><option>كربلاء</option><option>ذي قار</option><option>بابل</option>
+                    </select>
+                    <input type="text" id="custCity" placeholder="المدينة/المنطقة" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none text-xs" required>
+                </div>
+
+                <input type="tel" id="custPhone" placeholder="رقم الهاتف الأساسي" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
+                <input type="text" id="custLandmark" placeholder="أقرب نقطة دالة (مثال: قرب جامع ...)" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none">
+                
+                <button type="submit" class="btn-akkad w-full py-4 rounded-xl text-sm font-bold">إرسال الطلب عبر واتساب</button>
                 <button type="button" onclick="closeModal('quickOrderModal')" class="w-full text-xs opacity-50 py-2">إلغاء</button>
             </form>
+        </div>
+    </div>
+
+    <div id="videoModal" class="modal" onclick="closeVideo()">
+        <div class="relative w-full max-w-3xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+            <iframe id="vFrame" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -179,118 +205,5 @@
         let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '';
         let selectedProduct = null;
 
-        // 1. نظام الخلفية المسمارية
-        const cuneiformChars = ['𒀀', '𒀁', '𒀂', '𒀃', '𒀄', '𒀅', '𒀆', '𒀇', '𒀈', '𒀉', '𒀊', '𒀋', '𒀌'];
-        function createCuneiform() {
-            const container = document.getElementById('cuneiform-background');
-            const char = document.createElement('div');
-            char.className = 'cuneiform-char';
-            char.textContent = cuneiformChars[Math.floor(Math.random() * cuneiformChars.length)];
-            
-            const size = Math.random() * 25 + 15;
-            char.style.fontSize = `${size}px`;
-            char.style.left = `${Math.random() * 100}%`;
-            char.style.animationDuration = `${Math.random() * 15 + 10}s`;
-            char.style.animationDelay = `${Math.random() * 5}s`;
-
-            container.appendChild(char);
-            setTimeout(() => char.remove(), 20000);
-        }
-        setInterval(createCuneiform, 600);
-
-        // 2. تحميل البيانات
-        async function loadStore() {
-            const [pSnap, cSnap] = await Promise.all([
-                db.ref('products').once('value'),
-                db.ref('categories').once('value')
-            ]);
-            allProducts = Object.entries(pSnap.val() || {}).map(([id, data]) => ({id, ...data}));
-            categories = cSnap.val() || {};
-            renderCategories();
-            renderProducts();
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function renderCategories() {
-            const nav = document.getElementById('categories-nav');
-            let html = `<button onclick="filterCat('all')" class="px-6 py-2 rounded-full border border-white/10 text-xs whitespace-nowrap active">الكل</button>`;
-            for(let id in categories) {
-                html += `<button onclick="filterCat('${id}')" class="px-6 py-2 rounded-full border border-white/10 text-xs whitespace-nowrap">${categories[id]}</button>`;
-            }
-            nav.innerHTML = html;
-        }
-
-        function filterCat(id) {
-            currentCategory = id;
-            renderProducts();
-        }
-
-        function searchProducts() {
-            currentSearch = document.getElementById('searchInput').value.toLowerCase();
-            renderProducts();
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('products-grid');
-            const filtered = allProducts.filter(p => {
-                const matchCat = currentCategory === 'all' || p.category === currentCategory;
-                const matchSearch = p.name.toLowerCase().includes(currentSearch);
-                return matchCat && matchSearch;
-            });
-
-            if(filtered.length === 0) {
-                grid.classList.add('hidden');
-                document.getElementById('no-results').classList.remove('hidden');
-            } else {
-                grid.classList.remove('hidden');
-                document.getElementById('no-results').classList.add('hidden');
-                grid.innerHTML = filtered.map(p => `
-                    <div class="akkad-card">
-                        <div class="product-media-container">
-                            <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300'">
-                        </div>
-                        <div class="p-3">
-                            <h3 class="text-[11px] font-bold h-8 overflow-hidden mb-1">${p.name}</h3>
-                            <div class="text-[var(--akkad-gold)] text-sm font-black mb-3">${Number(p.price).toLocaleString()} د.ع</div>
-                            <div class="flex flex-col gap-2">
-                                <button onclick="openOrder('${p.id}')" class="btn-akkad w-full py-2 rounded-lg text-[10px]">شراء الآن</button>
-                                <button onclick="showDetails('${p.id}')" class="btn-specs w-full py-2 rounded-lg text-[10px] flex items-center justify-center gap-2">
-                                    <i class="fas fa-list-ul"></i> المواصفات
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function showDetails(id) {
-            const p = allProducts.find(x => x.id === id);
-            document.getElementById('modalTitle').innerText = p.name;
-            document.getElementById('modalDesc').innerText = p.desc || 'المواصفات غير متوفرة لهذا المنتج حالياً.';
-            document.getElementById('descModal').style.display = 'flex';
-        }
-
-        function openOrder(id) {
-            selectedProduct = allProducts.find(x => x.id === id);
-            document.getElementById('quickOrderModal').style.display = 'flex';
-        }
-
-        document.getElementById('quickOrderForm').onsubmit = function(e) {
-            e.preventDefault();
-            const msg = `*طلب شراء من متجر أَكَّد*%0A------------------%0A*المنتج:* ${selectedProduct.name}%0A*الاسم:* ${document.getElementById('custName').value}%0A*المحافظة:* ${document.getElementById('custGov').value}%0A*الهاتف:* ${document.getElementById('custPhone').value}`;
-            window.open(`https://wa.me/9647730492020?text=${msg}`);
-            closeModal('quickOrderModal');
-        };
-
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function shareStore() {
-            const url = window.location.href;
-            if (navigator.share) navigator.share({ title: 'أكاد', url });
-            else { navigator.clipboard.writeText(url); alert("تم نسخ الرابط"); }
-        }
-
-        loadStore();
-    </script>
-</body>
-</html>
+        // 1. نظام الخلفية المسمارية (إعادة تفعيل وتصحيح)
+        const cuneiformChars =
