@@ -43,71 +43,38 @@
             100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
         }
 
-        /* --- تكبير شريط المنتجات المتحرك (الماركي) --- */
+        /* شريط المنتجات المتحرك (الماركي المكبّر) */
         #marquee-container {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 20px 0; 
-            overflow: hidden; 
-            margin-bottom: 30px;
+            padding: 20px 0; overflow: hidden; margin-bottom: 30px;
         }
         .marquee-track {
             display: flex; gap: 30px; width: max-content;
             animation: scroll 40s linear infinite;
         }
-        @keyframes scroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(50%); }
-        }
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(50%); } }
         .marquee-item {
-            width: 220px; /* تكبير العرض */
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 220px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .marquee-item img {
-            width: 60px; height: 60px; /* تكبير الصورة في الشريط */
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid var(--akkad-gold);
-        }
-        .marquee-item span {
-            font-size: 11px;
-            font-weight: bold;
-            color: #fff;
-        }
+        .marquee-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--akkad-gold); }
+        .marquee-item span { font-size: 11px; font-weight: bold; color: #fff; }
 
         /* بطاقة المنتج */
         .akkad-card { 
             background: rgba(20, 26, 31, 0.8); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(212, 175, 55, 0.15); 
-            border-radius: 1rem; transition: 0.4s; overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.15); border-radius: 1rem; transition: 0.4s; overflow: hidden;
         }
         .akkad-card:hover { border-color: var(--akkad-gold); transform: translateY(-5px); }
-
         .media-box { height: 160px; position: relative; overflow: hidden; cursor: pointer; }
         .media-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .video-icon {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: 0.3s;
-        }
+        .video-icon { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
         .media-box:hover .video-icon { opacity: 1; }
-
         .btn-akkad { background: linear-gradient(135deg, var(--akkad-gold), #b8942e); color: #0a0f12; font-weight: 800; }
 
-        .modal {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.95); z-index: 1000;
-            align-items: center; justify-content: center; backdrop-filter: blur(10px);
-        }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -122,7 +89,14 @@
                     <img src="https://www.raed.net/img?id=1539063" class="w-10 h-10 rounded-full border border-[var(--akkad-gold)]">
                     <span class="text-xl font-black text-[var(--akkad-gold)]">أَكَّد</span>
                 </div>
-                <a href="https://wa.me/9647730492020" class="text-[#25D366] text-2xl"><i class="fab fa-whatsapp"></i></a>
+                <div class="flex gap-2">
+                    <button onclick="shareApp()" class="bg-white/10 w-10 h-10 rounded-lg flex items-center justify-center text-white border border-white/10 hover:bg-white/20 transition">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <a href="https://wa.me/9647730492020" class="bg-[#25D366] w-10 h-10 rounded-lg flex items-center justify-center text-white text-xl">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
             </div>
             <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-center outline-none focus:border-[var(--akkad-gold)]" placeholder="ابحث في المتجر...">
             <div id="categories-nav" class="flex gap-2 mt-3 overflow-x-auto no-scrollbar text-[10px]"></div>
@@ -130,21 +104,15 @@
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <div id="marquee-container" class="hidden">
-            <div class="marquee-track" id="marquee-track"></div>
-        </div>
-        
-        <div id="loading" class="text-center py-20">
-            <div class="w-10 h-10 border-2 border-[var(--akkad-gold)] border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
-
+        <div id="marquee-container" class="hidden"><div class="marquee-track" id="marquee-track"></div></div>
+        <div id="loading" class="text-center py-20"><div class="w-10 h-10 border-2 border-[var(--akkad-gold)] border-t-transparent rounded-full animate-spin mx-auto"></div></div>
         <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
     </main>
 
     <div id="descModal" class="modal" onclick="this.style.display='none'">
         <div class="bg-[#141a1f] p-6 rounded-2xl max-w-md w-[90%]" onclick="event.stopPropagation()">
             <h2 id="modalTitle" class="text-lg font-bold text-[var(--akkad-gold)] mb-4"></h2>
-            <div id="modalDesc" class="text-xs opacity-80 leading-relaxed mb-6 whitespace-pre-line"></div>
+            <div id="modalDesc" class="text-xs opacity-80 leading-relaxed mb-6 whitespace-pre-line overflow-y-auto max-h-[60vh] no-scrollbar"></div>
             <button onclick="document.getElementById('descModal').style.display='none'" class="w-full bg-white/10 py-2 rounded-lg">إغلاق</button>
         </div>
     </div>
@@ -155,7 +123,7 @@
             <form id="quickOrderForm" class="space-y-3">
                 <input type="text" id="custName" placeholder="الاسم الكامل" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none" required>
                 <div class="grid grid-cols-2 gap-2">
-                    <select id="custGov" class="bg-black border border-white/10 p-3 rounded-xl text-xs outline-none" required>
+                    <select id="custGov" class="bg-black border border-white/10 p-3 rounded-xl text-xs outline-none text-white" required>
                         <option value="">المحافظة</option>
                         <option>بغداد</option><option>بصرة</option><option>نينوى</option><option>أربيل</option><option>بابل</option><option>النجف</option><option>كربلاء</option><option>ذي قار</option><option>ديالى</option><option>أنبار</option><option>كركوك</option><option>صلاح الدين</option><option>ميسان</option><option>واسط</option><option>مثنى</option><option>قادسية</option><option>سليمانية</option><option>دهوك</option>
                     </select>
@@ -192,7 +160,7 @@
         let selectedProduct = null;
 
         // الخلفية المسمارية
-        const cuneiformChars = ['𒀀', '𒀁', '𒀂', '𒀃', '𒀄', '𒀅', '𒀆', '𒀇'];
+        const cuneiformChars = ['𒀀', '𒀁', '𒀂', '𒀃', '𒀄', '𒀅', '𒀆', 'يد'];
         function createCuneiform() {
             const container = document.getElementById('cuneiform-background');
             const char = document.createElement('div');
@@ -284,6 +252,19 @@
             document.getElementById('modalTitle').innerText = p.name;
             document.getElementById('modalDesc').innerText = p.desc || 'لا توجد مواصفات';
             document.getElementById('descModal').style.display = 'flex';
+        }
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'متجر أَكَّد',
+                    text: 'اكتشف أرقى المنتجات في متجر أَكَّد الرقمي 🏺',
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('تم نسخ رابط المتجر بنجاح!');
+            }
         }
 
         function openOrder(id) { selectedProduct = allProducts.find(x => x.id === id); document.getElementById('quickOrderModal').style.display = 'flex'; }
