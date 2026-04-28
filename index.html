@@ -38,13 +38,11 @@
             100% { transform: scale(1.05); }
         }
         
-        /* شريط ذهبي */
         .gold-border-bottom {
             border-bottom: 2px solid #d4af37;
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
-        /* بطاقات المنتجات */
         .product-card {
             background: rgba(20, 26, 31, 0.85);
             backdrop-filter: blur(12px);
@@ -120,7 +118,6 @@
             z-index: 2;
         }
         
-        /* أزرار */
         .btn-gold {
             background: linear-gradient(135deg, #d4af37, #b8942e);
             color: #0a0f12;
@@ -147,7 +144,6 @@
             border-color: #d4af37;
         }
         
-        /* أزرار الأقسام */
         .cat-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
@@ -163,11 +159,9 @@
         .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
         .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
         
-        /* سلة التسوق */
         .cart-badge { position: relative; }
         .cart-count { position: absolute; top: -8px; right: -8px; background: #d4af37; color: #0a0f12; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         
-        /* شريط المنتجات المتحرك (أبرز المنتجات) */
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -221,14 +215,12 @@
         .marquee-item .name { font-size: 11px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
         .marquee-item .price { font-size: 10px; color: #d4af37; font-weight: bold; }
         
-        /* مودال التفاصيل المطورة */
         .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
         .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 40px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
         .detail-spec { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-top: 12px; }
         .spec-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
         .spec-label { color: #d4af37; font-weight: 500; }
         
-        /* سلة التسوق الجانبية */
         .cart-sidebar { position: fixed; top: 0; left: -380px; width: 360px; height: 100%; background: #0f1419; z-index: 1100; transition: left 0.3s ease; box-shadow: -5px 0 30px rgba(0,0,0,0.5); border-left: 1px solid rgba(212, 175, 55, 0.3); display: flex; flex-direction: column; }
         .cart-sidebar.open { left: 0; }
         .cart-header { padding: 20px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); display: flex; justify-content: space-between; align-items: center; }
@@ -261,18 +253,19 @@
 <body>
     <div class="bg-pattern"></div>
 
-    <!-- الهيدر -->
+    <!-- الهيدر مع اللوجو الجديد -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-3">
-                    <!-- تم إصلاح الشعار -->
-                    <img src="https://www.raed.net/img?id=1539063" alt="شعار أكاد" class="w-11 h-11 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23d4af37%22/%3E%3Ctext x=%2250%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23000%22 font-size=%2235%22 font-weight=%22bold%22%3Eأ%3C/text%3E%3C/svg%3E'">
-                    <div>
-                        <div class="text-xl font-black text-[#d4af37] tracking-wide">أَكَّد</div>
-                        <div class="text-[9px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
+                <!-- اللوجو الجديد - تم دمج الرابط المباشر -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload();">
+                    <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-12 h-12 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg">
+                    <div class="hidden sm:block">
+                        <div class="text-sm font-bold text-[#d4af37] tracking-wide">أَكَّد</div>
+                        <div class="text-[8px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
                     </div>
                 </div>
+                
                 <div class="flex gap-2">
                     <button onclick="toggleCart()" class="cart-badge w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center justify-center">
                         <i class="fas fa-shopping-cart"></i>
@@ -295,7 +288,7 @@
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <!-- شريط أبرز المنتجات (متحرك) -->
+        <!-- شريط أبرز المنتجات -->
         <div id="marqueeSection" class="marquee-section hidden">
             <div class="flex justify-between items-center mb-3 px-2">
                 <h3 class="text-sm font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
@@ -304,7 +297,7 @@
             <div class="marquee-track" id="marqueeTrack"></div>
         </div>
         
-        <!-- التحميل -->
+        <!-- شاشة التحميل -->
         <div id="loadingScreen" class="text-center py-20">
             <div class="loader"></div>
             <p class="text-white/50 text-sm mt-3">جاري تحميل كنوز بلاد الرافدين...</p>
@@ -320,7 +313,7 @@
         </div>
     </main>
 
-    <!-- مودال التفاصيل المتطور (زر i) -->
+    <!-- مودال التفاصيل -->
     <div id="detailsModal" class="modal" onclick="closeModal('detailsModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
@@ -433,7 +426,7 @@
         
         function updateCartUI() {
             let container = document.getElementById('cartItemsList'), total = 0, itemCount = 0;
-            if(cart.length === 0) container.innerHTML = '<p class="text-center text-white/40 py-8">🛒 سلة التسوق فارغة</p>';
+            if(cart.length === 0) container.innerHTML = '<p class="text-center text-white/40 py-8">سلة التسوق فارغة</p>';
             else {
                 container.innerHTML = cart.map((item, idx) => {
                     total += item.price * item.quantity; itemCount += item.quantity;
@@ -473,7 +466,6 @@
         function filterCategory(key) { currentCategory = key; renderCategories(); renderProducts(); }
         function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
         
-        // عرض المنتجات مع زر i
         function renderProducts() {
             let filtered = allProducts.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (!currentSearch || p.name.toLowerCase().includes(currentSearch)));
             let grid = document.getElementById('productsGrid'), noRes = document.getElementById('noResults');
@@ -500,7 +492,6 @@
         
         function handleMediaClick(id) { let p = allProducts.find(x => x.id === id); if(p?.video) playVideo(p.video); else showDetails(id); }
         
-        // عرض التفاصيل المطورة (مع معلومات إضافية)
         function showDetails(id) {
             let p = allProducts.find(x => x.id === id);
             if(!p) return;
@@ -525,7 +516,6 @@
             document.getElementById('orderModal').style.display = 'flex';
         }
         
-        // شريط أبرز المنتجات (أغلى 12 منتج)
         function renderMarquee() {
             let container = document.getElementById('marqueeSection'), track = document.getElementById('marqueeTrack');
             if(allProducts.length === 0) return;
@@ -540,7 +530,6 @@
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value, gov = document.getElementById('custGov').value, city = document.getElementById('custCity').value, phone = document.getElementById('custPhone').value, addr = document.getElementById('custAddress').value;
