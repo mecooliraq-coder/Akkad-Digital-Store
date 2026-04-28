@@ -43,6 +43,33 @@
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
+        /* أزرار */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #b8942e);
+            color: #0a0f12;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-outline {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+        
         /* بطاقات المنتجات */
         .product-card {
             background: rgba(20, 26, 31, 0.85);
@@ -118,34 +145,7 @@
             gap: 5px;
             z-index: 2;
         }
-        
-        /* أزرار */
-        .btn-gold {
-            background: linear-gradient(135deg, #d4af37, #b8942e);
-            color: #0a0f12;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
-        }
-        
-        .btn-outline {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .btn-outline:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: #d4af37;
-        }
-        
+
         /* أزرار الأقسام */
         .cat-btn {
             background: rgba(255,255,255,0.05);
@@ -241,27 +241,29 @@
 <body>
     <div class="bg-pattern"></div>
 
-    <!-- الهيدر -->
+    <!-- الهيدر - تم تكبير اللوجو واسم المتجر -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center mb-3">
-                <!-- اللوجو -->
-                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload();">
-                    <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-12 h-12 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg">
-                    <div class="hidden sm:block">
-                        <div class="text-sm font-bold text-[#d4af37] tracking-wide">أَكَّد</div>
-                        <div class="text-[8px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
+            <div class="flex justify-between items-center">
+                <!-- قسم اللوجو واسم المتجر - تم تكبير الحجم -->
+                <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.reload();">
+                    <!-- اللوجو: تم تكبير العرض من w-12 إلى w-16 -->
+                    <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-16 h-16 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg transition-transform hover:scale-105">
+                    <div>
+                        <!-- اسم المتجر: تم تكبير الخط من text-sm إلى text-2xl -->
+                        <div class="text-2xl font-black text-[#d4af37] tracking-wide">أَكَّد</div>
+                        <div class="text-[10px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
                     </div>
                 </div>
                 
                 <div class="flex gap-2">
-                    <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition"><i class="fas fa-share-alt"></i></button>
+                    <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center justify-center"><i class="fas fa-share-alt"></i></button>
                     <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center hover:bg-[#128C7E] transition shadow-lg" target="_blank"><i class="fab fa-whatsapp text-lg"></i></a>
                 </div>
             </div>
             
             <!-- شريط البحث -->
-            <div class="relative">
+            <div class="relative mt-4">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 outline-none focus:border-[#d4af37] transition" placeholder="🔍 ابحث عن منتج...">
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
@@ -312,7 +314,7 @@
         </div>
     </div>
 
-    <!-- مودال الطلب السريع (النموذج المطلوب) -->
+    <!-- مودال الطلب السريع -->
     <div id="orderModal" class="modal" onclick="closeModal('orderModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
