@@ -162,21 +162,23 @@
         .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
         .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
         
-        /* شريط المنتجات المتحرك */
+        /* ======================================== */
+        /* شريط المنتجات المتحرك - النسخة المكبرة */
+        /* ======================================== */
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 15px 0;
+            padding: 20px 0;
             overflow: hidden;
             margin: 20px 0 30px;
         }
         
         .marquee-track {
             display: flex;
-            gap: 25px;
+            gap: 30px;
             width: max-content;
-            animation: scrollMarquee 35s linear infinite;
+            animation: scrollMarquee 40s linear infinite;
         }
         
         .marquee-section:hover .marquee-track { animation-play-state: paused; }
@@ -186,35 +188,55 @@
             to { transform: translateX(-50%); }
         }
         
+        /* عنصر المنتج في الشريط - تم تكبيره */
         .marquee-item {
-            width: 210px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 8px 12px;
+            width: 280px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(4px);
+            border-radius: 16px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
         
         .marquee-item:hover {
             border-color: #d4af37;
-            background: rgba(212, 175, 55, 0.1);
-            transform: translateY(-3px);
+            background: rgba(212, 175, 55, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
         
+        /* صورة المنتج في الشريط - أكبر */
         .marquee-item img {
-            width: 55px;
-            height: 55px;
-            border-radius: 10px;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
             object-fit: cover;
+            border: 1px solid rgba(212, 175, 55, 0.4);
         }
         
+        /* معلومات المنتج */
         .marquee-item .info { flex: 1; }
-        .marquee-item .name { font-size: 11px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
-        .marquee-item .price { font-size: 10px; color: #d4af37; font-weight: bold; }
+        .marquee-item .name { 
+            font-size: 14px; 
+            font-weight: 700; 
+            line-height: 1.4; 
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .marquee-item .price { 
+            font-size: 13px; 
+            color: #d4af37; 
+            font-weight: bold;
+        }
+        /* ======================================== */
         
         /* مودال التفاصيل */
         .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
@@ -241,58 +263,49 @@
 <body>
     <div class="bg-pattern"></div>
 
-    <!-- الهيدر - تم تكبير اللوجو واسم المتجر -->
+    <!-- الهيدر -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
-                <!-- قسم اللوجو واسم المتجر - تم تكبير الحجم -->
                 <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.reload();">
-                    <!-- اللوجو: تم تكبير العرض من w-12 إلى w-16 -->
                     <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-16 h-16 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg transition-transform hover:scale-105">
                     <div>
-                        <!-- اسم المتجر: تم تكبير الخط من text-sm إلى text-2xl -->
                         <div class="text-2xl font-black text-[#d4af37] tracking-wide">أَكَّد</div>
                         <div class="text-[10px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
                     </div>
                 </div>
-                
                 <div class="flex gap-2">
                     <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center justify-center"><i class="fas fa-share-alt"></i></button>
                     <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center hover:bg-[#128C7E] transition shadow-lg" target="_blank"><i class="fab fa-whatsapp text-lg"></i></a>
                 </div>
             </div>
             
-            <!-- شريط البحث -->
             <div class="relative mt-4">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 outline-none focus:border-[#d4af37] transition" placeholder="🔍 ابحث عن منتج...">
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <!-- الأقسام -->
             <div id="categoriesContainer" class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2"></div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <!-- شريط أبرز المنتجات -->
+        <!-- شريط أبرز المنتجات - تم تكبيره -->
         <div id="marqueeSection" class="marquee-section hidden">
-            <div class="flex justify-between items-center mb-3 px-2">
-                <h3 class="text-sm font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
-                <span class="text-[10px] text-white/30">اسحب للمزيد ←</span>
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h3 class="text-base font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
+                <span class="text-[11px] text-white/30">اسحب للمزيد ←</span>
             </div>
             <div class="marquee-track" id="marqueeTrack"></div>
         </div>
         
-        <!-- شاشة التحميل -->
         <div id="loadingScreen" class="text-center py-20">
             <div class="loader"></div>
             <p class="text-white/50 text-sm mt-3">جاري تحميل كنوز بلاد الرافدين...</p>
         </div>
         
-        <!-- شبكة المنتجات -->
         <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
         
-        <!-- لا توجد نتائج -->
         <div id="noResults" class="hidden text-center py-20">
             <i class="fas fa-search text-5xl text-white/20 mb-4"></i>
             <p class="text-white/40">لا توجد منتجات مطابقة للبحث</p>
@@ -383,7 +396,6 @@
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
         function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('⚠️ رابط الفيديو غير صالح', true); }
         
-        // تحميل البيانات
         async function loadData() {
             try {
                 let [catsSnap, prodsSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
@@ -450,7 +462,6 @@
             selectedProduct = allProducts.find(x => x.id === id);
             if(!selectedProduct) return;
             document.getElementById('orderProductInfo').innerHTML = `<div class="flex justify-between"><span>${escapeHtml(selectedProduct.name)}</span><span class="text-[#d4af37]">${Number(selectedProduct.price).toLocaleString()} د.ع</span></div>`;
-            // تفريغ الحقول
             document.getElementById('custName').value = '';
             document.getElementById('custGov').value = '';
             document.getElementById('custCity').value = '';
@@ -466,14 +477,16 @@
             let items = topProducts.map(p => `
                 <div class="marquee-item" onclick="showDetails('${p.id}')">
                     <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}">
-                    <div class="info"><div class="name">${escapeHtml(p.name.substring(0, 25))}...</div><div class="price">${Number(p.price).toLocaleString()} د.ع</div></div>
+                    <div class="info">
+                        <div class="name">${escapeHtml(p.name)}</div>
+                        <div class="price">${Number(p.price).toLocaleString()} د.ع</div>
+                    </div>
                 </div>
             `).join('');
             track.innerHTML = items + items;
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
