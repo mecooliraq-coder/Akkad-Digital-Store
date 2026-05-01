@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <!-- مكتبة SortableJS لسحب الأقسام -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
@@ -21,7 +23,6 @@
             overflow-x: hidden;
         }
         
-        /* خلفية متحركة */
         .bg-pattern {
             position: fixed;
             inset: 0;
@@ -43,7 +44,6 @@
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
-        /* أزرار */
         .btn-gold {
             background: linear-gradient(135deg, #d4af37, #b8942e);
             color: #0a0f12;
@@ -70,7 +70,6 @@
             border-color: #d4af37;
         }
         
-        /* بطاقات المنتجات */
         .product-card {
             background: rgba(20, 26, 31, 0.85);
             backdrop-filter: blur(12px);
@@ -146,7 +145,37 @@
             z-index: 2;
         }
 
-        /* أزرار الأقسام */
+        /* ======================================== */
+        /* أزرار الأقسام - قابلة للسحب */
+        /* ======================================== */
+        .categories-wrapper {
+            position: relative;
+            margin-top: 1rem;
+            padding: 0.5rem 0;
+        }
+        
+        .categories-scroll {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .categories-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 10px;
+        }
+        
         .cat-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
@@ -157,14 +186,54 @@
             transition: all 0.3s ease;
             cursor: pointer;
             white-space: nowrap;
+            user-select: none;
         }
         
-        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
-        .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
+        .cat-btn.active {
+            background: #d4af37;
+            color: #0a0f12;
+            border-color: #d4af37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        .cat-btn:hover:not(.active) {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #d4af37;
+        }
+        
+        /* تأثير السحب */
+        .cat-btn.dragging {
+            opacity: 0.4;
+            cursor: grabbing;
+        }
+        
+        .drag-placeholder {
+            background: rgba(212, 175, 55, 0.3);
+            border: 2px dashed #d4af37;
+            border-radius: 40px;
+            width: 80px;
+        }
+        
+        /* زر حفظ الترتيب */
+        .save-order-btn {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .save-order-btn:hover {
+            background: #d4af37;
+            color: #0a0f12;
+        }
         
         /* ======================================== */
-        /* شريط المنتجات المتحرك - النسخة المكبرة */
-        /* ======================================== */
+        
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -188,7 +257,6 @@
             to { transform: translateX(-50%); }
         }
         
-        /* عنصر المنتج في الشريط - تم تكبيره */
         .marquee-item {
             width: 280px;
             background: rgba(255,255,255,0.06);
@@ -210,7 +278,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
         
-        /* صورة المنتج في الشريط - أكبر */
         .marquee-item img {
             width: 80px;
             height: 80px;
@@ -219,7 +286,6 @@
             border: 1px solid rgba(212, 175, 55, 0.4);
         }
         
-        /* معلومات المنتج */
         .marquee-item .info { flex: 1; }
         .marquee-item .name { 
             font-size: 14px; 
@@ -236,9 +302,7 @@
             color: #d4af37; 
             font-weight: bold;
         }
-        /* ======================================== */
         
-        /* مودال التفاصيل */
         .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
         .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 40px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
         .detail-spec { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-top: 12px; }
@@ -258,6 +322,29 @@
         .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        /* مؤقت حفظ الترتيب */
+        .saving-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #d4af37;
+            color: #0a0f12;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 9999;
+            display: none;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
     </style>
 </head>
 <body>
@@ -285,12 +372,18 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <div id="categoriesContainer" class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2"></div>
+            <!-- الأقسام - قابلة للسحب -->
+            <div class="categories-wrapper">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[11px] text-white/40"><i class="fas fa-arrows-alt ml-1"></i> اسحب الأقسام لترتيبها</span>
+                    <button id="saveOrderBtn" class="save-order-btn" onclick="saveCategoriesOrder()"><i class="fas fa-save ml-1"></i> حفظ الترتيب</button>
+                </div>
+                <div id="categoriesContainer" class="categories-scroll"></div>
+            </div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <!-- شريط أبرز المنتجات - تم تكبيره -->
         <div id="marqueeSection" class="marquee-section hidden">
             <div class="flex justify-between items-center mb-4 px-2">
                 <h3 class="text-base font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
@@ -360,6 +453,9 @@
             <iframe id="videoFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
+    
+    <!-- مؤقت حفظ الترتيب -->
+    <div id="savingIndicator" class="saving-indicator">💾 جاري حفظ الترتيب...</div>
 
     <script>
         // ========================================
@@ -379,7 +475,12 @@
         const db = firebase.database();
         
         let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
+        let categoryKeysList = []; // قائمة بترتيب مفاتيح الأقسام
+        let sortableInstance = null;
         
+        // ========================================
+        // دوال مساعدة
+        // ========================================
         function showToast(msg, isError = false) {
             let toast = document.createElement('div');
             toast.className = `toast ${isError ? 'error' : ''}`;
@@ -388,7 +489,19 @@
             setTimeout(() => toast.remove(), 3000);
         }
         
-        function shareStore() { if(navigator.share) navigator.share({ title: 'متجر أكاد', text: 'اكتشف كنوز بلاد الرافدين الرقمية', url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } }
+        function showSavingIndicator() {
+            let indicator = document.getElementById('savingIndicator');
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 2000);
+        }
+        
+        function shareStore() { 
+            if(navigator.share) navigator.share({ title: 'متجر أكاد', text: 'اكتشف كنوز بلاد الرافدين الرقمية', url: window.location.href }); 
+            else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } 
+        }
+        
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function closeVideo() { document.getElementById('videoModal').style.display = 'none'; document.getElementById('videoFrame').src = ''; }
         function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
@@ -396,29 +509,147 @@
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
         function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('⚠️ رابط الفيديو غير صالح', true); }
         
+        // ========================================
+        // تحميل البيانات
+        // ========================================
         async function loadData() {
             try {
-                let [catsSnap, prodsSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
+                let [catsSnap, prodsSnap] = await Promise.all([
+                    db.ref('categories').once('value'), 
+                    db.ref('products').once('value')
+                ]);
                 categories = catsSnap.val() || {};
                 allProducts = Object.entries(prodsSnap.val() || {}).map(([id,data])=>({id,...data}));
+                
+                // بناء قائمة مفاتيح الأقسام مرتبة حسب الأرقام في بداية المفتاح
+                categoryKeysList = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
+                
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('productsGrid').classList.remove('hidden');
                 renderCategories();
                 renderProducts();
                 renderMarquee();
-            } catch(e) { showToast('❌ فشل التحميل', true); }
+                initSortable();
+            } catch(e) { 
+                showToast('❌ فشل التحميل', true);
+                console.error(e);
+            }
         }
         
-        function getSortedCategories() { return Object.entries(categories).sort((a,b)=>(parseInt(a[0])||999)-(parseInt(b[0])||999)); }
+        // تهيئة السحب والإفلات
+        function initSortable() {
+            const container = document.getElementById('categoriesContainer');
+            if(sortableInstance) sortableInstance.destroy();
+            
+            sortableInstance = new Sortable(container, {
+                animation: 300,
+                ghostClass: 'dragging',
+                dragClass: 'dragging',
+                handle: '.cat-btn',
+                direction: 'horizontal',
+                onEnd: function() {
+                    // تحديث المفاتيح حسب الترتيب الجديد
+                    const items = container.querySelectorAll('.cat-btn');
+                    const newKeys = [];
+                    items.forEach(item => {
+                        const key = item.getAttribute('data-key');
+                        if(key && key !== 'all') newKeys.push(key);
+                    });
+                    categoryKeysList = ['all', ...newKeys];
+                    
+                    // تحديث ترتيب الأزرار بدون حفظ في قاعدة البيانات (المستخدم سيحفظ يدوياً)
+                    showToast('✨ تم تغيير الترتيب. اضغط "حفظ الترتيب" لتطبيق التغييرات', false);
+                }
+            });
+        }
+        
+        // حفظ ترتيب الأقسام في قاعدة البيانات (للمستخدم)
+        async function saveCategoriesOrder() {
+            // الحصول على الترتيب الحالي من DOM
+            const container = document.getElementById('categoriesContainer');
+            const items = container.querySelectorAll('.cat-btn');
+            const newOrder = [];
+            items.forEach(item => {
+                const key = item.getAttribute('data-key');
+                if(key && key !== 'all') newOrder.push(key);
+            });
+            
+            if(newOrder.length === 0) {
+                showToast('⚠️ لا توجد أقسام لحفظ الترتيب', true);
+                return;
+            }
+            
+            showSavingIndicator();
+            
+            // إعادة ترقيم الأقسام حسب الترتيب الجديد
+            let updates = {};
+            newOrder.forEach((oldKey, index) => {
+                const newNumber = index + 1;
+                const originalName = categories[oldKey].replace(/^\d+_/, '');
+                const newKey = `${newNumber}_${originalName.replace(/\s+/g, '_')}`;
+                if(oldKey !== newKey) {
+                    updates[`categories/${newKey}`] = originalName;
+                    updates[`categories/${oldKey}`] = null;
+                }
+            });
+            
+            if(Object.keys(updates).length === 0) {
+                showToast('⚠️ الترتيب لم يتغير', true);
+                return;
+            }
+            
+            try {
+                await db.ref().update(updates);
+                showToast('✅ تم حفظ ترتيب الأقسام بنجاح!');
+                // إعادة تحميل البيانات
+                let catsSnap = await db.ref('categories').once('value');
+                categories = catsSnap.val() || {};
+                categoryKeysList = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
+                renderCategories();
+                initSortable();
+            } catch(e) {
+                showToast('❌ فشل حفظ الترتيب: ' + e.message, true);
+                console.error(e);
+            }
+        }
+        
+        // عرض الأقسام مع إمكانية السحب
         function renderCategories() {
-            let container = document.getElementById('categoriesContainer');
-            let sorted = getSortedCategories();
-            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
-            sorted.forEach(([key, name]) => { html += `<button onclick="filterCategory('${key}')" class="cat-btn ${currentCategory === key ? 'active' : ''}">📁 ${escapeHtml(name.replace(/^\d+_/, ''))}</button>`; });
+            const container = document.getElementById('categoriesContainer');
+            
+            // ترتيب الأقسام حسب الأرقام في بداية المفتاح
+            let sortedKeys = [...categoryKeysList];
+            if(sortedKeys.length === 0) {
+                sortedKeys = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
+            }
+            
+            // إزالة 'all' من القائمة إذا كانت موجودة
+            sortedKeys = sortedKeys.filter(k => k !== 'all');
+            
+            let html = `<button onclick="filterCategory('all')" data-key="all" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
+            
+            sortedKeys.forEach(key => {
+                if(categories[key]) {
+                    let displayName = categories[key].replace(/^\d+_/, '');
+                    html += `<button onclick="filterCategory('${key}')" data-key="${key}" class="cat-btn ${currentCategory === key ? 'active' : ''}">📁 ${escapeHtml(displayName)}</button>`;
+                }
+            });
+            
             container.innerHTML = html;
         }
-        function filterCategory(key) { currentCategory = key; renderCategories(); renderProducts(); }
-        function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
+        
+        function filterCategory(key) { 
+            currentCategory = key; 
+            renderCategories(); 
+            renderProducts();
+            // إعادة تهيئة السحب بعد إعادة التصيير
+            initSortable();
+        }
+        
+        function searchProducts() { 
+            currentSearch = document.getElementById('searchInput').value.toLowerCase(); 
+            renderProducts(); 
+        }
         
         function renderProducts() {
             let filtered = allProducts.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (!currentSearch || p.name.toLowerCase().includes(currentSearch)));
@@ -487,6 +718,7 @@
             container.classList.remove('hidden');
         }
         
+        // إرسال الطلب
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
@@ -535,6 +767,9 @@
                 showToast('❌ فشل إرسال الطلب، حاول مرة أخرى', true);
             }
         });
+        
+        // جعل دالة saveCategoriesOrder عامة
+        window.saveCategoriesOrder = saveCategoriesOrder;
         
         loadData();
         setInterval(() => { loadData(); }, 30000);
