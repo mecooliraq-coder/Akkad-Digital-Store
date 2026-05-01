@@ -207,7 +207,7 @@
             updateProductCount(filtered.length);
             if(filtered.length === 0) { grid.classList.add('hidden'); noRes.classList.remove('hidden'); return; }
             grid.classList.remove('hidden'); noRes.classList.add('hidden');
-            grid.innerHTML = filtered.map(p => `<div class="product-card"><div class="media-box" onclick="handleMediaClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}">${p.video ? `<div class="video-badge"><i class="fas fa-video"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-white text-4xl"></i></div>` : ''}</div><div class="p-4"><h3 class="font-bold text-sm line-clamp-2 mb-1">${escapeHtml(p.name)}</h3>${displayRating(p.id, true)}<div class="text-[#d4af37] font-bold text-lg mb-2">${escapeHtml(p.price)}</div><div class="flex gap-2"><button onclick="openOrderModal('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i> طلب</button><button onclick="showDetails('${p.id}')" class="btn-outline py-2 rounded-lg text-sm w-10"><i class="fas fa-info"></i></button><button onclick="shareProduct('${p.id}')" class="btn-outline py-2 rounded-lg text-sm w-10"><i class="fas fa-share-alt"></i></button></div></div></div>`).join('');
+            grid.innerHTML = filtered.map(p => `<div class="product-card"><div class="media-box" onclick="handleMediaClick('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}">${p.video ? `<div class="video-badge"><i class="fas fa-video"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-white text-4xl"></i></div>` : ''}</div><div class="p-4"><h3 class="font-bold text-sm line-clamp-2 mb-1">${escapeHtml(p.name)}</h3>${displayRating(p.id, true)}<div class="text-[#d4af37] font-bold text-lg mb-2">${escapeHtml(p.price)}</div><div class="flex gap-2"><button onclick="openOrderModal('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button><button onclick="showDetails('${p.id}')" class="btn-outline flex-1 py-2 rounded-lg text-sm">المواصفات</button></div></div></div>`).join('');
         }
 
         function handleMediaClick(id) { let p = allProducts.find(x => x.id === id); if(p?.video) playVideo(p.video); else showDetails(id); }
@@ -217,7 +217,7 @@
         function renderMarquee() { let container = document.getElementById('marqueeSection'), track = document.getElementById('marqueeTrack'); if(allProducts.length === 0) return; let items = allProducts.slice(0,12).map(p => `<div class="marquee-item" onclick="showDetails('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}"><div class="info"><div class="name">${escapeHtml(p.name)}</div><div class="price">${escapeHtml(p.price)}</div></div></div>`).join(''); track.innerHTML = items + items; container.classList.remove('hidden'); }
         
         // ========================================
-        // إرسال الطلب - الفورم الجميلة مع الإطارات
+        // إرسال الطلب - بالشكل الذي تريده مع الرموز التعبيرية
         // ========================================
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
@@ -250,21 +250,20 @@
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 
-                // ========================================
-                // تنسيق رسالة الواتساب بشكل أنيق مع إطارات
-                // ========================================
+                // ✅ الرسالة بالشكل الذي طلبته بالضبط
                 let msg = "";
-                msg += "🛒 *طلب جديد - متجر أكاد الرقمي*\n";
-                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-                msg += `👤 *الاسم:* ${name}\n`;
-                msg += `📍 *العنوان:* ${governorate} - ${city}\n`;
-                if(landmark) msg += `📌 *نقطة دالة:* ${landmark}\n`;
-                msg += `📱 *موبايل:* ${phone}\n`;
-                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-                msg += `📦 *المنتج:* ${selectedProduct.name}\n`;
-                msg += `💰 *السعر:* ${selectedProduct.price}\n`;
-                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-                msg += `🕐 ${new Date().toLocaleString('ar-IQ')}`;
+                msg += "🛒 طلب جديد - متجر أكاد الرقمي\n";
+                msg += "━━━━━━━━━━━━━━\n";
+                msg += "👤 الاسم: " + name + "\n";
+                msg += "📍 العنوان: " + governorate + " - " + city + "\n";
+                if(landmark) msg += "📌 نقطة دالة: " + landmark + "\n";
+                msg += "📱 موبايل: " + phone + "\n";
+                msg += "━━━━━━━━━━━━━━\n";
+                msg += "📦 المنتج: " + selectedProduct.name + "\n";
+                msg += "💰 السعر: " + selectedProduct.price + "\n";
+                msg += "━━━━━━━━━━━━━━\n";
+                msg += "🕐 " + new Date().toLocaleString('ar-IQ') + "\n";
+                msg += "🏛️ شكراً لتسوقك مع أكاد";
                 
                 let encodedMsg = encodeURIComponent(msg);
                 window.open(`https://wa.me/9647730492020?text=${encodedMsg}`, '_blank');
