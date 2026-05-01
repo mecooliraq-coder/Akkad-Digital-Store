@@ -144,22 +144,22 @@
         }
 
         /* ======================================== */
-        /* شريط الأقسام - مع تمرير أفقي وأزرار */
+        /* شريط الأقسام - مع أزرار جانبية محسنة */
         /* ======================================== */
         .categories-wrapper {
             position: relative;
             margin-top: 1rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
         
         .scroll-btn {
-            width: 32px;
-            height: 32px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.4);
             color: #d4af37;
             display: flex;
             align-items: center;
@@ -167,11 +167,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             flex-shrink: 0;
+            backdrop-filter: blur(4px);
         }
         
         .scroll-btn:hover {
             background: #d4af37;
             color: #0a0f12;
+            transform: scale(1.05);
         }
         
         .categories-scroll {
@@ -181,8 +183,8 @@
             scroll-behavior: smooth;
             white-space: nowrap;
             display: flex;
-            gap: 8px;
-            padding-bottom: 8px;
+            gap: 10px;
+            padding-bottom: 10px;
             scrollbar-width: thin;
             scrollbar-color: #d4af37 #1a1f24;
         }
@@ -204,7 +206,7 @@
         .cat-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
-            padding: 8px 18px;
+            padding: 8px 20px;
             border-radius: 40px;
             font-size: 13px;
             font-weight: 500;
@@ -229,6 +231,9 @@
         }
         /* ======================================== */
         
+        /* ======================================== */
+        /* شريط المنتجات المتحرك - اتجاه عكسي */
+        /* ======================================== */
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -242,15 +247,17 @@
             display: flex;
             gap: 30px;
             width: max-content;
-            animation: scrollMarquee 40s linear infinite;
+            animation: scrollMarqueeReverse 40s linear infinite;
         }
         
         .marquee-section:hover .marquee-track { animation-play-state: paused; }
         
-        @keyframes scrollMarquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
+        /* اتجاه عكسي (من اليسار إلى اليمين) */
+        @keyframes scrollMarqueeReverse {
+            from { transform: translateX(-50%); }
+            to { transform: translateX(0); }
         }
+        /* ======================================== */
         
         .marquee-item {
             width: 280px;
@@ -319,8 +326,12 @@
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         @media (max-width: 768px) {
-            .scroll-btn { width: 28px; height: 28px; }
-            .cat-btn { padding: 6px 12px; font-size: 11px; }
+            .scroll-btn { width: 32px; height: 32px; }
+            .cat-btn { padding: 6px 14px; font-size: 11px; }
+            .marquee-item { width: 240px; }
+            .marquee-item img { width: 60px; height: 60px; }
+            .marquee-item .name { font-size: 12px; }
+            .marquee-item .price { font-size: 11px; }
         }
     </style>
 </head>
@@ -348,7 +359,7 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <!-- شريط الأقسام مع أزرار تمرير -->
+            <!-- شريط الأقسام مع أزرار جانبية محسنة -->
             <div class="categories-wrapper">
                 <button class="scroll-btn" id="scrollLeftBtn" onclick="scrollCategories('left')">
                     <i class="fas fa-chevron-right"></i>
@@ -362,6 +373,7 @@
     </nav>
 
     <main class="container mx-auto px-4 py-6">
+        <!-- شريط أبرز المنتجات - حركة عكسية -->
         <div id="marqueeSection" class="marquee-section hidden">
             <div class="flex justify-between items-center mb-4 px-2">
                 <h3 class="text-base font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
@@ -474,7 +486,7 @@
         // دالة تمرير الأقسام
         window.scrollCategories = function(direction) {
             const container = document.getElementById('categoriesContainer');
-            const scrollAmount = 200;
+            const scrollAmount = 250;
             if(direction === 'left') {
                 container.scrollLeft -= scrollAmount;
             } else {
