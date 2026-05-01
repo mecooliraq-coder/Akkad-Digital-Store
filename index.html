@@ -21,6 +21,7 @@
             overflow-x: hidden;
         }
         
+        /* خلفية متحركة */
         .bg-pattern {
             position: fixed;
             inset: 0;
@@ -42,6 +43,7 @@
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
+        /* الأزرار */
         .btn-gold {
             background: linear-gradient(135deg, #d4af37, #b8942e);
             color: #0a0f12;
@@ -68,6 +70,9 @@
             border-color: #d4af37;
         }
         
+        /* ======================================== */
+        /* بطاقات المنتجات */
+        /* ======================================== */
         .product-card {
             background: rgba(20, 26, 31, 0.85);
             backdrop-filter: blur(12px);
@@ -142,169 +147,119 @@
             gap: 5px;
             z-index: 2;
         }
-
+        
         /* ======================================== */
-        /* شريط الأقسام - مع أزرار جانبية محسنة */
+        /* القائمة الجانبية للأقسام */
         /* ======================================== */
-        .categories-wrapper {
-            position: relative;
-            margin-top: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .sidebar {
+            background: rgba(15, 26, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border-left: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 20px 12px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
         }
         
-        .scroll-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.4);
+        .sidebar-title {
             color: #d4af37;
+            font-weight: bold;
+            font-size: 16px;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            gap: 8px;
+        }
+        
+        .category-sidebar-btn {
+            width: 100%;
+            text-align: right;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             transition: all 0.3s ease;
-            flex-shrink: 0;
-            backdrop-filter: blur(4px);
-        }
-        
-        .scroll-btn:hover {
-            background: #d4af37;
-            color: #0a0f12;
-            transform: scale(1.05);
-        }
-        
-        .categories-scroll {
-            flex: 1;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-behavior: smooth;
-            white-space: nowrap;
-            display: flex;
-            gap: 10px;
-            padding-bottom: 10px;
-            scrollbar-width: thin;
-            scrollbar-color: #d4af37 #1a1f24;
-        }
-        
-        .categories-scroll::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-track {
-            background: #1a1f24;
-            border-radius: 10px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-thumb {
-            background: #d4af37;
-            border-radius: 10px;
-        }
-        
-        .cat-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            padding: 8px 20px;
-            border-radius: 40px;
+            cursor: pointer;
             font-size: 13px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            white-space: nowrap;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
         }
         
-        .cat-btn.active {
+        .category-sidebar-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            transform: translateX(-3px);
+        }
+        
+        .category-sidebar-btn.active {
             background: #d4af37;
             color: #0a0f12;
             border-color: #d4af37;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
         }
         
-        .cat-btn:hover:not(.active) {
-            background: rgba(212, 175, 55, 0.15);
-            border-color: #d4af37;
-        }
         /* ======================================== */
         
-        /* ======================================== */
-        /* شريط المنتجات المتحرك - اتجاه عكسي */
-        /* ======================================== */
+        /* شريط المنتجات المتحرك */
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
             border-top: 1px solid rgba(212, 175, 55, 0.2);
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 20px 0;
+            padding: 15px 0;
             overflow: hidden;
-            margin: 20px 0 30px;
+            margin-bottom: 30px;
         }
         
         .marquee-track {
             display: flex;
-            gap: 30px;
+            gap: 25px;
             width: max-content;
-            animation: scrollMarqueeReverse 40s linear infinite;
+            animation: scrollMarqueeReverse 35s linear infinite;
         }
         
         .marquee-section:hover .marquee-track { animation-play-state: paused; }
         
-        /* اتجاه عكسي (من اليسار إلى اليمين) */
         @keyframes scrollMarqueeReverse {
             from { transform: translateX(-50%); }
             to { transform: translateX(0); }
         }
-        /* ======================================== */
         
         .marquee-item {
-            width: 280px;
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(4px);
-            border-radius: 16px;
-            padding: 12px;
+            width: 240px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 10px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(212, 175, 55, 0.15);
         }
         
         .marquee-item:hover {
             border-color: #d4af37;
-            background: rgba(212, 175, 55, 0.12);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-3px);
         }
         
         .marquee-item img {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
+            width: 65px;
+            height: 65px;
+            border-radius: 10px;
             object-fit: cover;
-            border: 1px solid rgba(212, 175, 55, 0.4);
         }
         
         .marquee-item .info { flex: 1; }
-        .marquee-item .name { 
-            font-size: 14px; 
-            font-weight: 700; 
-            line-height: 1.4; 
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .marquee-item .price { 
-            font-size: 13px; 
-            color: #d4af37; 
-            font-weight: bold;
-        }
+        .marquee-item .name { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+        .marquee-item .price { font-size: 11px; color: #d4af37; font-weight: bold; }
         
+        /* مودال */
         .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
         .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 40px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
         .detail-spec { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-top: 12px; }
@@ -318,7 +273,6 @@
         ::-webkit-scrollbar-track { background: #1a1f24; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; }
@@ -326,26 +280,23 @@
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         @media (max-width: 768px) {
-            .scroll-btn { width: 32px; height: 32px; }
-            .cat-btn { padding: 6px 14px; font-size: 11px; }
-            .marquee-item { width: 240px; }
-            .marquee-item img { width: 60px; height: 60px; }
-            .marquee-item .name { font-size: 12px; }
-            .marquee-item .price { font-size: 11px; }
+            .sidebar { position: relative; top: 0; margin-bottom: 20px; }
+            .category-sidebar-btn { padding: 8px 12px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
 
+    <!-- الهيدر -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-4 cursor-pointer" onclick="window.location.reload();">
-                    <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-16 h-16 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg transition-transform hover:scale-105">
+                    <img src="https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png" alt="شعار أكاد" class="w-14 h-14 rounded-full border-2 border-[#d4af37] object-cover bg-[#1a1108] shadow-lg transition-transform hover:scale-105">
                     <div>
-                        <div class="text-2xl font-black text-[#d4af37] tracking-wide">أَكَّد</div>
-                        <div class="text-[10px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
+                        <div class="text-xl font-black text-[#d4af37] tracking-wide">أَكَّد</div>
+                        <div class="text-[9px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -354,44 +305,49 @@
                 </div>
             </div>
             
+            <!-- شريط البحث -->
             <div class="relative mt-4">
                 <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 outline-none focus:border-[#d4af37] transition" placeholder="🔍 ابحث عن منتج...">
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
-            </div>
-            
-            <!-- شريط الأقسام مع أزرار جانبية محسنة -->
-            <div class="categories-wrapper">
-                <button class="scroll-btn" id="scrollLeftBtn" onclick="scrollCategories('left')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <div id="categoriesContainer" class="categories-scroll"></div>
-                <button class="scroll-btn" id="scrollRightBtn" onclick="scrollCategories('right')">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
             </div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <!-- شريط أبرز المنتجات - حركة عكسية -->
+        <!-- شريط أبرز المنتجات -->
         <div id="marqueeSection" class="marquee-section hidden">
-            <div class="flex justify-between items-center mb-4 px-2">
-                <h3 class="text-base font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
-                <span class="text-[11px] text-white/30">اسحب للمزيد ←</span>
+            <div class="flex justify-between items-center mb-3 px-2">
+                <h3 class="text-sm font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
+                <span class="text-[10px] text-white/30">اسحب للمزيد ←</span>
             </div>
             <div class="marquee-track" id="marqueeTrack"></div>
         </div>
         
-        <div id="loadingScreen" class="text-center py-20">
-            <div class="loader"></div>
-            <p class="text-white/50 text-sm mt-3">جاري تحميل كنوز بلاد الرافدين...</p>
-        </div>
-        
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
-        
-        <div id="noResults" class="hidden text-center py-20">
-            <i class="fas fa-search text-5xl text-white/20 mb-4"></i>
-            <p class="text-white/40">لا توجد منتجات مطابقة للبحث</p>
+        <!-- القسم الرئيسي: جدار جانبي + شبكة منتجات -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- القائمة الجانبية للأقسام -->
+            <div class="md:w-72 w-full">
+                <div class="sidebar">
+                    <div class="sidebar-title">
+                        <i class="fas fa-layer-group"></i>
+                        <span>الأقسام</span>
+                    </div>
+                    <div id="categoriesSidebar" class="space-y-2"></div>
+                </div>
+            </div>
+            
+            <!-- منطقة المنتجات -->
+            <div class="flex-1">
+                <div id="loadingScreen" class="text-center py-20">
+                    <div class="loader"></div>
+                    <p class="text-white/50 text-sm mt-3">جاري تحميل كنوز بلاد الرافدين...</p>
+                </div>
+                <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden"></div>
+                <div id="noResults" class="hidden text-center py-20">
+                    <i class="fas fa-search text-5xl text-white/20 mb-4"></i>
+                    <p class="text-white/40">لا توجد منتجات مطابقة للبحث</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -483,17 +439,6 @@
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
         function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('⚠️ رابط الفيديو غير صالح', true); }
         
-        // دالة تمرير الأقسام
-        window.scrollCategories = function(direction) {
-            const container = document.getElementById('categoriesContainer');
-            const scrollAmount = 250;
-            if(direction === 'left') {
-                container.scrollLeft -= scrollAmount;
-            } else {
-                container.scrollLeft += scrollAmount;
-            }
-        }
-        
         async function loadData() {
             try {
                 const [catsSnap, orderSnap, prodsSnap] = await Promise.all([
@@ -507,7 +452,7 @@
                 
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('productsGrid').classList.remove('hidden');
-                renderCategories();
+                renderSidebarCategories();
                 renderProducts();
                 renderMarquee();
             } catch(e) { 
@@ -527,21 +472,32 @@
             return sorted;
         }
         
-        function renderCategories() {
-            const container = document.getElementById('categoriesContainer');
+        // عرض الأقسام في القائمة الجانبية
+        function renderSidebarCategories() {
+            const container = document.getElementById('categoriesSidebar');
             const sorted = getSortedCategories();
             
-            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
+            let html = `
+                <div onclick="filterCategory('all')" class="category-sidebar-btn ${currentCategory === 'all' ? 'active' : ''}">
+                    <i class="fas fa-home"></i>
+                    <span>الكل</span>
+                </div>
+            `;
             sorted.forEach(cat => {
                 let displayName = cat.name.replace(/^\d+_/, '');
-                html += `<button onclick="filterCategory('${cat.key}')" class="cat-btn ${currentCategory === cat.key ? 'active' : ''}">📁 ${escapeHtml(displayName)}</button>`;
+                html += `
+                    <div onclick="filterCategory('${cat.key}')" class="category-sidebar-btn ${currentCategory === cat.key ? 'active' : ''}">
+                        <i class="fas fa-tag"></i>
+                        <span>${escapeHtml(displayName)}</span>
+                    </div>
+                `;
             });
             container.innerHTML = html;
         }
         
         function filterCategory(key) { 
             currentCategory = key; 
-            renderCategories(); 
+            renderSidebarCategories(); 
             renderProducts(); 
         }
         
@@ -617,7 +573,6 @@
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
@@ -671,7 +626,7 @@
         
         db.ref('categoryOrder').on('value', (snapshot) => {
             categoryOrder = snapshot.val() || [];
-            renderCategories();
+            renderSidebarCategories();
         });
         
         loadData();
