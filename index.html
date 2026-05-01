@@ -42,52 +42,52 @@
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
-        /* تحسين شريط الأقسام */
+        /* شريط الأقسام مع ميزة السحب */
         #categoriesContainer {
-            cursor: grab; /* يتغير شكل المؤشر ليد السحب */
-            user-select: none; /* منع تحديد النص أثناء السحب */
             display: flex;
             gap: 10px;
             overflow-x: auto;
             white-space: nowrap;
             padding-bottom: 10px;
+            cursor: grab;
+            user-select: none;
             scroll-behavior: smooth;
         }
-
-        #categoriesContainer:active {
-            cursor: grabbing;
-        }
+        #categoriesContainer:active { cursor: grabbing; }
+        #categoriesContainer::-webkit-scrollbar { display: none; }
 
         .cat-btn {
-            flex-shrink: 0; /* منع تقلص الأزرار */
+            flex-shrink: 0;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
             padding: 8px 18px;
             border-radius: 40px;
             font-size: 13px;
-            font-weight: 500;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
+        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; }
 
-        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
-        
-        /* باقي التنسيقات الأصلية للمنتجات والمودال */
-        .product-card { background: rgba(20, 26, 31, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 1.25rem; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; position: relative; }
+        /* بطاقات المنتجات */
+        .product-card {
+            background: rgba(20, 26, 31, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 1.25rem;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
         .product-card:hover { transform: translateY(-8px); border-color: #d4af37; }
-        .media-box { height: 180px; position: relative; overflow: hidden; cursor: pointer; }
-        .media-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-        .btn-gold { background: linear-gradient(135deg, #d4af37, #b8942e); color: #0a0f12; font-weight: 700; transition: all 0.3s ease; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
-        .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid rgba(212, 175, 55, 0.4); max-height: 85vh; overflow-y: auto; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
+        .media-box { height: 160px; overflow: hidden; }
+        .media-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .btn-gold { background: linear-gradient(135deg, #d4af37, #b8942e); color: #0a0f12; font-weight: bold; }
+        .btn-outline { border: 1px solid rgba(212, 175, 55, 0.4); color: #d4af37; }
+
+        /* المودال */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-content { background: #141a1f; border-radius: 1.5rem; padding: 20px; width: 90%; max-width: 450px; border: 1px solid #d4af37; }
         
-        .cart-sidebar { position: fixed; top: 0; left: -380px; width: 360px; height: 100%; background: #0f1419; z-index: 1100; transition: left 0.3s ease; border-left: 1px solid rgba(212, 175, 55, 0.3); }
-        .cart-sidebar.open { left: 0; }
-        .cart-count { position: absolute; top: -8px; right: -8px; background: #d4af37; color: #0a0f12; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; }
+        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; z-index: 2000; }
     </style>
 </head>
 <body>
@@ -95,63 +95,44 @@
 
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center mb-3">
-                <div class="logo-container flex items-center gap-3 cursor-pointer" onclick="window.location.reload();">
-                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-[#d4af37] bg-[#0a0f12] flex items-center justify-center">
-                        <svg width="48" height="48" viewBox="0 0 200 200" class="scale-75">
-                            <circle cx="100" cy="100" r="95" fill="#0a0f12" stroke="#d4af37" stroke-width="2"/>
-                            <text x="100" y="70" text-anchor="middle" fill="#d4af37" font-size="22" font-weight="bold">𒀀𒅗𒁺</text>
-                            <text x="100" y="105" text-anchor="middle" fill="#d4af37" font-size="18" font-weight="bold">أَكَّد</text>
-                            <text x="100" y="130" text-anchor="middle" fill="#d4af37" font-size="7" opacity="0.6">AKKAD DIGITAL</text>
-                        </svg>
-                    </div>
-                    <div class="hidden sm:block">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 border-2 border-[#d4af37] rounded-full flex items-center justify-center font-bold text-[#d4af37]">أ</div>
+                    <div>
                         <div class="text-sm font-bold text-[#d4af37]">أَكَّد</div>
-                        <div class="text-[8px] text-white/40">AKKAD DIGITAL STORE</div>
+                        <div class="text-[8px] text-white/40">AKKAD DIGITAL</div>
                     </div>
                 </div>
-                
                 <div class="flex gap-2">
-                    <button onclick="toggleCart()" class="relative w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span id="cartCount" class="cart-count hidden">0</span>
+                    <button onclick="toggleCart()" class="relative w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount" class="absolute -top-2 -right-2 bg-[#d4af37] text-[#0a0f12] text-[10px] w-5 h-5 rounded-full hidden flex items-center justify-center font-bold">0</span>
                     </button>
-                    <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center" target="_blank"><i class="fab fa-whatsapp text-lg"></i></a>
+                    <a href="https://wa.me/9647730492020" class="w-9 h-9 bg-[#25D366] rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
-            
-            <div class="relative mb-4">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white outline-none focus:border-[#d4af37]" placeholder="🔍 ابحث عن منتج...">
-            </div>
-            
-            <!-- حاوية الأقسام المدعومة بالسحب -->
-            <div id="categoriesContainer" class="no-scrollbar"></div>
+            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-white outline-none focus:border-[#d4af37] mb-3" placeholder="🔍 ابحث عن منتج...">
+            <div id="categoriesContainer"></div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <div id="loadingScreen" class="text-center py-20">
-            <div class="loader mx-auto mb-4 border-t-[#d4af37] border-4 w-10 h-10 rounded-full animate-spin"></div>
-            <p class="text-white/50 text-sm">جاري تحميل كنوز بلاد الرافدين...</p>
-        </div>
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
+        <div id="loadingScreen" class="text-center py-20"><div class="w-10 h-10 border-4 border-t-[#d4af37] border-white/10 rounded-full animate-spin mx-auto"></div></div>
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
 
-    <!-- سلة التسوق الجانبية -->
-    <div id="cartSidebar" class="cart-sidebar flex flex-col">
-        <div class="p-4 border-bottom border-white/10 flex justify-between items-center">
-            <h3 class="font-bold text-[#d4af37]">سلة التسوق</h3>
-            <button onclick="toggleCart()" class="text-2xl">&times;</button>
-        </div>
-        <div id="cartItemsList" class="flex-1 overflow-y-auto p-4"></div>
-        <div class="p-4 border-t border-white/10">
-            <div class="flex justify-between mb-4"><span>المجموع:</span><span id="cartTotalAmount">0 د.ع</span></div>
-            <button onclick="checkoutFromCart()" class="btn-gold w-full py-3 rounded-xl">إتمام الطلب</button>
+    <!-- مودال التفاصيل -->
+    <div id="detailsModal" class="modal" onclick="closeModal()">
+        <div class="modal-content text-right" onclick="event.stopPropagation()">
+            <h3 id="mTitle" class="text-lg font-bold text-[#d4af37] mb-2"></h3>
+            <p id="mDesc" class="text-sm text-white/70 mb-4 whitespace-pre-line"></p>
+            <div id="mSpecs" class="bg-white/5 p-3 rounded-lg text-xs space-y-2 mb-4"></div>
+            <button onclick="closeModal()" class="w-full btn-gold py-2 rounded-lg">إغلاق</button>
         </div>
     </div>
 
     <script>
-        // إعدادات Firebase
+        // تكوين Firebase (استخدم بياناتك الحقيقية هنا)
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -164,95 +145,79 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '';
-        let cart = JSON.parse(localStorage.getItem('akkad_cart') || '[]');
+        let allProducts = [], categories = {}, currentCategory = 'all', cart = [];
 
-        // --- ميزة سحب الأقسام بالفأرة (Mouse Drag Scroll) ---
+        // --- تفعيل ميزة السحب لشريط الأقسام ---
         const slider = document.getElementById('categoriesContainer');
-        let isDown = false;
-        let startX;
-        let scrollLeft;
+        let isDown = false, startX, scrollLeft;
 
         slider.addEventListener('mousedown', (e) => {
             isDown = true;
-            slider.classList.add('active');
             startX = e.pageX - slider.offsetLeft;
             scrollLeft = slider.scrollLeft;
         });
-        slider.addEventListener('mouseleave', () => { isDown = false; });
-        slider.addEventListener('mouseup', () => { isDown = false; });
+        slider.addEventListener('mouseleave', () => isDown = false);
+        slider.addEventListener('mouseup', () => isDown = false);
         slider.addEventListener('mousemove', (e) => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2; // سرعة السحب
+            const walk = (x - startX) * 2;
             slider.scrollLeft = scrollLeft - walk;
         });
 
-        // وظائف المتجر
-        async function loadData() {
-            try {
-                let [catsSnap, prodsSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
-                categories = catsSnap.val() || {};
-                allProducts = Object.entries(prodsSnap.val() || {}).map(([id,data])=>({id,...data}));
-                document.getElementById('loadingScreen').style.display = 'none';
-                renderCategories();
-                renderProducts();
-                updateCartUI();
-            } catch(e) { console.error(e); }
+        async function init() {
+            const [cSnap, pSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
+            categories = cSnap.val() || {};
+            allProducts = Object.entries(pSnap.val() || {}).map(([id, d]) => ({id, ...d}));
+            document.getElementById('loadingScreen').style.display = 'none';
+            renderCategories();
+            renderProducts();
         }
 
         function renderCategories() {
-            let container = document.getElementById('categoriesContainer');
-            // الترتيب بناءً على الرقم في الاسم (1_أجهزة، 2_ساعات..)
-            let sorted = Object.entries(categories).sort((a,b) => (parseInt(a[1]) || 99) - (parseInt(b[1]) || 99));
-            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
-            sorted.forEach(([key, name]) => {
-                let displayName = name.includes('_') ? name.split('_')[1] : name;
-                html += `<button onclick="filterCategory('${key}')" class="cat-btn ${currentCategory === key ? 'active' : ''}">📁 ${displayName}</button>`;
+            let html = `<button onclick="setCat('all')" class="cat-btn ${currentCategory==='all'?'active':''}">الكل</button>`;
+            Object.entries(categories).forEach(([key, val]) => {
+                let name = val.includes('_') ? val.split('_')[1] : val;
+                html += `<button onclick="setCat('${key}')" class="cat-btn ${currentCategory===key?'active':''}">${name}</button>`;
             });
-            container.innerHTML = html;
+            slider.innerHTML = html;
         }
 
-        function filterCategory(key) { currentCategory = key; renderCategories(); renderProducts(); }
-        function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
+        function setCat(k) { currentCategory = k; renderCategories(); renderProducts(); }
 
         function renderProducts() {
-            let filtered = allProducts.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (!currentSearch || p.name.toLowerCase().includes(currentSearch)));
-            let grid = document.getElementById('productsGrid');
-            grid.classList.remove('hidden');
-            grid.innerHTML = filtered.map(p => `
-                <div class="product-card p-3">
-                    <div class="media-box rounded-xl mb-3">
-                        <img src="${p.img || ''}" alt="${p.name}">
+            let search = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allProducts.filter(p => (currentCategory==='all' || p.category===currentCategory) && p.name.toLowerCase().includes(search));
+            
+            document.getElementById('productsGrid').innerHTML = filtered.map(p => `
+                <div class="product-card p-2">
+                    <div class="media-box rounded-xl mb-2"><img src="${p.img}"></div>
+                    <h4 class="text-xs font-bold truncate mb-1">${p.name}</h4>
+                    <div class="text-[#d4af37] text-xs font-bold mb-3">${Number(p.price).toLocaleString()} د.ع</div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="openSpecs('${p.id}')" class="btn-outline py-1.5 rounded-lg text-[10px]">المواصفات</button>
+                        <a href="https://wa.me/9647730492020?text=طلب: ${p.name}" class="btn-gold py-1.5 rounded-lg text-[10px] text-center">طلب سريع</a>
                     </div>
-                    <h4 class="text-sm font-bold mb-2 truncate">${p.name}</h4>
-                    <div class="text-[#d4af37] font-bold text-xs mb-3">${Number(p.price).toLocaleString()} د.ع</div>
-                    <button onclick="addToCart({id:'${p.id}', name:'${p.name}', price:${p.price}, img:'${p.img}'})" class="btn-gold w-full py-2 rounded-lg text-[10px]">إضافة للسلة</button>
                 </div>
             `).join('');
         }
 
-        function addToCart(item) {
-            let exist = cart.find(i => i.id === item.id);
-            if(exist) exist.quantity++; else cart.push({...item, quantity: 1});
-            localStorage.setItem('akkad_cart', JSON.stringify(cart));
-            updateCartUI();
-            showToast("تمت الإضافة للسلة");
+        function openSpecs(id) {
+            let p = allProducts.find(x => x.id === id);
+            document.getElementById('mTitle').innerText = p.name;
+            document.getElementById('mDesc').innerText = p.desc || 'لا يوجد وصف';
+            document.getElementById('mSpecs').innerHTML = `
+                <div class="flex justify-between"><span>الرام:</span><span>${p.ram || '-'}</span></div>
+                <div class="flex justify-between"><span>الذاكرة:</span><span>${p.storage || '-'}</span></div>
+            `;
+            document.getElementById('detailsModal').style.display = 'flex';
         }
 
-        function updateCartUI() {
-            let badge = document.getElementById('cartCount');
-            let total = cart.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-            badge.innerText = cart.length;
-            badge.classList.toggle('hidden', cart.length === 0);
-            document.getElementById('cartTotalAmount').innerText = total.toLocaleString() + " د.ع";
-        }
+        function closeModal() { document.getElementById('detailsModal').style.display = 'none'; }
+        function searchProducts() { renderProducts(); }
 
-        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('open'); }
-        function showToast(m) { let t = document.createElement('div'); t.className='toast'; t.innerText=m; document.body.appendChild(t); setTimeout(()=>t.remove(), 2000); }
-
-        window.onload = loadData;
+        window.onload = init;
     </script>
 </body>
 </html>
