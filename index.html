@@ -149,7 +149,7 @@
 
     <div id="detailsModal" class="modal" onclick="closeModal('detailsModal')"><div class="modal-content" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4"><h2 id="modalTitle" class="text-xl font-bold text-[#d4af37]"></h2><button onclick="closeModal('detailsModal')" class="text-white/50 hover:text-white text-2xl">&times;</button></div><div id="modalDesc" class="text-sm text-white/70 leading-relaxed mb-4 whitespace-pre-line max-h-[50vh] overflow-y-auto"></div><div id="modalSpecs" class="detail-spec"></div><div class="flex gap-3 mt-6"><button onclick="closeModal('detailsModal')" class="flex-1 btn-outline py-2 rounded-lg text-sm">إغلاق</button></div></div></div>
     
-    <div id="orderModal" class="modal" onclick="closeModal('orderModal')"><div class="modal-content" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-[#d4af37]"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3><button onclick="closeModal('orderModal')" class="text-white/50 hover:text-white text-2xl">&times;</button></div><div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div><form id="orderForm" class="space-y-3"><input type="text" id="custName" placeholder="👤 اسم الزبون *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><option value="">🏛️ المحافظة *</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option><option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option><option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option><option>ميسان</option><option>النجف</option><option>كربلاء</option></select><input type="text" id="custCity" placeholder="📍 المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><input type="text" id="custLandmark" placeholder="📍 أقرب نقطة دالة" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none"><input type="tel" id="custPhone" placeholder="📱 رقم الموبايل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب</button><button type="button" onclick="closeModal('orderModal')" class="w-full py-2 text-xs text-white/40">إلغاء</button></form></div></div>
+    <div id="orderModal" class="modal" onclick="closeModal('orderModal')"><div class="modal-content" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-[#d4af37]"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3><button onclick="closeModal('orderModal')" class="text-white/50 hover:text-white text-2xl">&times;</button></div><div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div><form id="orderForm" class="space-y-3"><input type="text" id="custName" placeholder="الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><option value="">المحافظة *</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option><option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option><option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option><option>ميسان</option><option>النجف</option><option>كربلاء</option></select><input type="text" id="custCity" placeholder="المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><input type="text" id="custLandmark" placeholder="أقرب نقطة دالة" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none"><input type="tel" id="custPhone" placeholder="رقم الموبايل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required><button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب</button><button type="button" onclick="closeModal('orderModal')" class="w-full py-2 text-xs text-white/40">إلغاء</button></form></div></div>
     
     <div id="videoModal" class="modal" onclick="closeVideo()"><div class="relative w-[90%] max-w-3xl aspect-video bg-black rounded-xl overflow-hidden border border-[#d4af37]/30"><button onclick="closeVideo()" class="absolute -top-10 left-0 text-white/70 hover:text-white text-2xl">&times;</button><iframe id="videoFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe></div></div>
 
@@ -217,7 +217,7 @@
         function renderMarquee() { let container = document.getElementById('marqueeSection'), track = document.getElementById('marqueeTrack'); if(allProducts.length === 0) return; let items = allProducts.slice(0,12).map(p => `<div class="marquee-item" onclick="showDetails('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}"><div class="info"><div class="name">${escapeHtml(p.name)}</div><div class="price">${escapeHtml(p.price)}</div></div></div>`).join(''); track.innerHTML = items + items; container.classList.remove('hidden'); }
         
         // ========================================
-        // إرسال الطلب - بالشكل الذي تريده مع الرموز التعبيرية
+        // إرسال الطلب - بدون إيموجي، باستخدام رموز نصية بسيطة
         // ========================================
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
@@ -250,20 +250,20 @@
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 
-                // ✅ الرسالة بالشكل الذي طلبته بالضبط
+                // ✅ رسالة بدون إيموجي - ستظهر بشكل صحيح على جميع الأجهزة
                 let msg = "";
-                msg += "🛒 طلب جديد - متجر أكاد الرقمي\n";
-                msg += "━━━━━━━━━━━━━━\n";
-                msg += "👤 الاسم: " + name + "\n";
-                msg += "📍 العنوان: " + governorate + " - " + city + "\n";
-                if(landmark) msg += "📌 نقطة دالة: " + landmark + "\n";
-                msg += "📱 موبايل: " + phone + "\n";
-                msg += "━━━━━━━━━━━━━━\n";
-                msg += "📦 المنتج: " + selectedProduct.name + "\n";
-                msg += "💰 السعر: " + selectedProduct.price + "\n";
-                msg += "━━━━━━━━━━━━━━\n";
-                msg += "🕐 " + new Date().toLocaleString('ar-IQ') + "\n";
-                msg += "🏛️ شكراً لتسوقك مع أكاد";
+                msg += "[طلب جديد] - متجر أكاد الرقمي\n";
+                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+                msg += "- الاسم: " + name + "\n";
+                msg += "- العنوان: " + governorate + " - " + city + "\n";
+                if(landmark) msg += "- نقطة دالة: " + landmark + "\n";
+                msg += "- الموبايل: " + phone + "\n";
+                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+                msg += "- المنتج: " + selectedProduct.name + "\n";
+                msg += "- السعر: " + selectedProduct.price + "\n";
+                msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+                msg += "- الوقت: " + new Date().toLocaleString('ar-IQ') + "\n";
+                msg += "- شكراً لتسوقك مع أكاد";
                 
                 let encodedMsg = encodeURIComponent(msg);
                 window.open(`https://wa.me/9647730492020?text=${encodedMsg}`, '_blank');
