@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <!-- مكتبة SortableJS لسحب الأقسام -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -145,13 +144,10 @@
             z-index: 2;
         }
 
-        /* ======================================== */
-        /* أزرار الأقسام - قابلة للسحب */
-        /* ======================================== */
+        /* أزرار الأقسام - قابلة للسحب بدون زر حفظ */
         .categories-wrapper {
             position: relative;
             margin-top: 1rem;
-            padding: 0.5rem 0;
         }
         
         .categories-scroll {
@@ -201,38 +197,10 @@
             border-color: #d4af37;
         }
         
-        /* تأثير السحب */
         .cat-btn.dragging {
             opacity: 0.4;
             cursor: grabbing;
         }
-        
-        .drag-placeholder {
-            background: rgba(212, 175, 55, 0.3);
-            border: 2px dashed #d4af37;
-            border-radius: 40px;
-            width: 80px;
-        }
-        
-        /* زر حفظ الترتيب */
-        .save-order-btn {
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid #d4af37;
-            color: #d4af37;
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        
-        .save-order-btn:hover {
-            background: #d4af37;
-            color: #0a0f12;
-        }
-        
-        /* ======================================== */
         
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
@@ -322,35 +290,11 @@
         .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
-        /* مؤقت حفظ الترتيب */
-        .saving-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #d4af37;
-            color: #0a0f12;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 9999;
-            display: none;
-            animation: fadeInOut 2s ease;
-        }
-        
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(20px); }
-            15% { opacity: 1; transform: translateY(0); }
-            85% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
 
-    <!-- الهيدر -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
@@ -372,11 +316,10 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <!-- الأقسام - قابلة للسحب -->
+            <!-- الأقسام - قابلة للسحب (بدون زر حفظ) -->
             <div class="categories-wrapper">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-[11px] text-white/40"><i class="fas fa-arrows-alt ml-1"></i> اسحب الأقسام لترتيبها</span>
-                    <button id="saveOrderBtn" class="save-order-btn" onclick="saveCategoriesOrder()"><i class="fas fa-save ml-1"></i> حفظ الترتيب</button>
+                    <span class="text-[11px] text-white/40"><i class="fas fa-arrows-alt ml-1"></i> اسحب الأقسام لترتيبها (للواجهة فقط)</span>
                 </div>
                 <div id="categoriesContainer" class="categories-scroll"></div>
             </div>
@@ -453,9 +396,6 @@
             <iframe id="videoFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
-    
-    <!-- مؤقت حفظ الترتيب -->
-    <div id="savingIndicator" class="saving-indicator">💾 جاري حفظ الترتيب...</div>
 
     <script>
         // ========================================
@@ -475,26 +415,15 @@
         const db = firebase.database();
         
         let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
-        let categoryKeysList = []; // قائمة بترتيب مفاتيح الأقسام
+        let categoryKeysList = [];
         let sortableInstance = null;
         
-        // ========================================
-        // دوال مساعدة
-        // ========================================
         function showToast(msg, isError = false) {
             let toast = document.createElement('div');
             toast.className = `toast ${isError ? 'error' : ''}`;
             toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
-        }
-        
-        function showSavingIndicator() {
-            let indicator = document.getElementById('savingIndicator');
-            indicator.style.display = 'block';
-            setTimeout(() => {
-                indicator.style.display = 'none';
-            }, 2000);
         }
         
         function shareStore() { 
@@ -509,9 +438,6 @@
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
         function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('⚠️ رابط الفيديو غير صالح', true); }
         
-        // ========================================
-        // تحميل البيانات
-        // ========================================
         async function loadData() {
             try {
                 let [catsSnap, prodsSnap] = await Promise.all([
@@ -521,7 +447,6 @@
                 categories = catsSnap.val() || {};
                 allProducts = Object.entries(prodsSnap.val() || {}).map(([id,data])=>({id,...data}));
                 
-                // بناء قائمة مفاتيح الأقسام مرتبة حسب الأرقام في بداية المفتاح
                 categoryKeysList = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
                 
                 document.getElementById('loadingScreen').classList.add('hidden');
@@ -536,7 +461,6 @@
             }
         }
         
-        // تهيئة السحب والإفلات
         function initSortable() {
             const container = document.getElementById('categoriesContainer');
             if(sortableInstance) sortableInstance.destroy();
@@ -548,7 +472,7 @@
                 handle: '.cat-btn',
                 direction: 'horizontal',
                 onEnd: function() {
-                    // تحديث المفاتيح حسب الترتيب الجديد
+                    // تحديث المفاتيح حسب الترتيب الجديد (للواجهة فقط)
                     const items = container.querySelectorAll('.cat-btn');
                     const newKeys = [];
                     items.forEach(item => {
@@ -556,74 +480,19 @@
                         if(key && key !== 'all') newKeys.push(key);
                     });
                     categoryKeysList = ['all', ...newKeys];
-                    
-                    // تحديث ترتيب الأزرار بدون حفظ في قاعدة البيانات (المستخدم سيحفظ يدوياً)
-                    showToast('✨ تم تغيير الترتيب. اضغط "حفظ الترتيب" لتطبيق التغييرات', false);
+                    showToast('✨ تم تغيير ترتيب الأقسام (للواجهة فقط)', false);
                 }
             });
         }
         
-        // حفظ ترتيب الأقسام في قاعدة البيانات (للمستخدم)
-        async function saveCategoriesOrder() {
-            // الحصول على الترتيب الحالي من DOM
-            const container = document.getElementById('categoriesContainer');
-            const items = container.querySelectorAll('.cat-btn');
-            const newOrder = [];
-            items.forEach(item => {
-                const key = item.getAttribute('data-key');
-                if(key && key !== 'all') newOrder.push(key);
-            });
-            
-            if(newOrder.length === 0) {
-                showToast('⚠️ لا توجد أقسام لحفظ الترتيب', true);
-                return;
-            }
-            
-            showSavingIndicator();
-            
-            // إعادة ترقيم الأقسام حسب الترتيب الجديد
-            let updates = {};
-            newOrder.forEach((oldKey, index) => {
-                const newNumber = index + 1;
-                const originalName = categories[oldKey].replace(/^\d+_/, '');
-                const newKey = `${newNumber}_${originalName.replace(/\s+/g, '_')}`;
-                if(oldKey !== newKey) {
-                    updates[`categories/${newKey}`] = originalName;
-                    updates[`categories/${oldKey}`] = null;
-                }
-            });
-            
-            if(Object.keys(updates).length === 0) {
-                showToast('⚠️ الترتيب لم يتغير', true);
-                return;
-            }
-            
-            try {
-                await db.ref().update(updates);
-                showToast('✅ تم حفظ ترتيب الأقسام بنجاح!');
-                // إعادة تحميل البيانات
-                let catsSnap = await db.ref('categories').once('value');
-                categories = catsSnap.val() || {};
-                categoryKeysList = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
-                renderCategories();
-                initSortable();
-            } catch(e) {
-                showToast('❌ فشل حفظ الترتيب: ' + e.message, true);
-                console.error(e);
-            }
-        }
-        
-        // عرض الأقسام مع إمكانية السحب
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             
-            // ترتيب الأقسام حسب الأرقام في بداية المفتاح
             let sortedKeys = [...categoryKeysList];
             if(sortedKeys.length === 0) {
                 sortedKeys = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
             }
             
-            // إزالة 'all' من القائمة إذا كانت موجودة
             sortedKeys = sortedKeys.filter(k => k !== 'all');
             
             let html = `<button onclick="filterCategory('all')" data-key="all" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
@@ -642,7 +511,6 @@
             currentCategory = key; 
             renderCategories(); 
             renderProducts();
-            // إعادة تهيئة السحب بعد إعادة التصيير
             initSortable();
         }
         
@@ -718,7 +586,7 @@
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب
+        // إرسال الطلب - تم إصلاح مشكلة الرموز الغريبة
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
@@ -749,17 +617,21 @@
             
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
-                let msg = `🛍️ *طلب جديد - متجر أكاد*%0A%0A` +
-                    `📦 *المنتج:* ${selectedProduct.name}%0A` +
-                    `💰 *السعر:* ${Number(selectedProduct.price).toLocaleString()} د.ع%0A%0A` +
-                    `👤 *الاسم:* ${name}%0A` +
-                    `🏛️ *المحافظة:* ${governorate}%0A` +
-                    `📍 *المنطقة:* ${city}%0A` +
-                    (landmark ? `📍 *نقطة دالة:* ${landmark}%0A` : '') +
-                    `📱 *الجوال:* ${phone}%0A%0A` +
+                
+                // إصلاح الرسالة: استخدام \n بدلاً من %0A
+                let msg = `🛍️ طلب جديد - متجر أكاد\n\n` +
+                    `📦 المنتج: ${selectedProduct.name}\n` +
+                    `💰 السعر: ${Number(selectedProduct.price).toLocaleString()} د.ع\n\n` +
+                    `👤 الاسم: ${name}\n` +
+                    `🏛️ المحافظة: ${governorate}\n` +
+                    `📍 المنطقة: ${city}\n` +
+                    (landmark ? `📍 نقطة دالة: ${landmark}\n` : '') +
+                    `📱 الجوال: ${phone}\n\n` +
                     `📅 ${new Date().toLocaleString('ar-IQ')}`;
                 
-                window.open(`https://wa.me/9647730492020?text=${encodeURIComponent(msg)}`, '_blank');
+                // ترميز الرسالة بشكل صحيح للواتساب
+                let encodedMsg = encodeURIComponent(msg);
+                window.open(`https://wa.me/9647730492020?text=${encodedMsg}`, '_blank');
                 showToast('✅ تم إرسال الطلب بنجاح! سيتم تحويلك للواتساب');
                 closeModal('orderModal');
             } catch(err) {
@@ -767,9 +639,6 @@
                 showToast('❌ فشل إرسال الطلب، حاول مرة أخرى', true);
             }
         });
-        
-        // جعل دالة saveCategoriesOrder عامة
-        window.saveCategoriesOrder = saveCategoriesOrder;
         
         loadData();
         setInterval(() => { loadData(); }, 30000);
