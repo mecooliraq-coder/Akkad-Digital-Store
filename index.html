@@ -16,93 +16,66 @@
         .media-box { height: 160px; position: relative; cursor: pointer; overflow: hidden; }
         .media-box img { width: 100%; height: 100%; object-fit: cover; }
         .btn-gold { background: linear-gradient(135deg, #d4af37, #b8942e); color: #000; font-weight: bold; }
-        .cat-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); padding: 6px 14px; border-radius: 20px; font-size: 13px; transition: 0.3s; cursor: pointer; white-space: nowrap; user-select: none; }
+        .cat-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); padding: 6px 14px; border-radius: 20px; font-size: 13px; transition: 0.3s; cursor: pointer; white-space: nowrap; }
         .cat-btn.active, .cat-btn:hover { background: #d4af37; color: #000; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
         .modal-content { background: #141a1f; border-radius: 1rem; padding: 1.5rem; max-width: 450px; width: 90%; }
         .loader { width: 40px; height: 40px; border: 3px solid rgba(212,175,55,0.2); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 🔧 إصلاحات شريط التمرير - البداية */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         
-        /* شريط المنتجات المتداول */
-        .ticker-wrap {
-            width: 100%;
-            overflow: hidden;
-            background: rgba(0,0,0,0.4);
-            border-bottom: 1px solid rgba(212,175,55,0.2);
-            border-top: 1px solid rgba(212,175,55,0.2);
-            margin-top: 10px;
+        /* ✅ دعم التمرير الأفقي لشريط الأقسام */
+        #categoriesContainer {
+            -webkit-overflow-scrolling: touch; /* سلاسة اللمس على آيفون */
+            scroll-behavior: smooth; /* تمرير ناعم */
+            scrollbar-width: thin; /* شريط رفيع في فايرفوكس */
+            scrollbar-color: #d4af37 transparent;
         }
-        .ticker {
-            display: inline-block;
-            white-space: nowrap;
-            animation: tickerScroll 25s linear infinite;
-            padding: 8px 0;
+        #categoriesContainer::-webkit-scrollbar {
+            height: 5px;
+            width: 5px;
         }
-        .ticker:hover {
-            animation-play-state: paused;
+        #categoriesContainer::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 3px;
         }
-        .ticker-item {
-            display: inline-block;
-            margin-left: 30px;
-            font-size: 13px;
-        }
-        @keyframes tickerScroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+        #categoriesContainer::-webkit-scrollbar-track {
+            background: transparent;
         }
         
-        /* خاصية السحب للأقسام فقط */
-        .categories-scroll {
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            cursor: grab;
+        /* ✅ منع انكماش أزرار الأقسام */
+        #categoriesContainer .cat-btn {
+            flex-shrink: 0;
         }
-        .categories-scroll:active {
-            cursor: grabbing;
-        }
-        .categories-scroll.dragging {
-            cursor: grabbing;
-        }
+        /* 🔧 إصلاحات شريط التمرير - النهاية */
     </style>
 </head>
 <body>
 
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur border-b-2 border-[#d4af37]">
         <div class="container mx-auto px-4 py-3">
-            <!-- رأس الموقع مع اللوجو والاسم -->
             <div class="flex justify-between items-center mb-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#d4af37] flex items-center justify-center text-black font-bold text-lg md:text-xl">أ</div>
-                    <span class="text-2xl md:text-3xl font-bold gold">أَكَّد</span>
+                    <div class="w-10 h-10 rounded-full bg-[#d4af37] flex items-center justify-center text-black font-bold">أ</div>
+                    <span class="text-xl font-bold gold">أَكَّد</span>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition"><i class="fas fa-share-alt"></i></button>
-                    <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center hover:bg-[#128C7E] transition" target="_blank"><i class="fab fa-whatsapp text-white"></i></a>
+                    <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20"><i class="fas fa-share-alt"></i></button>
+                    <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center hover:bg-[#128C7E]" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
-            
-            <!-- شريط البحث -->
-            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-white outline-none focus:border-[#d4af37] transition" placeholder="🔍 ابحث عن منتج...">
-            
-            <!-- شريط الأقسام القابل للسحب -->
-            <div id="categoriesContainer" class="categories-scroll flex gap-2 mt-3 pb-2 overflow-x-auto"></div>
+            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-white outline-none focus:border-[#d4af37]" placeholder="🔍 ابحث عن منتج...">
+            <!-- ✅ تم إضافة scroll-smooth و pb-3 لتحسين التمرير -->
+            <div id="categoriesContainer" class="flex gap-2 mt-3 overflow-x-auto pb-3 scroll-smooth"></div>
         </div>
     </nav>
 
-    <!-- شريط المنتجات المتداول (العروض السريعة) -->
-    <div class="ticker-wrap">
-        <div class="ticker" id="ticker">
-            <!-- سيتم تعبئته بالمنتجات تلقائياً -->
-        </div>
-    </div>
-
     <main class="container mx-auto px-4 py-8">
-        <div id="loadingScreen" class="text-center py-20"><div class="loader"></div><p class="mt-3 text-gold">جاري التحميل...</p></div>
+        <div id="loadingScreen" class="text-center py-20"><div class="loader"></div><p class="mt-3">جاري التحميل...</p></div>
         <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden"></div>
         <div id="noResults" class="hidden text-center py-20 text-white/40">لا توجد منتجات</div>
     </main>
@@ -111,52 +84,38 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 id="modalTitle" class="text-xl font-bold gold mb-4"></h2>
             <div id="modalDesc" class="text-sm mb-6 whitespace-pre-line"></div>
-            <div class="flex gap-2">
-                <button onclick="orderFromDetails()" class="btn-gold flex-1 py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i> طلب</button>
-                <button onclick="closeModal('detailsModal')" class="bg-white/10 flex-1 py-2 rounded-lg text-sm hover:bg-white/20 transition">إغلاق</button>
-            </div>
+            <button onclick="closeModal('detailsModal')" class="w-full bg-white/10 py-2 rounded-lg">إغلاق</button>
         </div>
     </div>
 
     <div id="orderModal" class="modal" onclick="closeModal('orderModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 class="text-center gold font-bold mb-4 text-lg"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
+            <h3 class="text-center gold font-bold mb-4"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
             <div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div>
             <form id="orderForm">
-                <input type="text" id="custName" placeholder="الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3 focus:border-[#d4af37] outline-none" required>
-                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3 focus:border-[#d4af37] outline-none" required>
-                    <option value="">اختر المحافظة</option>
+                <input type="text" id="custName" placeholder="الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
+                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
+                    <option value="">المحافظة</option>
                     <option>بغداد</option>
-                    <option>البصرة</option>
+                    <option>بصرة</option>
                     <option>نينوى</option>
                     <option>أربيل</option>
-                    <option>السليمانية</option>
-                    <option>دهوك</option>
-                    <option>كركوك</option>
-                    <option>صلاح الدين</option>
-                    <option>ديالى</option>
-                    <option>واسط</option>
-                    <option>ميسان</option>
-                    <option>ذي قار</option>
-                    <option>القادسية</option>
                     <option>بابل</option>
-                    <option>كربلاء</option>
                     <option>النجف</option>
-                    <option>الأنبار</option>
-                    <option>المثنى</option>
+                    <option>كربلاء</option>
                 </select>
-                <input type="text" id="custCity" placeholder="المنطقة / الحي *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3 focus:border-[#d4af37] outline-none" required>
-                <input type="tel" id="custPhone" placeholder="رقم الهاتف *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3 focus:border-[#d4af37] outline-none" required>
-                <textarea id="custAddress" rows="2" placeholder="العنوان التفصيلي" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3 focus:border-[#d4af37] outline-none"></textarea>
-                <button type="submit" class="btn-gold w-full py-3 rounded-lg font-bold transition"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب</button>
-                <button type="button" onclick="closeModal('orderModal')" class="w-full py-2 text-xs text-white/50 mt-2 hover:text-white/70 transition">إلغاء</button>
+                <input type="text" id="custCity" placeholder="المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
+                <input type="tel" id="custPhone" placeholder="رقم الهاتف *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
+                <textarea id="custAddress" rows="2" placeholder="العنوان" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3"></textarea>
+                <button type="submit" class="btn-gold w-full py-3 rounded-lg font-bold"><i class="fab fa-whatsapp ml-2"></i>إرسال</button>
+                <button type="button" onclick="closeModal('orderModal')" class="w-full py-2 text-xs text-white/50 mt-2">إلغاء</button>
             </form>
         </div>
     </div>
 
     <div id="videoModal" class="modal" onclick="closeVideo()">
         <div class="relative w-[90%] max-w-2xl aspect-video bg-black rounded-xl overflow-hidden border border-[#d4af37]/30">
-            <button onclick="closeVideo()" class="absolute -top-8 left-0 text-white text-2xl hover:text-gold transition">&times;</button>
+            <button onclick="closeVideo()" class="absolute -top-8 left-0 text-white text-2xl">&times;</button>
             <iframe id="videoFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
@@ -177,124 +136,31 @@
         
         let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
         
-        // متغيرات السحب
-        let isDragging = false;
-        let startX, startScrollLeft;
-        
         function showToast(msg, isErr = false) { 
             let t = document.createElement('div'); 
-            t.className = `fixed bottom-5 left-5 z-50 bg-${isErr ? 'red' : 'green'}-600 text-white px-4 py-2 rounded-lg text-sm shadow-lg transition`; 
+            t.className = `fixed bottom-5 left-5 z-50 bg-${isErr ? 'red' : 'green'}-600 text-white px-4 py-2 rounded-lg text-sm shadow-lg`; 
             t.innerHTML = msg; 
             document.body.appendChild(t); 
             setTimeout(()=>t.remove(),3000); 
         }
-        
         function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-        
         function shareStore() { if(navigator.share) navigator.share({title:'أكاد', url:location.href}); else { navigator.clipboard.writeText(location.href); showToast('✅ تم نسخ الرابط'); } }
-        
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
         function closeVideo() { document.getElementById('videoModal').style.display = 'none'; document.getElementById('videoFrame').src = ''; }
         
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
-        
-        function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('رابط فيديو غير صالح', true); }
-        
-        // دوال السحب للأقسام فقط
-        function initDragScroll() {
-            const container = document.getElementById('categoriesContainer');
-            if (!container) return;
-            
-            container.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                startX = e.pageX - container.offsetLeft;
-                startScrollLeft = container.scrollLeft;
-                container.style.cursor = 'grabbing';
-                e.preventDefault();
-            });
-            
-            container.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                const x = e.pageX - container.offsetLeft;
-                const walk = (x - startX) * 1.5;
-                container.scrollLeft = startScrollLeft - walk;
-            });
-            
-            container.addEventListener('mouseup', () => {
-                isDragging = false;
-                container.style.cursor = 'grab';
-            });
-            
-            container.addEventListener('mouseleave', () => {
-                isDragging = false;
-                container.style.cursor = 'grab';
-            });
-            
-            container.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                startX = e.touches[0].pageX - container.offsetLeft;
-                startScrollLeft = container.scrollLeft;
-            });
-            
-            container.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                const x = e.touches[0].pageX - container.offsetLeft;
-                const walk = (x - startX) * 1.5;
-                container.scrollLeft = startScrollLeft - walk;
-            });
-            
-            container.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-        }
-        
-        // تحديث شريط المنتجات المتداول
-        function updateTicker() {
-            const ticker = document.getElementById('ticker');
-            if (!ticker || allProducts.length === 0) return;
-            
-            let featuredProducts = allProducts.slice(0, 12);
-            let tickerHtml = '';
-            featuredProducts.forEach(p => {
-                tickerHtml += `<span class="ticker-item">
-                    <i class="fas fa-tag gold ml-1"></i>
-                    <strong>${escapeHtml(p.name)}</strong>
-                    <span class="gold mx-1">${Number(p.price).toLocaleString()} د.ع</span>
-                    <button onclick="quickAddToOrder('${p.id}')" class="bg-[#d4af37] text-black px-2 py-0.5 rounded text-xs mr-2 hover:opacity-80 transition">🛒 طلب</button>
-                </span>`;
-            });
-            ticker.innerHTML = tickerHtml;
-        }
-        
-        function quickAddToOrder(id) {
-            let product = allProducts.find(x => x.id === id);
-            if(product) {
-                selectedProduct = product;
-                document.getElementById('orderProductInfo').innerHTML = `<div class="flex justify-between items-center"><span class="font-bold">${escapeHtml(selectedProduct.name)}</span><span class="gold text-lg">${Number(selectedProduct.price).toLocaleString()} د.ع</span></div>`;
-                document.getElementById('orderForm').reset();
-                document.getElementById('orderModal').style.display = 'flex';
-            }
-        }
+        function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('رابط غير صالح', true); }
         
         async function loadData() {
             try {
                 const [catsSnap, prodsSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
                 categories = catsSnap.val() || {};
-                const productsData = prodsSnap.val() || {};
-                allProducts = Object.entries(productsData).map(([id,data]) => ({id, ...data}));
+                allProducts = Object.entries(prodsSnap.val() || {}).map(([id,data]) => ({id, ...data}));
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('productsGrid').classList.remove('hidden');
                 renderCategories();
                 renderProducts();
-                updateTicker();
-                initDragScroll();
-            } catch(e) { 
-                showToast('⚠️ فشل الاتصال، جاري إعادة المحاولة...', true);
-                setTimeout(loadData, 5000);
-            }
+            } catch(e) { showToast('❌ فشل التحميل من الخادم', true); console.error(e); }
         }
         
         function getSortedCategories() {
@@ -308,26 +174,21 @@
         function renderCategories() {
             let container = document.getElementById('categoriesContainer');
             let sorted = getSortedCategories();
-            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 جميع المنتجات</button>`;
+            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
             sorted.forEach(cat => { 
                 html += `<button onclick="filterCategory('${cat.key}')" class="cat-btn ${currentCategory === cat.key ? 'active' : ''}">📁 ${escapeHtml(cat.name)}</button>`; 
             });
             container.innerHTML = html;
         }
         
-        function filterCategory(key) { 
-            currentCategory = key; 
-            renderCategories(); 
-            renderProducts(); 
-        }
-        
-        function searchProducts() { 
-            currentSearch = document.getElementById('searchInput').value.toLowerCase(); 
-            renderProducts(); 
-        }
+        function filterCategory(key) { currentCategory = key; renderCategories(); renderProducts(); }
+        function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
         
         function renderProducts() {
-            let filtered = allProducts.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (!currentSearch || p.name.toLowerCase().includes(currentSearch)));
+            let filtered = allProducts.filter(p => 
+                (currentCategory === 'all' || p.category === currentCategory) && 
+                (!currentSearch || p.name.toLowerCase().includes(currentSearch))
+            );
             let grid = document.getElementById('productsGrid'), noRes = document.getElementById('noResults');
             if(filtered.length === 0) { 
                 grid.classList.add('hidden'); 
@@ -336,19 +197,24 @@
             }
             grid.classList.remove('hidden'); 
             noRes.classList.add('hidden');
+            
             grid.innerHTML = filtered.map(p => `
                 <div class="product-card">
                     <div class="media-box" onclick="handleMedia('${p.id}')">
-                        <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}">
-                        ${p.video ? `<div class="absolute top-2 left-2 bg-[#d4af37] text-black text-xs px-2 rounded-full z-10">🎬 فيديو</div>` : ''}
-                        ${p.video ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition"><i class="fas fa-play-circle text-white text-4xl"></i></div>` : ''}
+                        <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}">
+                        ${p.video ? `
+                            <div class="absolute top-2 left-2 bg-[#d4af37] text-black text-xs px-2 rounded-full font-bold">🎬</div>
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+                                <i class="fas fa-play text-white text-3xl drop-shadow"></i>
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="p-3 text-center">
-                        <h3 class="text-sm font-bold line-clamp-2 min-h-[40px]">${escapeHtml(p.name)}</h3>
+                        <h3 class="text-sm font-bold mb-1 line-clamp-2">${escapeHtml(p.name)}</h3>
                         <div class="gold text-base font-bold my-2">${Number(p.price).toLocaleString()} د.ع</div>
                         <div class="flex gap-2">
-                            <button onclick="openOrder('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-xs transition"><i class="fab fa-whatsapp ml-1"></i> شراء</button>
-                            <button onclick="showDetails('${p.id}')" class="bg-white/5 py-2 rounded-lg text-xs w-10 border border-white/10 hover:bg-white/10 transition"><i class="fas fa-info-circle"></i></button>
+                            <button onclick="openOrder('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-xs font-bold">شراء</button>
+                            <button onclick="showDetails('${p.id}')" class="bg-white/5 hover:bg-white/10 py-2 rounded-lg text-xs w-10 border border-white/10 transition"><i class="fas fa-info"></i></button>
                         </div>
                     </div>
                 </div>
@@ -360,45 +226,36 @@
             if(p?.video) playVideo(p.video); 
             else showDetails(id); 
         }
-        
         function showDetails(id) { 
             let p = allProducts.find(x => x.id === id); 
             if(!p) return; 
-            selectedProduct = p;
-            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-tag gold ml-2"></i>${escapeHtml(p.name)}`; 
-            let details = '';
-            if(p.desc) details += `📝 ${p.desc}\n\n`;
-            details += `💰 السعر: ${Number(p.price).toLocaleString()} دينار عراقي`;
-            document.getElementById('modalDesc').innerHTML = escapeHtml(details).replace(/\n/g,'<br>'); 
+            document.getElementById('modalTitle').innerHTML = escapeHtml(p.name); 
+            let d = p.desc || 'لا توجد مواصفات إضافية لهذا المنتج.'; 
+            d += `\n\n💰 السعر: ${Number(p.price).toLocaleString()} د.ع`; 
+            document.getElementById('modalDesc').innerHTML = escapeHtml(d).replace(/\n/g,'<br>'); 
             document.getElementById('detailsModal').style.display = 'flex'; 
         }
-        
-        function orderFromDetails() {
-            if(selectedProduct) {
-                closeModal('detailsModal');
-                openOrder(selectedProduct.id);
-            }
-        }
-        
         function openOrder(id) { 
             selectedProduct = allProducts.find(x => x.id === id); 
-            document.getElementById('orderProductInfo').innerHTML = `<div class="flex justify-between items-center"><span class="font-bold">${escapeHtml(selectedProduct.name)}</span><span class="gold text-lg">${Number(selectedProduct.price).toLocaleString()} د.ع</span></div>`; 
-            document.getElementById('orderForm').reset();
+            document.getElementById('orderProductInfo').innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="font-bold">${escapeHtml(selectedProduct.name)}</span>
+                    <span class="gold font-bold">${Number(selectedProduct.price).toLocaleString()} د.ع</span>
+                </div>`; 
+            ['custName','custCity','custPhone','custAddress'].forEach(i => document.getElementById(i).value = ''); 
+            document.getElementById('custGov').value = ''; 
             document.getElementById('orderModal').style.display = 'flex'; 
         }
         
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
-            let name = document.getElementById('custName').value.trim();
-            let gov = document.getElementById('custGov').value;
-            let city = document.getElementById('custCity').value.trim();
-            let phone = document.getElementById('custPhone').value.trim();
-            let addr = document.getElementById('custAddress').value.trim();
+            let name = document.getElementById('custName').value, 
+                gov = document.getElementById('custGov').value, 
+                city = document.getElementById('custCity').value, 
+                phone = document.getElementById('custPhone').value, 
+                addr = document.getElementById('custAddress').value;
             
-            if(!name || !gov || !city || !phone) {
-                showToast('⚠️ الرجاء تعبئة جميع الحقول المطلوبة', true);
-                return;
-            }
+            if(!name || !gov || !city || !phone) return showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', true);
             
             let orderData = { 
                 orderId: Date.now().toString(), 
@@ -406,7 +263,7 @@
                 governorate: gov, 
                 city: city, 
                 phone: phone, 
-                address: addr || 'غير محدد',
+                address: addr, 
                 productId: selectedProduct.id, 
                 productName: selectedProduct.name, 
                 productPrice: selectedProduct.price, 
@@ -417,17 +274,21 @@
             
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
-                let msg = `🛍️ *طلب جديد - متجر أكاد*%0A%0A📦 *المنتج:* ${selectedProduct.name}%0A💰 *السعر:* ${Number(selectedProduct.price).toLocaleString()} د.ع%0A%0A👤 *الاسم:* ${name}%0A🏛️ *المحافظة:* ${gov}%0A📍 *المنطقة:* ${city}%0A📱 *الهاتف:* ${phone}${addr ? `%0A🏠 *العنوان:* ${addr}` : ''}%0A%0A🆔 *رقم الطلب:* ${orderData.orderId}`;
+                let msg = `🛍️ *طلب جديد - متجر أكاد*%0A%0A📦 *المنتج:* ${selectedProduct.name}%0A💰 *السعر:* ${Number(selectedProduct.price).toLocaleString()} د.ع%0A%0A👤 *الاسم:* ${name}%0A🏛️ *المحافظة:* ${gov}%0A📍 *المنطقة:* ${city}%0A📱 *الهاتف:* ${phone}${addr ? `%0A🏠 *العنوان:* ${addr}` : ''}`;
                 window.open(`https://wa.me/9647730492020?text=${msg}`, '_blank');
-                showToast('✅ تم إرسال الطلب بنجاح');
+                showToast('✅ تم إرسال طلبك بنجاح!');
                 closeModal('orderModal');
             } catch(err) { 
-                showToast('❌ فشل إرسال الطلب، حاول مرة أخرى', true);
+                showToast('❌ فشل إرسال الطلب، حاول مجددًا', true); 
+                console.error(err);
             }
         });
         
+        // تحميل البيانات عند بدء التشغيل
         loadData();
-        setInterval(() => loadData(), 30000);
+        
+        // تحديث تلقائي كل 10 ثواني (اختياري)
+        setInterval(() => loadData(), 10000);
     </script>
 </body>
 </html>
