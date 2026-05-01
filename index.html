@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
@@ -144,34 +143,6 @@
             z-index: 2;
         }
 
-        /* أزرار الأقسام - قابلة للسحب بدون زر حفظ */
-        .categories-wrapper {
-            position: relative;
-            margin-top: 1rem;
-        }
-        
-        .categories-scroll {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-            scrollbar-width: thin;
-        }
-        
-        .categories-scroll::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-thumb {
-            background: #d4af37;
-            border-radius: 10px;
-        }
-        
         .cat-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
@@ -182,25 +153,10 @@
             transition: all 0.3s ease;
             cursor: pointer;
             white-space: nowrap;
-            user-select: none;
         }
         
-        .cat-btn.active {
-            background: #d4af37;
-            color: #0a0f12;
-            border-color: #d4af37;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
-        }
-        
-        .cat-btn:hover:not(.active) {
-            background: rgba(212, 175, 55, 0.15);
-            border-color: #d4af37;
-        }
-        
-        .cat-btn.dragging {
-            opacity: 0.4;
-            cursor: grabbing;
-        }
+        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
+        .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
         
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
@@ -316,13 +272,8 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <!-- الأقسام - قابلة للسحب (بدون زر حفظ) -->
-            <div class="categories-wrapper">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[11px] text-white/40"><i class="fas fa-arrows-alt ml-1"></i> اسحب الأقسام لترتيبها (للواجهة فقط)</span>
-                </div>
-                <div id="categoriesContainer" class="categories-scroll"></div>
-            </div>
+            <!-- الأقسام - تعرض حسب الترتيب من لوحة التحكم -->
+            <div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2" id="categoriesContainer"></div>
         </div>
     </nav>
 
@@ -414,9 +365,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
-        let categoryKeysList = [];
-        let sortableInstance = null;
+        let allProducts = [], categories = {}, categoryOrder = [], currentCategory = 'all', currentSearch = '', selectedProduct = null;
         
         function showToast(msg, isError = false) {
             let toast = document.createElement('div');
@@ -440,78 +389,57 @@
         
         async function loadData() {
             try {
-                let [catsSnap, prodsSnap] = await Promise.all([
-                    db.ref('categories').once('value'), 
+                // تحميل الأقسام وترتيبها
+                const [catsSnap, orderSnap, prodsSnap] = await Promise.all([
+                    db.ref('categories').once('value'),
+                    db.ref('categoryOrder').once('value'),
                     db.ref('products').once('value')
                 ]);
                 categories = catsSnap.val() || {};
+                categoryOrder = orderSnap.val() || [];
                 allProducts = Object.entries(prodsSnap.val() || {}).map(([id,data])=>({id,...data}));
-                
-                categoryKeysList = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
                 
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('productsGrid').classList.remove('hidden');
                 renderCategories();
                 renderProducts();
                 renderMarquee();
-                initSortable();
             } catch(e) { 
                 showToast('❌ فشل التحميل', true);
                 console.error(e);
             }
         }
         
-        function initSortable() {
-            const container = document.getElementById('categoriesContainer');
-            if(sortableInstance) sortableInstance.destroy();
-            
-            sortableInstance = new Sortable(container, {
-                animation: 300,
-                ghostClass: 'dragging',
-                dragClass: 'dragging',
-                handle: '.cat-btn',
-                direction: 'horizontal',
-                onEnd: function() {
-                    // تحديث المفاتيح حسب الترتيب الجديد (للواجهة فقط)
-                    const items = container.querySelectorAll('.cat-btn');
-                    const newKeys = [];
-                    items.forEach(item => {
-                        const key = item.getAttribute('data-key');
-                        if(key && key !== 'all') newKeys.push(key);
-                    });
-                    categoryKeysList = ['all', ...newKeys];
-                    showToast('✨ تم تغيير ترتيب الأقسام (للواجهة فقط)', false);
-                }
+        // دالة ترتيب الأقسام حسب categoryOrder
+        function getSortedCategories() {
+            let sorted = [];
+            // الأقسام حسب الترتيب من لوحة التحكم
+            categoryOrder.forEach(key => {
+                if(categories[key]) sorted.push({key, name: categories[key]});
             });
+            // الأقسام غير المرتبة في النهاية
+            Object.keys(categories).forEach(key => {
+                if(!categoryOrder.includes(key)) sorted.push({key, name: categories[key]});
+            });
+            return sorted;
         }
         
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
+            const sorted = getSortedCategories();
             
-            let sortedKeys = [...categoryKeysList];
-            if(sortedKeys.length === 0) {
-                sortedKeys = Object.keys(categories).sort((a,b) => (parseInt(a.split('_')[0])||999) - (parseInt(b.split('_')[0])||999));
-            }
-            
-            sortedKeys = sortedKeys.filter(k => k !== 'all');
-            
-            let html = `<button onclick="filterCategory('all')" data-key="all" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
-            
-            sortedKeys.forEach(key => {
-                if(categories[key]) {
-                    let displayName = categories[key].replace(/^\d+_/, '');
-                    html += `<button onclick="filterCategory('${key}')" data-key="${key}" class="cat-btn ${currentCategory === key ? 'active' : ''}">📁 ${escapeHtml(displayName)}</button>`;
-                }
+            let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
+            sorted.forEach(cat => {
+                let displayName = cat.name.replace(/^\d+_/, '');
+                html += `<button onclick="filterCategory('${cat.key}')" class="cat-btn ${currentCategory === cat.key ? 'active' : ''}">📁 ${escapeHtml(displayName)}</button>`;
             });
-            
             container.innerHTML = html;
         }
         
         function filterCategory(key) { 
             currentCategory = key; 
             renderCategories(); 
-            renderProducts();
-            initSortable();
+            renderProducts(); 
         }
         
         function searchProducts() { 
@@ -586,7 +514,7 @@
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب - تم إصلاح مشكلة الرموز الغريبة
+        // إرسال الطلب - تم إصلاح الرموز الغريبة نهائياً
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
@@ -618,18 +546,18 @@
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 
-                // إصلاح الرسالة: استخدام \n بدلاً من %0A
-                let msg = `🛍️ طلب جديد - متجر أكاد\n\n` +
-                    `📦 المنتج: ${selectedProduct.name}\n` +
-                    `💰 السعر: ${Number(selectedProduct.price).toLocaleString()} د.ع\n\n` +
-                    `👤 الاسم: ${name}\n` +
-                    `🏛️ المحافظة: ${governorate}\n` +
-                    `📍 المنطقة: ${city}\n` +
-                    (landmark ? `📍 نقطة دالة: ${landmark}\n` : '') +
-                    `📱 الجوال: ${phone}\n\n` +
-                    `📅 ${new Date().toLocaleString('ar-IQ')}`;
+                // بناء الرسالة بشكل صحيح - استخدام \n بدلاً من %0A
+                let msg = "🛍️ طلب جديد - متجر أكاد\n\n";
+                msg += "📦 المنتج: " + selectedProduct.name + "\n";
+                msg += "💰 السعر: " + Number(selectedProduct.price).toLocaleString() + " د.ع\n\n";
+                msg += "👤 الاسم: " + name + "\n";
+                msg += "🏛️ المحافظة: " + governorate + "\n";
+                msg += "📍 المنطقة: " + city + "\n";
+                if(landmark) msg += "📍 نقطة دالة: " + landmark + "\n";
+                msg += "📱 الجوال: " + phone + "\n\n";
+                msg += "📅 " + new Date().toLocaleString('ar-IQ');
                 
-                // ترميز الرسالة بشكل صحيح للواتساب
+                // ترميز الرسالة للواتساب
                 let encodedMsg = encodeURIComponent(msg);
                 window.open(`https://wa.me/9647730492020?text=${encodedMsg}`, '_blank');
                 showToast('✅ تم إرسال الطلب بنجاح! سيتم تحويلك للواتساب');
@@ -638,6 +566,12 @@
                 console.error(err);
                 showToast('❌ فشل إرسال الطلب، حاول مرة أخرى', true);
             }
+        });
+        
+        // الاستماع للتغييرات في categoryOrder لتحديث الأقسام فوراً
+        db.ref('categoryOrder').on('value', (snapshot) => {
+            categoryOrder = snapshot.val() || [];
+            renderCategories();
         });
         
         loadData();
