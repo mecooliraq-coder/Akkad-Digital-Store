@@ -143,6 +143,64 @@
             z-index: 2;
         }
 
+        /* ======================================== */
+        /* شريط الأقسام - مع تمرير أفقي وأزرار */
+        /* ======================================== */
+        .categories-wrapper {
+            position: relative;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .scroll-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .scroll-btn:hover {
+            background: #d4af37;
+            color: #0a0f12;
+        }
+        
+        .categories-scroll {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            white-space: nowrap;
+            display: flex;
+            gap: 8px;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: #d4af37 #1a1f24;
+        }
+        
+        .categories-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-track {
+            background: #1a1f24;
+            border-radius: 10px;
+        }
+        
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 10px;
+        }
+        
         .cat-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(212, 175, 55, 0.25);
@@ -153,10 +211,23 @@
             transition: all 0.3s ease;
             cursor: pointer;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         
-        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
-        .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
+        .cat-btn.active {
+            background: #d4af37;
+            color: #0a0f12;
+            border-color: #d4af37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        .cat-btn:hover:not(.active) {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #d4af37;
+        }
+        /* ======================================== */
         
         .marquee-section {
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
@@ -246,6 +317,11 @@
         .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; }
         .toast.error { background: #dc2626; }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        @media (max-width: 768px) {
+            .scroll-btn { width: 28px; height: 28px; }
+            .cat-btn { padding: 6px 12px; font-size: 11px; }
+        }
     </style>
 </head>
 <body>
@@ -272,8 +348,16 @@
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
             
-            <!-- الأقسام - تعرض حسب الترتيب من لوحة التحكم -->
-            <div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2" id="categoriesContainer"></div>
+            <!-- شريط الأقسام مع أزرار تمرير -->
+            <div class="categories-wrapper">
+                <button class="scroll-btn" id="scrollLeftBtn" onclick="scrollCategories('left')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div id="categoriesContainer" class="categories-scroll"></div>
+                <button class="scroll-btn" id="scrollRightBtn" onclick="scrollCategories('right')">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -387,9 +471,19 @@
         function getYouTubeId(url) { if(!url) return null; let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }
         function playVideo(url) { let id = getYouTubeId(url); if(id) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`; document.getElementById('videoModal').style.display = 'flex'; } else showToast('⚠️ رابط الفيديو غير صالح', true); }
         
+        // دالة تمرير الأقسام
+        window.scrollCategories = function(direction) {
+            const container = document.getElementById('categoriesContainer');
+            const scrollAmount = 200;
+            if(direction === 'left') {
+                container.scrollLeft -= scrollAmount;
+            } else {
+                container.scrollLeft += scrollAmount;
+            }
+        }
+        
         async function loadData() {
             try {
-                // تحميل الأقسام وترتيبها
                 const [catsSnap, orderSnap, prodsSnap] = await Promise.all([
                     db.ref('categories').once('value'),
                     db.ref('categoryOrder').once('value'),
@@ -410,14 +504,11 @@
             }
         }
         
-        // دالة ترتيب الأقسام حسب categoryOrder
         function getSortedCategories() {
             let sorted = [];
-            // الأقسام حسب الترتيب من لوحة التحكم
             categoryOrder.forEach(key => {
                 if(categories[key]) sorted.push({key, name: categories[key]});
             });
-            // الأقسام غير المرتبة في النهاية
             Object.keys(categories).forEach(key => {
                 if(!categoryOrder.includes(key)) sorted.push({key, name: categories[key]});
             });
@@ -514,7 +605,7 @@
             container.classList.remove('hidden');
         }
         
-        // إرسال الطلب - تم إصلاح الرموز الغريبة نهائياً
+        // إرسال الطلب
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
             let name = document.getElementById('custName').value.trim();
@@ -546,7 +637,6 @@
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 
-                // بناء الرسالة بشكل صحيح - استخدام \n بدلاً من %0A
                 let msg = "🛍️ طلب جديد - متجر أكاد\n\n";
                 msg += "📦 المنتج: " + selectedProduct.name + "\n";
                 msg += "💰 السعر: " + Number(selectedProduct.price).toLocaleString() + " د.ع\n\n";
@@ -557,7 +647,6 @@
                 msg += "📱 الجوال: " + phone + "\n\n";
                 msg += "📅 " + new Date().toLocaleString('ar-IQ');
                 
-                // ترميز الرسالة للواتساب
                 let encodedMsg = encodeURIComponent(msg);
                 window.open(`https://wa.me/9647730492020?text=${encodedMsg}`, '_blank');
                 showToast('✅ تم إرسال الطلب بنجاح! سيتم تحويلك للواتساب');
@@ -568,7 +657,6 @@
             }
         });
         
-        // الاستماع للتغييرات في categoryOrder لتحديث الأقسام فوراً
         db.ref('categoryOrder').on('value', (snapshot) => {
             categoryOrder = snapshot.val() || [];
             renderCategories();
