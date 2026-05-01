@@ -21,6 +21,7 @@
             overflow-x: hidden;
         }
         
+        /* خلفية متحركة */
         .bg-pattern {
             position: fixed;
             inset: 0;
@@ -37,187 +38,362 @@
             100% { transform: scale(1.05); }
         }
         
+        /* شريط ذهبي */
         .gold-border-bottom {
             border-bottom: 2px solid #d4af37;
             box-shadow: 0 2px 15px rgba(212, 175, 55, 0.15);
         }
         
-        /* شريط الأقسام مع ميزة السحب */
-        #categoriesContainer {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding-bottom: 10px;
-            cursor: grab;
-            user-select: none;
-            scroll-behavior: smooth;
-        }
-        #categoriesContainer:active { cursor: grabbing; }
-        #categoriesContainer::-webkit-scrollbar { display: none; }
-
-        .cat-btn {
-            flex-shrink: 0;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; }
-
         /* بطاقات المنتجات */
         .product-card {
             background: rgba(20, 26, 31, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 1.25rem;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
+            position: relative;
         }
-        .product-card:hover { transform: translateY(-8px); border-color: #d4af37; }
-        .media-box { height: 160px; overflow: hidden; }
-        .media-box img { width: 100%; height: 100%; object-fit: cover; }
-
-        .btn-gold { background: linear-gradient(135deg, #d4af37, #b8942e); color: #0a0f12; font-weight: bold; }
-        .btn-outline { border: 1px solid rgba(212, 175, 55, 0.4); color: #d4af37; }
-
-        /* المودال */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-content { background: #141a1f; border-radius: 1.5rem; padding: 20px; width: 90%; max-width: 450px; border: 1px solid #d4af37; }
         
-        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; z-index: 2000; }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: #d4af37;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.4), 0 0 20px rgba(212,175,55,0.15);
+        }
+        
+        .product-card:hover::before { opacity: 1; }
+        
+        .media-box {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .media-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .media-box img { transform: scale(1.08); }
+        
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .media-box:hover .video-overlay { opacity: 1; }
+        
+        .video-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #d4af37;
+            color: #0a0f12;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 2;
+        }
+        
+        /* أزرار */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #b8942e);
+            color: #0a0f12;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-outline {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+        }
+        
+        /* أزرار الأقسام */
+        .cat-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .cat-btn.active { background: #d4af37; color: #0a0f12; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
+        .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.15); border-color: #d4af37; }
+        
+        /* سلة التسوق */
+        .cart-badge { position: relative; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #d4af37; color: #0a0f12; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        /* شريط المنتجات المتحرك (أبرز المنتجات) */
+        .marquee-section {
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 15px 0;
+            overflow: hidden;
+            margin: 20px 0 30px;
+        }
+        
+        .marquee-track {
+            display: flex;
+            gap: 25px;
+            width: max-content;
+            animation: scrollMarquee 35s linear infinite;
+        }
+        
+        .marquee-section:hover .marquee-track { animation-play-state: paused; }
+        
+        @keyframes scrollMarquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        .marquee-item {
+            width: 210px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        
+        .marquee-item:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .marquee-item img {
+            width: 55px;
+            height: 55px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        
+        .marquee-item .info { flex: 1; }
+        .marquee-item .name { font-size: 11px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+        .marquee-item .price { font-size: 10px; color: #d4af37; font-weight: bold; }
+        
+        /* مودال التفاصيل */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.97); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+        .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 25px 40px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto; }
+        .detail-spec { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-top: 12px; }
+        .spec-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .spec-label { color: #d4af37; font-weight: 500; }
+        
+        /* سلة التسوق الجانبية */
+        .cart-sidebar { position: fixed; top: 0; left: -380px; width: 360px; height: 100%; background: #0f1419; z-index: 1100; transition: left 0.3s ease; box-shadow: -5px 0 30px rgba(0,0,0,0.5); border-left: 1px solid rgba(212, 175, 55, 0.3); display: flex; flex-direction: column; }
+        .cart-sidebar.open { left: 0; }
+        .cart-header { padding: 20px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); display: flex; justify-content: space-between; align-items: center; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+        .cart-item { display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px; }
+        .cart-item img { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-size: 13px; font-weight: 600; }
+        .cart-item-price { font-size: 12px; color: #d4af37; }
+        .cart-item-quantity { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+        .cart-item-quantity button { width: 24px; height: 24px; border-radius: 6px; background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; }
+        .cart-footer { padding: 20px; border-top: 1px solid rgba(212, 175, 55, 0.2); }
+        .cart-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
+        
+        /* لوجو المتجر */
+        .logo-container {
+            transition: all 0.3s ease;
+        }
+        .logo-container:hover {
+            transform: scale(1.02);
+        }
+        
+        .loader { width: 45px; height: 45px; border: 3px solid rgba(212, 175, 55, 0.2); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #1a1f24; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; }
+        .toast.error { background: #dc2626; }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="bg-pattern"></div>
 
+    <!-- الهيدر مع اللوجو الجديد -->
     <nav class="sticky top-0 z-50 bg-[#0a0f12]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 border-2 border-[#d4af37] rounded-full flex items-center justify-center font-bold text-[#d4af37]">أ</div>
-                    <div>
-                        <div class="text-sm font-bold text-[#d4af37]">أَكَّد</div>
-                        <div class="text-[8px] text-white/40">AKKAD DIGITAL</div>
+            <div class="flex justify-between items-center mb-3">
+                <!-- اللوجو الجديد -->
+                <div class="logo-container flex items-center gap-3 cursor-pointer" onclick="window.location.reload();">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-[#d4af37] bg-[#0a0f12] flex items-center justify-center shadow-lg">
+                        <svg width="48" height="48" viewBox="0 0 200 200" class="scale-75">
+                            <!-- الخلفية -->
+                            <circle cx="100" cy="100" r="95" fill="#0a0f12" stroke="#d4af37" stroke-width="2"/>
+                            <circle cx="100" cy="100" r="85" fill="none" stroke="#d4af37" stroke-width="0.5" stroke-dasharray="3 3"/>
+                            <!-- الكتابة المسمارية -->
+                            <text x="100" y="70" text-anchor="middle" fill="#d4af37" font-size="22" font-weight="bold" font-family="Arial, 'Tajawal'">𒀀𒅗𒁺</text>
+                            <!-- اسم أكاد -->
+                            <text x="100" y="105" text-anchor="middle" fill="#d4af37" font-size="18" font-weight="bold" font-family="Arial, 'Tajawal'">أَكَّد</text>
+                            <!-- النص الإنجليزي -->
+                            <text x="100" y="130" text-anchor="middle" fill="#d4af37" font-size="7" opacity="0.6" font-family="Arial">AKKAD DIGITAL</text>
+                            <!-- خط زخرفي -->
+                            <path d="M 60 148 L 140 148" stroke="#d4af37" stroke-width="1" opacity="0.4"/>
+                            <path d="M 70 153 L 130 153" stroke="#d4af37" stroke-width="0.5" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="text-sm font-bold text-[#d4af37] tracking-wide">أَكَّد</div>
+                        <div class="text-[8px] text-white/40 tracking-wider">AKKAD DIGITAL STORE</div>
                     </div>
                 </div>
+                
                 <div class="flex gap-2">
-                    <button onclick="toggleCart()" class="relative w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span id="cartCount" class="absolute -top-2 -right-2 bg-[#d4af37] text-[#0a0f12] text-[10px] w-5 h-5 rounded-full hidden flex items-center justify-center font-bold">0</span>
+                    <button onclick="toggleCart()" class="cart-badge w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center justify-center">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" class="cart-count hidden">0</span>
                     </button>
-                    <a href="https://wa.me/9647730492020" class="w-9 h-9 bg-[#25D366] rounded-lg flex items-center justify-center"><i class="fab fa-whatsapp"></i></a>
+                    <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 transition"><i class="fas fa-share-alt"></i></button>
+                    <a href="https://wa.me/9647730492020" class="w-10 h-10 rounded-lg bg-[#25D366] flex items-center justify-center hover:bg-[#128C7E] transition shadow-lg" target="_blank"><i class="fab fa-whatsapp text-lg"></i></a>
                 </div>
             </div>
-            <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-white outline-none focus:border-[#d4af37] mb-3" placeholder="🔍 ابحث عن منتج...">
-            <div id="categoriesContainer"></div>
+            
+            <!-- شريط البحث -->
+            <div class="relative">
+                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 outline-none focus:border-[#d4af37] transition" placeholder="🔍 ابحث عن منتج...">
+                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
+            </div>
+            
+            <!-- الأقسام -->
+            <div id="categoriesContainer" class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2"></div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <div id="loadingScreen" class="text-center py-20"><div class="w-10 h-10 border-4 border-t-[#d4af37] border-white/10 rounded-full animate-spin mx-auto"></div></div>
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <!-- شريط أبرز المنتجات -->
+        <div id="marqueeSection" class="marquee-section hidden">
+            <div class="flex justify-between items-center mb-3 px-2">
+                <h3 class="text-sm font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
+                <span class="text-[10px] text-white/30">اسحب للمزيد ←</span>
+            </div>
+            <div class="marquee-track" id="marqueeTrack"></div>
+        </div>
+        
+        <!-- شاشة التحميل -->
+        <div id="loadingScreen" class="text-center py-20">
+            <div class="loader"></div>
+            <p class="text-white/50 text-sm mt-3">جاري تحميل كنوز بلاد الرافدين...</p>
+        </div>
+        
+        <!-- شبكة المنتجات -->
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
+        
+        <!-- لا توجد نتائج -->
+        <div id="noResults" class="hidden text-center py-20">
+            <i class="fas fa-search text-5xl text-white/20 mb-4"></i>
+            <p class="text-white/40">لا توجد منتجات مطابقة للبحث</p>
+        </div>
     </main>
 
     <!-- مودال التفاصيل -->
-    <div id="detailsModal" class="modal" onclick="closeModal()">
-        <div class="modal-content text-right" onclick="event.stopPropagation()">
-            <h3 id="mTitle" class="text-lg font-bold text-[#d4af37] mb-2"></h3>
-            <p id="mDesc" class="text-sm text-white/70 mb-4 whitespace-pre-line"></p>
-            <div id="mSpecs" class="bg-white/5 p-3 rounded-lg text-xs space-y-2 mb-4"></div>
-            <button onclick="closeModal()" class="w-full btn-gold py-2 rounded-lg">إغلاق</button>
+    <div id="detailsModal" class="modal" onclick="closeModal('detailsModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modalTitle" class="text-xl font-bold text-[#d4af37]"></h2>
+                <button onclick="closeModal('detailsModal')" class="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="modalDesc" class="text-sm text-white/70 leading-relaxed mb-4 whitespace-pre-line"></div>
+            <div id="modalSpecs" class="detail-spec"></div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeModal('detailsModal')" class="flex-1 btn-outline py-2 rounded-lg text-sm">إغلاق</button>
+                <button id="modalAddToCart" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fas fa-cart-plus ml-2"></i>أضف للسلة</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // تكوين Firebase (استخدم بياناتك الحقيقية هنا)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
-            authDomain: "akkad-store-ab5a1.firebaseapp.com",
-            databaseURL: "https://akkad-store-ab5a1-default-rtdb.firebaseio.com",
-            projectId: "akkad-store-ab5a1",
-            storageBucket: "akkad-store-ab5a1.firebasestorage.app",
-            messagingSenderId: "456810444639",
-            appId: "1:456810444639:web:a706dc19781cd7738e28ea"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <!-- مودال الطلب السريع -->
+    <div id="orderModal" class="modal" onclick="closeModal('orderModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-[#d4af37]"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3>
+                <button onclick="closeModal('orderModal')" class="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div>
+            <form id="orderForm" class="space-y-3">
+                <input type="text" id="custName" placeholder="👤 الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-[#d4af37]" required>
+                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-[#d4af37]" required>
+                    <option value="">🏛️ اختر المحافظة *</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option>
+                    <option>دهوك</option><option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option>
+                    <option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option>
+                    <option>ميسان</option><option>النجف</option><option>كربلاء</option>
+                </select>
+                <input type="text" id="custCity" placeholder="📍 المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-[#d4af37]" required>
+                <input type="tel" id="custPhone" placeholder="📱 رقم الهاتف *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-[#d4af37]" required>
+                <textarea id="custAddress" rows="2" placeholder="🏠 العنوان التفصيلي (اختياري)" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none focus:border-[#d4af37]"></textarea>
+                <button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب</button>
+            </form>
+        </div>
+    </div>
 
-        let allProducts = [], categories = {}, currentCategory = 'all', cart = [];
+    <!-- مودال الفيديو -->
+    <div id="videoModal" class="modal" onclick="closeVideo()">
+        <div class="relative w-[90%] max-w-3xl aspect-video bg-black rounded-xl overflow-hidden border border-[#d4af37]/30">
+            <button onclick="closeVideo()" class="absolute -top-10 left-0 text-white/70 hover:text-white text-2xl">&times;</button>
+            <iframe id="videoFrame" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
 
-        // --- تفعيل ميزة السحب لشريط الأقسام ---
-        const slider = document.getElementById('categoriesContainer');
-        let isDown = false, startX, scrollLeft;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true;
-            startX = e.pageX - slider.offsetLeft;
-            scrollLeft = slider.scrollLeft;
-        });
-        slider.addEventListener('mouseleave', () => isDown = false);
-        slider.addEventListener('mouseup', () => isDown = false);
-        slider.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2;
-            slider.scrollLeft = scrollLeft - walk;
-        });
-
-        async function init() {
-            const [cSnap, pSnap] = await Promise.all([db.ref('categories').once('value'), db.ref('products').once('value')]);
-            categories = cSnap.val() || {};
-            allProducts = Object.entries(pSnap.val() || {}).map(([id, d]) => ({id, ...d}));
-            document.getElementById('loadingScreen').style.display = 'none';
-            renderCategories();
-            renderProducts();
-        }
-
-        function renderCategories() {
-            let html = `<button onclick="setCat('all')" class="cat-btn ${currentCategory==='all'?'active':''}">الكل</button>`;
-            Object.entries(categories).forEach(([key, val]) => {
-                let name = val.includes('_') ? val.split('_')[1] : val;
-                html += `<button onclick="setCat('${key}')" class="cat-btn ${currentCategory===key?'active':''}">${name}</button>`;
-            });
-            slider.innerHTML = html;
-        }
-
-        function setCat(k) { currentCategory = k; renderCategories(); renderProducts(); }
-
-        function renderProducts() {
-            let search = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = allProducts.filter(p => (currentCategory==='all' || p.category===currentCategory) && p.name.toLowerCase().includes(search));
-            
-            document.getElementById('productsGrid').innerHTML = filtered.map(p => `
-                <div class="product-card p-2">
-                    <div class="media-box rounded-xl mb-2"><img src="${p.img}"></div>
-                    <h4 class="text-xs font-bold truncate mb-1">${p.name}</h4>
-                    <div class="text-[#d4af37] text-xs font-bold mb-3">${Number(p.price).toLocaleString()} د.ع</div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="openSpecs('${p.id}')" class="btn-outline py-1.5 rounded-lg text-[10px]">المواصفات</button>
-                        <a href="https://wa.me/9647730492020?text=طلب: ${p.name}" class="btn-gold py-1.5 rounded-lg text-[10px] text-center">طلب سريع</a>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function openSpecs(id) {
-            let p = allProducts.find(x => x.id === id);
-            document.getElementById('mTitle').innerText = p.name;
-            document.getElementById('mDesc').innerText = p.desc || 'لا يوجد وصف';
-            document.getElementById('mSpecs').innerHTML = `
-                <div class="flex justify-between"><span>الرام:</span><span>${p.ram || '-'}</span></div>
-                <div class="flex justify-between"><span>الذاكرة:</span><span>${p.storage || '-'}</span></div>
-            `;
-            document.getElementById('detailsModal').style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('detailsModal').style.display = 'none'; }
-        function searchProducts() { renderProducts(); }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+    <!-- سلة التسوق الجانبية -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3 c
