@@ -22,36 +22,8 @@
         .modal-content { background: #141a1f; border-radius: 1rem; padding: 1.5rem; max-width: 450px; width: 90%; }
         .loader { width: 40px; height: 40px; border: 3px solid rgba(212,175,55,0.2); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* 🔧 إصلاحات شريط التمرير - البداية */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        
-        /* ✅ دعم التمرير الأفقي لشريط الأقسام */
-        #categoriesContainer {
-            -webkit-overflow-scrolling: touch; /* سلاسة اللمس على آيفون */
-            scroll-behavior: smooth; /* تمرير ناعم */
-            scrollbar-width: thin; /* شريط رفيع في فايرفوكس */
-            scrollbar-color: #d4af37 transparent;
-        }
-        #categoriesContainer::-webkit-scrollbar {
-            height: 5px;
-            width: 5px;
-        }
-        #categoriesContainer::-webkit-scrollbar-thumb {
-            background: #d4af37;
-            border-radius: 3px;
-        }
-        #categoriesContainer::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        /* ✅ منع انكماش أزرار الأقسام */
-        #categoriesContainer .cat-btn {
-            flex-shrink: 0;
-        }
-        /* 🔧 إصلاحات شريط التمرير - النهاية */
     </style>
 </head>
 <body>
@@ -69,8 +41,7 @@
                 </div>
             </div>
             <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-white outline-none focus:border-[#d4af37]" placeholder="🔍 ابحث عن منتج...">
-            <!-- ✅ تم إضافة scroll-smooth و pb-3 لتحسين التمرير -->
-            <div id="categoriesContainer" class="flex gap-2 mt-3 overflow-x-auto pb-3 scroll-smooth"></div>
+            <div id="categoriesContainer" class="flex gap-2 mt-3 overflow-x-auto pb-2"></div>
         </div>
     </nav>
 
@@ -94,16 +65,7 @@
             <div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div>
             <form id="orderForm">
                 <input type="text" id="custName" placeholder="الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
-                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
-                    <option value="">المحافظة</option>
-                    <option>بغداد</option>
-                    <option>بصرة</option>
-                    <option>نينوى</option>
-                    <option>أربيل</option>
-                    <option>بابل</option>
-                    <option>النجف</option>
-                    <option>كربلاء</option>
-                </select>
+                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required><option value="">المحافظة</option><option>بغداد</option><option>بصرة</option><option>نينوى</option><option>أربيل</option><option>بابل</option><option>النجف</option><option>كربلاء</option></select>
                 <input type="text" id="custCity" placeholder="المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
                 <input type="tel" id="custPhone" placeholder="رقم الهاتف *" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3" required>
                 <textarea id="custAddress" rows="2" placeholder="العنوان" class="w-full bg-black/40 border border-white/10 rounded-lg p-3 mb-3"></textarea>
@@ -136,13 +98,7 @@
         
         let allProducts = [], categories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
         
-        function showToast(msg, isErr = false) { 
-            let t = document.createElement('div'); 
-            t.className = `fixed bottom-5 left-5 z-50 bg-${isErr ? 'red' : 'green'}-600 text-white px-4 py-2 rounded-lg text-sm shadow-lg`; 
-            t.innerHTML = msg; 
-            document.body.appendChild(t); 
-            setTimeout(()=>t.remove(),3000); 
-        }
+        function showToast(msg, isErr = false) { let t = document.createElement('div'); t.className = `fixed bottom-5 left-5 z-50 bg-${isErr ? 'red' : 'green'}-600 text-white px-4 py-2 rounded-lg text-sm`; t.innerHTML = msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
         function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
         function shareStore() { if(navigator.share) navigator.share({title:'أكاد', url:location.href}); else { navigator.clipboard.writeText(location.href); showToast('✅ تم نسخ الرابط'); } }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -160,7 +116,7 @@
                 document.getElementById('productsGrid').classList.remove('hidden');
                 renderCategories();
                 renderProducts();
-            } catch(e) { showToast('❌ فشل التحميل من الخادم', true); console.error(e); }
+            } catch(e) { showToast('فشل التحميل', true); }
         }
         
         function getSortedCategories() {
@@ -175,9 +131,7 @@
             let container = document.getElementById('categoriesContainer');
             let sorted = getSortedCategories();
             let html = `<button onclick="filterCategory('all')" class="cat-btn ${currentCategory === 'all' ? 'active' : ''}">🏠 الكل</button>`;
-            sorted.forEach(cat => { 
-                html += `<button onclick="filterCategory('${cat.key}')" class="cat-btn ${currentCategory === cat.key ? 'active' : ''}">📁 ${escapeHtml(cat.name)}</button>`; 
-            });
+            sorted.forEach(cat => { html += `<button onclick="filterCategory('${cat.key}')" class="cat-btn ${currentCategory === cat.key ? 'active' : ''}">📁 ${escapeHtml(cat.name)}</button>`; });
             container.innerHTML = html;
         }
         
@@ -185,109 +139,32 @@
         function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
         
         function renderProducts() {
-            let filtered = allProducts.filter(p => 
-                (currentCategory === 'all' || p.category === currentCategory) && 
-                (!currentSearch || p.name.toLowerCase().includes(currentSearch))
-            );
+            let filtered = allProducts.filter(p => (currentCategory === 'all' || p.category === currentCategory) && (!currentSearch || p.name.toLowerCase().includes(currentSearch)));
             let grid = document.getElementById('productsGrid'), noRes = document.getElementById('noResults');
-            if(filtered.length === 0) { 
-                grid.classList.add('hidden'); 
-                noRes.classList.remove('hidden'); 
-                return; 
-            }
-            grid.classList.remove('hidden'); 
-            noRes.classList.add('hidden');
-            
-            grid.innerHTML = filtered.map(p => `
-                <div class="product-card">
-                    <div class="media-box" onclick="handleMedia('${p.id}')">
-                        <img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}" alt="${escapeHtml(p.name)}">
-                        ${p.video ? `
-                            <div class="absolute top-2 left-2 bg-[#d4af37] text-black text-xs px-2 rounded-full font-bold">🎬</div>
-                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition">
-                                <i class="fas fa-play text-white text-3xl drop-shadow"></i>
-                            </div>
-                        ` : ''}
-                    </div>
-                    <div class="p-3 text-center">
-                        <h3 class="text-sm font-bold mb-1 line-clamp-2">${escapeHtml(p.name)}</h3>
-                        <div class="gold text-base font-bold my-2">${Number(p.price).toLocaleString()} د.ع</div>
-                        <div class="flex gap-2">
-                            <button onclick="openOrder('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-xs font-bold">شراء</button>
-                            <button onclick="showDetails('${p.id}')" class="bg-white/5 hover:bg-white/10 py-2 rounded-lg text-xs w-10 border border-white/10 transition"><i class="fas fa-info"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            if(filtered.length === 0) { grid.classList.add('hidden'); noRes.classList.remove('hidden'); return; }
+            grid.classList.remove('hidden'); noRes.classList.add('hidden');
+            grid.innerHTML = filtered.map(p => `<div class="product-card"><div class="media-box" onclick="handleMedia('${p.id}')"><img src="${p.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%231a1a2e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23d4af37%22%3E📦%3C/text%3E%3C/svg%3E'}">${p.video ? `<div class="absolute top-2 left-2 bg-[#d4af37] text-black text-xs px-2 rounded-full">🎬 فيديو</div><div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition"><i class="fas fa-play text-white text-3xl"></i></div>` : ''}</div><div class="p-3 text-center"><h3 class="text-sm font-bold">${escapeHtml(p.name)}</h3><div class="gold text-base font-bold my-2">${Number(p.price).toLocaleString()} د.ع</div><div class="flex gap-2"><button onclick="openOrder('${p.id}')" class="btn-gold flex-1 py-2 rounded-lg text-xs">شراء</button><button onclick="showDetails('${p.id}')" class="bg-white/5 py-2 rounded-lg text-xs w-10 border border-white/10"><i class="fas fa-info"></i></button></div></div></div>`).join('');
         }
         
-        function handleMedia(id) { 
-            let p = allProducts.find(x => x.id === id); 
-            if(p?.video) playVideo(p.video); 
-            else showDetails(id); 
-        }
-        function showDetails(id) { 
-            let p = allProducts.find(x => x.id === id); 
-            if(!p) return; 
-            document.getElementById('modalTitle').innerHTML = escapeHtml(p.name); 
-            let d = p.desc || 'لا توجد مواصفات إضافية لهذا المنتج.'; 
-            d += `\n\n💰 السعر: ${Number(p.price).toLocaleString()} د.ع`; 
-            document.getElementById('modalDesc').innerHTML = escapeHtml(d).replace(/\n/g,'<br>'); 
-            document.getElementById('detailsModal').style.display = 'flex'; 
-        }
-        function openOrder(id) { 
-            selectedProduct = allProducts.find(x => x.id === id); 
-            document.getElementById('orderProductInfo').innerHTML = `
-                <div class="flex justify-between items-center">
-                    <span class="font-bold">${escapeHtml(selectedProduct.name)}</span>
-                    <span class="gold font-bold">${Number(selectedProduct.price).toLocaleString()} د.ع</span>
-                </div>`; 
-            ['custName','custCity','custPhone','custAddress'].forEach(i => document.getElementById(i).value = ''); 
-            document.getElementById('custGov').value = ''; 
-            document.getElementById('orderModal').style.display = 'flex'; 
-        }
+        function handleMedia(id) { let p = allProducts.find(x => x.id === id); if(p?.video) playVideo(p.video); else showDetails(id); }
+        function showDetails(id) { let p = allProducts.find(x => x.id === id); if(!p) return; document.getElementById('modalTitle').innerHTML = p.name; let d = p.desc || 'لا توجد مواصفات'; d += `\n\n💰 السعر: ${Number(p.price).toLocaleString()} د.ع`; document.getElementById('modalDesc').innerHTML = escapeHtml(d).replace(/\n/g,'<br>'); document.getElementById('detailsModal').style.display = 'flex'; }
+        function openOrder(id) { selectedProduct = allProducts.find(x => x.id === id); document.getElementById('orderProductInfo').innerHTML = `<div class="flex justify-between"><span>${escapeHtml(selectedProduct.name)}</span><span class="gold">${Number(selectedProduct.price).toLocaleString()} د.ع</span></div>`; ['custName','custCity','custPhone','custAddress'].forEach(i => document.getElementById(i).value = ''); document.getElementById('custGov').value = ''; document.getElementById('orderModal').style.display = 'flex'; }
         
         document.getElementById('orderForm').addEventListener('submit', async e => {
             e.preventDefault();
-            let name = document.getElementById('custName').value, 
-                gov = document.getElementById('custGov').value, 
-                city = document.getElementById('custCity').value, 
-                phone = document.getElementById('custPhone').value, 
-                addr = document.getElementById('custAddress').value;
-            
-            if(!name || !gov || !city || !phone) return showToast('⚠️ يرجى ملء جميع الحقول المطلوبة', true);
-            
-            let orderData = { 
-                orderId: Date.now().toString(), 
-                customerName: name, 
-                governorate: gov, 
-                city: city, 
-                phone: phone, 
-                address: addr, 
-                productId: selectedProduct.id, 
-                productName: selectedProduct.name, 
-                productPrice: selectedProduct.price, 
-                status: 'جديد', 
-                createdAt: new Date().toISOString(), 
-                createdAtTimestamp: Date.now() 
-            };
-            
+            let name = document.getElementById('custName').value, gov = document.getElementById('custGov').value, city = document.getElementById('custCity').value, phone = document.getElementById('custPhone').value, addr = document.getElementById('custAddress').value;
+            if(!name || !gov || !city || !phone) return showToast('⚠️ حقول مطلوبة', true);
+            let orderData = { orderId: Date.now().toString(), customerName: name, governorate: gov, city: city, phone: phone, address: addr, productId: selectedProduct.id, productName: selectedProduct.name, productPrice: selectedProduct.price, status: 'جديد', createdAt: new Date().toISOString(), createdAtTimestamp: Date.now() };
             try {
                 await db.ref('orders/' + orderData.orderId).set(orderData);
                 let msg = `🛍️ *طلب جديد - متجر أكاد*%0A%0A📦 *المنتج:* ${selectedProduct.name}%0A💰 *السعر:* ${Number(selectedProduct.price).toLocaleString()} د.ع%0A%0A👤 *الاسم:* ${name}%0A🏛️ *المحافظة:* ${gov}%0A📍 *المنطقة:* ${city}%0A📱 *الهاتف:* ${phone}${addr ? `%0A🏠 *العنوان:* ${addr}` : ''}`;
                 window.open(`https://wa.me/9647730492020?text=${msg}`, '_blank');
-                showToast('✅ تم إرسال طلبك بنجاح!');
+                showToast('✅ تم إرسال الطلب');
                 closeModal('orderModal');
-            } catch(err) { 
-                showToast('❌ فشل إرسال الطلب، حاول مجددًا', true); 
-                console.error(err);
-            }
+            } catch(err) { showToast('فشل الإرسال', true); }
         });
         
-        // تحميل البيانات عند بدء التشغيل
         loadData();
-        
-        // تحديث تلقائي كل 10 ثواني (اختياري)
         setInterval(() => loadData(), 10000);
     </script>
 </body>
