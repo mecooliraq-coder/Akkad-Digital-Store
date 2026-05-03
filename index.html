@@ -25,12 +25,12 @@
         .product-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #d4af37, #e8c97a, #d4af37, transparent); opacity: 0; transition: opacity 0.3s; }
         .product-card:hover { transform: translateY(-10px); border-color: #d4af37; box-shadow: 0 25px 40px rgba(0,0,0,0.4), 0 0 30px rgba(212,175,55,0.15); }
         .product-card:hover::before { opacity: 1; }
-        .media-box { height: 190px; position: relative; overflow: hidden; cursor: pointer; }
-        .media-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1); }
-        .product-card:hover .media-box img { transform: scale(1.1); }
-        .video-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s ease; backdrop-filter: blur(3px); cursor: pointer; }
+        .media-box { height: 200px; position: relative; overflow: hidden; cursor: pointer; background: #111; }
+        .media-box img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1); background: #0a0f12; }
+        .product-card:hover .media-box img { transform: scale(1.05); }
+        .video-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s ease; backdrop-filter: blur(3px); cursor: pointer; border-radius: 1rem; }
         .media-box:hover .video-overlay { opacity: 1; }
-        .video-badge { position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #d4af37, #b8942e); color: #0a0f12; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .video-badge { position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #d4af37, #b8942e); color: #0a0f12; font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         .rating { display: flex; align-items: center; gap: 4px; margin: 8px 0; direction: ltr; justify-content: flex-end; }
         .rating-stars { display: flex; gap: 2px; direction: ltr; }
         .star { cursor: pointer; font-size: 14px; color: #555; transition: all 0.2s ease; }
@@ -69,7 +69,7 @@
         .toast { position: fixed; bottom: 20px; left: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .toast.error { background: linear-gradient(135deg, #dc2626, #991b1b); }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @media (max-width: 768px) { .scroll-btn { width: 32px; height: 32px; } .cat-btn { padding: 6px 14px; font-size: 11px; } .marquee-item { width: 240px; } .marquee-item img { width: 60px; height: 60px; } .scroll-top-btn { width: 45px; height: 45px; bottom: 20px; right: 20px; } }
+        @media (max-width: 768px) { .scroll-btn { width: 32px; height: 32px; } .cat-btn { padding: 6px 14px; font-size: 11px; } .marquee-item { width: 240px; } .marquee-item img { width: 60px; height: 60px; } .scroll-top-btn { width: 45px; height: 45px; bottom: 20px; right: 20px; } .media-box { height: 160px; } }
     </style>
 </head>
 <body>
@@ -179,7 +179,8 @@
                 let catName = 'عام';
                 if(p.categoryId && allCategories[p.categoryId]) catName = getCategoryDisplayName(allCategories[p.categoryId]);
                 let priceFormatted = p.price ? p.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
-                html += `<div class="product-card"><div class="media-box" onclick="playVideo('${escapeHtml(p.videoUrl || '').replace(/'/g, "\\'")}')">${p.videoUrl ? `<div class="video-badge"><i class="fas fa-play"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-4xl text-[#d4af37]"></i></div>` : ''}<img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image')}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'"></div><div class="p-4"><div class="flex justify-between items-start"><h3 class="font-bold text-base line-clamp-2 flex-1">${escapeHtml(p.name)}</h3></div><div class="text-[#d4af37] font-bold text-lg mt-1">${priceFormatted} د.ع</div><div class="text-white/40 text-xs">${escapeHtml(catName)}</div><div class="rating">${displayRating(p.id, true)}</div><div class="flex gap-2 mt-3"><button onclick="showDetails('${p.id}')" class="flex-1 btn-outline py-2 rounded-lg text-sm"><i class="fas fa-info-circle ml-1"></i>تفاصيل</button><button onclick="openOrderModal('${p.id}')" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i>طلب</button></div></div></div>`;
+                let hasVideo = p.videoUrl && p.videoUrl.trim() !== '';
+                html += `<div class="product-card"><div class="media-box" onclick="${hasVideo ? `playVideo('${escapeHtml(p.videoUrl || '').replace(/'/g, "\\'")}')` : 'return false'}">${hasVideo ? `<div class="video-badge"><i class="fas fa-play"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-4xl text-[#d4af37]"></i></div>` : ''}<img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/400x300?text=لا+توجد+صورة')}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/400x300?text=خطأ+في+الصورة'"></div><div class="p-4"><div class="flex justify-between items-start"><h3 class="font-bold text-base line-clamp-2 flex-1">${escapeHtml(p.name)}</h3></div><div class="text-[#d4af37] font-bold text-lg mt-1">${priceFormatted} د.ع</div><div class="text-white/40 text-xs">${escapeHtml(catName)}</div><div class="rating">${displayRating(p.id, true)}</div><div class="flex gap-2 mt-3"><button onclick="showDetails('${p.id}')" class="flex-1 btn-outline py-2 rounded-lg text-sm"><i class="fas fa-info-circle ml-1"></i>تفاصيل</button><button onclick="openOrderModal('${p.id}')" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i>طلب</button></div></div></div>`;
             });
             grid.innerHTML = html;
         }
@@ -202,7 +203,7 @@
             let videoId = '';
             let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             let match = url.match(regExp);
-            videoId = (match&&match[7]&&match[7].length==11)? match[7] : url;
+            videoId = (match && match[7] && match[7].length === 11) ? match[7] : url;
             if(videoId && videoId.length === 11) document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
             else document.getElementById('videoFrame').src = url;
             document.getElementById('videoModal').style.display = 'flex';
