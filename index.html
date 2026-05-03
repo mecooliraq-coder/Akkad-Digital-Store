@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>أكاد | متجر بلاد الرافدين الرقمي</title>
-    <meta name="description" content="أكاد متجر رقمي عراقي يقدم أحدث الأجهزة والمستلزمات بأفضل الأسعار">
-    <meta name="keywords" content="متجر عراقي, تسوق اونلاين, عراق, بغداد">
-    <meta name="author" content="أكاد - Akkad Digital Store">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -118,7 +115,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let allProducts = [], allCategories = {}, categoryOrder = [], currentCategory = 'all', currentSearch = '', selectedProduct = null;
+        let allProducts = [], allCategories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
         let ratings = JSON.parse(localStorage.getItem('akkad_ratings') || '{}');
 
         function showToast(msg, isError = false) { let t = document.createElement('div'); t.className = `toast ${isError ? 'error' : ''}`; t.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
@@ -133,33 +130,140 @@
         
         function scrollCategories(direction) { let container = document.querySelector('.categories-scroll'); if(container) { let scrollAmount = direction === 'left' ? -200 : 200; container.scrollBy({ left: scrollAmount, behavior: 'smooth' }); } }
         
-        async function loadCategories() { db.ref('categories').on('value', (snapshot) => { allCategories = snapshot.val() || {}; categoryOrder = Object.entries(allCategories).sort((a,b) => (parseInt(a[0])||999) - (parseInt(b[0])||999)).map(([key,val]) => ({ key, name: val.replace(/^\d+_/, '') })); renderCategories(); }); }
+        function getCategoryDisplayName(catValue) {
+            if(!catValue) return 'عام';
+            if(typeof catValue === 'string' && catValue.includes('_')) return catValue.split('_')[1];
+            return catValue;
+        }
         
-        function renderCategories() { let container = document.getElementById('categoriesContainer'); if(!container) return; container.innerHTML = `<button class="cat-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">الكل</button>`; categoryOrder.forEach(cat => { container.innerHTML += `<button class="cat-btn ${currentCategory === cat.key ? 'active' : ''}" onclick="filterByCategory('${cat.key}')">${escapeHtml(cat.name)}</button>`; }); }
+        function loadCategories() {
+            db.ref('categories').on('value', (snapshot) => {
+                allCategories = snapshot.val() || {};
+                renderCategories();
+                renderProducts();
+            });
+        }
+        
+        function renderCategories() {
+            let container = document.getElementById('categoriesContainer');
+            if(!container) return;
+            let sorted = Object.entries(allCategories).sort((a,b) => {
+                let numA = parseInt(a[1]?.split('_')[0]) || 999;
+                let numB = parseInt(b[1]?.split('_')[0]) || 999;
+                return numA - numB;
+            });
+            container.innerHTML = `<button class="cat-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">الكل</button>`;
+            sorted.forEach(([key, value]) => {
+                let displayName = getCategoryDisplayName(value);
+                container.innerHTML += `<button class="cat-btn ${currentCategory === key ? 'active' : ''}" onclick="filterByCategory('${key}')">${escapeHtml(displayName)}</button>`;
+            });
+        }
         
         function filterByCategory(catId) { currentCategory = catId; renderProducts(); }
-        
         function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
         
-        function renderProducts() { let filtered = allProducts.filter(p => { if(currentCategory !== 'all' && p.categoryId !== currentCategory) return false; if(currentSearch && !p.name.toLowerCase().includes(currentSearch) && !(p.desc || '').toLowerCase().includes(currentSearch)) return false; return true; }); document.getElementById('productCount').innerText = filtered.length; let grid = document.getElementById('productsGrid'); let skeleton = document.getElementById('skeletonLoading'); let noResults = document.getElementById('noResults'); if(filtered.length === 0) { grid.classList.add('hidden'); skeleton.classList.add('hidden'); noResults.classList.remove('hidden'); return; } grid.classList.remove('hidden'); skeleton.classList.add('hidden'); noResults.classList.add('hidden'); let html = ''; filtered.forEach(p => { let catName = 'عام'; if(p.categoryId && allCategories[p.categoryId]) catName = allCategories[p.categoryId].replace(/^\d+_/, ''); let priceFormatted = p.price ? p.price.toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",") : '0'; html += `<div class="product-card"><div class="media-box" onclick="playVideo('${escapeHtml(p.videoUrl || '').replace(/'/g, "\\'")}')">${p.videoUrl ? `<div class="video-badge"><i class="fas fa-play"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-4xl text-[#d4af37]"></i></div>` : ''}<img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image')}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'"></div><div class="p-4"><div class="flex justify-between items-start"><h3 class="font-bold text-base line-clamp-2 flex-1">${escapeHtml(p.name)}</h3></div><div class="text-[#d4af37] font-bold text-lg mt-1">${priceFormatted} د.ع</div><div class="text-white/40 text-xs">${escapeHtml(catName)}</div><div class="rating">${displayRating(p.id, true)}</div><div class="flex gap-2 mt-3"><button onclick="showDetails('${p.id}')" class="flex-1 btn-outline py-2 rounded-lg text-sm"><i class="fas fa-info-circle ml-1"></i>تفاصيل</button><button onclick="openOrderModal('${p.id}')" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i>طلب</button></div></div></div>`; }); grid.innerHTML = html; }
+        function renderProducts() {
+            let filtered = allProducts.filter(p => {
+                if(currentCategory !== 'all' && p.categoryId !== currentCategory) return false;
+                if(currentSearch && !p.name.toLowerCase().includes(currentSearch) && !(p.desc || '').toLowerCase().includes(currentSearch)) return false;
+                return true;
+            });
+            document.getElementById('productCount').innerText = filtered.length;
+            let grid = document.getElementById('productsGrid');
+            let skeleton = document.getElementById('skeletonLoading');
+            let noResults = document.getElementById('noResults');
+            if(filtered.length === 0) { grid.classList.add('hidden'); skeleton.classList.add('hidden'); noResults.classList.remove('hidden'); return; }
+            grid.classList.remove('hidden'); skeleton.classList.add('hidden'); noResults.classList.add('hidden');
+            let html = '';
+            filtered.forEach(p => {
+                let catName = 'عام';
+                if(p.categoryId && allCategories[p.categoryId]) catName = getCategoryDisplayName(allCategories[p.categoryId]);
+                let priceFormatted = p.price ? p.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+                html += `<div class="product-card"><div class="media-box" onclick="playVideo('${escapeHtml(p.videoUrl || '').replace(/'/g, "\\'")}')">${p.videoUrl ? `<div class="video-badge"><i class="fas fa-play"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle text-4xl text-[#d4af37]"></i></div>` : ''}<img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image')}" alt="${escapeHtml(p.name)}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'"></div><div class="p-4"><div class="flex justify-between items-start"><h3 class="font-bold text-base line-clamp-2 flex-1">${escapeHtml(p.name)}</h3></div><div class="text-[#d4af37] font-bold text-lg mt-1">${priceFormatted} د.ع</div><div class="text-white/40 text-xs">${escapeHtml(catName)}</div><div class="rating">${displayRating(p.id, true)}</div><div class="flex gap-2 mt-3"><button onclick="showDetails('${p.id}')" class="flex-1 btn-outline py-2 rounded-lg text-sm"><i class="fas fa-info-circle ml-1"></i>تفاصيل</button><button onclick="openOrderModal('${p.id}')" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i>طلب</button></div></div></div>`;
+            });
+            grid.innerHTML = html;
+        }
         
-        function showDetails(productId) { let product = allProducts.find(p => p.id === productId); if(!product) return; document.getElementById('modalTitle').innerText = product.name; let desc = product.desc || 'لا يوجد وصف'; document.getElementById('modalDesc').innerHTML = desc.replace(/\\n/g, '<br>'); let specsHtml = '<div class="spec-item"><span class="spec-label">السعر:</span><span>' + (product.price ? product.price.toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",") : '0') + ' د.ع</span></div>'; if(product.categoryId && allCategories[product.categoryId]) specsHtml += '<div class="spec-item"><span class="spec-label">القسم:</span><span>' + escapeHtml(allCategories[product.categoryId].replace(/^\\d+_/, '')) + '</span></div>'; if(product.specs) { for(let [k,v] of Object.entries(product.specs)) specsHtml += `<div class="spec-item"><span class="spec-label">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`; } document.getElementById('modalSpecs').innerHTML = specsHtml; document.getElementById('detailsModal').style.display = 'flex'; }
+        function showDetails(productId) {
+            let product = allProducts.find(p => p.id === productId);
+            if(!product) return;
+            document.getElementById('modalTitle').innerText = product.name;
+            let desc = product.desc || 'لا يوجد وصف';
+            document.getElementById('modalDesc').innerHTML = desc.replace(/\n/g, '<br>');
+            let specsHtml = '<div class="spec-item"><span class="spec-label">السعر:</span><span>' + (product.price ? product.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0') + ' د.ع</span></div>';
+            if(product.categoryId && allCategories[product.categoryId]) specsHtml += '<div class="spec-item"><span class="spec-label">القسم:</span><span>' + escapeHtml(getCategoryDisplayName(allCategories[product.categoryId])) + '</span></div>';
+            if(product.specs) { for(let [k,v] of Object.entries(product.specs)) specsHtml += `<div class="spec-item"><span class="spec-label">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`; }
+            document.getElementById('modalSpecs').innerHTML = specsHtml;
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
         
-        function playVideo(url) { if(!url) return; let videoId = ''; let regExp = /^.*((youtu.be\\/)|(v\\/)|(\\/u\\/\\w\\/)|(embed\\/)|(watch\\?))\\??v?=?([^#&?]*).*/; let match = url.match(regExp); videoId = (match&&match[7].length==11)? match[7] : url; if(videoId.length === 11) document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; else document.getElementById('videoFrame').src = url; document.getElementById('videoModal').style.display = 'flex'; }
+        function playVideo(url) {
+            if(!url) return;
+            let videoId = '';
+            let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            let match = url.match(regExp);
+            videoId = (match&&match[7]&&match[7].length==11)? match[7] : url;
+            if(videoId && videoId.length === 11) document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            else document.getElementById('videoFrame').src = url;
+            document.getElementById('videoModal').style.display = 'flex';
+        }
         
-        function openOrderModal(productId) { selectedProduct = allProducts.find(p => p.id === productId); if(!selectedProduct) return; document.getElementById('orderProductInfo').innerHTML = `<strong>${escapeHtml(selectedProduct.name)}</strong><br>السعر: ${(selectedProduct.price || 0).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",")} د.ع`; document.getElementById('orderForm').reset(); document.getElementById('orderModal').style.display = 'flex'; }
+        function openOrderModal(productId) {
+            selectedProduct = allProducts.find(p => p.id === productId);
+            if(!selectedProduct) return;
+            document.getElementById('orderProductInfo').innerHTML = `<strong>${escapeHtml(selectedProduct.name)}</strong><br>السعر: ${(selectedProduct.price || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} د.ع`;
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderModal').style.display = 'flex';
+        }
         
-        document.getElementById('orderForm').addEventListener('submit', async (e) => { e.preventDefault(); if(!selectedProduct) return; let order = { productId: selectedProduct.id, productName: selectedProduct.name, productPrice: selectedProduct.price, customerName: document.getElementById('custName').value, governorate: document.getElementById('custGov').value, city: document.getElementById('custCity').value, landmark: document.getElementById('custLandmark').value, phone: document.getElementById('custPhone').value, status: 'جديد', createdAt: new Date().toISOString(), createdAtTimestamp: Date.now() }; try { await db.ref('orders').push(order); let msg = `طلب جديد من متجر أكاد%0Aالمنتج: ${order.productName}%0Aالاسم: ${order.customerName}%0Aالمحافظة: ${order.governorate}%0Aالمنطقة: ${order.city}%0Aالهاتف: ${order.phone}`; window.open(`https://wa.me/9647730492020?text=${msg}`, '_blank'); showToast('✅ تم إرسال الطلب بنجاح'); closeModal('orderModal'); } catch(err) { showToast('❌ فشل إرسال الطلب', true); } });
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!selectedProduct) return;
+            let order = {
+                productId: selectedProduct.id,
+                productName: selectedProduct.name,
+                productPrice: selectedProduct.price,
+                customerName: document.getElementById('custName').value,
+                governorate: document.getElementById('custGov').value,
+                city: document.getElementById('custCity').value,
+                landmark: document.getElementById('custLandmark').value,
+                phone: document.getElementById('custPhone').value,
+                status: 'جديد',
+                createdAt: new Date().toISOString(),
+                createdAtTimestamp: Date.now()
+            };
+            try {
+                await db.ref('orders').push(order);
+                let msg = `طلب جديد من متجر أكاد%0Aالمنتج: ${order.productName}%0Aالاسم: ${order.customerName}%0Aالمحافظة: ${order.governorate}%0Aالمنطقة: ${order.city}%0Aالهاتف: ${order.phone}`;
+                window.open(`https://wa.me/9647730492020?text=${msg}`, '_blank');
+                showToast('✅ تم إرسال الطلب بنجاح');
+                closeModal('orderModal');
+            } catch(err) { showToast('❌ فشل إرسال الطلب', true); }
+        });
         
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        
         window.addEventListener('scroll', () => { let btn = document.getElementById('scrollTopBtn'); if(btn) { if(window.scrollY > 300) btn.classList.add('visible'); else btn.classList.remove('visible'); } });
         
-        async function loadProducts() { db.ref('products').on('value', (snapshot) => { allProducts = Object.entries(snapshot.val() || {}).map(([id,val]) => ({ id, ...val })); renderProducts(); renderMarquee(); }); }
+        function loadProducts() {
+            db.ref('products').on('value', (snapshot) => {
+                allProducts = Object.entries(snapshot.val() || {}).map(([id,val]) => ({ id, ...val }));
+                renderProducts();
+                renderMarquee();
+            });
+        }
         
-        function renderMarquee() { let marquee = document.getElementById('marqueeSection'); let track = document.getElementById('marqueeTrack'); let topProducts = [...allProducts].sort((a,b) => (getRating(b.id) - getRating(a.id))).slice(0, 12); if(topProducts.length === 0) { marquee.classList.add('hidden'); return; } marquee.classList.remove('hidden'); let items = [...topProducts, ...topProducts]; track.innerHTML = items.map(p => `<div class="marquee-item" onclick="showDetails('${p.id}')"><img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/80x80?text=No+Image')}" onerror="this.src='https://via.placeholder.com/80x80?text=Error'"><div class="info"><div class="name">${escapeHtml(p.name)}</div><div class="price">${(p.price || 0).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",")} د.ع</div></div></div>`).join(''); }
+        function renderMarquee() {
+            let marquee = document.getElementById('marqueeSection');
+            let track = document.getElementById('marqueeTrack');
+            let topProducts = [...allProducts].sort((a,b) => (getRating(b.id) - getRating(a.id))).slice(0, 12);
+            if(topProducts.length === 0) { marquee.classList.add('hidden'); return; }
+            marquee.classList.remove('hidden');
+            let items = [...topProducts, ...topProducts];
+            track.innerHTML = items.map(p => `<div class="marquee-item" onclick="showDetails('${p.id}')"><img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/80x80?text=No+Image')}" onerror="this.src='https://via.placeholder.com/80x80?text=Error'"><div class="info"><div class="name">${escapeHtml(p.name)}</div><div class="price">${(p.price || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} د.ع</div></div></div>`).join('');
+        }
         
-        loadCategories(); loadProducts();
+        loadCategories();
+        loadProducts();
     </script>
 </body>
 </html>
