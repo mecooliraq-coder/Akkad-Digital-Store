@@ -156,14 +156,14 @@
         }
         .product-card:hover .media-box img { transform: scale(1.08); }
         
-        /* ========== أيقونة الفيديو - تم إصلاحها ========== */
+        /* ========== أيقونة الفيديو - المثلث الذهبي ========== */
         .video-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -172,14 +172,14 @@
             backdrop-filter: blur(4px);
             border-radius: 1.5rem;
             cursor: pointer;
-            z-index: 10;
+            z-index: 15;
         }
         
         .video-overlay i {
-            font-size: 55px;
+            font-size: 60px;
             color: #d4af37;
-            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease;
         }
         
         .media-box:hover .video-overlay {
@@ -188,7 +188,7 @@
         
         .video-overlay:hover i {
             transform: scale(1.15);
-            text-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
         }
         
         .video-badge {
@@ -204,7 +204,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            z-index: 15;
+            z-index: 20;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             backdrop-filter: blur(4px);
         }
@@ -214,7 +214,7 @@
         }
         
         @media (max-width: 768px) {
-            .video-overlay i { font-size: 35px; }
+            .video-overlay i { font-size: 40px; }
             .video-badge { padding: 3px 8px; font-size: 9px; }
             .media-box { height: 160px; }
         }
@@ -260,7 +260,7 @@
         .cat-btn.active { background: var(--gold-gradient); color: #0a0f12; border-color: var(--gold); }
         .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.12); border-color: var(--gold); transform: translateY(-2px); }
         
-        /* ========== شريط أبرز المنتجات - معكوس الاتجاه ========== */
+        /* ========== شريط أبرز المنتجات - الحركة من اليسار إلى اليمين ========== */
         .marquee-section { 
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent); 
             border-top: 1px solid var(--border-light); 
@@ -275,11 +275,11 @@
             display: flex; 
             gap: 30px; 
             width: max-content; 
-            animation: scrollMarqueeRight 70s linear infinite;  /* أبطأ وعكس الاتجاه */
+            animation: scrollMarqueeLeftToRight 70s linear infinite;
         }
         
-        /* الحركة من اليمين إلى اليسار (عكس الاتجاه السابق) */
-        @keyframes scrollMarqueeRight {
+        /* الحركة من اليسار إلى اليمين */
+        @keyframes scrollMarqueeLeftToRight {
             from { transform: translateX(-50%); }
             to { transform: translateX(0); }
         }
@@ -567,9 +567,11 @@
             let match = url.match(/[?&]v=([^&]+)/);
             if(!match) match = url.match(/youtu\.be\/([^?&]+)/);
             if(!match) match = url.match(/embed\/([^?&]+)/);
+            if(!match) match = url.match(/shorts\/([^?&]+)/);
             if(match && match[1]) videoId = match[1];
             const vf = document.getElementById('videoFrame'), vm = document.getElementById('videoModal');
             if(videoId && vf) { vf.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; vm.style.display = 'flex'; }
+            else if(vf) { vf.src = url; vm.style.display = 'flex'; }
             else showToast('رابط الفيديو غير صالح', true);
         }
         
