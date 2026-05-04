@@ -143,12 +143,25 @@
         .price-tag { font-size: 1.25rem; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
         .footer { border-top: 1px solid var(--border-light); margin-top: 40px; padding: 30px 20px; text-align: center; background: var(--bg-card); backdrop-filter: blur(10px); }
-        .social-icon { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.05); display: inline-flex; align-items: center; justify-content: center; margin: 0 8px; transition: all 0.3s ease; color: var(--text-primary); text-decoration: none; overflow: hidden; }
+        .social-title { font-size: 18px; font-weight: bold; color: var(--gold); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .social-icons-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+        .social-icon { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.08); display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease; color: var(--text-primary); text-decoration: none; overflow: hidden; border: 1px solid rgba(212,175,55,0.3); }
         .social-icon img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
-        .social-icon:hover { background: var(--gold); color: #0a0f12; transform: translateY(-3px); }
+        .social-icon i { font-size: 24px; }
+        .social-icon:hover { background: var(--gold); color: #0a0f12; transform: translateY(-5px); border-color: var(--gold); }
         
         .store-logo { width: 55px; height: 55px; object-fit: contain; border-radius: 12px; }
-        @media (max-width: 768px) { .scroll-btn { width: 32px; height: 32px; } .cat-btn { padding: 6px 14px; font-size: 11px; } .marquee-item { width: 240px; } .scroll-top-btn { width: 45px; height: 45px; } .media-box { height: 160px; } .social-icon { width: 45px; height: 45px; } .store-logo { width: 45px; height: 45px; } }
+        
+        @media (max-width: 768px) { 
+            .scroll-btn { width: 32px; height: 32px; } 
+            .cat-btn { padding: 6px 14px; font-size: 11px; } 
+            .marquee-item { width: 240px; } 
+            .scroll-top-btn { width: 45px; height: 45px; } 
+            .media-box { height: 160px; } 
+            .social-icon { width: 45px; height: 45px; }
+            .social-icon i { font-size: 20px; }
+            .store-logo { width: 45px; height: 45px; }
+        }
         
         .loader { width: 45px; height: 45px; border: 3px solid rgba(212, 175, 55, 0.2); border-top: 3px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -224,10 +237,15 @@
         </div>
     </main>
     
-    <!-- التذييل -->
+    <!-- التذييل مع شعارات التواصل -->
     <div class="footer">
         <div class="container mx-auto">
-            <div class="flex justify-center gap-3 mb-4 flex-wrap" id="socialLinksContainer"></div>
+            <div class="social-title">
+                <i class="fab fa-twitter"></i>
+                <span>تابعونا على وسائل التواصل</span>
+                <i class="fas fa-heart text-red-500"></i>
+            </div>
+            <div id="socialLinksContainer" class="social-icons-container"></div>
             <p class="text-white/30 text-xs">© 2025 أكاد - متجر بلاد الرافدين الرقمي</p>
             <p class="text-white/20 text-[10px] mt-2">Akkad Digital Store - Iraq</p>
         </div>
@@ -390,14 +408,14 @@
             db.ref('settings').on('value', (snapshot) => {
                 settings = snapshot.val() || {};
                 
-                // تحديث شعار المتجر
-                if(settings.store_logo) {
+                // تحديث شعار المتجر الرئيسي
+                if(settings.store_logo && settings.store_logo !== '') {
                     document.getElementById('storeLogo').src = settings.store_logo;
                 } else {
                     document.getElementById('storeLogo').src = 'https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png';
                 }
                 
-                // تحديث روابط التواصل
+                // تحديث روابط وشعارات التواصل
                 renderSocialLinks();
             });
         }
@@ -408,36 +426,53 @@
             
             let html = '';
             
-            if(settings.whatsapp_link) {
-                html += `<a href="https://wa.me/${settings.whatsapp_link.replace(/[^0-9]/g, '')}" class="social-icon" target="_blank" title="واتساب">`;
-                if(settings.whatsapp_logo) html += `<img src="${settings.whatsapp_logo}" alt="واتساب">`;
-                else html += `<i class="fab fa-whatsapp fa-2x"></i>`;
+            // واتساب
+            if(settings.whatsapp_link && settings.whatsapp_link !== '') {
+                let whatsappNum = settings.whatsapp_link.replace(/[^0-9]/g, '');
+                html += `<a href="https://wa.me/${whatsappNum}" class="social-icon" target="_blank" title="واتساب">`;
+                if(settings.whatsapp_logo && settings.whatsapp_logo !== '') {
+                    html += `<img src="${settings.whatsapp_logo}" alt="واتساب">`;
+                } else {
+                    html += `<i class="fab fa-whatsapp"></i>`;
+                }
                 html += `</a>`;
             }
             
-            if(settings.facebook_link) {
+            // فيسبوك
+            if(settings.facebook_link && settings.facebook_link !== '') {
                 html += `<a href="${settings.facebook_link}" class="social-icon" target="_blank" title="فيسبوك">`;
-                if(settings.facebook_logo) html += `<img src="${settings.facebook_logo}" alt="فيسبوك">`;
-                else html += `<i class="fab fa-facebook-f fa-2x"></i>`;
+                if(settings.facebook_logo && settings.facebook_logo !== '') {
+                    html += `<img src="${settings.facebook_logo}" alt="فيسبوك">`;
+                } else {
+                    html += `<i class="fab fa-facebook-f"></i>`;
+                }
                 html += `</a>`;
             }
             
-            if(settings.instagram_link) {
+            // انستغرام
+            if(settings.instagram_link && settings.instagram_link !== '') {
                 html += `<a href="${settings.instagram_link}" class="social-icon" target="_blank" title="انستغرام">`;
-                if(settings.instagram_logo) html += `<img src="${settings.instagram_logo}" alt="انستغرام">`;
-                else html += `<i class="fab fa-instagram fa-2x"></i>`;
+                if(settings.instagram_logo && settings.instagram_logo !== '') {
+                    html += `<img src="${settings.instagram_logo}" alt="انستغرام">`;
+                } else {
+                    html += `<i class="fab fa-instagram"></i>`;
+                }
                 html += `</a>`;
             }
             
-            if(settings.telegram_link) {
+            // تيليجرام
+            if(settings.telegram_link && settings.telegram_link !== '') {
                 html += `<a href="${settings.telegram_link}" class="social-icon" target="_blank" title="تيليجرام">`;
-                if(settings.telegram_logo) html += `<img src="${settings.telegram_logo}" alt="تيليجرام">`;
-                else html += `<i class="fab fa-telegram fa-2x"></i>`;
+                if(settings.telegram_logo && settings.telegram_logo !== '') {
+                    html += `<img src="${settings.telegram_logo}" alt="تيليجرام">`;
+                } else {
+                    html += `<i class="fab fa-telegram"></i>`;
+                }
                 html += `</a>`;
             }
             
             if(html === '') {
-                html = `<p class="text-white/30 text-xs">تابعونا على وسائل التواصل</p>`;
+                html = `<p class="text-white/30 text-sm">لا توجد روابط تواصل اجتماعي</p>`;
             }
             
             container.innerHTML = html;
