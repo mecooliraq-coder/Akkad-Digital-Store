@@ -16,9 +16,11 @@
             --bg-secondary: #0f151a;
             --bg-card: rgba(20, 26, 31, 0.65);
             --text-primary: #e8e2d4;
+            --text-secondary: #a0a0a0;
             --gold: #d4af37;
             --gold-gradient: linear-gradient(135deg, #d4af37, #b8942e, #9a7a28);
             --border-light: rgba(212, 175, 55, 0.25);
+            --shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
         body.light-mode {
@@ -26,8 +28,8 @@
             --bg-secondary: #ffffff;
             --bg-card: rgba(255, 255, 255, 0.85);
             --text-primary: #1a1a1a;
+            --text-secondary: #666666;
             --gold: #b8942e;
-            --gold-gradient: linear-gradient(135deg, #d4af37, #b8942e);
             --border-light: rgba(184, 148, 46, 0.3);
         }
         
@@ -37,8 +39,6 @@
             background: var(--bg-primary); 
             color: var(--text-primary); 
             min-height: 100vh; 
-            overflow-x: hidden; 
-            scroll-behavior: smooth;
             transition: background 0.3s ease, color 0.3s ease;
         }
         
@@ -63,42 +63,16 @@
         }
         
         @keyframes floatCuneiform {
-            0% { transform: translateX(100%) translateY(0); opacity: 0.02; }
-            100% { transform: translateX(-100%) translateY(-50px); opacity: 0.02; }
-        }
-        
-        /* منتجات عائمة */
-        .floating-products-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        
-        .floating-product {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            opacity: 0.06;
-            filter: blur(5px);
-            animation: floatProduct 40s ease-in-out infinite;
-            background-size: contain;
-            background-repeat: no-repeat;
-        }
-        
-        @keyframes floatProduct {
-            0% { transform: translate(0, 0); opacity: 0.03; }
-            50% { transform: translate(0, -100px); opacity: 0.09; }
-            100% { transform: translate(0, 0); opacity: 0.03; }
+            0% { transform: translateX(100%) translateY(0) rotate(0deg); opacity: 0.02; }
+            50% { opacity: 0.08; }
+            100% { transform: translateX(-100%) translateY(-50px) rotate(5deg); opacity: 0.02; }
         }
         
         .bg-pattern { 
             position: fixed; 
             inset: 0; 
             z-index: -2; 
-            background: radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
-                        linear-gradient(145deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%); 
+            background: radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
             animation: slowZoom 30s ease-in-out infinite alternate; 
         }
         
@@ -121,75 +95,59 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .theme-toggle:hover { background: var(--gold); color: #0a0f12; transform: scale(1.05); }
         
-        .btn-gold { background: var(--gold-gradient); color: #0a0f12; font-weight: 700; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .btn-gold { background: var(--gold-gradient); color: #0a0f12; font-weight: 700; transition: all 0.3s ease; border: none; border-radius: 12px; cursor: pointer; }
         .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4); }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); border-radius: 12px; cursor: pointer; transition: 0.3s; color: var(--text-primary); }
-        .btn-outline:hover { background: rgba(212, 175, 55, 0.15); border-color: var(--gold); transform: translateY(-2px); }
         
         .product-card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-light);
             border-radius: 1.5rem;
-            transition: all 0.4s;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow);
         }
-        .product-card:hover { transform: translateY(-10px); border-color: var(--gold); }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+        }
         
         .media-box { 
             height: 200px; 
             position: relative; 
             overflow: hidden; 
             cursor: pointer; 
-            border-radius: 1.5rem 1.5rem 0 0; 
-            background: #0f1419;
+            background: #0a0f12; 
         }
+        
         .media-box img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            transition: transform 0.6s; 
+            transition: transform 0.4s ease; 
             padding: 10px; 
         }
+        
         .product-card:hover .media-box img { transform: scale(1.08); }
         
-        /* ========== أيقونة الفيديو - المثلث الذهبي ========== */
         .video-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.65);
+            inset: 0;
+            background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
             border-radius: 1.5rem;
             cursor: pointer;
-            z-index: 15;
         }
         
-        .video-overlay i {
-            font-size: 60px;
-            color: #d4af37;
-            text-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s ease;
-        }
-        
-        .media-box:hover .video-overlay {
-            opacity: 1 !important;
-        }
-        
-        .video-overlay:hover i {
-            transform: scale(1.15);
-            text-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
-        }
+        .video-overlay i { font-size: 55px; color: var(--gold); }
+        .media-box:hover .video-overlay { opacity: 1; }
         
         .video-badge {
             position: absolute;
@@ -199,300 +157,236 @@
             color: #0a0f12;
             font-size: 11px;
             font-weight: bold;
-            padding: 5px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             gap: 6px;
-            z-index: 20;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
         }
         
-        .video-badge i {
-            font-size: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .video-overlay i { font-size: 40px; }
-            .video-badge { padding: 3px 8px; font-size: 9px; }
-            .media-box { height: 160px; }
-        }
-        
-        .rating { display: flex; justify-content: flex-end; margin: 8px 0; direction: ltr; gap: 3px; }
-        .star { cursor: pointer; font-size: 14px; color: #555; transition: 0.2s; }
-        .star.active { color: var(--gold); }
-        .star:hover { transform: scale(1.15); }
-        
-        .categories-wrapper { display: flex; align-items: center; gap: 12px; margin-top: 1rem; }
-        .scroll-btn { 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 50%; 
-            background: rgba(212, 175, 55, 0.12); 
-            border: 1px solid var(--border-light); 
-            color: var(--gold); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            flex-shrink: 0;
-        }
-        .scroll-btn:hover { background: var(--gold); color: #0a0f12; transform: scale(1.08); }
-        
-        .categories-scroll { flex: 1; overflow-x: auto; white-space: nowrap; display: flex; gap: 12px; padding-bottom: 10px; scrollbar-width: thin; }
-        .categories-scroll::-webkit-scrollbar { height: 3px; }
-        .categories-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .categories-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-        
-        .cat-btn { 
-            background: rgba(255,255,255,0.04); 
-            border: 1px solid var(--border-light); 
-            padding: 8px 22px; 
-            border-radius: 40px; 
-            font-size: 13px; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            color: var(--text-primary); 
+        .categories-scroll {
+            overflow-x: auto;
             white-space: nowrap;
+            display: flex;
+            gap: 12px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
         }
-        .cat-btn.active { background: var(--gold-gradient); color: #0a0f12; border-color: var(--gold); }
-        .cat-btn:hover:not(.active) { background: rgba(212, 175, 55, 0.12); border-color: var(--gold); transform: translateY(-2px); }
         
-        /* ========== شريط أبرز المنتجات - الحركة من اليسار إلى اليمين ========== */
-        .marquee-section { 
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent); 
-            border-top: 1px solid var(--border-light); 
-            border-bottom: 1px solid var(--border-light); 
-            padding: 20px 0; 
-            margin: 20px 0 30px; 
-            border-radius: 50px; 
+        .cat-btn {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-light);
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text-primary);
+        }
+        
+        .cat-btn.active {
+            background: var(--gold-gradient);
+            color: #0a0f12;
+            border-color: var(--gold);
+        }
+        
+        /* شريط متحرك بالصور */
+        .marquee-section {
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.08), transparent);
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            padding: 15px 0;
             overflow: hidden;
+            margin: 20px 0 30px;
         }
         
-        .marquee-track { 
-            display: flex; 
-            gap: 30px; 
-            width: max-content; 
-            animation: scrollMarqueeLeftToRight 70s linear infinite;
-        }
-        
-        /* الحركة من اليسار إلى اليمين */
-        @keyframes scrollMarqueeLeftToRight {
-            from { transform: translateX(-50%); }
-            to { transform: translateX(0); }
+        .marquee-track {
+            display: flex;
+            gap: 25px;
+            width: max-content;
+            animation: scrollMarquee var(--marquee-speed, 30s) linear infinite;
         }
         
         .marquee-section:hover .marquee-track { animation-play-state: paused; }
         
-        .marquee-item { 
-            width: 280px; 
-            background: rgba(255,255,255,0.08); 
-            backdrop-filter: blur(8px); 
-            border-radius: 16px; 
-            padding: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 16px; 
-            cursor: pointer; 
-            border: 1px solid var(--border-light);
+        @keyframes scrollMarquee {
+            from { transform: translateX(-50%); }
+            to { transform: translateX(0); }
+        }
+        
+        .marquee-item {
+            width: 260px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
             transition: all 0.3s ease;
-        }
-        .marquee-item:hover { 
-            border-color: var(--gold); 
-            background: rgba(212, 175, 55, 0.15); 
-            transform: translateY(-5px); 
-        }
-        .marquee-item img { 
-            width: 80px; 
-            height: 80px; 
-            border-radius: 12px; 
-            object-fit: cover; 
+            border: 1px solid var(--border-light);
         }
         
-        @media (max-width: 768px) {
-            .marquee-item { width: 240px; }
-            .marquee-item img { width: 60px; height: 60px; }
-            .scroll-btn { width: 32px; height: 32px; }
-            .cat-btn { padding: 6px 14px; font-size: 11px; }
+        .marquee-item:hover {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.15);
+            transform: translateY(-3px);
         }
         
-        .products-counter { 
-            background: rgba(212, 175, 55, 0.1); 
-            border: 1px solid var(--border-light); 
-            border-radius: 40px; 
-            padding: 6px 16px; 
-            font-size: 13px; 
-            color: var(--gold); 
-            display: inline-block; 
+        .marquee-item img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; }
+        
+        /* مودال */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 18, 0.98);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
         }
         
-        .scroll-top-btn { 
-            position: fixed; 
-            bottom: 30px; 
-            right: 30px; 
-            width: 50px; 
-            height: 50px; 
-            border-radius: 50%; 
-            background: var(--gold-gradient); 
-            color: #0a0f12; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            z-index: 999; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: 0.3s; 
-        }
-        .scroll-top-btn.visible { opacity: 1; visibility: visible; }
-        
-        @media (max-width: 768px) {
-            .scroll-top-btn { width: 45px; height: 45px; bottom: 20px; right: 20px; }
+        .modal-content {
+            background: linear-gradient(145deg, #141a1f, #0f1419);
+            border-radius: 1.5rem;
+            padding: 1.75rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--gold);
+            max-height: 85vh;
+            overflow-y: auto;
         }
         
-        .modal { display: none; position: fixed; inset: 0; background: rgba(10, 15, 18, 0.98); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .modal-content { background: linear-gradient(145deg, #141a1f, #0f1419); border-radius: 1.5rem; padding: 1.75rem; max-width: 500px; width: 90%; border: 1px solid var(--gold); max-height: 85vh; overflow-y: auto; }
-        .detail-spec { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-top: 12px; }
-        .spec-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
-        .spec-label { color: var(--gold); font-weight: 500; }
+        .video-modal {
+            width: 90%;
+            max-width: 800px;
+            background: black;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--gold);
+        }
         
-        .video-modal-container { width: 90%; max-width: 800px; background: black; border-radius: 1rem; overflow: hidden; border: 1px solid var(--gold); }
-        .video-modal-container iframe { width: 100%; aspect-ratio: 16/9; border: none; }
-        .close-video-btn { position: absolute; top: -35px; left: 0; background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+        .video-modal iframe { width: 100%; aspect-ratio: 16/9; border: none; }
         
         .footer { border-top: 1px solid var(--border-light); margin-top: 40px; padding: 30px 20px; text-align: center; background: var(--bg-card); backdrop-filter: blur(10px); }
-        .social-title { font-size: 18px; font-weight: bold; color: var(--gold); margin-bottom: 15px; display: flex; justify-content: center; gap: 8px; }
-        .social-icons-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
-        .social-icon { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.08); display: inline-flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-light); }
-        .social-icon img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
-        .social-icon i { font-size: 24px; }
-        .social-icon:hover { background: var(--gold); color: #0a0f12; transform: translateY(-5px); }
+        .social-icons { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .social-icons a {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            text-decoration: none;
+            border: 1px solid var(--border-light);
+        }
+        .social-icons a:hover { background: var(--gold); color: #0a0f12; transform: translateY(-5px); }
+        
+        .loading { text-align: center; padding: 60px; }
+        .loader { width: 50px; height: 50px; border: 3px solid rgba(212,175,55,0.2); border-top: 3px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            color: #0a0f12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        .scroll-top.visible { opacity: 1; visibility: visible; }
         
         @media (max-width: 768px) {
-            .social-icon { width: 45px; height: 45px; }
-            .social-icon i { font-size: 18px; }
+            .media-box { height: 160px; }
+            .marquee-item { width: 220px; }
+            .marquee-item img { width: 55px; height: 55px; }
         }
-        
-        .store-logo { width: 55px; height: 55px; object-fit: contain; border-radius: 12px; }
-        @media (max-width: 768px) { .store-logo { width: 45px; height: 45px; } }
-        
-        .toast { position: fixed; bottom: 20px; left: 20px; background: #10b981; color: white; padding: 10px 16px; border-radius: 10px; z-index: 9999; animation: slideIn 0.3s; font-size: 14px; }
-        .toast.error { background: #dc2626; }
-        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
-        .price-tag { font-size: 1.1rem; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .fade-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
-        .fade-on-scroll.visible { opacity: 1; transform: translateY(0); }
-        
-        .loader { width: 45px; height: 45px; border: 3px solid rgba(212, 175, 55, 0.2); border-top: 3px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="cuneiform-bg">
-        <div class="cuneiform-text" style="top: 5%; left: -10%;">𒀭𒈾𒀜𒈾𒀭</div>
-        <div class="cuneiform-text" style="top: 25%; right: -5%; animation-delay: 3s;">𒈠𒀀𒉡𒈠𒀀</div>
-        <div class="cuneiform-text" style="bottom: 15%; left: -15%; animation-delay: 7s;">𒀝𒆥𒀝𒆥𒁺</div>
-        <div class="cuneiform-text" style="top: 60%; right: -8%; animation-delay: 12s;">𒀭𒀜𒈾𒀭𒀜</div>
-        <div class="cuneiform-text" style="bottom: 40%; left: -5%; animation-delay: 5s;">𒀝𒅗𒁺𒀝𒅗</div>
+        <div class="cuneiform-text" style="top: 5%; left: -10%; animation-duration: 20s;">𒀭𒈾𒀜𒈾𒀭</div>
+        <div class="cuneiform-text" style="top: 25%; right: -5%; animation-duration: 28s;">𒈠𒀀𒉡𒈠𒀀</div>
+        <div class="cuneiform-text" style="bottom: 15%; left: -15%; animation-duration: 32s;">𒀝𒆥𒀝𒆥𒁺</div>
+        <div class="cuneiform-text" style="top: 60%; right: -8%; animation-duration: 25s;">𒀭𒀜𒈾𒀭𒀜</div>
+        <div class="cuneiform-text" style="bottom: 40%; left: -5%; animation-duration: 35s;">𒀝𒅗𒁺𒀝𒅗</div>
     </div>
-    <div class="floating-products-bg" id="floatingProducts"></div>
     <div class="bg-pattern"></div>
-    
+
     <nav class="sticky top-0 z-50 bg-[var(--bg-primary)]/95 backdrop-blur-lg gold-border-bottom">
         <div class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload();">
-                    <img id="storeLogo" src="" class="store-logo rounded-full border-2 border-[#d4af37] shadow-lg">
-                    <div><div class="text-2xl font-black text-[#d4af37]">أَكَّد</div><div class="text-[10px] text-white/40">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div></div>
+            <div class="flex justify-between items-center flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <img id="storeLogo" src="" alt="شعار" class="w-12 h-12 rounded-full border-2 border-[#d4af37] object-cover">
+                    <div>
+                        <div class="text-2xl font-black text-[#d4af37]">أَكَّد</div>
+                        <div class="text-[10px] text-white/40">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle"><i class="fas fa-moon"></i></div>
+                <div class="flex gap-3">
+                    <div class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></div>
                     <button onclick="shareStore()" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20"><i class="fas fa-share-alt"></i></button>
                 </div>
             </div>
+            
             <div class="relative mt-4">
-                <input type="text" id="searchInput" onkeyup="searchProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white outline-none focus:border-[#d4af37]" placeholder="🔍 ابحث عن منتج...">
+                <input type="text" id="searchInput" onkeyup="filterProducts()" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 outline-none focus:border-[#d4af37]" placeholder="🔍 ابحث عن منتج...">
                 <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/30"></i>
             </div>
-            <div class="categories-wrapper">
-                <button class="scroll-btn" onclick="scrollCategories('left')"><i class="fas fa-chevron-right"></i></button>
+            
+            <div class="mt-4 overflow-x-auto">
                 <div id="categoriesContainer" class="categories-scroll"></div>
-                <button class="scroll-btn" onclick="scrollCategories('right')"><i class="fas fa-chevron-left"></i></button>
             </div>
         </div>
     </nav>
-    
+
     <main class="container mx-auto px-4 py-6">
-        <div id="marqueeSection" class="marquee-section hidden fade-on-scroll">
-            <div class="flex justify-between items-center mb-4 px-2">
-                <h3 class="text-base font-bold text-[#d4af37]"><i class="fas fa-star-of-life ml-1"></i> أبرز المنتجات</h3>
-                <span class="text-[11px] text-white/30">اسحب للمزيد ←</span>
-            </div>
+        <div id="marqueeSection" class="marquee-section" style="display: none;">
             <div class="marquee-track" id="marqueeTrack"></div>
         </div>
         
-        <div class="flex justify-between items-center mb-6"><div class="products-counter"><i class="fas fa-box-open ml-1"></i> عدد المنتجات: <span id="productCount">0</span></div></div>
+        <div id="productsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         
-        <div id="skeletonLoading" class="grid grid-cols-2 md:grid-cols-4 gap-5">
-            <div class="bg-[#1a1f24] h-72 rounded-xl animate-pulse"></div>
-            <div class="bg-[#1a1f24] h-72 rounded-xl animate-pulse"></div>
-            <div class="bg-[#1a1f24] h-72 rounded-xl animate-pulse"></div>
-            <div class="bg-[#1a1f24] h-72 rounded-xl animate-pulse"></div>
-        </div>
-        
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 hidden"></div>
-        
-        <div id="noResults" class="hidden text-center py-20">
-            <i class="fas fa-search text-5xl text-white/20 mb-4"></i>
-            <p class="text-white/40">لا توجد منتجات مطابقة للبحث</p>
-        </div>
+        <div id="loadingProducts" class="loading"><div class="loader"></div><p>جاري تحميل المنتجات...</p></div>
     </main>
-    
-    <div class="footer fade-on-scroll">
-        <div class="container mx-auto">
-            <div class="social-title"><i class="fas fa-cuneiform"></i><span>𒋗𒌑𒀜𒈾 - تابعونا</span><i class="fas fa-heart text-red-500"></i></div>
-            <div id="socialLinksContainer" class="social-icons-container"></div>
-            <p class="text-white/30 text-xs">© 2025 أكاد - متجر بلاد الرافدين الرقمي</p>
+
+    <footer class="footer">
+        <div class="social-icons" id="socialIcons"></div>
+        <div class="text-sm text-gray-500">© 2024 متجر أكَّاد - جميع الحقوق محفوظة</div>
+    </footer>
+
+    <div class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></div>
+
+    <!-- مودال المواصفات -->
+    <div id="specsModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-[#d4af37] text-xl mb-3">📋 المواصفات</h3>
+            <div id="specsContent"></div>
+            <button onclick="closeModal('specsModal')" class="btn-gold w-full mt-4 py-2">إغلاق</button>
         </div>
     </div>
-    
-    <button onclick="scrollToTop()" id="scrollTopBtn" class="scroll-top-btn"><i class="fas fa-arrow-up"></i></button>
-    
-    <div id="detailsModal" class="modal" onclick="closeModal('detailsModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4"><h2 id="modalTitle" class="text-xl font-bold text-[#d4af37]"></h2><button onclick="closeModal('detailsModal')" class="text-white/50 hover:text-white text-2xl">&times;</button></div>
-            <div id="modalDesc" class="text-sm leading-relaxed mb-4 whitespace-pre-line"></div>
-            <div id="modalSpecs" class="detail-spec"></div>
-            <button onclick="closeModal('detailsModal')" class="w-full btn-outline py-2 rounded-lg text-sm mt-4">إغلاق</button>
-        </div>
-    </div>
-    
-    <div id="orderModal" class="modal" onclick="closeModal('orderModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-[#d4af37]"><i class="fab fa-whatsapp ml-2"></i>طلب سريع</h3><button onclick="closeModal('orderModal')" class="text-white/50 hover:text-white text-2xl">&times;</button></div>
-            <div id="orderProductInfo" class="bg-white/5 p-3 rounded-lg text-sm mb-4"></div>
-            <form id="orderForm" class="space-y-3">
-                <input type="text" id="custName" placeholder="الاسم الكامل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required>
-                <select id="custGov" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required>
-                    <option value="">المحافظة *</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>السليمانية</option><option>دهوك</option>
-                    <option>كركوك</option><option>صلاح الدين</option><option>ديالى</option><option>الأنبار</option><option>بابل</option><option>الكوت</option><option>المثنى</option><option>ذي قار</option><option>القادسية</option><option>ميسان</option><option>النجف</option><option>كربلاء</option>
-                </select>
-                <input type="text" id="custCity" placeholder="المنطقة *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required>
-                <input type="text" id="custLandmark" placeholder="أقرب نقطة دالة" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none">
-                <input type="tel" id="custPhone" placeholder="رقم الموبايل *" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white outline-none" required>
-                <button type="submit" class="btn-gold w-full py-3 rounded-xl font-bold"><i class="fab fa-whatsapp ml-2"></i>إرسال الطلب</button>
-            </form>
-        </div>
-    </div>
-    
-    <div id="videoModal" class="modal" onclick="closeVideo()">
-        <div class="video-modal-container" onclick="event.stopPropagation()">
-            <button class="close-video-btn" onclick="closeVideo()">&times;</button>
-            <iframe id="videoFrame" src="" allowfullscreen></iframe>
+
+    <!-- مودال الفيديو -->
+    <div id="videoModal" class="modal">
+        <div class="video-modal">
+            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-[#d4af37]">&times;</button></div>
+            <iframe id="videoIframe" src="" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -506,237 +400,217 @@
             messagingSenderId: "456810444639",
             appId: "1:456810444639:web:a706dc19781cd7738e28ea"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        let allProducts = [], allCategories = {}, currentCategory = 'all', currentSearch = '', selectedProduct = null;
-        let ratings = JSON.parse(localStorage.getItem('akkad_ratings') || '{}');
+
+        let categories = [];
+        let products = [];
         let settings = {};
+        let currentCategory = 'all';
+        let searchQuery = '';
 
-        function handleScrollFade() { document.querySelectorAll('.fade-on-scroll').forEach(el => { if(el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('visible'); }); }
+        async function loadData() {
+            await Promise.all([loadCategories(), loadProducts(), loadSettings()]);
+            document.getElementById('loadingProducts').style.display = 'none';
+            renderCategories();
+            renderProducts();
+            renderMarquee();
+            renderSocialIcons();
+            updateLogo();
+        }
 
-        function createFloatingProducts() {
-            const container = document.getElementById('floatingProducts');
-            if(!container) return;
-            const defaultImages = ['https://via.placeholder.com/200?text=✨', 'https://via.placeholder.com/200?text=🛒'];
-            for(let i = 0; i < 6; i++) {
-                const div = document.createElement('div');
-                div.className = 'floating-product';
-                div.style.backgroundImage = `url(${defaultImages[i % defaultImages.length]})`;
-                div.style.animationDelay = `${i * 3}s`;
-                div.style.left = `${10 + Math.random() * 80}%`;
-                div.style.top = `${10 + Math.random() * 80}%`;
-                div.style.animationDuration = `${35 + Math.random() * 30}s`;
-                container.appendChild(div);
+        async function loadCategories() {
+            const snapshot = await db.ref('categories').once('value');
+            const data = snapshot.val();
+            categories = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a,b) => (a.order || 0) - (b.order || 0)) : [];
+        }
+
+        async function loadProducts() {
+            const snapshot = await db.ref('products').once('value');
+            const data = snapshot.val();
+            products = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+        }
+
+        async function loadSettings() {
+            const snapshot = await db.ref('settings').once('value');
+            settings = snapshot.val() || {};
+            const speed = settings.marqueeSpeed || 30;
+            document.documentElement.style.setProperty('--marquee-speed', speed + 's');
+        }
+
+        function updateLogo() {
+            if (settings.storeLogo) {
+                document.getElementById('storeLogo').src = settings.storeLogo;
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = `<button class="cat-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">الكل</button>`;
+            categories.forEach(cat => {
+                container.innerHTML += `<button class="cat-btn ${currentCategory === cat.id ? 'active' : ''}" onclick="filterByCategory('${cat.id}')">${escapeHtml(cat.name)}</button>`;
+            });
+        }
+
+        function filterByCategory(categoryId) {
+            currentCategory = categoryId;
+            renderCategories();
+            renderProducts();
+        }
+
+        function filterProducts() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            let filtered = products;
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(p => p.categoryId === currentCategory);
+            }
+            if (searchQuery) {
+                filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery) || p.description?.toLowerCase().includes(searchQuery));
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">لا توجد منتجات</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            filtered.forEach(prod => {
+                const catName = categories.find(c => c.id === prod.categoryId)?.name || '';
+                const hasVideo = prod.videoCode && prod.videoCode.length > 5;
+                container.innerHTML += `
+                    <div class="product-card">
+                        <div class="media-box" onclick="openVideo('${prod.videoCode || ''}')">
+                            <img src="${escapeHtml(prod.image || 'https://placehold.co/400x300')}" alt="${escapeHtml(prod.name)}" onerror="this.src='https://placehold.co/400x300'">
+                            ${hasVideo ? '<div class="video-overlay"><i class="fas fa-play-circle"></i></div><div class="video-badge"><i class="fas fa-video"></i> فيديو</div>' : ''}
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg">${escapeHtml(prod.name)}</h3>
+                            <div class="text-[#d4af37] text-xl font-bold mt-1">$${prod.price || 0}</div>
+                            <p class="text-sm text-gray-400 mt-2 line-clamp-2">${escapeHtml(prod.description?.substring(0, 80) || '')}</p>
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="showSpecs('${prod.id}')" class="flex-1 btn-gold py-2"><i class="fas fa-info-circle"></i> المواصفات</button>
+                                <button onclick="orderProduct('${prod.id}')" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl transition"><i class="fab fa-whatsapp"></i> طلب</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderMarquee() {
+            const topProducts = [...products].sort((a,b) => (b.price || 0) - (a.price || 0)).slice(0, 10);
+            if (topProducts.length === 0) return;
+            const track = document.getElementById('marqueeTrack');
+            const items = [...topProducts, ...topProducts].map(p => `
+                <div class="marquee-item" onclick="scrollToProduct('${p.id}')">
+                    <img src="${escapeHtml(p.image || 'https://placehold.co/70x70')}" onerror="this.src='https://placehold.co/70x70'">
+                    <div>
+                        <div class="font-bold">${escapeHtml(p.name)}</div>
+                        <div class="text-[#d4af37] text-sm">$${p.price || 0}</div>
+                    </div>
+                </div>
+            `).join('');
+            track.innerHTML = items;
+            document.getElementById('marqueeSection').style.display = 'block';
+        }
+
+        function scrollToProduct(productId) {
+            const productCard = document.querySelector(`.product-card:has([onclick="showSpecs('${productId}')"])`);
+            if (productCard) {
+                productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                productCard.style.transform = 'scale(1.02)';
+                setTimeout(() => { productCard.style.transform = ''; }, 500);
+            }
+        }
+
+        function showSpecs(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const specs = product.specs || {};
+            const specsHtml = Object.keys(specs).length === 0 ? '<p class="text-gray-400">لا توجد مواصفات مسجلة</p>' :
+                Object.entries(specs).map(([key, val]) => `<div class="flex justify-between py-2 border-b border-white/10"><span class="text-[#d4af37]">${escapeHtml(key)}</span><span>${escapeHtml(val)}</span></div>`).join('');
+            document.getElementById('specsContent').innerHTML = `
+                <h4 class="font-bold mb-2">${escapeHtml(product.name)}</h4>
+                <p class="text-sm text-gray-400 mb-3">${escapeHtml(product.description || '')}</p>
+                <div class="detail-spec">${specsHtml}</div>
+            `;
+            document.getElementById('specsModal').style.display = 'flex';
+        }
+
+        function openVideo(videoCode) {
+            if (!videoCode) return;
+            let videoId = videoCode;
+            if (videoCode.includes('youtube.com/watch?v=')) {
+                videoId = videoCode.split('v=')[1]?.split('&')[0];
+            } else if (videoCode.includes('youtu.be/')) {
+                videoId = videoCode.split('youtu.be/')[1]?.split('?')[0];
+            }
+            if (videoId) {
+                document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                document.getElementById('videoModal').style.display = 'flex';
+            }
+        }
+
+        function orderProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            const whatsappNumber = settings.whatsappNumber || '';
+            if (!whatsappNumber) {
+                alert('الرجاء إضافة رقم الواتساب من لوحة التحكم');
+                return;
+            }
+            const message = `🛍️ طلب منتج من متجر أكاد\n\n📦 المنتج: ${product.name}\n💰 السعر: $${product.price}\n🔗 رابط المنتج: ${window.location.href}`;
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function renderSocialIcons() {
+            const container = document.getElementById('socialIcons');
+            const icons = [];
+            if (settings.whatsappNumber) icons.push({ icon: 'fab fa-whatsapp', link: `https://wa.me/${settings.whatsappNumber}`, color: '#25D366' });
+            if (settings.facebookLink) icons.push({ icon: 'fab fa-facebook', link: settings.facebookLink, color: '#1877F2' });
+            if (settings.instagramLink) icons.push({ icon: 'fab fa-instagram', link: settings.instagramLink, color: '#E4405F' });
+            if (settings.telegramLink) icons.push({ icon: 'fab fa-telegram', link: settings.telegramLink, color: '#26A5E4' });
+            container.innerHTML = icons.map(s => `<a href="${s.link}" target="_blank" style="color:${s.color}"><i class="${s.icon} fa-2x"></i></a>`).join('');
+        }
+
+        function shareStore() {
+            if (navigator.share) {
+                navigator.share({ title: 'متجر أكاد', url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('تم نسخ رابط المتجر');
             }
         }
 
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
-            const icon = document.querySelector('#themeToggle i');
-            if(icon) icon.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon';
         }
-        
-        function loadTheme() {
-            if(localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-mode');
-                const icon = document.querySelector('#themeToggle i');
-                if(icon) icon.className = 'fas fa-sun';
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'videoModal') {
+                document.getElementById('videoIframe').src = '';
             }
         }
 
-        function showToast(msg, isError = false) { 
-            let t = document.createElement('div'); 
-            t.className = `toast ${isError ? 'error' : ''}`; 
-            t.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} ml-2"></i>${msg}`; 
-            document.body.appendChild(t); 
-            setTimeout(() => t.remove(), 3000); 
-        }
-        
-        function shareStore() { 
-            if(navigator.share) navigator.share({ title: 'متجر أكاد', url: window.location.href }); 
-            else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } 
-        }
-        
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        function playVideo(url) {
-            if(!url) return;
-            let videoId = '';
-            let match = url.match(/[?&]v=([^&]+)/);
-            if(!match) match = url.match(/youtu\.be\/([^?&]+)/);
-            if(!match) match = url.match(/embed\/([^?&]+)/);
-            if(!match) match = url.match(/shorts\/([^?&]+)/);
-            if(match && match[1]) videoId = match[1];
-            const vf = document.getElementById('videoFrame'), vm = document.getElementById('videoModal');
-            if(videoId && vf) { vf.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; vm.style.display = 'flex'; }
-            else if(vf) { vf.src = url; vm.style.display = 'flex'; }
-            else showToast('رابط الفيديو غير صالح', true);
-        }
-        
-        function closeVideo() { const vf = document.getElementById('videoFrame'); if(vf) vf.src = ''; document.getElementById('videoModal').style.display = 'none'; }
-        
-        function escapeHtml(t) { if(!t) return ''; return String(t).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
-        function scrollCategories(d) { document.querySelector('.categories-scroll')?.scrollBy({ left: d === 'left' ? -200 : 200, behavior: 'smooth' }); }
-
-        function setRating(pid, rating, event) { 
-            if(event) event.stopPropagation(); 
-            ratings[pid] = rating; 
-            localStorage.setItem('akkad_ratings', JSON.stringify(ratings)); 
-            renderProducts(); 
-            showToast(`✅ تم تقييم المنتج بـ ${rating} نجوم`); 
-        }
-        function getRating(pid) { return ratings[pid] || 0; }
-        function displayRating(pid, interactive = false) { 
-            let r = getRating(pid), stars = ''; 
-            for(let i=1;i<=5;i++) stars += `<i class="fas fa-star star ${i<=r?'active':''}" ${interactive ? `onclick="setRating('${pid}', ${i}, event)"` : ''} style="font-size:14px;"></i>`; 
-            return `<div class="rating">${stars}</div>`; 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
         }
 
-        function getCategoryDisplayName(cv) { if(!cv) return 'عام'; return cv.includes('_') ? cv.split('_')[1] : cv; }
-        
-        function renderCategories() {
-            let c = document.getElementById('categoriesContainer');
-            if(!c) return;
-            let sorted = Object.entries(allCategories).sort((a,b) => (parseInt(a[1]?.split('_')[0])||999) - (parseInt(b[1]?.split('_')[0])||999));
-            c.innerHTML = `<button class="cat-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">🏠 الكل</button>`;
-            sorted.forEach(([k, v]) => { c.innerHTML += `<button class="cat-btn ${currentCategory === k ? 'active' : ''}" onclick="filterByCategory('${k}')">📁 ${escapeHtml(getCategoryDisplayName(v))}</button>`; });
-        }
-        
-        function filterByCategory(catId) { currentCategory = catId; renderProducts(); }
-        function searchProducts() { currentSearch = document.getElementById('searchInput').value.toLowerCase(); renderProducts(); }
+        window.onscroll = () => {
+            const btn = document.getElementById('scrollTop');
+            if (window.scrollY > 300) btn.classList.add('visible');
+            else btn.classList.remove('visible');
+        };
 
-        function loadStoreSettings() {
-            db.ref('settings').on('value', (s) => {
-                settings = s.val() || {};
-                const logo = document.getElementById('storeLogo');
-                if(logo) logo.src = (settings.store_logo && settings.store_logo !== '') ? settings.store_logo : 'https://dso5.raed.net:449/files/Gemini-Generated-Image-wgpl90wgpl90wgpl.png';
-                let html = '';
-                if(settings.whatsapp_link && settings.whatsapp_link !== '') html += `<a href="https://wa.me/${settings.whatsapp_link.replace(/[^0-9]/g, '')}" class="social-icon">${settings.whatsapp_logo ? `<img src="${settings.whatsapp_logo}">` : `<i class="fab fa-whatsapp"></i>`}</a>`;
-                if(settings.facebook_link && settings.facebook_link !== '') html += `<a href="${settings.facebook_link}" class="social-icon">${settings.facebook_logo ? `<img src="${settings.facebook_logo}">` : `<i class="fab fa-facebook-f"></i>`}</a>`;
-                if(settings.instagram_link && settings.instagram_link !== '') html += `<a href="${settings.instagram_link}" class="social-icon">${settings.instagram_logo ? `<img src="${settings.instagram_logo}">` : `<i class="fab fa-instagram"></i>`}</a>`;
-                if(settings.telegram_link && settings.telegram_link !== '') html += `<a href="${settings.telegram_link}" class="social-icon">${settings.telegram_logo ? `<img src="${settings.telegram_logo}">` : `<i class="fab fa-telegram"></i>`}</a>`;
-                document.getElementById('socialLinksContainer').innerHTML = html || '<p class="text-white/30 text-sm">لا توجد روابط</p>';
-            });
-        }
-
-        function loadCategories() { db.ref('categories').on('value', (s) => { allCategories = s.val() || {}; renderCategories(); renderProducts(); }); }
-        
-        function renderProducts() {
-            let filtered = allProducts.filter(p => {
-                if(currentCategory !== 'all' && p.categoryId !== currentCategory) return false;
-                if(currentSearch && !p.name?.toLowerCase().includes(currentSearch) && !(p.desc || '').toLowerCase().includes(currentSearch)) return false;
-                return true;
-            });
-            document.getElementById('productCount').innerText = filtered.length;
-            let grid = document.getElementById('productsGrid'), skeleton = document.getElementById('skeletonLoading'), noResults = document.getElementById('noResults');
-            if(filtered.length === 0) { grid.classList.add('hidden'); skeleton.classList.add('hidden'); noResults.classList.remove('hidden'); return; }
-            grid.classList.remove('hidden'); skeleton.classList.add('hidden'); noResults.classList.add('hidden');
-            let html = '';
-            filtered.forEach((p, idx) => {
-                let catName = p.categoryId && allCategories[p.categoryId] ? getCategoryDisplayName(allCategories[p.categoryId]) : 'عام';
-                let hasVideo = p.videoUrl && p.videoUrl.trim() !== '';
-                let videoAttr = hasVideo ? `onclick="playVideo('${escapeHtml(p.videoUrl).replace(/'/g, "\\'")}')"` : '';
-                html += `<div class="product-card"><div class="media-box" ${videoAttr}>${hasVideo ? `<div class="video-badge"><i class="fas fa-play"></i> فيديو</div><div class="video-overlay"><i class="fas fa-play-circle"></i></div>` : ''}<img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/400x300?text=لا+توجد+صورة')}" onerror="this.src='https://via.placeholder.com/400x300?text=خطأ'"></div><div class="p-4"><h3 class="font-bold text-base">${escapeHtml(p.name)}</h3><div class="price-tag font-bold text-lg mt-1">${p.price || '0'}</div><div class="text-white/40 text-xs">${escapeHtml(catName)}</div>${displayRating(p.id, true)}<div class="flex gap-2 mt-3"><button onclick="showDetails('${p.id}')" class="flex-1 btn-outline py-2 rounded-lg text-sm"><i class="fas fa-info-circle ml-1"></i>تفاصيل</button><button onclick="openOrderModal('${p.id}')" class="flex-1 btn-gold py-2 rounded-lg text-sm"><i class="fab fa-whatsapp ml-1"></i>طلب</button></div></div></div>`;
-            });
-            grid.innerHTML = html;
-            setTimeout(handleScrollFade, 100);
-        }
-        
-        function showDetails(pid) {
-            let p = allProducts.find(p => p.id === pid);
-            if(!p) return;
-            document.getElementById('modalTitle').innerText = p.name;
-            document.getElementById('modalDesc').innerHTML = (p.desc || 'لا يوجد وصف').replace(/\n/g, '<br>');
-            let specs = `<div class="spec-item"><span class="spec-label">💰 السعر:</span><span>${p.price || '0'}</span></div>`;
-            if(p.categoryId && allCategories[p.categoryId]) specs += `<div class="spec-item"><span class="spec-label">📂 القسم:</span><span>${escapeHtml(getCategoryDisplayName(allCategories[p.categoryId]))}</span></div>`;
-            if(p.specs) for(let [k,v] of Object.entries(p.specs)) specs += `<div class="spec-item"><span class="spec-label">🔹 ${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`;
-            document.getElementById('modalSpecs').innerHTML = specs;
-            document.getElementById('detailsModal').style.display = 'flex';
-        }
-        
-        function openOrderModal(pid) {
-            selectedProduct = allProducts.find(p => p.id === pid);
-            if(selectedProduct) { 
-                document.getElementById('orderProductInfo').innerHTML = `<strong>${escapeHtml(selectedProduct.name)}</strong><br>💰 ${selectedProduct.price || '0'}`; 
-                document.getElementById('orderForm').reset(); 
-                document.getElementById('orderModal').style.display = 'flex'; 
-            }
-        }
-        
-        document.getElementById('orderForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(!selectedProduct) return;
-            
-            let addr = `${document.getElementById('custCity').value}، ${document.getElementById('custGov').value}`;
-            if(document.getElementById('custLandmark').value) addr += ` (${document.getElementById('custLandmark').value})`;
-            
-            let order = {
-                productId: selectedProduct.id,
-                productName: selectedProduct.name,
-                productPrice: selectedProduct.price,
-                customerName: document.getElementById('custName').value,
-                governorate: document.getElementById('custGov').value,
-                city: document.getElementById('custCity').value,
-                landmark: document.getElementById('custLandmark').value,
-                phone: document.getElementById('custPhone').value,
-                status: 'جديد',
-                createdAt: new Date().toISOString(),
-                createdAtTimestamp: Date.now()
-            };
-            
-            try {
-                await db.ref('orders').push(order);
-                
-                let whatsappNumber = settings.whatsapp_link || "9647730492020";
-                whatsappNumber = whatsappNumber.toString().replace(/[^0-9]/g, '');
-                if(whatsappNumber.startsWith('0')) whatsappNumber = whatsappNumber.substring(1);
-                if(!whatsappNumber.startsWith('964') && whatsappNumber.length === 10) whatsappNumber = '964' + whatsappNumber;
-                
-                let msg = `🛍️ طلب جديد من متجر أكاد%0A%0A📦 المنتج: ${selectedProduct.name}%0A💰 السعر: ${selectedProduct.price}%0A👤 الاسم: ${order.customerName}%0A📍 العنوان: ${addr}%0A📞 الجوال: ${order.phone}%0A%0A✨ يرجى التواصل مع العميل`;
-                
-                window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank');
-                showToast('✅ تم إرسال الطلب');
-                closeModal('orderModal');
-            } catch(err) { 
-                console.error(err);
-                showToast('❌ فشل الإرسال', true); 
-            }
-        });
-        
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        window.addEventListener('scroll', () => { 
-            let btn = document.getElementById('scrollTopBtn'); 
-            if(btn) btn.classList.toggle('visible', window.scrollY > 300); 
-            handleScrollFade(); 
-        });
-        
-        function loadProducts() {
-            db.ref('products').on('value', (s) => {
-                allProducts = Object.entries(s.val() || {}).map(([id,v]) => ({ id, ...v }));
-                renderProducts();
-                let marquee = document.getElementById('marqueeSection'), track = document.getElementById('marqueeTrack');
-                if(marquee && track) {
-                    let top = [...allProducts].sort((a,b) => getRating(b.id) - getRating(a.id)).slice(0, 12);
-                    if(top.length === 0) marquee.classList.add('hidden');
-                    else { 
-                        marquee.classList.remove('hidden'); 
-                        track.innerHTML = [...top, ...top].map(p => `<div class="marquee-item" onclick="showDetails('${p.id}')"><img src="${escapeHtml(p.imageUrl || 'https://via.placeholder.com/80x80')}" onerror="this.src='https://via.placeholder.com/80x80'"><div><div style="font-weight:bold">${escapeHtml(p.name)}</div><div class="marquee-price">💰 ${p.price || '0'}</div></div></div>`).join('');
-                    }
-                }
-            });
-        }
-        
-        loadTheme();
-        loadStoreSettings();
-        loadCategories();
-        loadProducts();
-        createFloatingProducts();
-        setTimeout(handleScrollFade, 500);
-        
-        window.playVideo = playVideo;
-        window.closeVideo = closeVideo;
+        loadData();
     </script>
 </body>
 </html>
