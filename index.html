@@ -42,7 +42,6 @@
                 radial-gradient(ellipse at 80% 20%, rgba(212,175,55,0.03) 0%, transparent 50%);
         }
 
-        /* ✨ Enhanced Background Effects */
         .floating-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .float-product { 
             position: absolute; 
@@ -90,7 +89,6 @@
         .glow-orb:nth-child(2) { animation-delay: -12s; width: 500px; height: 500px; background: radial-gradient(circle, rgba(37,211,102,0.08) 0%, transparent 60%); }
         @keyframes floatOrb { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-40px) scale(1.05)} 66%{transform:translate(-30px,30px) scale(0.95)} }
 
-        /* 🌟 Particle Effect */
         .particle {
             position: fixed;
             width: 4px; height: 4px;
@@ -106,7 +104,6 @@
             100% { opacity: 0; transform: translate(var(--tx, 50px), var(--ty, -100px)) scale(0); }
         }
 
-        /* 🦸 Enhanced Hero Section */
         .hero-section { 
             position:relative; z-index:10; 
             padding:40px 20px 60px; 
@@ -292,7 +289,6 @@
         } 
         .stat-label { font-size:0.8rem; color:var(--text-secondary); margin-top:5px; font-weight: 500; }
 
-        /* 📋 Enhanced Header */
         .header-main { 
             position:sticky; top:0; z-index:50; 
             background:rgba(10,15,18,0.92); 
@@ -444,7 +440,6 @@
         @keyframes pulseBadge { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
         .cart-badge.visible { opacity:1; transform: scale(1); }
 
-        /* 📂 Enhanced Categories */
         .categories-wrapper { 
             position:sticky; top:78px; z-index:45; 
             background:rgba(10,15,18,0.92); 
@@ -511,7 +506,6 @@
             border: 1px solid rgba(212,175,55,0.3);
         }
 
-        /* 🎬 Enhanced Marquee */
         .marquee-section { 
             position:relative; z-index:10; 
             background:linear-gradient(90deg,transparent,rgba(212,175,55,0.1),rgba(212,175,55,0.05),rgba(212,175,55,0.1),transparent); 
@@ -561,7 +555,6 @@
         .marquee-name { font-weight:800; font-size:13px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; } 
         .marquee-price { color:var(--gold-primary); font-size:14px; font-weight:900; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
 
-        /* 📦 Enhanced Products */
         .products-container { position:relative; z-index:10; max-width:1400px; margin:0 auto; padding:20px 20px 70px; }
         .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:28px; }
         .product-card { 
@@ -809,7 +802,6 @@
         }
         @keyframes addedPulse { 0%{transform:scale(1)} 50%{transform:scale(1.1)} 100%{transform:scale(1)} }
 
-        /* 💀 Skeleton Loading Enhanced */
         .skeleton-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:28px; }
         .skeleton-card { 
             background:linear-gradient(145deg,#141a1f,#0f1419); 
@@ -845,7 +837,6 @@
         .skeleton-line.short { width:60%; }
         @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-        /* 📭 Enhanced Empty State */
         .empty-state { 
             grid-column:1/-1; text-align:center; padding:90px 20px; 
             display:flex; flex-direction:column; align-items:center; gap:25px;
@@ -889,7 +880,6 @@
         } 
         .btn-show-all:hover { background:rgba(212,175,55,0.15); transform:translateY(-5px); border-color: var(--gold-primary); }
 
-        /* 🪟 Enhanced Modals */
         .modal { 
             display:none; position:fixed; inset:0; 
             background:rgba(10,15,18,0.97); z-index:1000; 
@@ -995,7 +985,6 @@
         } 
         .btn-submit-review:hover { transform:translateY(-4px); box-shadow: 0 15px 40px rgba(212,175,55,0.6); }
 
-        /* 🛒 Enhanced Cart Modal */
         .cart-modal { display:none; position:fixed; inset:0; background:rgba(10,15,18,0.97); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(30px); animation:modalIn 0.4s ease; } 
         .cart-modal-content { 
             background:linear-gradient(145deg,#141a1f,#0f1419); 
@@ -1089,7 +1078,6 @@
         } 
         .btn-clear-cart:hover { background:rgba(229,62,62,0.3); transform: translateY(-3px); }
 
-        /* 📝 Enhanced Order Modal */
         .order-modal { display:none; position:fixed; inset:0; background:rgba(10,15,18,0.97); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(30px); animation:modalIn 0.4s ease; } 
         .order-modal-content { 
             background:linear-gradient(145deg,#141a1f,#0f1419); 
@@ -1192,7 +1180,6 @@
         } 
         .btn-cancel-order:hover { background:rgba(255,255,255,0.15); transform: translateY(-3px); }
         
-        /* ⏳ Enhanced Loader */
         .loader { 
             width:70px; height:70px; 
             border:4px solid rgba(212,175,55,0.3); 
@@ -1214,7 +1201,6 @@
         }
         @keyframes spin { to{transform:rotate(360deg)} }
 
-        /* 🦶 Enhanced Footer */
         .footer { 
             position:relative; z-index:10; 
             background:rgba(10,15,18,0.95); backdrop-filter:blur(20px); 
@@ -1251,7 +1237,6 @@
         .copyright { font-size:0.85rem; color:var(--text-secondary); margin-top:18px; line-height:2; }
         .copyright i { color: var(--gold-primary); margin: 0 3px; }
 
-        /* 🌙 Enhanced Light Mode */
         body.light-mode { 
             background:linear-gradient(135deg, #f8f6f0, #fffef9); 
             color:#111827;
@@ -1363,7 +1348,6 @@
             background:linear-gradient(180deg,rgba(248,246,240,0.97) 0%,transparent 100%);
         }
 
-        /* 🍞 Enhanced Toast */
         .toast { 
             position:fixed; bottom:35px; left:50%; 
             transform:translateX(-50%); 
@@ -1402,7 +1386,6 @@
             box-shadow: 0 20px 60px rgba(245,158,11,0.3);
         }
 
-        /* 🎉 Confetti Animation for Success */
         .confetti {
             position: fixed;
             width: 10px; height: 10px;
@@ -1415,7 +1398,6 @@
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
-        /* 📱 Responsive */
         @media(max-width:900px) { 
             .header-flex{flex-direction:column;text-align:center} 
             .header-right,.header-left{justify-content:center} 
@@ -1451,7 +1433,6 @@
             .product-card .p-4 { padding: 16px; }
         }
         
-        /* ♿ Accessibility & Reduced Motion */
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { 
                 animation-duration: 0.01ms !important; 
@@ -1466,14 +1447,12 @@
     </style>
 </head>
 <body>
-    <!-- 🎨 Enhanced Background Effects -->
     <div class="floating-bg" id="floatingBg"></div>
     <div class="glow-orb"></div>
     <div class="glow-orb"></div>
     <div class="cuneiform" style="bottom:12%;right:-25%">𒀭𒈾𒀜𒈾𒀭 𒀝𒅗𒁺</div>
     <div class="cuneiform" style="top:35%;left:-20%;animation-duration:32s;animation-delay:-16s">𒀭𒀜𒈾𒀭𒀜 𒈠𒀀𒉡</div>
 
-    <!-- 🦸 Enhanced Hero Section -->
     <section class="hero-section">
         <div class="hero-glow"></div>
         <div class="max-w-4xl mx-auto text-center">
@@ -1496,7 +1475,6 @@
         </div>
     </section>
 
-    <!-- 📋 Enhanced Header -->
     <header class="header-main" id="headerMain">
         <div class="header-flex">
             <div class="header-right"><div class="header-social" id="headerSocial"></div></div>
@@ -1520,24 +1498,20 @@
         </div>
     </header>
 
-    <!-- 📂 Categories -->
     <div class="categories-wrapper">
         <div class="categories-scroll" id="categoriesContainer"></div>
     </div>
     
-    <!-- 🎬 Marquee -->
     <div class="marquee-section" id="marqueeSection" style="display:none;">
         <div class="marquee-track" id="marqueeTrack"></div>
     </div>
 
-    <!-- 📦 Products -->
     <div class="products-container">
         <div class="skeleton-grid" id="skeletonContainer"></div>
         <div class="products-grid" id="productsContainer"></div>
         <div id="loadingProducts" class="loader"></div>
     </div>
 
-    <!-- 🦶 Footer -->
     <footer class="footer">
         <div class="footer-social" id="footerSocial"></div>
         <div class="copyright">
@@ -1546,7 +1520,6 @@
         </div>
     </footer>
 
-    <!-- 🪟 Product Modal -->
     <div id="productModal" class="modal" onclick="if(event.target===this)closeModal('productModal')">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -1588,7 +1561,6 @@
         </div>
     </div>
 
-    <!-- 🎬 Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this)closeModal('videoModal')">
         <div class="bg-black rounded-3xl overflow-hidden max-w-4xl w-full mx-4 border-3 border-[var(--gold-primary)] shadow-2xl">
             <div class="flex justify-end p-4">
@@ -1598,7 +1570,6 @@
         </div>
     </div>
 
-    <!-- 🛒 Cart Modal -->
     <div id="cartModal" class="cart-modal" onclick="if(event.target===this)closeModal('cartModal')">
         <div class="cart-modal-content">
             <div class="cart-header">
@@ -1610,7 +1581,6 @@
         </div>
     </div>
 
-    <!-- 📝 Order Modal -->
     <div id="orderModal" class="order-modal" onclick="if(event.target===this)closeModal('orderModal')">
         <div class="order-modal-content">
             <h3><i class="fas fa-shopping-cart ml-2"></i> ✨ إتمام الطلب</h3>
@@ -1671,7 +1641,6 @@
     </div>
 
     <script>
-        // Firebase Configuration
         const firebaseConfig = { 
             apiKey:"AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E", 
             authDomain:"akkad-store-ab5a1.firebaseapp.com", 
@@ -1684,12 +1653,10 @@
         if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Global State
         let categories=[], products=[], reviews=[], settings={}, social={};
         let currentCategory='all', currentProduct=null, searchQuery='', selectedRating=0, currentStep=1;
         let cart = JSON.parse(localStorage.getItem('akkad_cart')||'[]');
 
-        // ✨ Particle & Confetti Effects
         function createParticles(e) {
             const colors = ['#d4af37', '#f0c674', '#25D366', '#e8e2d4'];
             for(let i=0; i<12; i++) {
@@ -1721,7 +1688,6 @@
             }
         }
 
-        // UI Helpers
         function lockScroll() { document.body.style.overflow = 'hidden'; }
         function unlockScroll() { document.body.style.overflow = ''; }
         
@@ -1730,31 +1696,17 @@
             if(existing) existing.remove();
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icons = { 
-                success:'<i class="fas fa-check-circle"></i>', 
-                error:'<i class="fas fa-times-circle"></i>', 
-                warning:'<i class="fas fa-exclamation-triangle"></i>' 
-            };
+            const icons = { success:'<i class="fas fa-check-circle"></i>', error:'<i class="fas fa-times-circle"></i>', warning:'<i class="fas fa-exclamation-triangle"></i>' };
             toast.innerHTML = `${icons[type]} ${msg}`;
             document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 400);
-            }, 2700);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 2700);
         }
 
-        // Cart Functions
-        function saveCart() { 
-            localStorage.setItem('akkad_cart', JSON.stringify(cart)); 
-            updateCartUI(); 
-        }
+        function saveCart() { localStorage.setItem('akkad_cart', JSON.stringify(cart)); updateCartUI(); }
         function updateCartUI() { 
             const total = cart.reduce((sum, item) => sum + item.qty, 0); 
             const badge = document.getElementById('cartBadge'); 
-            if(badge) {
-                badge.textContent = total; 
-                badge.classList.toggle('visible', total > 0);
-            }
+            if(badge) { badge.textContent = total; badge.classList.toggle('visible', total > 0); }
             document.getElementById('heroCartCount').textContent = total; 
         }
         
@@ -1784,46 +1736,20 @@
             const img = document.querySelector(`.product-card[data-product-id="${productId}"] .product-img`);
             flyToCart(img);
             createParticles();
-            
             const existing = cart.find(i => i.id === productId);
             if(existing) existing.qty++; 
             else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
             saveCart(); 
             showToast(`✨ أُضيف "${product.name}" للسلة`);
             const btn = document.getElementById(`cart-btn-${productId}`);
-            if(btn) { 
-                btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة'; 
-                btn.classList.add('added'); 
-            }
+            if(btn) { btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة'; btn.classList.add('added'); }
         }
-        function addToCartFromModal() { 
-            if(!currentProduct) return; 
-            addToCart(currentProduct.id); 
-            const btn = document.getElementById('modalCartBtn'); 
-            if(btn) {
-                btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة';
-                btn.classList.add('added');
-            }
-        }
+        function addToCartFromModal() { if(!currentProduct) return; addToCart(currentProduct.id); const btn = document.getElementById('modalCartBtn'); if(btn) { btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة'; btn.classList.add('added'); } }
         function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); renderCartModal(); }
-        function changeQty(id, delta) { 
-            const item = cart.find(x => x.id === id); 
-            if(!item) return; 
-            item.qty = Math.max(1, item.qty + delta); 
-            saveCart(); 
-            renderCartModal(); 
-        }
+        function changeQty(id, delta) { const item = cart.find(x => x.id === id); if(!item) return; item.qty = Math.max(1, item.qty + delta); saveCart(); renderCartModal(); }
         
-        function openCartModal() { 
-            lockScroll(); 
-            renderCartModal(); 
-            document.getElementById('cartModal').style.display = 'flex'; 
-        }
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-            unlockScroll(); 
-            if(id === 'videoModal') document.getElementById('videoIframe').src = '';
-        }
+        function openCartModal() { lockScroll(); renderCartModal(); document.getElementById('cartModal').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; unlockScroll(); if(id === 'videoModal') document.getElementById('videoIframe').src = ''; }
         
         function renderCartModal() {
             const container = document.getElementById('cartItemsContainer');
@@ -1857,11 +1783,7 @@
                 <button class="btn-clear-cart" onclick="clearCart()"><i class="fas fa-trash"></i> تفريغ السلة</button>
             `;
         }
-        function clearCart() { 
-            if(!confirm('⚠️ هل تريد تفريغ السلة تماماً؟')) return; 
-            cart = []; saveCart(); renderCartModal(); 
-            showToast('🗑️ تم تفريغ السلة', 'warning'); 
-        }
+        function clearCart() { if(!confirm('⚠️ هل تريد تفريغ السلة تماماً؟')) return; cart = []; saveCart(); renderCartModal(); showToast('🗑️ تم تفريغ السلة', 'warning'); }
         
         function checkoutCart() { 
             if(!cart.length) return; 
@@ -1875,7 +1797,6 @@
             createConfetti();
         }
 
-        // Data Loading
         async function loadData() { 
             renderSkeleton(); 
             await Promise.all([loadCategories(), loadProducts(), loadReviews(), loadSettings(), loadSocial()]); 
@@ -1890,26 +1811,31 @@
             updateStats(); 
             setupScrollAnimations(); 
         }
+        
         async function loadCategories() { 
             const s = await db.ref('categories').once('value'); 
             const d = s.val(); 
             categories = d ? Object.entries(d).map(([id, val]) => ({ id, ...val })).sort((a,b) => (a.order||0)-(b.order||0)) : []; 
         }
+        
         async function loadProducts() { 
             const s = await db.ref('products').once('value'); 
             const d = s.val(); 
             products = d ? Object.entries(d).map(([id, val]) => ({ id, ...val })) : []; 
         }
+        
         async function loadReviews() { 
             const s = await db.ref('reviews').once('value'); 
             const d = s.val(); 
             reviews = d ? Object.entries(d).map(([id, val]) => ({ id, ...val })) : []; 
         }
+        
         async function loadSettings() { 
             const s = await db.ref('settings').once('value'); 
             settings = s.val() || {}; 
             document.documentElement.style.setProperty('--mq-speed', (settings.ms || 35) + 's'); 
         }
+        
         async function loadSocial() { 
             const s = await db.ref('social').once('value'); 
             social = s.val() || {}; 
@@ -1917,25 +1843,13 @@
         
         function renderSkeleton() { 
             const c = document.getElementById('skeletonContainer'); 
-            c.innerHTML = Array(6).fill(`
-                <div class="skeleton-card">
-                    <div class="skeleton-img"></div>
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
-                    <div class="skeleton-line" style="height:40px;margin-top:18px"></div>
-                </div>
-            `).join(''); 
+            c.innerHTML = Array(6).fill(`<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line" style="height:40px;margin-top:18px"></div></div>`).join(''); 
             c.style.display = 'grid'; 
             document.getElementById('productsContainer').style.display = 'none'; 
         }
-        function hideSkeleton() { 
-            document.getElementById('skeletonContainer').style.display = 'none'; 
-            document.getElementById('productsContainer').style.display = 'grid'; 
-        }
         
-        function updateLogo() { 
-            if(settings.storeLogo) document.getElementById('storeLogo').src = settings.storeLogo; 
-        }
+        function hideSkeleton() { document.getElementById('skeletonContainer').style.display = 'none'; document.getElementById('productsContainer').style.display = 'grid'; }
+        function updateLogo() { if(settings.storeLogo) document.getElementById('storeLogo').src = settings.storeLogo; }
         
         function renderSocials() { 
             const whatsapp = settings.whatsappLink || settings.whatsappNumber; 
@@ -1954,15 +1868,10 @@
             document.getElementById('statsProducts').textContent = products.length; 
             document.getElementById('statsReviews').textContent = reviews.filter(r => r.approved !== false).length; 
         }
-        function searchProducts() { 
-            searchQuery = document.getElementById('searchInput').value.toLowerCase().trim(); 
-            renderProducts(); 
-        }
-        function resetSearch() { 
-            document.getElementById('searchInput').value = ''; 
-            searchQuery = ''; 
-            renderProducts(); 
-        }
+        
+        function searchProducts() { searchQuery = document.getElementById('searchInput').value.toLowerCase().trim(); renderProducts(); }
+        function resetSearch() { document.getElementById('searchInput').value = ''; searchQuery = ''; renderProducts(); }
+        
         function listenToUpdates() { 
             db.ref('products').on('value', s => {
                 const d = s.val();
@@ -1988,20 +1897,21 @@
             db.ref('social').on('value', s => { social = s.val() || {}; renderSocials(); });
         }
         
+        // الدوال المعدلة لحل مشكلة الأقسام
         function renderCategories() { 
             const c = document.getElementById('categoriesContainer'), counts = {}; 
-            products.forEach(p => counts[p.categoryId] = (counts[p.categoryId] || 0) + 1); 
+            products.forEach(p => {
+                const productCategory = p.categoryId || p.category || p.catId || p.cat;
+                counts[productCategory] = (counts[productCategory] || 0) + 1;
+            });
             c.innerHTML = `<button class="cat-btn ${currentCategory==='all'?'active':''}" onclick="filterByCategory('all')"><i class="fas fa-th-large"></i> الكل <span class="cat-count">${products.length}</span></button>`; 
             categories.forEach(cat => {
                 c.innerHTML += `<button class="cat-btn ${currentCategory===cat.id?'active':''}" onclick="filterByCategory('${cat.id}')"><i class="fas fa-folder"></i> ${eH(cat.name)} <span class="cat-count">${counts[cat.id]||0}</span></button>`;
             }); 
         }
-        function filterByCategory(id) { 
-            currentCategory = id; 
-            renderCategories(); 
-            renderProducts(); 
-            scrollToProducts(); 
-        }
+        
+        function filterByCategory(id) { currentCategory = id; renderCategories(); renderProducts(); scrollToProducts(); }
+        
         function getProductRating(id) { 
             const r = reviews.filter(x => x.productId === id && x.approved !== false); 
             if(!r.length) return { avg: 0, count: 0 }; 
@@ -2011,22 +1921,16 @@
         function renderProducts() {
             const c = document.getElementById('productsContainer'); 
             let filtered = products;
-            if(currentCategory !== 'all') filtered = filtered.filter(p => p.categoryId === currentCategory);
+            if(currentCategory !== 'all') {
+                filtered = filtered.filter(p => {
+                    const productCategory = p.categoryId || p.category || p.catId || p.cat;
+                    return productCategory === currentCategory;
+                });
+            }
             if(searchQuery) filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery) || p.description?.toLowerCase().includes(searchQuery));
-            
             if(!filtered.length) { 
                 const isSearching = searchQuery.length > 0;
-                c.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">${isSearching ? '🔍' : '📦'}</div>
-                        <h3>${isSearching ? `لا نتائج لـ "${eH(searchQuery)}"` : 'لا توجد منتجات'}</h3>
-                        <p>${isSearching ? 'تأكد من الكلمات أو جرّب بحثاً مختلفاً ✨' : 'لم يتم إضافة منتجات بعد'}</p>
-                        <div class="empty-state-actions">
-                            ${isSearching ? `<button class="btn-reset-search" onclick="resetSearch()"><i class="fas fa-times"></i> مسح البحث</button>` : ''}
-                            <button class="btn-show-all" onclick="filterByCategory('all')"><i class="fas fa-th-large"></i> عرض الكل</button>
-                        </div>
-                    </div>
-                `; 
+                c.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${isSearching ? '🔍' : '📦'}</div><h3>${isSearching ? `لا نتائج لـ "${eH(searchQuery)}"` : 'لا توجد منتجات'}</h3><p>${isSearching ? 'تأكد من الكلمات أو جرّب بحثاً مختلفاً ✨' : 'لم يتم إضافة منتجات بعد'}</p><div class="empty-state-actions">${isSearching ? `<button class="btn-reset-search" onclick="resetSearch()"><i class="fas fa-times"></i> مسح البحث</button>` : ''}<button class="btn-show-all" onclick="filterByCategory('all')"><i class="fas fa-th-large"></i> عرض الكل</button></div></div>`; 
                 return; 
             }
             c.innerHTML = ''; 
@@ -2038,146 +1942,54 @@
                 if(now - created < 604800000) badge = `<span class="product-badge new">✨ جديد</span>`;
                 else if(prod.discount && prod.discount > 0) badge = `<span class="product-badge sale">🔥 -${prod.discount}%</span>`;
                 else if(rating.count >= 10) badge = `<span class="product-badge hot">🏆 مميز</span>`;
-                
-                c.innerHTML += `
-                    <div class="product-card" data-product-id="${prod.id}">
-                        ${badge}
-                        <div class="product-image-wrapper">
-                            <img src="${eH(prod.image || 'https://placehold.co/400x300')}" class="product-img" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/400x300'" alt="${eH(prod.name)}">
-                            ${hasVideo ? `
-                                <div class="video-overlay-bg" onclick="event.stopPropagation();openVideo('${prod.videoCode}')">
-                                    <div class="play-icon-large"><i class="fas fa-play"></i></div>
-                                </div>
-                                <div class="video-badge"><i class="fas fa-video"></i> فيديو ✨</div>
-                            ` : ''}
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold">${eH(prod.name)}</h3>
-                            <div class="rating-stars">${renderStars(rating.avg)}<span class="rating-value">${rating.avg.toFixed(1)}</span><span class="reviews-count">(${rating.count})</span></div>
-                            <div class="product-price">${eH(prod.price || 'اتصل بنا')}</div>
-                            <p class="product-desc">${eH((prod.description || '').substring(0, 90))}${(prod.description?.length > 90) ? '...' : ''}</p>
-                            <div class="card-actions">
-                                <button class="btn-order-main" onclick="event.stopPropagation();showProductDetails('${prod.id}')">
-                                    <i class="fab fa-whatsapp"></i> اطلب الآن ✨
-                                </button>
-                                <div class="btn-secondary-row">
-                                    <button class="btn-details" onmousemove="handleBtnHover(event)" onmouseleave="handleBtnLeave(event)" onclick="event.stopPropagation();showProductDetails('${prod.id}')">📋 التفاصيل</button>
-                                    <button class="btn-add-cart ${inCart ? 'added' : ''}" id="cart-btn-${prod.id}" onmousemove="handleBtnHover(event)" onmouseleave="handleBtnLeave(event)" onclick="event.stopPropagation();addToCart('${prod.id}');this.innerHTML='<i class=\'fas fa-check ml-1\'></i> في السلة';this.classList.add('added')">${inCart ? '<i class="fas fa-check"></i> في السلة' : '<i class="fas fa-basket-shopping"></i> للسلة'}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                c.innerHTML += `<div class="product-card" data-product-id="${prod.id}">${badge}<div class="product-image-wrapper"><img src="${eH(prod.image || 'https://placehold.co/400x300')}" class="product-img" loading="lazy" decoding="async" onerror="this.src='https://placehold.co/400x300'" alt="${eH(prod.name)}">${hasVideo ? `<div class="video-overlay-bg" onclick="event.stopPropagation();openVideo('${prod.videoCode}')"><div class="play-icon-large"><i class="fas fa-play"></i></div></div><div class="video-badge"><i class="fas fa-video"></i> فيديو ✨</div>` : ''}</div><div class="p-4"><h3 class="font-bold">${eH(prod.name)}</h3><div class="rating-stars">${renderStars(rating.avg)}<span class="rating-value">${rating.avg.toFixed(1)}</span><span class="reviews-count">(${rating.count})</span></div><div class="product-price">${eH(prod.price || 'اتصل بنا')}</div><p class="product-desc">${eH((prod.description || '').substring(0, 90))}${(prod.description?.length > 90) ? '...' : ''}</p><div class="card-actions"><button class="btn-order-main" onclick="event.stopPropagation();showProductDetails('${prod.id}')"><i class="fab fa-whatsapp"></i> اطلب الآن ✨</button><div class="btn-secondary-row"><button class="btn-details" onmousemove="handleBtnHover(event)" onmouseleave="handleBtnLeave(event)" onclick="event.stopPropagation();showProductDetails('${prod.id}')">📋 التفاصيل</button><button class="btn-add-cart ${inCart ? 'added' : ''}" id="cart-btn-${prod.id}" onmousemove="handleBtnHover(event)" onmouseleave="handleBtnLeave(event)" onclick="event.stopPropagation();addToCart('${prod.id}');this.innerHTML='<i class=\'fas fa-check ml-1\'></i> في السلة';this.classList.add('added')">${inCart ? '<i class="fas fa-check"></i> في السلة' : '<i class="fas fa-basket-shopping"></i> للسلة'}</button></div></div></div></div>`;
             }); 
             setupCardHoverEffects(); 
             setupScrollAnimations();
         }
         
-        function renderStars(rating) { 
-            let stars = ''; 
-            for(let i = 1; i <= 5; i++) stars += `<span class="star ${i <= Math.round(rating) ? 'active' : ''}">★</span>`; 
-            return stars; 
-        }
+        function renderStars(rating) { let stars = ''; for(let i = 1; i <= 5; i++) stars += `<span class="star ${i <= Math.round(rating) ? 'active' : ''}">★</span>`; return stars; }
         
         function renderReviews(id) { 
-            const c = document.getElementById('reviewsContainer'), 
-                  reviewList = reviews.filter(x => x.productId === id && x.approved !== false); 
-            if(!reviewList.length) {
-                c.innerHTML = '<div class="no-reviews">✨ لا توجد تقييمات بعد. كن أول من يقيم!</div>';
-                return;
-            }
-            c.innerHTML = reviewList.map(x => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <span class="review-name"><i class="fas fa-user-circle"></i> ${eH(x.reviewerName || 'زبون كريم')}</span>
-                        <span class="review-date">${new Date(x.createdAt).toLocaleDateString('ar-IQ')}</span>
-                    </div>
-                    <div class="review-stars">${renderStars(x.rating)}</div>
-                    <p class="review-text">${eH(x.comment)}</p>
-                </div>
-            `).join(''); 
+            const c = document.getElementById('reviewsContainer'), reviewList = reviews.filter(x => x.productId === id && x.approved !== false); 
+            if(!reviewList.length) { c.innerHTML = '<div class="no-reviews">✨ لا توجد تقييمات بعد. كن أول من يقيم!</div>'; return; }
+            c.innerHTML = reviewList.map(x => `<div class="review-item"><div class="review-header"><span class="review-name"><i class="fas fa-user-circle"></i> ${eH(x.reviewerName || 'زبون كريم')}</span><span class="review-date">${new Date(x.createdAt).toLocaleDateString('ar-IQ')}</span></div><div class="review-stars">${renderStars(x.rating)}</div><p class="review-text">${eH(x.comment)}</p></div>`).join(''); 
         }
         
         async function submitReview() { 
             if(!currentProduct) return; 
-            const name = document.getElementById('reviewerName').value.trim(), 
-                  text = document.getElementById('reviewText').value.trim(); 
+            const name = document.getElementById('reviewerName').value.trim(), text = document.getElementById('reviewText').value.trim(); 
             if(!selectedRating) { showToast('⚠️ اختر تقييم', 'warning'); return; } 
             if(!text) { showToast('⚠️ اكتب تعليق', 'warning'); return; } 
             try { 
-                await db.ref('reviews').push().set({
-                    productId: currentProduct.id,
-                    productName: currentProduct.name,
-                    rating: selectedRating,
-                    comment: text,
-                    reviewerName: name || 'زائر',
-                    approved: true,
-                    createdAt: Date.now()
-                }); 
+                await db.ref('reviews').push().set({ productId: currentProduct.id, productName: currentProduct.name, rating: selectedRating, comment: text, reviewerName: name || 'زائر', approved: true, createdAt: Date.now() }); 
                 showToast('✅ تم إضافة تقييمك! ✨'); 
-                document.getElementById('reviewerName').value = ''; 
-                document.getElementById('reviewText').value = ''; 
-                selectedRating = 0; 
-                updateRatingInput(0); 
-                await loadReviews(); 
-                renderReviews(currentProduct.id);
-                createParticles();
-            } catch(e) { 
-                showToast('❌ حدث خطأ', 'error'); 
-            } 
+                document.getElementById('reviewerName').value = ''; document.getElementById('reviewText').value = ''; selectedRating = 0; updateRatingInput(0); await loadReviews(); renderReviews(currentProduct.id); createParticles();
+            } catch(e) { showToast('❌ حدث خطأ', 'error'); } 
         }
-        function updateRatingInput(rating) { 
-            document.querySelectorAll('#ratingInput .rating-star-btn').forEach((btn, i) => {
-                btn.innerHTML = i < rating ? '★' : '☆';
-                btn.classList.toggle('active', i < rating);
-            }); 
-        }
-        function setupRatingInput() { 
-            document.querySelectorAll('#ratingInput .rating-star-btn').forEach(btn => {
-                btn.onclick = () => {
-                    selectedRating = parseInt(btn.dataset.rating);
-                    updateRatingInput(selectedRating);
-                };
-            }); 
-        }
+        
+        function updateRatingInput(rating) { document.querySelectorAll('#ratingInput .rating-star-btn').forEach((btn, i) => { btn.innerHTML = i < rating ? '★' : '☆'; btn.classList.toggle('active', i < rating); }); }
+        function setupRatingInput() { document.querySelectorAll('#ratingInput .rating-star-btn').forEach(btn => { btn.onclick = () => { selectedRating = parseInt(btn.dataset.rating); updateRatingInput(selectedRating); }; }); }
         
         function renderMarquee() { 
             const featured = [...products].sort((a,b) => (parseFloat(b.price?.replace(/[^0-9]/g,''))||0) - (parseFloat(a.price?.replace(/[^0-9]/g,''))||0)).slice(0, 12); 
             if(!featured.length) { document.getElementById('marqueeSection').style.display = 'none'; return; } 
-            document.getElementById('marqueeTrack').innerHTML = [...featured, ...featured].map(p => `
-                <div class="marquee-item" onclick="scrollToProduct('${p.id}')">
-                    <img src="${eH(p.image || 'https://placehold.co/70x70')}" loading="lazy" onerror="this.src='https://placehold.co/70x70'">
-                    <div>
-                        <div class="marquee-name">${eH(p.name)}</div>
-                        <div class="marquee-price">${eH(p.price || 'اتصل بنا')} ✨</div>
-                    </div>
-                </div>
-            `).join(''); 
+            document.getElementById('marqueeTrack').innerHTML = [...featured, ...featured].map(p => `<div class="marquee-item" onclick="scrollToProduct('${p.id}')"><img src="${eH(p.image || 'https://placehold.co/70x70')}" loading="lazy" onerror="this.src='https://placehold.co/70x70'"><div><div class="marquee-name">${eH(p.name)}</div><div class="marquee-price">${eH(p.price || 'اتصل بنا')} ✨</div></div></div>`).join(''); 
             document.getElementById('marqueeSection').style.display = 'block'; 
         }
-        function scrollToProduct(id) { 
-            const el = document.querySelector(`.product-card[data-product-id="${id}"]`); 
-            if(el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.style.boxShadow = '0 0 0 3px var(--gold-primary), 0 20px 60px rgba(212,175,55,0.4)';
-                setTimeout(() => el.style.boxShadow = '', 2500);
-            } 
-        }
+        
+        function scrollToProduct(id) { const el = document.querySelector(`.product-card[data-product-id="${id}"]`); if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.boxShadow = '0 0 0 3px var(--gold-primary), 0 20px 60px rgba(212,175,55,0.4)'; setTimeout(() => el.style.boxShadow = '', 2500); } }
+        
         function generateFloatingProducts() { 
             const c = document.getElementById('floatingBg'); c.innerHTML = ''; 
-            [...products].sort(() => 0.5 - Math.random()).slice(0, 14).forEach((p, i) => {
-                c.innerHTML += `<div class="float-product" style="left:${Math.random()*90}%;top:${Math.random()*80}%;animation-delay:${i*2.5}s;animation-duration:${25+Math.random()*25}s;--tx:${(Math.random()*60-30)}px;--ty:${(Math.random()*-100-40)}px;--tx2:${(Math.random()*-40+20)}px;--ty2:${(Math.random()*-120-30)}px;--tx3:${(Math.random()*50-25)}px;--ty3:${(Math.random()*-70-20)}px;background-image:url('${eH(p.image || '')}')"></div>`;
-            }); 
+            [...products].sort(() => 0.5 - Math.random()).slice(0, 14).forEach((p, i) => { c.innerHTML += `<div class="float-product" style="left:${Math.random()*90}%;top:${Math.random()*80}%;animation-delay:${i*2.5}s;animation-duration:${25+Math.random()*25}s;--tx:${(Math.random()*60-30)}px;--ty:${(Math.random()*-100-40)}px;--tx2:${(Math.random()*-40+20)}px;--ty2:${(Math.random()*-120-30)}px;--tx3:${(Math.random()*50-25)}px;--ty3:${(Math.random()*-70-20)}px;background-image:url('${eH(p.image || '')}')"></div>`; }); 
         }
+        
         function openVideo(code) { 
             let id = code; 
             if(code.includes('v=')) id = code.split('v=')[1]?.split('&')[0]; 
             else if(code.includes('youtu.be/')) id = code.split('/').pop(); 
-            if(id) {
-                document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-                lockScroll();
-                document.getElementById('videoModal').style.display = 'flex';
-            } 
+            if(id) { document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`; lockScroll(); document.getElementById('videoModal').style.display = 'flex'; } 
         }
         
         function showProductDetails(id) { 
@@ -2196,133 +2008,57 @@
             updateRatingInput(0); 
             document.getElementById('reviewerName').value = ''; 
             document.getElementById('reviewText').value = ''; 
-            const inCart = cart.find(i => i.id === id), 
-                  btn = document.getElementById('modalCartBtn'); 
-            if(btn) {
-                if(inCart) { btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة'; btn.classList.add('added'); }
-                else { btn.innerHTML = '<i class="fas fa-basket-shopping ml-1"></i> للسلة'; btn.classList.remove('added'); }
-            } 
+            const inCart = cart.find(i => i.id === id), btn = document.getElementById('modalCartBtn'); 
+            if(btn) { if(inCart) { btn.innerHTML = '<i class="fas fa-check ml-1"></i> في السلة'; btn.classList.add('added'); } else { btn.innerHTML = '<i class="fas fa-basket-shopping ml-1"></i> للسلة'; btn.classList.remove('added'); } } 
             document.getElementById('productModal').style.display = 'flex'; 
         }
-        function openOrderModal() { 
-            if(!currentProduct) return; 
-            currentStep = 1; 
-            setStep(1); 
-            lockScroll(); 
-            document.getElementById('orderModal').style.display = 'flex'; 
-        }
+        
+        function openOrderModal() { if(!currentProduct) return; currentStep = 1; setStep(1); lockScroll(); document.getElementById('orderModal').style.display = 'flex'; }
         function setStep(n) { 
             currentStep = n; 
             document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i+1 === n)); 
-            document.querySelectorAll('[id^="step-indicator-"]').forEach((el, i) => {
-                el.classList.remove('active', 'done');
-                if(i+1 < n) el.classList.add('done');
-                else if(i+1 === n) el.classList.add('active');
-            }); 
-            document.querySelectorAll('.step-circle').forEach((circle, i) => {
-                if(i < n-1) circle.innerHTML = '<i class="fas fa-check" style="font-size:16px"></i>';
-                else circle.textContent = i+1;
-            }); 
+            document.querySelectorAll('[id^="step-indicator-"]').forEach((el, i) => { el.classList.remove('active', 'done'); if(i+1 < n) el.classList.add('done'); else if(i+1 === n) el.classList.add('active'); }); 
+            document.querySelectorAll('.step-circle').forEach((circle, i) => { if(i < n-1) circle.innerHTML = '<i class="fas fa-check" style="font-size:16px"></i>'; else circle.textContent = i+1; }); 
         }
+        
         function goToStep2() { 
-            const name = document.getElementById('customerName').value.trim(), 
-                  city = document.getElementById('customerCity').value, 
-                  district = document.getElementById('customerDistrict').value.trim(), 
-                  phone = document.getElementById('customerPhone').value.trim(); 
+            const name = document.getElementById('customerName').value.trim(), city = document.getElementById('customerCity').value, district = document.getElementById('customerDistrict').value.trim(), phone = document.getElementById('customerPhone').value.trim(); 
             if(!name || !city || !district || !phone) { showToast('⚠️ أكمل الحقول المطلوبة', 'warning'); return; } 
             if(!/^[0-9]{10,11}$/.test(phone.replace(/\s/g,''))) { showToast('⚠️ رقم موبايل غير صحيح', 'error'); return; } 
             const summary = document.getElementById('orderSummaryFull'); 
             summary.innerHTML = `<div class="order-summary-title">📦 مراجعة الطلب ✨</div><div class="order-summary-item"><span>المنتج:</span><span>${eH(currentProduct.name)}</span></div><div class="order-summary-item"><span>السعر:</span><span style="color:var(--gold-primary);font-weight:900">${eH(currentProduct.price || 'اتصل بنا')}</span></div><hr style="border-color:rgba(212,175,55,0.3);margin:12px 0"><div class="order-summary-item"><span>الاسم:</span><span>${eH(name)}</span></div><div class="order-summary-item"><span>المحافظة:</span><span>${eH(city)}</span></div><div class="order-summary-item"><span>المنطقة:</span><span>${eH(district)}</span></div><div class="order-summary-item"><span>الهاتف:</span><span>${eH(phone)}</span></div>${document.getElementById('customerLandmark').value.trim() ? `<div class="order-summary-item"><span>نقطة دالة:</span><span>${eH(document.getElementById('customerLandmark').value.trim())}</span></div>` : ''}`; 
             setStep(2); 
         }
+        
         function goToStep1() { setStep(1); }
         
         async function submitOrder() { 
-            const name = document.getElementById('customerName').value.trim(), 
-                  city = document.getElementById('customerCity').value, 
-                  district = document.getElementById('customerDistrict').value.trim(), 
-                  landmark = document.getElementById('customerLandmark').value.trim(), 
-                  phone = document.getElementById('customerPhone').value.trim(), 
-                  whatsapp = settings.whatsappLink || settings.whatsappNumber || '9647730492020'; 
+            const name = document.getElementById('customerName').value.trim(), city = document.getElementById('customerCity').value, district = document.getElementById('customerDistrict').value.trim(), landmark = document.getElementById('customerLandmark').value.trim(), phone = document.getElementById('customerPhone').value.trim(), whatsapp = settings.whatsappLink || settings.whatsappNumber || '9647730492020'; 
             if(!whatsapp) { showToast('⚠️ رقم الواتساب غير متوفر', 'error'); return; } 
             const message = `🏛️ *طلب جديد - متجر أكاد* ✨\n━━━━━━━━━━━━━━━\n👤 الاسم: ${eH(name)}\n📍 العنوان: ${eH(city)} • ${eH(district)}\n🗿 نقطة دالة: ${landmark || 'غير محدد'}\n📱 موبايل: ${eH(phone)}\n━━━━━━━━━━━━━━━\n📦 المنتج: ${eH(currentProduct.name)}\n💰 السعر: ${eH(currentProduct.price || 'اتصل بنا')}\n━━━━━━━━━━━━━━━\n🕐 ${new Date().toLocaleDateString('ar-IQ')}`;
-            try { 
-                await db.ref('orders').push().set({
-                    customerName: name, customerCity: city, customerDistrict: district, 
-                    customerLandmark: landmark, customerPhone: phone, 
-                    productName: currentProduct.name, productPrice: currentProduct.price, 
-                    productId: currentProduct.id, status: 'جديد', createdAt: Date.now()
-                }); 
-            } catch(e) { console.error(e); } 
+            try { await db.ref('orders').push().set({ customerName: name, customerCity: city, customerDistrict: district, customerLandmark: landmark, customerPhone: phone, productName: currentProduct.name, productPrice: currentProduct.price, productId: currentProduct.id, status: 'جديد', createdAt: Date.now() }); } catch(e) { console.error(e); } 
             window.open(`https://wa.me/${whatsapp.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(message)}`, '_blank'); 
-            closeModal('orderModal'); 
-            closeModal('productModal'); 
-            showToast('✅ تم إرسال طلبك بنجاح! 🎉');
-            createConfetti();
+            closeModal('orderModal'); closeModal('productModal'); showToast('✅ تم إرسال طلبك بنجاح! 🎉'); createConfetti();
         }
         
-        function shareStore() { 
-            if(navigator.share) {
-                navigator.share({ title: 'AKKAD STORE ✨', text: 'تسوق أفضل الأجهزة من أكاد 🇮🇶', url: window.location.href }).catch(() => {});
-            } else { 
-                navigator.clipboard.writeText(window.location.href);
-                showToast('✅ تم نسخ الرابط ✨');
-            } 
-        }
-        function toggleTheme() { 
-            document.body.classList.toggle('light-mode'); 
-            const icon = document.getElementById('themeIcon'); 
-            if(icon) icon.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon';
-            createParticles();
-        }
-        function eH(s) { 
-            if(!s) return ''; 
-            return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]); 
-        }
-        function setupCardHoverEffects() { 
-            document.querySelectorAll('.product-card').forEach(card => {
-                card.onmousemove = e => {
-                    const rect = card.getBoundingClientRect();
-                    card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-                    card.style.setProperty('--my', `${e.clientY - rect.top}px`);
-                };
-            }); 
-        }
-        function handleBtnHover(e) {
-            const btn = e.currentTarget;
-            const rect = btn.getBoundingClientRect();
-            btn.style.setProperty('--x', `${e.clientX - rect.left}px`);
-            btn.style.setProperty('--y', `${e.clientY - rect.top}px`);
-        }
-        function handleBtnLeave(e) {
-            e.currentTarget.style.setProperty('--x', '50%');
-            e.currentTarget.style.setProperty('--y', '50%');
-        }
-        function setupScrollAnimations() { 
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if(entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.product-card').forEach(card => observer.observe(card)); 
-        }
-        function scrollToProducts() { 
-            document.getElementById('productsContainer').scrollIntoView({ behavior: 'smooth' }); 
-        }
+        function shareStore() { if(navigator.share) { navigator.share({ title: 'AKKAD STORE ✨', text: 'تسوق أفضل الأجهزة من أكاد 🇮🇶', url: window.location.href }).catch(() => {}); } else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ الرابط ✨'); } }
         
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('headerMain');
-            if(header) header.classList.toggle('scrolled', window.scrollY > 60);
-        });
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            listenToUpdates();
-            updateCartUI();
-            setupRatingInput();
-        });
+        function toggleTheme() { document.body.classList.toggle('light-mode'); const icon = document.getElementById('themeIcon'); if(icon) icon.className = document.body.classList.contains('light-mode') ? 'fas fa-sun' : 'fas fa-moon'; createParticles(); }
+        
+        function eH(s) { if(!s) return ''; return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]); }
+        
+        function setupCardHoverEffects() { document.querySelectorAll('.product-card').forEach(card => { card.onmousemove = e => { const rect = card.getBoundingClientRect(); card.style.setProperty('--mx', `${e.clientX - rect.left}px`); card.style.setProperty('--my', `${e.clientY - rect.top}px`); }; }); }
+        
+        function handleBtnHover(e) { const btn = e.currentTarget; const rect = btn.getBoundingClientRect(); btn.style.setProperty('--x', `${e.clientX - rect.left}px`); btn.style.setProperty('--y', `${e.clientY - rect.top}px`); }
+        function handleBtnLeave(e) { e.currentTarget.style.setProperty('--x', '50%'); e.currentTarget.style.setProperty('--y', '50%'); }
+        
+        function setupScrollAnimations() { const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if(entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.1 }); document.querySelectorAll('.product-card').forEach(card => observer.observe(card)); }
+        
+        function scrollToProducts() { document.getElementById('productsContainer').scrollIntoView({ behavior: 'smooth' }); }
+        
+        window.addEventListener('scroll', () => { const header = document.getElementById('headerMain'); if(header) header.classList.toggle('scrolled', window.scrollY > 60); });
+        
+        document.addEventListener('DOMContentLoaded', () => { loadData(); listenToUpdates(); updateCartUI(); setupRatingInput(); });
     </script>
 </body>
 </html>
