@@ -11,16 +11,19 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* تصميم Netflix - داكن وأنيق */
+        /* تصميم Netflix محسن */
         :root {
-            --netflix-black: #141414;
-            --netflix-black-light: #1f1f1f;
+            --netflix-black: #0a0a0a;
+            --netflix-black-light: #1a1a1a;
             --netflix-red: #e50914;
             --netflix-red-dark: #b20710;
-            --netflix-gray: #564d4d;
-            --netflix-text: #ffffff;
+            --netflix-red-glow: rgba(229,9,20,0.4);
+            --netflix-text: #f5f5f5;
             --netflix-text-light: #b3b3b3;
-            --netflix-border: #2c2c2c;
+            --netflix-border: #2a2a2a;
+            --netflix-gradient: linear-gradient(135deg, #e50914, #ff4d4d);
+            --netflix-modal-bg: #1a1a1a;
+            --netflix-input-bg: #2a2a2a;
         }
         
         body {
@@ -33,11 +36,13 @@
         
         /* Light Mode - Netflix Light */
         body.light-mode {
-            --netflix-black: #f5f5f1;
+            --netflix-black: #f0f0f0;
             --netflix-black-light: #ffffff;
-            --netflix-text: #141414;
-            --netflix-text-light: #757575;
-            --netflix-border: #e5e5e5;
+            --netflix-text: #1a1a1a;
+            --netflix-text-light: #666666;
+            --netflix-border: #e0e0e0;
+            --netflix-modal-bg: #ffffff;
+            --netflix-input-bg: #f5f5f5;
             background: var(--netflix-black);
             color: var(--netflix-text);
         }
@@ -55,25 +60,78 @@
             border-bottom-color: var(--netflix-border);
         }
         
+        /* Dark Mode - نصوص واضحة */
+        body.dark-mode .modal-content {
+            background: #1a1a1a;
+            color: #f5f5f5;
+        }
+        
+        body.dark-mode .modal-content p,
+        body.dark-mode .modal-content h3,
+        body.dark-mode .modal-content h4,
+        body.dark-mode .modal-content span,
+        body.dark-mode .modal-content div:not(.specs-container) {
+            color: #f5f5f5 !important;
+        }
+        
+        body.dark-mode .modal-content .text-gray-600,
+        body.dark-mode .modal-content .text-gray-500 {
+            color: #b3b3b3 !important;
+        }
+        
+        body.dark-mode .input,
+        body.dark-mode .select,
+        body.dark-mode textarea {
+            background: #2a2a2a !important;
+            color: #ffffff !important;
+            border-color: #444 !important;
+        }
+        
+        body.dark-mode .input::placeholder,
+        body.dark-mode textarea::placeholder {
+            color: #888 !important;
+        }
+        
+        body.dark-mode .order-summary {
+            background: #2a2a2a !important;
+            color: #f5f5f5 !important;
+        }
+        
+        body.dark-mode .product-title,
+        body.dark-mode .product-price,
+        body.dark-mode .product-rating span {
+            color: #f5f5f5 !important;
+        }
+        
+        body.dark-mode .product-price {
+            color: var(--netflix-red) !important;
+        }
+        
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--netflix-black-light); }
         ::-webkit-scrollbar-thumb { background: var(--netflix-red); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--netflix-red-dark); }
         
-        /* Header Netflix */
+        /* Header */
         .netflix-header {
-            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.85) 100%);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(15px);
             position: sticky;
             top: 0;
             z-index: 100;
             padding: 16px 0;
             border-bottom: 1px solid rgba(229,9,20,0.3);
+            transition: all 0.3s;
+        }
+        
+        .netflix-header.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 10px 0;
         }
         
         body.light-mode .netflix-header {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.9);
         }
         
         /* Logo */
@@ -81,19 +139,28 @@
             font-size: 28px;
             font-weight: 900;
             letter-spacing: -1px;
-            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
+            background: var(--netflix-gradient);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
+            transition: all 0.3s;
         }
         
-        /* الشعار الرئيسي */
+        .netflix-logo:hover {
+            transform: scale(1.02);
+        }
+        
         .store-logo {
             width: 45px;
             height: 45px;
             border-radius: 12px;
             object-fit: cover;
             background: var(--netflix-red);
+            transition: transform 0.3s;
+        }
+        
+        .store-logo:hover {
+            transform: rotate(5deg);
         }
         
         /* Search Bar */
@@ -115,6 +182,7 @@
         .search-container:focus-within {
             border-color: var(--netflix-red);
             box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+            transform: scale(1.01);
         }
         
         .search-container input {
@@ -137,6 +205,11 @@
             padding: 12px 16px;
             cursor: pointer;
             color: var(--netflix-red);
+            transition: all 0.3s;
+        }
+        
+        .search-container button:hover {
+            transform: scale(1.1);
         }
         
         /* Icon Buttons */
@@ -148,48 +221,116 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             color: var(--netflix-text);
         }
         
         .netflix-icon-btn:hover {
             background: var(--netflix-red);
             color: white;
+            transform: translateY(-2px);
         }
         
-        /* Categories - فقط الأقسام */
+        /* Categories - Horizontal Scroll محسن */
         .netflix-categories {
-            padding: 16px 0;
-            overflow-x: auto;
-            white-space: nowrap;
             background: var(--netflix-black);
             border-bottom: 1px solid var(--netflix-border);
+            padding: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .categories-slider-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .categories-slider {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            padding: 8px 4px 16px 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .categories-slider::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .categories-slider::-webkit-scrollbar-track {
+            background: var(--netflix-border);
+            border-radius: 10px;
+        }
+        
+        .categories-slider::-webkit-scrollbar-thumb {
+            background: var(--netflix-red);
+            border-radius: 10px;
+        }
+        
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--netflix-black-light);
+            border: 1px solid var(--netflix-border);
+            color: var(--netflix-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+            opacity: 0.7;
+        }
+        
+        .slider-btn:hover {
+            background: var(--netflix-red);
+            color: white;
+            opacity: 1;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .slider-btn-left {
+            left: 5px;
+        }
+        
+        .slider-btn-right {
+            right: 5px;
         }
         
         .netflix-category {
             display: inline-block;
-            padding: 8px 24px;
-            margin: 0 4px;
-            border-radius: 30px;
+            padding: 10px 24px;
+            border-radius: 40px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
             color: var(--netflix-text-light);
+            background: rgba(255,255,255,0.05);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .netflix-category:hover {
+            background: rgba(229,9,20,0.2);
             color: var(--netflix-text);
+            transform: translateY(-2px);
         }
         
         .netflix-category.active {
-            color: var(--netflix-red);
-            font-weight: 600;
+            background: var(--netflix-gradient);
+            color: white;
         }
         
-        /* Hero Netflix */
+        /* Hero */
         .netflix-hero {
-            background: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(20,20,20,1) 100%);
+            background: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(10,10,10,1) 100%);
             padding: 80px 20px;
             text-align: center;
             position: relative;
@@ -200,12 +341,31 @@
             background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, var(--netflix-black) 100%);
         }
         
+        .netflix-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(229,9,20,0.05)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
+            background-size: cover;
+            pointer-events: none;
+            animation: waveMove 10s linear infinite;
+        }
+        
+        @keyframes waveMove {
+            0% { background-position: 0 bottom; }
+            100% { background-position: 100% bottom; }
+        }
+        
         .netflix-hero h1 {
             font-size: 56px;
             font-weight: 800;
             margin-bottom: 16px;
             position: relative;
             z-index: 1;
+            animation: fadeInUp 0.8s ease;
         }
         
         .netflix-hero p {
@@ -214,6 +374,12 @@
             margin-bottom: 30px;
             position: relative;
             z-index: 1;
+            animation: fadeInUp 1s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         /* Product Card */
@@ -221,11 +387,35 @@
             background: var(--netflix-black-light);
             border-radius: 12px;
             padding: 16px;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0deg);
+            animation: fadeSlideUp 0.6s ease-out;
+            animation-fill-mode: both;
         }
+        
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .product-card:nth-child(1) { animation-delay: 0.05s; }
+        .product-card:nth-child(2) { animation-delay: 0.1s; }
+        .product-card:nth-child(3) { animation-delay: 0.15s; }
+        .product-card:nth-child(4) { animation-delay: 0.2s; }
+        .product-card:nth-child(5) { animation-delay: 0.25s; }
+        .product-card:nth-child(6) { animation-delay: 0.3s; }
+        .product-card:nth-child(7) { animation-delay: 0.35s; }
+        .product-card:nth-child(8) { animation-delay: 0.4s; }
         
         .product-card::before {
             content: '';
@@ -234,9 +424,9 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: var(--netflix-red);
+            background: var(--netflix-gradient);
             transform: scaleX(0);
-            transition: transform 0.3s;
+            transition: transform 0.4s ease;
         }
         
         .product-card:hover::before {
@@ -244,8 +434,8 @@
         }
         
         .product-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 30px -12px rgba(229,9,20,0.3);
+            transform: perspective(1000px) rotateX(2deg) translateY(-10px);
+            box-shadow: 0 25px 40px -12px var(--netflix-red-glow);
         }
         
         .product-img {
@@ -254,22 +444,28 @@
             width: 100%;
             border-radius: 8px;
             margin-bottom: 12px;
-            transition: transform 0.3s;
+            transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
         
         .product-card:hover .product-img {
-            transform: scale(1.03);
+            transform: scale(1.05);
         }
         
         .product-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             margin: 8px 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 42px;
+            height: 44px;
+            transition: color 0.3s;
+            color: var(--netflix-text);
+        }
+        
+        .product-card:hover .product-title {
+            color: var(--netflix-red);
         }
         
         .product-price {
@@ -277,6 +473,7 @@
             font-weight: 700;
             color: var(--netflix-red);
             margin: 8px 0;
+            transition: all 0.3s;
         }
         
         .product-old-price {
@@ -307,15 +504,21 @@
             z-index: 10;
             text-transform: uppercase;
             letter-spacing: 1px;
+            animation: badgePulse 2s infinite;
         }
         
-        .badge-hot { background: var(--netflix-red); color: white; }
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .badge-hot { background: var(--netflix-gradient); color: white; }
         .badge-new { background: #4c9aff; color: white; }
         .badge-sale { background: #ffc107; color: #141414; }
         
         /* Buttons */
         .btn-netflix {
-            background: var(--netflix-red);
+            background: var(--netflix-gradient);
             border: none;
             padding: 12px 20px;
             border-radius: 8px;
@@ -330,8 +533,8 @@
         }
         
         .btn-netflix:hover {
-            background: var(--netflix-red-dark);
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--netflix-red-glow);
         }
         
         .btn-outline-netflix {
@@ -348,6 +551,8 @@
         .btn-outline-netflix:hover {
             background: var(--netflix-red);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--netflix-red-glow);
         }
         
         .btn-whatsapp-netflix {
@@ -365,13 +570,14 @@
         .btn-whatsapp-netflix:hover {
             background: #1da851;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37,211,102,0.3);
         }
         
         /* Video Overlay */
         .video-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
@@ -387,24 +593,30 @@
         }
         
         .play-btn-netflix {
-            width: 50px;
-            height: 50px;
-            background: var(--netflix-red);
+            width: 55px;
+            height: 55px;
+            background: var(--netflix-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            animation: playPulse 2s infinite;
+        }
+        
+        @keyframes playPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .play-btn-netflix:hover {
-            transform: scale(1.1);
-            background: var(--netflix-red-dark);
+            transform: scale(1.15);
+            animation: none;
         }
         
         .play-btn-netflix i {
             color: white;
-            font-size: 20px;
+            font-size: 22px;
             margin-right: 3px;
         }
         
@@ -422,6 +634,12 @@
             font-size: 11px;
             font-weight: 600;
             color: white;
+            transition: all 0.3s;
+        }
+        
+        .video-badge-netflix:hover {
+            transform: translateY(-2px);
+            background: var(--netflix-red);
         }
         
         /* Modal */
@@ -429,15 +647,21 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(12px);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .modal-content {
-            background: var(--netflix-black-light);
+            background: var(--netflix-modal-bg);
             border-radius: 16px;
             max-width: 600px;
             width: 90%;
@@ -446,11 +670,58 @@
             overflow-y: auto;
             color: var(--netflix-text);
             animation: modalPop 0.3s ease;
+            border: 1px solid rgba(229,9,20,0.3);
         }
         
         @keyframes modalPop {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            background: var(--netflix-input-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--netflix-border);
+        }
+        
+        .order-summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Inputs */
+        .input,
+        .select,
+        textarea {
+            background: var(--netflix-input-bg);
+            border: 1px solid var(--netflix-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            color: var(--netflix-text);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .input:focus,
+        .select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--netflix-red);
+            box-shadow: 0 0 0 3px rgba(229,9,20,0.1);
+        }
+        
+        .input::placeholder,
+        textarea::placeholder {
+            color: var(--netflix-text-light);
         }
         
         /* Footer */
@@ -467,12 +738,13 @@
             display: block;
             margin: 8px 0;
             font-size: 13px;
-            transition: color 0.2s;
+            transition: all 0.3s;
             cursor: pointer;
         }
         
         .netflix-footer a:hover {
             color: var(--netflix-red);
+            transform: translateX(-5px);
         }
         
         .netflix-footer h4 {
@@ -482,26 +754,51 @@
             color: var(--netflix-text);
         }
         
+        /* Features */
+        .features-section {
+            padding: 40px 0;
+        }
+        
+        .feature-item {
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-item i {
+            font-size: 36px;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover i {
+            transform: scale(1.1);
+            color: var(--netflix-red);
+        }
+        
         /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: var(--netflix-red);
+            background: var(--netflix-gradient);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
             z-index: 9999;
-            animation: slideIn 0.3s;
+            animation: slideInRight 0.3s ease;
             font-weight: 500;
             font-size: 13px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
         
         .toast.error {
-            background: #ff4444;
+            background: #ef4444;
         }
         
-        @keyframes slideIn {
+        @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
@@ -511,7 +808,7 @@
             position: absolute;
             top: -6px;
             right: -6px;
-            background: var(--netflix-red);
+            background: var(--netflix-gradient);
             color: white;
             border-radius: 50%;
             width: 18px;
@@ -521,11 +818,22 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            animation: badgePulse 2s infinite;
         }
         
         .cart-icon {
             position: relative;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .cart-icon:active {
+            animation: cartPulse 0.3s ease;
+        }
+        
+        @keyframes cartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         /* Scroll Top */
@@ -533,9 +841,9 @@
             position: fixed;
             bottom: 24px;
             left: 24px;
-            width: 45px;
-            height: 45px;
-            background: var(--netflix-red);
+            width: 48px;
+            height: 48px;
+            background: var(--netflix-gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -545,6 +853,7 @@
             visibility: hidden;
             transition: all 0.3s;
             z-index: 99;
+            box-shadow: 0 4px 15px var(--netflix-red-glow);
         }
         
         .scroll-top.show {
@@ -553,13 +862,12 @@
         }
         
         .scroll-top:hover {
-            background: var(--netflix-red-dark);
-            transform: translateY(-3px);
+            transform: translateY(-3px) scale(1.05);
         }
         
         .scroll-top i {
             color: white;
-            font-size: 18px;
+            font-size: 20px;
         }
         
         /* Cuneiform */
@@ -580,11 +888,20 @@
             100% { transform: translateX(-100%); }
         }
         
+        /* Responsive */
         @media (max-width: 768px) {
             .netflix-hero h1 { font-size: 32px; }
             .product-img { height: 150px; }
             .grid-cols-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .scroll-top { bottom: 16px; left: 16px; }
+            .scroll-top { bottom: 16px; left: 16px; width: 42px; height: 42px; }
+            .netflix-category { padding: 8px 18px; font-size: 13px; }
+            .slider-btn { width: 30px; height: 30px; }
+        }
+        
+        @media (max-width: 600px) {
+            .slider-btn {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -594,12 +911,11 @@
     <div class="cuneiform" style="bottom: 15%; right: -20%;">𒀭𒈾𒀜𒀭𒀜 𒈠𒀀𒉡</div>
     <div class="cuneiform" style="top: 30%; left: -20%; animation-duration: 45s;">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div>
 
-    <!-- Header Netflix -->
-    <header class="netflix-header">
+    <!-- Header -->
+    <header class="netflix-header" id="mainHeader">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTop()">
-                    <!-- الشعار الرئيسي - سيتم تحميله من Firebase -->
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="scrollToTop()">
                     <img id="storeLogo" src="https://via.placeholder.com/45" class="store-logo" alt="شعار المتجر">
                     <div>
                         <span class="netflix-logo text-2xl font-black" id="storeName">AKKAD</span>
@@ -633,13 +949,19 @@
         </div>
     </header>
 
-    <!-- Categories - فقط الأقسام (بدون اتصل بنا ومضيء ومشاركة) -->
+    <!-- Categories - Horizontal Scroll مع أزرار -->
     <div class="netflix-categories">
-        <div class="container mx-auto px-4">
-            <div class="flex gap-2 overflow-x-auto" id="categoriesNetflixList">
-                <span class="netflix-category active" onclick="filterCategory('all')">🏠 الكل</span>
+        <div class="container mx-auto px-4 relative categories-slider-container">
+            <button class="slider-btn slider-btn-left" id="scrollLeftBtn" aria-label="التمرير لليسار">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="categories-slider" id="categoriesSlider">
+                <span class="netflix-category active" data-cat="all" onclick="filterCategory('all')">🏠 الكل</span>
                 <div id="categoriesList"></div>
             </div>
+            <button class="slider-btn slider-btn-right" id="scrollRightBtn" aria-label="التمرير لليمين">
+                <i class="fas fa-chevron-left"></i>
+            </button>
         </div>
     </div>
 
@@ -647,7 +969,7 @@
     <div class="netflix-hero">
         <div class="container mx-auto px-4 relative z-10">
             <h1>متجر أكاد الرقمي</h1>
-            <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع</p>
+            <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع - تجربة تسوق فريدة</p>
             <button onclick="scrollToProducts()" class="btn-netflix inline-flex items-center gap-2 px-8 py-3 w-auto">
                 تسوق الآن <i class="fas fa-arrow-left"></i>
             </button>
@@ -657,7 +979,7 @@
     <!-- Products Grid -->
     <div class="container mx-auto px-4 py-12">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold" style="color: var(--netflix-red);">أشهر المنتجات</h2>
+            <h2 class="text-xl font-bold" style="color: var(--netflix-red);">🔥 أشهر المنتجات</h2>
             <span class="text-sm" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="productsGrid">
@@ -668,24 +990,24 @@
     </div>
 
     <!-- Features Section -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
+    <div class="container mx-auto px-4 features-section">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="feature-item">
                 <i class="fas fa-truck text-3xl" style="color: var(--netflix-red);"></i>
                 <h4 class="font-bold mt-2">توصيل مجاني</h4>
                 <p class="text-sm" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p>
             </div>
-            <div>
+            <div class="feature-item">
                 <i class="fas fa-shield-alt text-3xl" style="color: var(--netflix-red);"></i>
                 <h4 class="font-bold mt-2">دفع آمن</h4>
                 <p class="text-sm" style="color: var(--netflix-text-light);">طرق دفع متعددة</p>
             </div>
-            <div>
+            <div class="feature-item">
                 <i class="fas fa-headset text-3xl" style="color: var(--netflix-red);"></i>
                 <h4 class="font-bold mt-2">دعم فني 24/7</h4>
                 <p class="text-sm" style="color: var(--netflix-text-light);">فريق دعم متكامل</p>
             </div>
-            <div>
+            <div class="feature-item">
                 <i class="fas fa-exchange-alt text-3xl" style="color: var(--netflix-red);"></i>
                 <h4 class="font-bold mt-2">استبدال سريع</h4>
                 <p class="text-sm" style="color: var(--netflix-text-light);">خلال 14 يوم</p>
@@ -699,20 +1021,20 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
                     <h4>الشركة</h4>
-                    <a onclick="showInfo()">من نحن</a>
-                    <a onclick="showInfo()">وظائف</a>
-                    <a onclick="showInfo()">المدونة</a>
+                    <a id="footerLink_about" onclick="showInfo()">من نحن</a>
+                    <a id="footerLink_jobs" onclick="showInfo()">وظائف</a>
+                    <a id="footerLink_blog" onclick="showInfo()">المدونة</a>
                 </div>
                 <div>
                     <h4>الخدمات</h4>
-                    <a onclick="showInfo()">مساعدة</a>
-                    <a onclick="showInfo()">الشحن</a>
-                    <a onclick="showInfo()">الاسترجاع</a>
+                    <a id="footerLink_help" onclick="showInfo()">مساعدة</a>
+                    <a id="footerLink_shipping" onclick="showInfo()">الشحن</a>
+                    <a id="footerLink_returns" onclick="showInfo()">الاسترجاع</a>
                 </div>
                 <div>
                     <h4>القوانين</h4>
-                    <a onclick="showInfo()">الشروط والأحكام</a>
-                    <a onclick="showInfo()">سياسة الخصوصية</a>
+                    <a id="footerLink_terms" onclick="showInfo()">الشروط والأحكام</a>
+                    <a id="footerLink_privacy" onclick="showInfo()">سياسة الخصوصية</a>
                 </div>
                 <div>
                     <h4>تابعنا</h4>
@@ -721,7 +1043,7 @@
                         <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
                         <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
                     </div>
-                    <p class="mt-3 text-sm"><i class="fab fa-whatsapp ml-2 text-green-500"></i> 07730492020</p>
+                    <p class="mt-3 text-sm"><i class="fab fa-whatsapp ml-2 text-green-500"></i> <span id="footerWhatsapp">07730492020</span></p>
                     <p class="text-sm"><i class="fas fa-envelope ml-2"></i> akkad@store.com</p>
                 </div>
             </div>
@@ -734,24 +1056,24 @@
 
     <!-- Scroll to Top -->
     <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
-        <i class="fas fa-arrow-up"></i>
+        <i class="fas fa-chevron-up"></i>
     </div>
 
     <!-- Product Modal -->
     <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold" id="modalTitle"></h3>
-                <button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red">&times;</button>
+                <h3 class="text-xl font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3>
+                <button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
             <div class="relative">
                 <img id="modalImage" src="" class="w-full rounded-lg mb-4 max-h-56 object-contain bg-gray-800">
-                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-netflix-red rounded-full w-10 h-10 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
+                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-netflix-red rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition hover:scale-105" onclick="event.stopPropagation(); openVideo()">
                     <i class="fas fa-play text-white text-sm"></i>
                 </div>
             </div>
-            <p id="modalDesc" class="text-gray-400 mb-4 leading-relaxed text-sm"></p>
-            <div id="modalSpecs" class="bg-gray-800 rounded-lg p-4 mb-4"></div>
+            <p id="modalDesc" class="mb-4 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p>
+            <div id="modalSpecs" class="rounded-lg p-4 mb-4" style="background: var(--netflix-input-bg);"></div>
             <div class="flex gap-3">
                 <button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix"><i class="fab fa-whatsapp ml-2"></i> طلب الآن</button>
                 <button onclick="addToCartFromModal()" class="flex-1 btn-netflix"><i class="fas fa-shopping-bag ml-2"></i> أضف للسلة</button>
@@ -762,7 +1084,7 @@
     <!-- Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this) closeModal('videoModal')">
         <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3 border border-netflix-red">
-            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red">&times;</button></div>
+            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div>
             <iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe>
         </div>
     </div>
@@ -772,7 +1094,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold"><i class="fas fa-shopping-bag ml-2"></i> سلة التسوق</h3>
-                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red">&times;</button>
+                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
             <div id="cartItems" class="max-h-80 overflow-y-auto"></div>
             <div id="cartTotal" class="mt-4 pt-4 border-t" style="border-color: var(--netflix-border);"></div>
@@ -784,21 +1106,36 @@
     <!-- Order Modal -->
     <div id="orderModal" class="modal" onclick="if(event.target===this) closeModal('orderModal')">
         <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
+            <h3 class="text-xl font-bold mb-4" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <input type="text" id="custName" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-netflix-red transition" style="border-color: var(--netflix-border); background: var(--netflix-black);" placeholder="الاسم الكامل *" required>
-                <input type="tel" id="custPhone" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-netflix-red transition" style="border-color: var(--netflix-border); background: var(--netflix-black);" placeholder="رقم الموبايل *" required>
-                <select id="custCity" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-netflix-red transition" style="border-color: var(--netflix-border); background: var(--netflix-black);" required>
-                    <option value="">اختر المحافظة</option>
-                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
-                    <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
-                    <option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option>
-                    <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
-                    <option>المثنى</option><option>القادسية</option>
-                </select>
-                <input type="text" id="custDistrict" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-netflix-red transition" style="border-color: var(--netflix-border); background: var(--netflix-black);" placeholder="القضاء / المنطقة *" required>
-                <input type="text" id="custLandmark" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-netflix-red transition" style="border-color: var(--netflix-border); background: var(--netflix-black);" placeholder="أقرب نقطة دالة">
-                <div id="orderSummary" class="bg-gray-800 rounded-lg p-4 mb-4 text-sm"></div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1" style="color: var(--netflix-text);">الاسم الكامل *</label>
+                    <input type="text" id="custName" class="input" placeholder="أدخل اسمك الكامل" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1" style="color: var(--netflix-text);">رقم الموبايل *</label>
+                    <input type="tel" id="custPhone" class="input" placeholder="مثال: 077xxxxxxxx" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1" style="color: var(--netflix-text);">المحافظة *</label>
+                    <select id="custCity" class="select" required>
+                        <option value="">اختر المحافظة</option>
+                        <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                        <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
+                        <option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option>
+                        <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
+                        <option>المثنى</option><option>القادسية</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1" style="color: var(--netflix-text);">القضاء / المنطقة *</label>
+                    <input type="text" id="custDistrict" class="input" placeholder="أدخل اسم المنطقة" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1" style="color: var(--netflix-text);">أقرب نقطة دالة</label>
+                    <input type="text" id="custLandmark" class="input" placeholder="مثال: قرب جامع الكبير">
+                </div>
+                <div id="orderSummary" class="order-summary"></div>
                 <button type="submit" class="btn-whatsapp-netflix w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
                 <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-sm" style="color: var(--netflix-text-light);">إلغاء</button>
             </form>
@@ -808,11 +1145,11 @@
     <!-- Info Modal -->
     <div id="infoModal" class="modal" onclick="if(event.target===this) closeModal('infoModal')">
         <div class="modal-content text-center">
-            <div class="w-16 h-16 mx-auto rounded-lg bg-netflix-red flex items-center justify-center mb-4">
+            <div class="w-16 h-16 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-4">
                 <i class="fas fa-play text-white text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">متجر أكاد الرقمي</h3>
-            <p class="text-gray-400 text-sm mb-4">نسخة 3.0 - جميع الحقوق محفوظة</p>
+            <p class="text-sm mb-4" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
             <div class="border-t pt-4 mt-2" style="border-color: var(--netflix-border);">
                 <p class="text-sm"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
                 <p class="text-sm mt-2"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
@@ -840,6 +1177,7 @@
         let products = [];
         let categories = [];
         let settings = {};
+        let footerLinks = {};
         let cart = JSON.parse(localStorage.getItem('akkad_cart') || '[]');
         let currentProduct = null;
         let currentProductVideo = '';
@@ -854,6 +1192,7 @@
                 icon.className = 'fas fa-moon';
                 localStorage.setItem('theme', 'light');
             } else {
+                document.body.classList.add('dark-mode');
                 icon.className = 'fas fa-sun';
                 localStorage.setItem('theme', 'dark');
             }
@@ -864,8 +1203,21 @@
             if(saved === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('themeIcon').className = 'fas fa-moon';
+            } else {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
             }
         }
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if(window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
         
         function shareStore() {
             if(navigator.share) {
@@ -895,10 +1247,6 @@
         
         function formatPrice(price) {
             if(!price || price === 'اتصل بنا') return 'اتصل بنا';
-            let num = parseFloat(price);
-            if(!isNaN(num) && price.toString() === num.toString()) {
-                return num.toLocaleString('ar-IQ') + ' د.ع';
-            }
             return price;
         }
         
@@ -921,24 +1269,44 @@
             filterAndRender();
         }
         
+        // ========== Horizontal Scroll for Categories ==========
+        function initCategorySlider() {
+            const slider = document.getElementById('categoriesSlider');
+            const leftBtn = document.getElementById('scrollLeftBtn');
+            const rightBtn = document.getElementById('scrollRightBtn');
+            
+            if(!slider) return;
+            
+            const scrollAmount = 200;
+            
+            if(leftBtn) {
+                leftBtn.onclick = () => slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            }
+            if(rightBtn) {
+                rightBtn.onclick = () => slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+            
+            const updateButtons = () => {
+                if(!leftBtn || !rightBtn) return;
+                const maxScroll = slider.scrollWidth - slider.clientWidth;
+                leftBtn.style.opacity = slider.scrollLeft <= 10 ? '0.4' : '0.9';
+                rightBtn.style.opacity = slider.scrollLeft >= maxScroll - 10 ? '0.4' : '0.9';
+            };
+            
+            slider.addEventListener('scroll', updateButtons);
+            setTimeout(updateButtons, 100);
+        }
+        
         function renderCategoriesNetflix() {
             const container = document.getElementById('categoriesList');
             const sorted = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
-            container.innerHTML = sorted.map(cat => `<span class="netflix-category" onclick="filterCategory('${escapeHtml(cat.name)}')">${escapeHtml(cat.name)}</span>`).join('');
+            container.innerHTML = sorted.map(cat => `<span class="netflix-category" data-cat="${escapeHtml(cat.name)}" onclick="filterCategory('${escapeHtml(cat.name)}')">📁 ${escapeHtml(cat.name)}</span>`).join('');
+            setTimeout(initCategorySlider, 100);
         }
         
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
-        window.addEventListener('scroll', () => {
-            const scrollBtn = document.getElementById('scrollTop');
-            if(window.scrollY > 300) {
-                scrollBtn.classList.add('show');
-            } else {
-                scrollBtn.classList.remove('show');
-            }
-        });
         
         function loadSettings() {
             db.ref('settings').on('value', (snapshot) => {
@@ -950,18 +1318,11 @@
                 const storeLogo = settingsData.storeLogo || '';
                 const storeName = settingsData.storeName || 'AKKAD';
                 
-                // تحديث الشعار
-                if(storeLogo) {
-                    document.getElementById('storeLogo').src = storeLogo;
-                }
+                if(storeLogo) document.getElementById('storeLogo').src = storeLogo;
+                document.getElementById('storeName').textContent = storeName;
+                document.getElementById('footerWhatsapp').textContent = whatsappNumber;
+                document.getElementById('infoWhatsapp').textContent = whatsappNumber;
                 
-                // تحديث اسم المتجر
-                const storeNameElement = document.getElementById('storeName');
-                if(storeNameElement) {
-                    storeNameElement.textContent = storeName;
-                }
-                
-                // تحديث روابط التواصل الاجتماعي
                 const footerSocial = document.getElementById('footerSocial');
                 if(footerSocial) {
                     footerSocial.innerHTML = `
@@ -971,9 +1332,33 @@
                         <a href="${telegramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>
                     `;
                 }
-                
-                const infoWhatsapp = document.getElementById('infoWhatsapp');
-                if(infoWhatsapp) infoWhatsapp.textContent = whatsappNumber;
+            });
+        }
+        
+        function loadFooterLinks() {
+            db.ref('footerLinks').on('value', (snapshot) => {
+                const links = snapshot.val() || {};
+                const linkMapping = {
+                    about: 'footerLink_about',
+                    jobs: 'footerLink_jobs',
+                    blog: 'footerLink_blog',
+                    help: 'footerLink_help',
+                    shipping: 'footerLink_shipping',
+                    returns: 'footerLink_returns',
+                    terms: 'footerLink_terms',
+                    privacy: 'footerLink_privacy'
+                };
+                for(const [key, elementId] of Object.entries(linkMapping)) {
+                    const link = links[key];
+                    if(link && link !== '#') {
+                        const element = document.getElementById(elementId);
+                        if(element) {
+                            element.href = link;
+                            element.target = '_blank';
+                            element.onclick = null;
+                        }
+                    }
+                }
             });
         }
         
@@ -1006,6 +1391,7 @@
             });
             
             loadSettings();
+            loadFooterLinks();
         }
         
         function filterAndRender() {
@@ -1137,7 +1523,7 @@
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
                 return `
-                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg" style="border-color: var(--netflix-border);">
+                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg" style="border-color: var(--netflix-border); background: var(--netflix-input-bg);">
                         <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover">
                         <div class="flex-1">
                             <h4 class="font-medium">${escapeHtml(item.name)}</h4>
@@ -1173,12 +1559,12 @@
                 let priceNum = parseFloat(item.price);
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
-                return `<div class="flex justify-between py-1 text-sm"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
+                return `<div class="order-summary-item"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
             }).join('');
             document.getElementById('orderSummary').innerHTML = `
-                <div class="font-medium mb-2 text-sm">تفاصيل الطلب:</div>
+                <div class="font-medium mb-2">📦 تفاصيل الطلب</div>
                 ${itemsHtml}
-                <div class="border-t mt-2 pt-2 flex justify-between font-medium">
+                <div class="order-summary-item font-bold">
                     <span>الإجمالي:</span>
                     <span style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span>
                 </div>
@@ -1211,7 +1597,7 @@
             
             await db.ref('orders').push(orderData);
             
-            let msg = `🏛️ طلب جديد - متجر أكاد\n━━━━━━━━━━━━━━━\n👤 ${orderData.customerName}\n📞 ${orderData.customerPhone}\n📍 ${orderData.customerCity} - ${orderData.customerDistrict}\n━━━━━━━━━━━━━━━\n📦 المنتجات:\n`;
+            let msg = `🏛️ طلب جديد - متجر أكاد\n━━━━━━━━━━━━━━━\n👤 ${orderData.customerName}\n📞 ${orderData.customerPhone}\n📍 ${orderData.customerCity} - ${orderData.customerDistrict}\n${orderData.customerLandmark ? `🗿 ${orderData.customerLandmark}\n` : ''}━━━━━━━━━━━━━━━\n📦 المنتجات:\n`;
             orderData.items.forEach(i => msg += `• ${i.name} × ${i.qty}\n`);
             msg += `━━━━━━━━━━━━━━━\n💰 المجموع: ${orderData.total.toLocaleString('ar-IQ')} د.ع`;
             
@@ -1253,7 +1639,7 @@
             
             const specsContainer = document.getElementById('modalSpecs');
             if(product.specs && Object.keys(product.specs).length > 0) {
-                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
+                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
             } else {
                 specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
             }
@@ -1270,9 +1656,24 @@
             }
         }
         
+        // Scroll to top button visibility
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollTop');
+            if(window.scrollY > 300) {
+                scrollBtn.classList.add('show');
+            } else {
+                scrollBtn.classList.remove('show');
+            }
+        });
+        
         applySavedTheme();
         loadData();
         updateCartUI();
+        
+        // Initialize category slider after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initCategorySlider();
+        });
     </script>
 </body>
 </html>
