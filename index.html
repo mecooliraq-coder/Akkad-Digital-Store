@@ -3,248 +3,713 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>AKKAD STORE | متجر أكاد الرقمي</title>
+    <title>AKKAD STORE | متجر أكاد - تصميم Shopify</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --gold: #d4af37; --gold-dark: #b8942e; --bg: #f8f8f8; --card: #ffffff; --text: #111; --text-light: #555; }
         
-        body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text); transition: all 0.3s; overflow-x: hidden; }
+        /* تصميم Shopify - احترافي وعصري */
+        :root {
+            --shopify-green: #008060;
+            --shopify-green-dark: #004c3f;
+            --shopify-green-light: #e6f5f0;
+            --shopify-bg: #ffffff;
+            --shopify-bg-gray: #fafafa;
+            --shopify-text: #2c2c2c;
+            --shopify-text-light: #6b6b6b;
+            --shopify-border: #e6e6e6;
+            --shopify-gray: #f8f8f8;
+        }
         
-        /* Dark Mode */
-        body.dark-mode { --bg: #131921; --card: #1a1f2e; --text: #e8e2d4; --text-light: #aaa; background: var(--bg); color: var(--text); }
-        body.dark-mode .product-card { background: var(--card); border-color: #333; }
-        body.dark-mode .modal-content { background: #1a1f2e; color: var(--text); }
-        body.dark-mode .search-bar input { background: #1a1f2e; color: white; }
-        body.dark-mode .btn-outline-amazon { border-color: #febd69; color: #febd69; }
-        body.dark-mode .bg-gray-100 { background: #2a2f3e; }
-        body.dark-mode .border-gray-300 { border-color: #444; }
+        body {
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--shopify-bg);
+            color: var(--shopify-text);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        /* Dark Mode - Shopify Dark */
+        body.dark-mode {
+            --shopify-bg: #121212;
+            --shopify-bg-gray: #1e1e1e;
+            --shopify-text: #ffffff;
+            --shopify-text-light: #a0a0a0;
+            --shopify-border: #2a2a2a;
+            --shopify-gray: #1a1a1a;
+            background: var(--shopify-bg);
+            color: var(--shopify-text);
+        }
+        
+        body.dark-mode .product-card,
+        body.dark-mode .modal-content,
+        body.dark-mode .search-container,
+        body.dark-mode .shopify-header {
+            background: var(--shopify-bg-gray);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--shopify-border); }
+        ::-webkit-scrollbar-thumb { background: var(--shopify-green); border-radius: 10px; }
+        
+        /* Header Shopify */
+        .shopify-header {
+            background: var(--shopify-bg);
+            border-bottom: 1px solid var(--shopify-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+        }
         
         /* Top Bar */
-        .top-bar { background: linear-gradient(135deg, #25D366, #128C7E); color: white; padding: 8px; text-align: center; font-size: 13px; }
-        .top-bar i { margin-left: 8px; }
+        .top-bar-shopify {
+            background: var(--shopify-green);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+        }
         
-        /* Amazon-style header */
-        .amazon-header { background: #131921; color: white; }
-        .amazon-header-secondary { background: #232f3e; }
-        .search-bar { background: white; border-radius: 8px; overflow: hidden; display: flex; }
-        .search-bar input { border: none; padding: 12px; width: 100%; outline: none; }
-        .search-bar button { background: #febd69; border: none; padding: 12px 20px; cursor: pointer; color: #131921; }
+        /* Search Bar */
+        .search-container {
+            background: var(--shopify-gray);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--shopify-border);
+            transition: all 0.2s;
+        }
         
-        /* Categories bar */
-        .categories-bar { background: #232f3e; padding: 8px 0; overflow-x: auto; white-space: nowrap; }
-        .categories-bar a { color: white; padding: 8px 16px; display: inline-block; font-size: 14px; text-decoration: none; cursor: pointer; }
-        .categories-bar a:hover { border: 1px solid white; }
+        .search-container:focus-within {
+            border-color: var(--shopify-green);
+            box-shadow: 0 0 0 3px rgba(0,128,96,0.1);
+        }
         
-        /* Hero Banner */
-        .hero-banner { background: linear-gradient(135deg, #232f3e, #131921); color: white; padding: 50px 20px; text-align: center; position: relative; overflow: hidden; }
-        .hero-banner::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); animation: rotate 20s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .hero-banner h2 { position: relative; z-index: 1; animation: fadeInUp 0.8s ease; }
-        .hero-banner p { position: relative; z-index: 1; animation: fadeInUp 1s ease; }
-        .hero-banner button { position: relative; z-index: 1; animation: fadeInUp 1.2s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .search-container input {
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+            font-size: 14px;
+            color: var(--shopify-text);
+        }
         
-        /* Product Card */
-        .product-card { background: var(--card); border: 1px solid #ddd; border-radius: 12px; padding: 16px; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer; position: relative; overflow: hidden; }
-        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.2); border-color: #febd69; }
-        .product-img { height: 180px; object-fit: contain; width: 100%; margin-bottom: 12px; border-radius: 8px; transition: transform 0.3s; }
-        .product-card:hover .product-img { transform: scale(1.05); }
-        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 42px; }
-        .product-price { color: #B12704; font-size: 18px; font-weight: bold; margin: 8px 0; }
-        .product-price s { color: #888; font-size: 14px; font-weight: normal; margin-left: 8px; }
-        .product-rating { color: #ffa41c; margin: 8px 0; display: flex; align-items: center; gap: 4px; }
+        .search-container input::placeholder {
+            color: var(--shopify-text-light);
+        }
+        
+        .search-container button {
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            color: var(--shopify-green);
+        }
+        
+        /* Icon Buttons */
+        .shopify-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--shopify-text);
+        }
+        
+        .shopify-icon-btn:hover {
+            background: var(--shopify-gray);
+            color: var(--shopify-green);
+        }
+        
+        /* Categories - Shopify Style */
+        .shopify-categories {
+            padding: 16px 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            background: var(--shopify-bg);
+            border-bottom: 1px solid var(--shopify-border);
+        }
+        
+        .shopify-category {
+            display: inline-block;
+            padding: 8px 20px;
+            margin: 0 6px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: var(--shopify-text);
+        }
+        
+        .shopify-category:hover {
+            background: var(--shopify-gray);
+        }
+        
+        .shopify-category.active {
+            background: var(--shopify-green);
+            color: white;
+        }
+        
+        /* Hero Shopify */
+        .shopify-hero {
+            background: var(--shopify-green-light);
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        body.dark-mode .shopify-hero {
+            background: var(--shopify-green-dark);
+        }
+        
+        .shopify-hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--shopify-green);
+            margin-bottom: 16px;
+        }
+        
+        .shopify-hero p {
+            font-size: 18px;
+            color: var(--shopify-text-light);
+            margin-bottom: 30px;
+        }
+        
+        /* Product Card - Shopify Style */
+        .product-card {
+            background: var(--shopify-bg);
+            border: 1px solid var(--shopify-border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border-color: var(--shopify-green);
+        }
+        
+        .product-img {
+            height: 200px;
+            object-fit: contain;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .product-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 8px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 42px;
+            line-height: 1.4;
+        }
+        
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--shopify-green);
+            margin: 8px 0;
+        }
+        
+        .product-old-price {
+            font-size: 13px;
+            text-decoration: line-through;
+            color: var(--shopify-text-light);
+            margin-right: 8px;
+        }
+        
+        .product-rating {
+            color: #f1c40f;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
         
         /* Badges */
-        .badge-hot { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 10; }
-        .badge-new { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 10; }
-        .badge-sale { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 10; }
+        .badge-hot, .badge-new, .badge-sale {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 10;
+            color: white;
+        }
         
-        /* Buttons */
-        .btn-amazon { background: #febd69; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; transition: all 0.2s; }
-        .btn-amazon:hover { background: #f3a847; transform: scale(1.02); }
-        .btn-outline-amazon { background: transparent; border: 1px solid #febd69; color: #febd69; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
-        .btn-outline-amazon:hover { background: #febd69; color: #131921; transform: scale(1.02); }
-        .btn-whatsapp { background: #25D366; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: all 0.2s; }
-        .btn-whatsapp:hover { background: #1da851; transform: scale(1.02); }
+        .badge-hot { background: #e74c3c; }
+        .badge-new { background: var(--shopify-green); }
+        .badge-sale { background: #f39c12; }
         
-        /* Video Play Button */
-        .video-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s; border-radius: 8px; cursor: pointer; backdrop-filter: blur(3px); }
-        .product-img-container:hover .video-overlay { opacity: 1; }
-        .play-btn-circle { width: 55px; height: 55px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .play-btn-circle:hover { transform: scale(1.15); background: #febd69; }
-        .play-btn-circle i { color: #0a0f12; font-size: 22px; margin-right: 3px; }
-        .video-badge { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.75); border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s; }
-        .video-badge:hover { background: #d4af37; }
-        .video-badge:hover i, .video-badge:hover span { color: #0a0f12; }
-        .video-badge i { color: #d4af37; font-size: 10px; transition: 0.2s; }
-        .video-badge span { color: white; font-size: 11px; transition: 0.2s; }
+        /* Buttons Shopify */
+        .btn-shopify {
+            background: var(--shopify-green);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .btn-shopify:hover {
+            background: var(--shopify-green-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-shopify {
+            background: transparent;
+            border: 1px solid var(--shopify-green);
+            color: var(--shopify-green);
+            padding: 11px 19px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-shopify:hover {
+            background: var(--shopify-green);
+            color: white;
+        }
+        
+        .btn-whatsapp-shopify {
+            background: #25D366;
+            border: none;
+            padding: 11px 19px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .btn-whatsapp-shopify:hover {
+            background: #1da851;
+            transform: translateY(-2px);
+        }
+        
+        /* Video Overlay */
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .product-img-container:hover .video-overlay {
+            opacity: 1;
+        }
+        
+        .play-btn-shopify {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-btn-shopify i {
+            color: var(--shopify-green);
+            font-size: 18px;
+            margin-right: 3px;
+        }
+        
+        .video-badge-shopify {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: white;
+        }
         
         /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 90%; padding: 24px; max-height: 85vh; overflow-y: auto; color: #111; animation: modalIn 0.3s ease; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
         
-        /* Footer */
-        .footer { background: #232f3e; color: white; padding: 40px 20px 20px; margin-top: 40px; }
-        .footer a { color: #ddd; text-decoration: none; display: block; margin: 8px 0; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .footer a:hover { color: #febd69; text-decoration: underline; transform: translateX(-5px); }
-        .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid #3a4553; margin-top: 20px; font-size: 12px; }
+        .modal-content {
+            background: var(--shopify-bg);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: var(--shopify-text);
+            animation: modalPop 0.2s ease;
+        }
+        
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Footer Shopify */
+        .shopify-footer {
+            background: var(--shopify-gray);
+            padding: 50px 20px 30px;
+            margin-top: 60px;
+            border-top: 1px solid var(--shopify-border);
+        }
+        
+        body.dark-mode .shopify-footer {
+            background: var(--shopify-bg-gray);
+        }
+        
+        .shopify-footer a {
+            color: var(--shopify-text-light);
+            text-decoration: none;
+            display: block;
+            margin: 8px 0;
+            font-size: 13px;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        
+        .shopify-footer a:hover {
+            color: var(--shopify-green);
+        }
+        
+        .shopify-footer h4 {
+            font-weight: 600;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        /* Payment Icons */
+        .payment-icons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .payment-icons i {
+            font-size: 32px;
+            color: var(--shopify-text-light);
+        }
         
         /* Toast */
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #232f3e; color: white; padding: 12px 24px; border-radius: 50px; z-index: 9999; animation: slideIn 0.3s; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-        .toast.error { background: #ef4444; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--shopify-green);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideIn 0.2s;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        .toast.error {
+            background: #e74c3c;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
         
         /* Cart Badge */
-        .cart-badge { position: absolute; top: -8px; right: -8px; background: #febd69; color: #131921; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .cart-icon { position: relative; cursor: pointer; transition: 0.2s; }
-        .cart-icon:hover { transform: scale(1.05); }
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--shopify-green);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
         
-        /* Floating Elements */
-        .cuneiform { position: fixed; z-index: 0; pointer-events: none; font-size: clamp(40px,8vw,100px); font-weight: 900; color: var(--gold); opacity: 0.03; white-space: nowrap; animation: slideCuneiform 35s linear infinite; }
-        @keyframes slideCuneiform { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .glow-orb { position: fixed; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); z-index: 0; pointer-events: none; animation: floatOrb 20s ease-in-out infinite; }
-        .glow-orb:nth-child(2) { animation-delay: -10s; width: 300px; height: 300px; background: radial-gradient(circle, rgba(37,211,102,0.05) 0%, transparent 70%); }
-        @keyframes floatOrb { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-30px); } }
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
         
-        /* Scroll to top button */
-        .scroll-top { position: fixed; bottom: 80px; right: 20px; width: 45px; height: 45px; background: #febd69; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 99; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .scroll-top.show { opacity: 1; visibility: visible; }
-        .scroll-top:hover { transform: translateY(-3px); background: #f3a847; }
+        /* Scroll Top */
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 45px;
+            height: 45px;
+            background: var(--shopify-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 99;
+        }
         
-        @media (max-width: 768px) { .product-img { height: 140px; } .grid-cols-4 { grid-template-columns: repeat(2, 1fr); } .cuneiform, .glow-orb { display: none; } .scroll-top { bottom: 70px; } }
+        .scroll-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            background: var(--shopify-green-dark);
+            transform: translateY(-3px);
+        }
+        
+        .scroll-top i {
+            color: white;
+            font-size: 18px;
+        }
+        
+        /* Cuneiform */
+        .cuneiform {
+            position: fixed;
+            z-index: 0;
+            pointer-events: none;
+            font-size: clamp(40px, 8vw, 100px);
+            font-weight: 900;
+            color: var(--shopify-green);
+            opacity: 0.03;
+            white-space: nowrap;
+            animation: slideCuneiform 35s linear infinite;
+        }
+        
+        @keyframes slideCuneiform {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        @media (max-width: 768px) {
+            .shopify-hero h1 { font-size: 32px; }
+            .product-img { height: 150px; }
+            .grid-cols-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Floating Elements -->
-    <div class="glow-orb" style="top: 10%; right: -10%;"></div>
-    <div class="glow-orb" style="bottom: 0; left: -10%;"></div>
+    <!-- Floating Cuneiform -->
     <div class="cuneiform" style="bottom: 15%; right: -20%;">𒀭𒈾𒀜𒀭𒀜 𒈠𒀀𒉡</div>
     <div class="cuneiform" style="top: 30%; left: -20%; animation-duration: 45s;">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div>
 
     <!-- Top Bar -->
-    <div class="top-bar">
-        <i class="fas fa-truck"></i> توصيل مجاني لجميع أنحاء العراق | الدفع عند الاستلام | خصم 10% على أول طلب
+    <div class="top-bar-shopify">
+        <i class="fas fa-truck ml-2"></i> توصيل مجاني للطلبات فوق 50,000 د.ع | خصم 20% على أول طلب
+        <i class="fas fa-gift mr-2"></i>
     </div>
 
-    <!-- Header -->
-    <header>
-        <div class="amazon-header px-4 py-3">
-            <div class="container mx-auto flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="scrollToTop()">
-                    <img id="logo" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border border-white">
-                    <span class="font-bold text-xl gold">AKKAD STORE</span>
+    <!-- Header Shopify -->
+    <header class="shopify-header">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTop()">
+                    <div class="w-10 h-10 rounded-lg bg-shopify-green flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">A</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl" style="color: var(--shopify-green);">AKKAD</span>
+                        <p class="text-xs" style="color: var(--shopify-text-light);">متجر أكاد الرقمي</p>
+                    </div>
                 </div>
                 
-                <div class="flex-1 max-w-2xl">
-                    <div class="search-bar">
+                <div class="flex-1 max-w-md">
+                    <div class="search-container">
                         <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="🔍 ابحث عن منتج...">
                         <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 transition flex items-center justify-center" title="الوضع الليلي">
-                        <i class="fas fa-moon text-yellow-500" id="themeIcon"></i>
+                <div class="flex items-center gap-1">
+                    <button onclick="toggleTheme()" class="shopify-icon-btn" title="الوضع الليلي">
+                        <i class="fas fa-moon" id="themeIcon"></i>
                     </button>
-                    <button onclick="shareStore()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 transition flex items-center justify-center" title="مشاركة المتجر">
-                        <i class="fas fa-share-alt text-white"></i>
+                    <button onclick="shareStore()" class="shopify-icon-btn" title="مشاركة">
+                        <i class="fas fa-share-alt"></i>
                     </button>
-                    <button onclick="showInfo()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 transition flex items-center justify-center" title="معلومات">
-                        <i class="fas fa-info-circle text-white"></i>
+                    <button onclick="showInfo()" class="shopify-icon-btn" title="معلومات">
+                        <i class="fas fa-info-circle"></i>
                     </button>
                     <div class="cart-icon" onclick="openCart()">
-                        <i class="fas fa-shopping-cart text-2xl"></i>
+                        <i class="fas fa-shopping-bag"></i>
                         <span class="cart-badge" id="cartCount">0</span>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Categories Bar -->
-        <div class="amazon-header-secondary">
-            <div class="container mx-auto">
-                <div class="categories-bar">
-                    <a onclick="filterCategory('all')">🏠 الكل</a>
-                    <div id="categoriesAmazonList"></div>
-                    <a onclick="showInfo()">📞 اتصل بنا</a>
-                    <a onclick="shareStore()">📤 مشاركة</a>
-                    <a onclick="toggleTheme()">🌙 وضع ليلي</a>
-                </div>
-            </div>
-        </div>
     </header>
 
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-        <div class="container mx-auto">
-            <h2 class="text-3xl md:text-5xl font-bold mb-3">✨ أهلاً بك في متجر أكاد</h2>
-            <p class="text-lg md:text-xl opacity-95 mb-6">أحدث أجهزة الترفيه الرقمي - جودة عالية وأسعار تنافسية - توصيل لجميع أنحاء العراق 🇮🇶</p>
-            <button onclick="scrollToProducts()" class="btn-amazon mt-2 px-8 py-3 text-lg inline-flex items-center gap-2" style="background: #febd69; color: #131921;">
+    <!-- Categories -->
+    <div class="shopify-categories">
+        <div class="container mx-auto px-4">
+            <div class="flex gap-2 overflow-x-auto" id="categoriesShopifyList">
+                <span class="shopify-category active" onclick="filterCategory('all')">🏠 الكل</span>
+                <div id="categoriesList"></div>
+                <span class="shopify-category" onclick="showInfo()">📞 اتصل بنا</span>
+                <span class="shopify-category" onclick="shareStore()">📤 مشاركة</span>
+                <span class="shopify-category" onclick="toggleTheme()">🌙 ليلي</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Shopify -->
+    <div class="shopify-hero">
+        <div class="container mx-auto px-4">
+            <h1>✨ متجر أكاد الرقمي</h1>
+            <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع</p>
+            <button onclick="scrollToProducts()" class="btn-shopify inline-flex items-center gap-2 px-8 py-3 w-auto">
                 تسوق الآن <i class="fas fa-arrow-left"></i>
             </button>
         </div>
     </div>
 
     <!-- Products Grid -->
-    <div class="container mx-auto px-4 py-8">
-        <h3 class="text-2xl font-bold mb-6 border-r-4 border-[#febd69] pr-3">✨ المنتجات المميزة</h3>
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold" style="color: var(--shopify-green);">🔥 المنتجات المميزة</h2>
+            <span class="text-sm" style="color: var(--shopify-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
+        </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="productsGrid">
-            <div class="product-card text-center py-12">🔄 جاري التحميل...</div>
+            <div class="product-card text-center py-12">
+                <div class="animate-pulse">جاري التحميل...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <i class="fas fa-truck text-3xl" style="color: var(--shopify-green);"></i>
+                <h4 class="font-bold mt-2">توصيل سريع</h4>
+                <p class="text-sm" style="color: var(--shopify-text-light);">لجميع محافظات العراق</p>
+            </div>
+            <div>
+                <i class="fas fa-shield-alt text-3xl" style="color: var(--shopify-green);"></i>
+                <h4 class="font-bold mt-2">دفع آمن</h4>
+                <p class="text-sm" style="color: var(--shopify-text-light);">طرق دفع متعددة</p>
+            </div>
+            <div>
+                <i class="fas fa-headset text-3xl" style="color: var(--shopify-green);"></i>
+                <h4 class="font-bold mt-2">دعم 24/7</h4>
+                <p class="text-sm" style="color: var(--shopify-text-light);">فريق دعم متكامل</p>
+            </div>
+            <div>
+                <i class="fas fa-undo-alt text-3xl" style="color: var(--shopify-green);"></i>
+                <h4 class="font-bold mt-2">استرجاع سهل</h4>
+                <p class="text-sm" style="color: var(--shopify-text-light);">سياسة استرجاع مرنة</p>
+            </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="shopify-footer">
         <div class="container mx-auto">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
-                    <h4 class="font-bold mb-3 text-lg">تعرف علينا</h4>
+                    <h4>الشركة</h4>
+                    <a onclick="showInfo()">من نحن</a>
                     <a onclick="showInfo()">وظائف</a>
-                    <a onclick="showInfo()">معلومات عنا</a>
                     <a onclick="showInfo()">المدونة</a>
-                    <a onclick="showInfo()">مركز المساعدة</a>
+                    <a onclick="showInfo()">مركز الإعلام</a>
                 </div>
                 <div>
-                    <h4 class="font-bold mb-3 text-lg">كسب المال معنا</h4>
-                    <a onclick="showInfo()">بيع على أكاد</a>
-                    <a onclick="showInfo()">برنامج الشركاء</a>
-                    <a onclick="showInfo()">الإعلانات</a>
-                    <a onclick="showInfo()">انضم كتاجر</a>
+                    <h4>الخدمات</h4>
+                    <a onclick="showInfo()">مساعدة</a>
+                    <a onclick="showInfo()">الشحن</a>
+                    <a onclick="showInfo()">الاسترجاع</a>
+                    <a onclick="showInfo()">الأسئلة الشائعة</a>
                 </div>
                 <div>
-                    <h4 class="font-bold mb-3 text-lg">طرق الدفع</h4>
-                    <a onclick="showInfo()">الدفع عند الاستلام</a>
-                    <a onclick="showInfo()">بطاقات ائتمان</a>
-                    <a onclick="showInfo()">تحويل بنكي</a>
-                    <a onclick="showInfo()">زين كاش</a>
+                    <h4>القوانين</h4>
+                    <a onclick="showInfo()">الشروط والأحكام</a>
+                    <a onclick="showInfo()">سياسة الخصوصية</a>
+                    <a onclick="showInfo()">سياسة ملفات تعريف الارتباط</a>
                 </div>
                 <div>
-                    <h4 class="font-bold mb-3 text-lg">تواصل معنا</h4>
-                    <div class="flex gap-4 mt-2" id="footerSocial">
-                        <div class="w-9 h-9 rounded-full bg-white/10 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-full bg-white/10 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-full bg-white/10 animate-pulse"></div>
+                    <h4>تواصل معنا</h4>
+                    <div class="flex gap-3 mt-2" id="footerSocial">
+                        <div class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                        <div class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                        <div class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
                     </div>
-                    <p class="mt-4 text-sm"><i class="fas fa-phone ml-2"></i> 07730492020</p>
+                    <p class="mt-3 text-sm"><i class="fab fa-whatsapp ml-2 text-green-500"></i> 07730492020</p>
                     <p class="text-sm"><i class="fas fa-envelope ml-2"></i> akkad@store.com</p>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
-                <p class="text-xs mt-1 opacity-70">𒀭𒈾𒀜𒈾 𒀝𒅗𒁺 - تم التطوير للعراق 🇮🇶</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-paypal"></i>
+                <i class="fab fa-cc-amex"></i>
+            </div>
+            <div class="text-center pt-6 mt-6 border-t" style="border-color: var(--shopify-border);">
+                <p class="text-sm" style="color: var(--shopify-text-light);">© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
+                <p class="text-xs mt-2 opacity-50">𒀭𒈾𒀜𒈾 𒀝𒅗𒁺 - تم التطوير للعراق 🇮🇶</p>
             </div>
         </div>
     </footer>
 
-    <!-- Scroll to Top Button -->
+    <!-- Scroll to Top -->
     <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
-        <i class="fas fa-arrow-up text-black"></i>
+        <i class="fas fa-arrow-up"></i>
     </div>
 
     <!-- Product Modal -->
@@ -252,27 +717,27 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold" id="modalTitle"></h3>
-                <button onclick="closeModal('productModal')" class="text-2xl hover:text-gold transition">&times;</button>
+                <button onclick="closeModal('productModal')" class="text-2xl hover:opacity-70">&times;</button>
             </div>
             <div class="relative">
                 <img id="modalImage" src="" class="w-full rounded-lg mb-4 max-h-56 object-contain bg-gray-100">
-                <div id="modalVideoBtn" class="hidden absolute top-2 right-2 bg-black/70 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer transition hover:scale-105" onclick="event.stopPropagation(); openVideo()">
-                    <i class="fas fa-play text-white"></i>
+                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-black/60 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
+                    <i class="fas fa-play text-white text-sm"></i>
                 </div>
             </div>
-            <p id="modalDesc" class="text-gray-600 mb-4 leading-relaxed"></p>
-            <div id="modalSpecs" class="bg-gray-100 rounded-lg p-4 mb-4"></div>
+            <p id="modalDesc" class="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed text-sm"></p>
+            <div id="modalSpecs" class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4"></div>
             <div class="flex gap-3">
-                <button onclick="orderNow()" class="flex-1 btn-whatsapp"><i class="fab fa-whatsapp ml-2"></i> طلب الآن</button>
-                <button onclick="addToCartFromModal()" class="flex-1 btn-amazon"><i class="fas fa-cart-plus ml-2"></i> أضف للسلة</button>
+                <button onclick="orderNow()" class="flex-1 btn-whatsapp-shopify"><i class="fab fa-whatsapp ml-2"></i> طلب الآن</button>
+                <button onclick="addToCartFromModal()" class="flex-1 btn-shopify"><i class="fas fa-shopping-bag ml-2"></i> أضف للسلة</button>
             </div>
         </div>
     </div>
 
     <!-- Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this) closeModal('videoModal')">
-        <div class="bg-black rounded-2xl overflow-hidden max-w-3xl w-full mx-3 border-2 border-gold">
-            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-3xl hover:text-gold transition">&times;</button></div>
+        <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3">
+            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:opacity-70">&times;</button></div>
             <iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe>
         </div>
     </div>
@@ -281,13 +746,13 @@
     <div id="cartModal" class="modal" onclick="if(event.target===this) closeModal('cartModal')">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold"><i class="fas fa-shopping-cart ml-2"></i> سلة التسوق</h3>
-                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-gold transition">&times;</button>
+                <h3 class="text-xl font-bold"><i class="fas fa-shopping-bag ml-2"></i> سلة التسوق</h3>
+                <button onclick="closeModal('cartModal')" class="text-2xl hover:opacity-70">&times;</button>
             </div>
             <div id="cartItems" class="max-h-80 overflow-y-auto"></div>
-            <div id="cartTotal" class="mt-4 pt-4 border-t"></div>
-            <button onclick="checkout()" class="btn-amazon w-full mt-4"><i class="fab fa-whatsapp ml-2"></i> إتمام الطلب</button>
-            <button onclick="clearCart()" class="w-full mt-2 text-red-500 text-sm hover:text-red-600 transition">🗑️ تفريغ السلة</button>
+            <div id="cartTotal" class="mt-4 pt-4 border-t" style="border-color: var(--shopify-border);"></div>
+            <button onclick="checkout()" class="btn-shopify w-full mt-4"><i class="fab fa-whatsapp ml-2"></i> إتمام الطلب</button>
+            <button onclick="clearCart()" class="w-full mt-2 text-sm" style="color: var(--shopify-text-light);">تفريغ السلة</button>
         </div>
     </div>
 
@@ -296,9 +761,9 @@
         <div class="modal-content">
             <h3 class="text-xl font-bold mb-4"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <input type="text" id="custName" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:border-[#febd69] focus:outline-none" placeholder="الاسم الكامل *" required>
-                <input type="tel" id="custPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:border-[#febd69] focus:outline-none" placeholder="رقم الموبايل *" required>
-                <select id="custCity" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:border-[#febd69] focus:outline-none" required>
+                <input type="text" id="custName" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-shopify-green transition" style="border-color: var(--shopify-border);" placeholder="الاسم الكامل *" required>
+                <input type="tel" id="custPhone" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-shopify-green transition" style="border-color: var(--shopify-border);" placeholder="رقم الموبايل *" required>
+                <select id="custCity" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-shopify-green transition" style="border-color: var(--shopify-border);" required>
                     <option value="">اختر المحافظة</option>
                     <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
                     <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
@@ -306,11 +771,11 @@
                     <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
                     <option>المثنى</option><option>القادسية</option>
                 </select>
-                <input type="text" id="custDistrict" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:border-[#febd69] focus:outline-none" placeholder="القضاء / المنطقة *" required>
-                <input type="text" id="custLandmark" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:border-[#febd69] focus:outline-none" placeholder="أقرب نقطة دالة">
-                <div id="orderSummary" class="bg-gray-100 rounded-lg p-3 mb-4 text-sm"></div>
-                <button type="submit" class="btn-whatsapp w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
-                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-gray-500 text-sm hover:text-gray-600 transition">إلغاء</button>
+                <input type="text" id="custDistrict" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-shopify-green transition" style="border-color: var(--shopify-border);" placeholder="القضاء / المنطقة *" required>
+                <input type="text" id="custLandmark" class="w-full px-4 py-3 border rounded-lg mb-3 focus:outline-none focus:border-shopify-green transition" style="border-color: var(--shopify-border);" placeholder="أقرب نقطة دالة">
+                <div id="orderSummary" class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 text-sm"></div>
+                <button type="submit" class="btn-whatsapp-shopify w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
+                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-sm" style="color: var(--shopify-text-light);">إلغاء</button>
             </form>
         </div>
     </div>
@@ -318,15 +783,17 @@
     <!-- Info Modal -->
     <div id="infoModal" class="modal" onclick="if(event.target===this) closeModal('infoModal')">
         <div class="modal-content text-center">
-            <i class="fas fa-store text-5xl text-[#febd69] mb-4"></i>
-            <h3 class="text-xl font-bold mb-3">متجر أكاد الرقمي</h3>
-            <p class="text-gray-600 mb-4">نسخة 3.0 - جميع الحقوق محفوظة</p>
-            <div class="border-t pt-4 mt-2">
+            <div class="w-16 h-16 mx-auto rounded-lg bg-shopify-green flex items-center justify-center mb-4">
+                <i class="fas fa-store text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">متجر أكاد الرقمي</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">نسخة 3.0 - جميع الحقوق محفوظة</p>
+            <div class="border-t pt-4 mt-2" style="border-color: var(--shopify-border);">
                 <p class="text-sm"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
                 <p class="text-sm mt-2"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
                 <p class="text-sm mt-2"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p>
             </div>
-            <button onclick="closeModal('infoModal')" class="btn-amazon mt-4 px-8">إغلاق</button>
+            <button onclick="closeModal('infoModal')" class="btn-shopify mt-4 px-8 w-auto">إغلاق</button>
         </div>
     </div>
 
@@ -359,10 +826,10 @@
             document.body.classList.toggle('dark-mode');
             const icon = document.getElementById('themeIcon');
             if(document.body.classList.contains('dark-mode')) {
-                icon.className = 'fas fa-sun text-yellow-500';
+                icon.className = 'fas fa-sun';
                 localStorage.setItem('theme', 'dark');
             } else {
-                icon.className = 'fas fa-moon text-yellow-500';
+                icon.className = 'fas fa-moon';
                 localStorage.setItem('theme', 'light');
             }
         }
@@ -371,7 +838,7 @@
             const saved = localStorage.getItem('theme');
             if(saved === 'dark') {
                 document.body.classList.add('dark-mode');
-                document.getElementById('themeIcon').className = 'fas fa-sun text-yellow-500';
+                document.getElementById('themeIcon').className = 'fas fa-sun';
             }
         }
         
@@ -425,17 +892,16 @@
         
         function filterCategory(cat) {
             currentCategory = cat;
-            renderCategoriesAmazon();
+            renderCategoriesShopify();
             filterAndRender();
         }
         
-        function renderCategoriesAmazon() {
-            const container = document.getElementById('categoriesAmazonList');
+        function renderCategoriesShopify() {
+            const container = document.getElementById('categoriesList');
             const sorted = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
-            container.innerHTML = sorted.map(cat => `<a onclick="filterCategory('${escapeHtml(cat.name)}')">📁 ${escapeHtml(cat.name)}</a>`).join('');
+            container.innerHTML = sorted.map(cat => `<span class="shopify-category" onclick="filterCategory('${escapeHtml(cat.name)}')">${escapeHtml(cat.name)}</span>`).join('');
         }
         
-        // Scroll to top
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -449,7 +915,6 @@
             }
         });
         
-        // Load Social Links
         function loadSocialLinks() {
             db.ref('settings').on('value', (snapshot) => {
                 const settingsData = snapshot.val() || {};
@@ -459,15 +924,13 @@
                 const whatsappNumber = settingsData.whatsappNumber || '9647730492020';
                 const storeLogo = settingsData.storeLogo || '';
                 
-                if(storeLogo) document.getElementById('logo').src = storeLogo;
-                
                 const footerSocial = document.getElementById('footerSocial');
                 if(footerSocial) {
                     footerSocial.innerHTML = `
-                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="text-white hover:text-[#febd69] text-xl transition"><i class="fab fa-whatsapp"></i></a>
-                        <a href="${facebookLink}" target="_blank" class="text-white hover:text-[#febd69] text-xl transition"><i class="fab fa-facebook"></i></a>
-                        <a href="${instagramLink}" target="_blank" class="text-white hover:text-[#febd69] text-xl transition"><i class="fab fa-instagram"></i></a>
-                        <a href="${telegramLink}" target="_blank" class="text-white hover:text-[#febd69] text-xl transition"><i class="fab fa-telegram"></i></a>
+                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-shopify-green transition"><i class="fab fa-whatsapp"></i></a>
+                        <a href="${facebookLink}" target="_blank" class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-shopify-green transition"><i class="fab fa-facebook"></i></a>
+                        <a href="${instagramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-shopify-green transition"><i class="fab fa-instagram"></i></a>
+                        <a href="${telegramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-shopify-green transition"><i class="fab fa-telegram"></i></a>
                     `;
                 }
                 
@@ -476,7 +939,6 @@
             });
         }
         
-        // Video Functions
         function openVideoDirect(url) {
             let videoId = url;
             if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
@@ -491,7 +953,6 @@
             if(currentProductVideo) openVideoDirect(currentProductVideo);
         }
         
-        // Load Data
         async function loadData() {
             db.ref('products').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
@@ -502,7 +963,7 @@
             db.ref('categories').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
-                renderCategoriesAmazon();
+                renderCategoriesShopify();
                 filterAndRender();
             });
             
@@ -525,46 +986,46 @@
         function renderProducts(productsList) {
             const grid = document.getElementById('productsGrid');
             if(productsList.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">📭 لا توجد منتجات</div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">لا توجد منتجات</div>';
                 return;
             }
             grid.innerHTML = productsList.map(p => {
                 const hasVideo = p.video && p.video.trim().length > 5;
                 const badge = getRandomBadge();
-                const badgeHtml = badge === 'hot' ? '<div class="badge-hot">🔥 الأكثر مبيعاً</div>' : 
-                                 badge === 'new' ? '<div class="badge-new">✨ جديد</div>' : 
-                                 '<div class="badge-sale">🎉 خصم</div>';
+                const badgeHtml = badge === 'hot' ? '<div class="badge-hot">الأكثر مبيعاً</div>' : 
+                                 badge === 'new' ? '<div class="badge-new">جديد</div>' : 
+                                 '<div class="badge-sale">خصم</div>';
                 return `
-                    <div class="product-card">
+                    <div class="product-card" onclick="showProduct('${p.id}')">
                         ${badgeHtml}
-                        <div class="relative product-img-container" onclick="showProduct('${p.id}')">
+                        <div class="relative product-img-container">
                             <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
                             ${hasVideo ? `
                                 <div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
-                                    <div class="play-btn-circle">
+                                    <div class="play-btn-shopify">
                                         <i class="fas fa-play"></i>
                                     </div>
                                 </div>
-                                <div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
+                                <div class="video-badge-shopify" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
                                     <i class="fas fa-play"></i>
                                     <span>فيديو</span>
                                 </div>
                             ` : ''}
                         </div>
-                        <div class="product-title" onclick="showProduct('${p.id}')">${escapeHtml(p.name)}</div>
-                        <div class="product-rating" onclick="showProduct('${p.id}')">
+                        <div class="product-title">${escapeHtml(p.name)}</div>
+                        <div class="product-rating">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                            <span class="text-gray-500 text-sm">(128)</span>
+                            <span class="text-xs" style="color: var(--shopify-text-light);">(128)</span>
                         </div>
-                        <div class="product-price" onclick="showProduct('${p.id}')">
+                        <div class="product-price">
                             ${formatPrice(p.price)}
-                            ${p.oldPrice ? `<s>${p.oldPrice} د.ع</s>` : ''}
+                            ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}
                         </div>
-                        <div class="flex gap-2 mt-2">
-                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-amazon text-sm py-2"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
-                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-amazon text-sm py-2"><i class="fas fa-cart-plus ml-1"></i> شراء</button>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-shopify text-sm py-2"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
+                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-shopify text-sm py-2"><i class="fas fa-shopping-bag ml-1"></i> شراء</button>
                         </div>
-                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp text-sm py-2 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
+                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-shopify text-sm py-2 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
                     </div>
                 `;
             }).join('');
@@ -579,7 +1040,6 @@
             document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
-        // Cart Functions
         function updateCartUI() {
             const count = cart.reduce((s, i) => s + i.qty, 0);
             document.getElementById('cartCount').textContent = count;
@@ -617,7 +1077,7 @@
         }
         
         function clearCart() {
-            if(confirm('⚠️ هل تريد تفريغ السلة؟')) {
+            if(confirm('هل تريد تفريغ السلة؟')) {
                 cart = [];
                 updateCartUI();
                 renderCart();
@@ -629,7 +1089,7 @@
             const container = document.getElementById('cartItems');
             const totalContainer = document.getElementById('cartTotal');
             if(cart.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-500 py-8">🛒 السلة فارغة</div>';
+                container.innerHTML = '<div class="text-center text-gray-500 py-8">السلة فارغة</div>';
                 totalContainer.innerHTML = '';
                 return;
             }
@@ -639,22 +1099,22 @@
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
                 return `
-                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded object-cover">
+                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg" style="border-color: var(--shopify-border);">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover">
                         <div class="flex-1">
-                            <h4 class="font-bold">${escapeHtml(item.name)}</h4>
-                            <p class="text-[#B12704]">${formatPrice(item.price)}</p>
+                            <h4 class="font-medium">${escapeHtml(item.name)}</h4>
+                            <p class="text-sm" style="color: var(--shopify-green);">${formatPrice(item.price)}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="updateQty('${item.id}', -1)" class="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition">-</button>
-                            <span class="w-6 text-center">${item.qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" class="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 transition">+</button>
+                            <button onclick="updateQty('${item.id}', -1)" class="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">-</button>
+                            <span class="w-6 text-center text-sm">${item.qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">+</button>
                         </div>
-                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash"></i></button>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash-alt text-sm"></i></button>
                     </div>
                 `;
             }).join('');
-            totalContainer.innerHTML = `<div class="flex justify-between text-lg pt-2"><span>المجموع:</span><span class="text-[#B12704] font-bold text-xl">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
+            totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-sm">المجموع:</span><span class="text-xl font-bold" style="color: var(--shopify-green);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
         }
         
         function openCart() {
@@ -675,14 +1135,14 @@
                 let priceNum = parseFloat(item.price);
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
-                return `<div class="flex justify-between py-1"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
+                return `<div class="flex justify-between py-1 text-sm"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
             }).join('');
             document.getElementById('orderSummary').innerHTML = `
-                <div class="font-bold mb-2">📦 تفاصيل الطلب:</div>
+                <div class="font-medium mb-2 text-sm">تفاصيل الطلب:</div>
                 ${itemsHtml}
-                <div class="border-t mt-2 pt-2 flex justify-between font-bold">
+                <div class="border-t mt-2 pt-2 flex justify-between font-medium">
                     <span>الإجمالي:</span>
-                    <span class="text-[#B12704]">${total.toLocaleString('ar-IQ')} د.ع</span>
+                    <span style="color: var(--shopify-green);">${total.toLocaleString('ar-IQ')} د.ع</span>
                 </div>
             `;
         }
@@ -726,7 +1186,6 @@
             document.getElementById('orderForm').reset();
         }
         
-        // Quick Order
         function quickOrder(productId) {
             const product = products.find(p => p.id === productId);
             if(product) {
@@ -737,7 +1196,6 @@
             }
         }
         
-        // Product Modal
         async function showProduct(productId) {
             const product = products.find(p => p.id === productId);
             if(!product) return;
@@ -757,9 +1215,9 @@
             
             const specsContainer = document.getElementById('modalSpecs');
             if(product.specs && Object.keys(product.specs).length > 0) {
-                specsContainer.innerHTML = `<div class="font-bold mb-2">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0"><span class="text-gray-500">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
+                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--shopify-border);"><span class="text-gray-500">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
             } else {
-                specsContainer.innerHTML = '<p class="text-gray-500">لا توجد مواصفات</p>';
+                specsContainer.innerHTML = '<p class="text-gray-500 text-sm">لا توجد مواصفات</p>';
             }
             openModal('productModal');
         }
@@ -774,7 +1232,6 @@
             }
         }
         
-        // Initialize
         applySavedTheme();
         loadData();
         updateCartUI();
