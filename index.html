@@ -13,16 +13,13 @@
         :root { --gold: #d4af37; --gold-dark: #b8942e; --bg: #0a0f12; --card: rgba(20,26,31,0.95); }
         body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: #e8e2d4; transition: all 0.3s; overflow-x: hidden; }
         
-        /* خلفية متحركة */
         .floating-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .float-product { position: absolute; width: 80px; height: 80px; background-size: contain; background-repeat: no-repeat; opacity: 0.05; animation: floatRandom 25s ease-in-out infinite; border-radius: 16px; }
         @keyframes floatRandom { 0%,100% { transform: translate(0,0); } 50% { transform: translate(var(--tx,30px),var(--ty,-40px)); } }
         
-        /* كتابات مسمارية */
         .cuneiform { position: fixed; z-index: 0; pointer-events: none; font-size: clamp(40px,8vw,100px); font-weight: 900; color: var(--gold); opacity: 0.03; white-space: nowrap; animation: slideCuneiform 35s linear infinite; }
         @keyframes slideCuneiform { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* كرات متوهجة */
         .glow-orb { position: fixed; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%); z-index: 0; pointer-events: none; animation: floatOrb 20s ease-in-out infinite; }
         .glow-orb:nth-child(2) { animation-delay: -10s; width: 300px; height: 300px; background: radial-gradient(circle, rgba(37,211,102,0.05) 0%, transparent 70%); }
         @keyframes floatOrb { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-30px); } }
@@ -57,6 +54,8 @@
         .img-box:hover .vid-overlay { opacity: 1; }
         .play-btn { width: 50px; height: 50px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .play-btn::after { content: ''; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid #0a0f12; margin-right: 3px; }
+        
+        .cat-btn.active { background: #d4af37 !important; color: #0a0f12 !important; }
         
         body.light-mode { background: #f5f3ef; color: #1a1a2e; }
         body.light-mode .card { background: rgba(255,255,255,0.95); border-color: rgba(212,175,55,0.3); }
@@ -202,7 +201,7 @@
         </div>
     </div>
 
-    <!-- Order Modal - المحافظات كاملة -->
+    <!-- Order Modal -->
     <div id="orderModal" class="modal" onclick="if(event.target===this) closeModal('orderModal')">
         <div class="modal-content">
             <h3 class="text-2xl font-bold gold mb-4"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
@@ -211,24 +210,11 @@
                 <input type="tel" id="custPhone" class="w-full px-3 py-2 bg-white/10 border border-gold/30 rounded-lg mb-3" placeholder="رقم الموبايل *" required>
                 <select id="custCity" class="w-full px-3 py-2 bg-white/10 border border-gold/30 rounded-lg mb-3" required>
                     <option value="">اختر المحافظة</option>
-                    <option>بغداد</option>
-                    <option>البصرة</option>
-                    <option>نينوى</option>
-                    <option>أربيل</option>
-                    <option>كركوك</option>
-                    <option>السليمانية</option>
-                    <option>دهوك</option>
-                    <option>كربلاء</option>
-                    <option>النجف</option>
-                    <option>بابل</option>
-                    <option>واسط</option>
-                    <option>ديالى</option>
-                    <option>الأنبار</option>
-                    <option>صلاح الدين</option>
-                    <option>ذي قار</option>
-                    <option>ميسان</option>
-                    <option>المثنى</option>
-                    <option>القادسية</option>
+                    <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                    <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
+                    <option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option>
+                    <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
+                    <option>المثنى</option><option>القادسية</option>
                 </select>
                 <input type="text" id="custDistrict" class="w-full px-3 py-2 bg-white/10 border border-gold/30 rounded-lg mb-3" placeholder="القضاء / المنطقة *" required>
                 <input type="text" id="custLandmark" class="w-full px-3 py-2 bg-white/10 border border-gold/30 rounded-lg mb-3" placeholder="أقرب نقطة دالة">
@@ -297,15 +283,12 @@
             });
         }
         
-        // دالة عرض السعر - تعرض النص كما هو مكتوب من لوحة التحكم
         function formatPrice(price) {
             if(!price || price === 'اتصل بنا' || price === '') return 'اتصل بنا';
-            // إذا كان السعر رقماً فقط، نضيف دينار عراقي
             let num = parseFloat(price);
             if(!isNaN(num) && price.toString() === num.toString()) {
                 return num.toLocaleString('ar-IQ') + ' د.ع';
             }
-            // غير ذلك، نعرض النص كما هو (مثال: 100 ألف دينار، توصيل مجاني، إلخ)
             return price;
         }
         
@@ -341,7 +324,6 @@
             }
         }
         
-        // Share Store
         function shareStore() {
             if(navigator.share) {
                 navigator.share({
@@ -355,11 +337,8 @@
             }
         }
         
-        function showInfo() {
-            openModal('infoModal');
-        }
+        function showInfo() { openModal('infoModal'); }
         
-        // Generate Floating Background
         function generateFloatingBg() {
             const container = document.getElementById('floatingBg');
             if(!container) return;
@@ -384,6 +363,7 @@
         
         // Load Data
         async function loadData() {
+            // Load products
             db.ref('products').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
@@ -391,29 +371,53 @@
                 generateFloatingBg();
             });
             
+            // Load categories with order support
             db.ref('categories').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
-                categories = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                categories = Object.entries(data).map(([id, val]) => ({ 
+                    id, 
+                    name: val.name,
+                    order: val.order !== undefined ? val.order : 999
+                }));
                 renderCategories();
+                filterAndRender();
             });
             
+            // Load settings
             db.ref('settings').on('value', (snapshot) => {
                 settings = snapshot.val() || {};
                 if(settings.storeLogo) document.getElementById('logo').src = settings.storeLogo;
             });
         }
         
+        // Render Categories with order
         function renderCategories() {
             const container = document.getElementById('categoriesList');
-            container.innerHTML = `
-                <button class="cat-btn ${currentCategory === 'all' ? 'bg-gold text-black' : 'bg-white/10 text-white'} px-5 py-2 rounded-full font-bold whitespace-nowrap transition" data-cat="all">🏠 الكل</button>
-                ${categories.map(cat => `
-                    <button class="cat-btn ${currentCategory === cat.name ? 'bg-gold text-black' : 'bg-white/10 text-white'} px-5 py-2 rounded-full font-bold whitespace-nowrap transition" data-cat="${escapeHtml(cat.name)}">📁 ${escapeHtml(cat.name)}</button>
-                `).join('')}
+            if(!container) return;
+            
+            // ترتيب الأقسام حسب order
+            const sorted = [...categories].sort((a, b) => a.order - b.order);
+            
+            let html = `
+                <button class="cat-btn ${currentCategory === 'all' ? 'active bg-gold text-black' : 'bg-white/10 text-white'} px-5 py-2 rounded-full font-bold whitespace-nowrap transition" data-cat="all">
+                    🏠 الكل
+                </button>
             `;
             
+            sorted.forEach(cat => {
+                html += `
+                    <button class="cat-btn ${currentCategory === cat.name ? 'active bg-gold text-black' : 'bg-white/10 text-white'} px-5 py-2 rounded-full font-bold whitespace-nowrap transition" data-cat="${escapeHtml(cat.name)}">
+                        📁 ${escapeHtml(cat.name)}
+                    </button>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Add click handlers
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.onclick = () => {
+                btn.onclick = (e) => {
+                    e.preventDefault();
                     currentCategory = btn.dataset.cat;
                     renderCategories();
                     filterAndRender();
@@ -539,13 +543,9 @@
             }
             let total = 0;
             container.innerHTML = cart.map(item => {
-                let itemTotal = 0;
-                // حساب المجموع بناءً على نوع السعر
                 let priceNum = parseFloat(item.price);
-                if(!isNaN(priceNum)) {
-                    itemTotal = priceNum * item.qty;
-                    total += itemTotal;
-                }
+                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
+                total += itemTotal;
                 return `
                     <div class="flex gap-3 items-center mb-3 p-3 bg-white/5 rounded-xl">
                         <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded object-cover">
@@ -581,11 +581,8 @@
             let total = 0;
             let itemsHtml = cart.map(item => {
                 let priceNum = parseFloat(item.price);
-                let itemTotal = 0;
-                if(!isNaN(priceNum)) {
-                    itemTotal = priceNum * item.qty;
-                    total += itemTotal;
-                }
+                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
+                total += itemTotal;
                 return `<div class="flex justify-between py-1"><span>${escapeHtml(item.name)} × ${item.qty}</span><span class="gold">${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
             }).join('');
             document.getElementById('orderSummary').innerHTML = `
