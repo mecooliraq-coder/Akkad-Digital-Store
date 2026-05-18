@@ -55,6 +55,10 @@
             border-bottom-color: var(--netflix-border);
         }
         
+        body.light-mode .payment-methods-row {
+            background: rgba(0,0,0,0.05);
+        }
+        
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--netflix-black-light); }
@@ -62,29 +66,29 @@
         
         /* Header Netflix */
         .netflix-header {
-            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.85) 100%);
+            background: linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(20,20,20,0.95) 100%);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(229,9,20,0.3);
             transition: all 0.3s;
         }
         
         .netflix-header.scrolled {
-            background: rgba(20,20,20,0.98);
-            padding: 10px 0;
+            background: rgba(20,20,20,0.99);
+            padding: 8px 0;
         }
         
         body.light-mode .netflix-header {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             backdrop-filter: blur(10px);
         }
         
         /* Logo */
         .netflix-logo {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: -1px;
             background: var(--netflix-gradient);
@@ -94,9 +98,9 @@
         }
         
         .store-logo {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             object-fit: cover;
             background: var(--netflix-red);
         }
@@ -125,7 +129,7 @@
         .search-container input {
             background: transparent;
             border: none;
-            padding: 12px 16px;
+            padding: 10px 14px;
             width: 100%;
             outline: none;
             font-size: 14px;
@@ -139,15 +143,15 @@
         .search-container button {
             background: transparent;
             border: none;
-            padding: 12px 16px;
+            padding: 10px 14px;
             cursor: pointer;
             color: var(--netflix-red);
         }
         
         /* Icon Buttons */
         .netflix-icon-btn {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -163,11 +167,11 @@
             transform: translateY(-2px);
         }
         
-        /* ========== Categories Bar - Horizontal Scroll (Netflix Style) ========== */
+        /* Categories - Horizontal Scroll */
         .netflix-categories {
             background: var(--netflix-black);
             border-bottom: 1px solid var(--netflix-border);
-            padding: 16px 0;
+            padding: 12px 0;
             position: relative;
         }
         
@@ -181,13 +185,13 @@
             overflow-x: auto;
             scroll-behavior: smooth;
             gap: 8px;
-            padding: 8px 0 12px 0;
+            padding: 4px 0 8px 0;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
         }
         
         .categories-scroll::-webkit-scrollbar {
-            height: 4px;
+            height: 3px;
         }
         
         .categories-scroll::-webkit-scrollbar-track {
@@ -202,9 +206,9 @@
         
         .category-item {
             display: inline-block;
-            padding: 8px 24px;
+            padding: 6px 18px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
@@ -225,10 +229,70 @@
             color: white;
         }
         
+        /* شريط طرق الدفع المتاحة */
+        .payment-methods-row {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(229,9,20,0.2);
+        }
+        
+        .payment-methods-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .payment-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--netflix-text-light);
+            transition: all 0.3s;
+            padding: 4px 10px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .payment-item:hover {
+            color: var(--netflix-red);
+            transform: translateY(-2px);
+            background: rgba(229,9,20,0.15);
+        }
+        
+        .payment-item i {
+            font-size: 14px;
+        }
+        
+        .payment-separator {
+            width: 1px;
+            height: 15px;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .payment-methods-container {
+                gap: 8px;
+            }
+            .payment-item {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+            .payment-item i {
+                font-size: 11px;
+            }
+            .payment-separator {
+                display: none;
+            }
+        }
+        
         /* Hero Netflix */
         .netflix-hero {
             background: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(20,20,20,1) 100%);
-            padding: 80px 20px;
+            padding: 60px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -257,7 +321,7 @@
         }
         
         .netflix-hero h1 {
-            font-size: 56px;
+            font-size: 42px;
             font-weight: 800;
             margin-bottom: 16px;
             position: relative;
@@ -265,18 +329,24 @@
         }
         
         .netflix-hero p {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--netflix-text-light);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             position: relative;
             z-index: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .netflix-hero h1 { font-size: 28px; }
+            .netflix-hero p { font-size: 14px; }
+            .netflix-hero { padding: 40px 16px; }
         }
         
         /* Product Card */
         .product-card {
             background: var(--netflix-black-light);
             border-radius: 12px;
-            padding: 16px;
+            padding: 14px;
             transition: all 0.4s;
             cursor: pointer;
             position: relative;
@@ -285,8 +355,8 @@
         }
         
         .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 40px -12px rgba(229,9,20,0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px -12px rgba(229,9,20,0.3);
             border-color: var(--netflix-red);
         }
         
@@ -307,7 +377,7 @@
         }
         
         .product-img {
-            height: 200px;
+            height: 180px;
             object-fit: contain;
             width: 100%;
             border-radius: 8px;
@@ -320,47 +390,53 @@
         }
         
         .product-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             margin: 8px 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 44px;
+            height: 42px;
         }
         
         .product-price {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--netflix-red);
             margin: 8px 0;
         }
         
         .product-old-price {
-            font-size: 13px;
+            font-size: 12px;
             text-decoration: line-through;
             color: var(--netflix-text-light);
-            margin-right: 8px;
+            margin-right: 6px;
         }
         
         .product-rating {
             color: #ffc107;
-            margin: 8px 0;
+            margin: 6px 0;
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 5px;
+            font-size: 11px;
+        }
+        
+        @media (max-width: 768px) {
+            .product-img { height: 140px; }
+            .product-title { font-size: 13px; }
+            .product-price { font-size: 15px; }
         }
         
         /* Badges */
         .badge-hot, .badge-new, .badge-sale {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 6px 14px;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             z-index: 10;
             text-transform: uppercase;
@@ -374,29 +450,31 @@
         .btn-netflix {
             background: var(--netflix-gradient);
             border: none;
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
             color: white;
+            font-size: 13px;
         }
         
         .btn-netflix:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(229,9,20,0.4);
+            box-shadow: 0 5px 15px rgba(229,9,20,0.4);
         }
         
         .btn-outline-netflix {
             background: transparent;
             border: 1px solid var(--netflix-red);
             color: var(--netflix-red);
-            padding: 9px 15px;
+            padding: 7px 13px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 13px;
         }
         
         .btn-outline-netflix:hover {
@@ -407,12 +485,13 @@
         .btn-whatsapp-netflix {
             background: #25D366;
             border: none;
-            padding: 9px 15px;
+            padding: 8px 13px;
             border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
             color: white;
             width: 100%;
+            font-size: 13px;
         }
         
         .btn-whatsapp-netflix:hover {
@@ -439,8 +518,8 @@
         }
         
         .play-btn-circle {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: var(--netflix-gradient);
             border-radius: 50%;
             display: flex;
@@ -450,28 +529,28 @@
         
         .play-btn-circle i {
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             margin-right: 3px;
         }
         
         .video-badge {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 8px;
+            left: 8px;
             background: rgba(0,0,0,0.7);
             border-radius: 20px;
-            padding: 4px 12px;
+            padding: 3px 10px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             color: white;
         }
         
         .video-badge i {
             color: var(--netflix-red);
-            font-size: 10px;
+            font-size: 9px;
         }
         
         /* Modal */
@@ -489,9 +568,9 @@
         .modal-content {
             background: var(--netflix-black-light);
             border-radius: 16px;
-            max-width: 600px;
+            max-width: 550px;
             width: 90%;
-            padding: 24px;
+            padding: 20px;
             max-height: 85vh;
             overflow-y: auto;
             border: 1px solid rgba(229,9,20,0.3);
@@ -501,8 +580,8 @@
         .order-summary {
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 14px;
+            margin-bottom: 14px;
         }
         
         .order-summary-item {
@@ -521,7 +600,7 @@
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--netflix-border);
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             width: 100%;
             color: var(--netflix-text);
             font-size: 14px;
@@ -536,16 +615,16 @@
         .netflix-footer {
             background: var(--netflix-black-light);
             border-top: 1px solid var(--netflix-border);
-            padding: 50px 20px 30px;
-            margin-top: 60px;
+            padding: 40px 20px 25px;
+            margin-top: 50px;
         }
         
         .netflix-footer a {
             color: var(--netflix-text-light);
             text-decoration: none;
             display: block;
-            margin: 8px 0;
-            font-size: 13px;
+            margin: 6px 0;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -557,13 +636,14 @@
         
         .netflix-footer h4 {
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            font-size: 14px;
             color: var(--netflix-text);
         }
         
         /* Features */
         .features-section {
-            padding: 40px 0;
+            padding: 30px 0;
         }
         
         .feature-item {
@@ -576,20 +656,30 @@
         }
         
         .feature-item i {
-            font-size: 36px;
+            font-size: 28px;
+        }
+        
+        .feature-item h4 {
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        
+        .feature-item p {
+            font-size: 11px;
         }
         
         /* Toast */
         .toast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 20px;
+            right: 20px;
             background: var(--netflix-gradient);
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 8px;
             z-index: 9999;
             animation: slideInRight 0.3s ease;
+            font-size: 13px;
         }
         
         .toast.error {
@@ -609,9 +699,9 @@
             background: var(--netflix-gradient);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 11px;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -626,10 +716,10 @@
         /* Scroll Top */
         .scroll-top {
             position: fixed;
-            bottom: 24px;
-            left: 24px;
-            width: 45px;
-            height: 45px;
+            bottom: 20px;
+            left: 20px;
+            width: 42px;
+            height: 42px;
             background: var(--netflix-gradient);
             border-radius: 50%;
             display: flex;
@@ -651,6 +741,11 @@
             transform: translateY(-3px);
         }
         
+        .scroll-top i {
+            color: white;
+            font-size: 18px;
+        }
+        
         /* Cuneiform */
         .cuneiform {
             position: fixed;
@@ -669,11 +764,24 @@
             100% { transform: translateX(-100%); }
         }
         
-        @media (max-width: 768px) {
-            .netflix-hero h1 { font-size: 32px; }
-            .product-img { height: 150px; }
-            .grid-cols-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .category-item { padding: 6px 18px; font-size: 12px; }
+        /* Grid Responsive */
+        .grid-custom {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        @media (max-width: 640px) {
+            .grid-custom {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .grid-custom {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 </head>
@@ -685,24 +793,27 @@
 
     <!-- Header -->
     <header class="netflix-header" id="mainHeader">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTop()">
-                    <img id="storeLogo" src="https://via.placeholder.com/45" class="store-logo" alt="شعار المتجر">
-                    <div>
-                        <span class="netflix-logo text-2xl font-black" id="storeName">AKKAD</span>
-                        <p class="text-xs" style="color: var(--netflix-text-light);">متجر أكاد الرقمي</p>
+        <div class="container mx-auto px-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer" onclick="scrollToTop()">
+                    <img id="storeLogo" src="https://via.placeholder.com/40" class="store-logo" alt="شعار المتجر">
+                    <div class="hidden sm:block">
+                        <span class="netflix-logo text-xl font-black" id="storeName">AKKAD</span>
+                        <p class="text-[10px]" style="color: var(--netflix-text-light);">متجر أكاد الرقمي</p>
                     </div>
                 </div>
                 
-                <div class="flex-1 max-w-md">
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-sm md:max-w-md">
                     <div class="search-container">
                         <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="🔍 ابحث عن منتج...">
                         <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-2">
+                <!-- Icons -->
+                <div class="flex items-center gap-1">
                     <button onclick="toggleTheme()" class="netflix-icon-btn" title="الوضع المضيء">
                         <i class="fas fa-sun" id="themeIcon"></i>
                     </button>
@@ -713,7 +824,7 @@
                         <i class="fas fa-info-circle"></i>
                     </button>
                     <div class="cart-icon" onclick="openCart()">
-                        <i class="fas fa-shopping-bag"></i>
+                        <i class="fas fa-shopping-bag text-xl"></i>
                         <span class="cart-badge" id="cartCount">0</span>
                     </div>
                 </div>
@@ -721,9 +832,46 @@
         </div>
     </header>
 
-    <!-- Categories - Horizontal Scroll Netflix Style -->
+    <!-- شريط طرق الدفع المتاحة (يظهر في الكمبيوتر والجوال) -->
+    <div class="payment-methods-row">
+        <div class="container mx-auto px-3">
+            <div class="payment-methods-container">
+                <div class="payment-item">
+                    <i class="fas fa-money-bill-wave text-green-500"></i>
+                    <span>الدفع عند الاستلام</span>
+                </div>
+                <div class="payment-separator"></div>
+                <div class="payment-item">
+                    <i class="fab fa-cc-visa text-blue-400"></i>
+                    <span>فيزا</span>
+                </div>
+                <div class="payment-separator"></div>
+                <div class="payment-item">
+                    <i class="fab fa-cc-mastercard text-orange-500"></i>
+                    <span>ماستركارد</span>
+                </div>
+                <div class="payment-separator"></div>
+                <div class="payment-item">
+                    <i class="fas fa-mobile-alt text-emerald-500"></i>
+                    <span>زين كاش</span>
+                </div>
+                <div class="payment-separator"></div>
+                <div class="payment-item">
+                    <i class="fas fa-mobile-alt text-teal-500"></i>
+                    <span>آسياسيل</span>
+                </div>
+                <div class="payment-separator"></div>
+                <div class="payment-item">
+                    <i class="fas fa-university text-yellow-500"></i>
+                    <span>تحويل بنكي</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories - Horizontal Scroll -->
     <div class="netflix-categories">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto px-3">
             <div class="categories-scroll" id="categoriesScroll">
                 <div class="category-item active" data-cat="all" onclick="filterCategory('all')">🏠 الكل</div>
                 <div id="categoriesList"></div>
@@ -733,58 +881,58 @@
 
     <!-- Hero -->
     <div class="netflix-hero">
-        <div class="container mx-auto px-4 relative z-10">
+        <div class="container mx-auto px-3 relative z-10">
             <h1>متجر أكاد الرقمي</h1>
             <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع - تجربة تسوق فريدة</p>
-            <button onclick="scrollToProducts()" class="btn-netflix inline-flex items-center gap-2 px-8 py-3 w-auto">
+            <button onclick="scrollToProducts()" class="btn-netflix inline-flex items-center gap-2 px-6 py-2 w-auto">
                 تسوق الآن <i class="fas fa-arrow-left"></i>
             </button>
         </div>
     </div>
 
     <!-- Products Grid -->
-    <div class="container mx-auto px-4 py-12">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold" style="color: var(--netflix-red);">🔥 أشهر المنتجات</h2>
-            <span class="text-sm" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
+    <div class="container mx-auto px-3 py-8">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-lg font-bold" style="color: var(--netflix-red);">🔥 أشهر المنتجات</h2>
+            <span class="text-xs" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="productsGrid">
-            <div class="product-card text-center py-12">
+        <div class="grid-custom" id="productsGrid">
+            <div class="product-card text-center py-8">
                 <div class="animate-pulse">جاري التحميل...</div>
             </div>
         </div>
     </div>
 
     <!-- Features Section -->
-    <div class="container mx-auto px-4 features-section">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="container mx-auto px-3 features-section">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="feature-item">
-                <i class="fas fa-truck text-3xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold mt-2">توصيل مجاني</h4>
-                <p class="text-sm" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p>
+                <i class="fas fa-truck text-2xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold text-sm">توصيل مجاني</h4>
+                <p class="text-xs" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p>
             </div>
             <div class="feature-item">
-                <i class="fas fa-shield-alt text-3xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold mt-2">دفع آمن</h4>
-                <p class="text-sm" style="color: var(--netflix-text-light);">طرق دفع متعددة</p>
+                <i class="fas fa-shield-alt text-2xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold text-sm">دفع آمن</h4>
+                <p class="text-xs" style="color: var(--netflix-text-light);">طرق دفع متعددة</p>
             </div>
             <div class="feature-item">
-                <i class="fas fa-headset text-3xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold mt-2">دعم فني 24/7</h4>
-                <p class="text-sm" style="color: var(--netflix-text-light);">فريق دعم متكامل</p>
+                <i class="fas fa-headset text-2xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold text-sm">دعم فني 24/7</h4>
+                <p class="text-xs" style="color: var(--netflix-text-light);">فريق دعم متكامل</p>
             </div>
             <div class="feature-item">
-                <i class="fas fa-exchange-alt text-3xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold mt-2">استبدال سريع</h4>
-                <p class="text-sm" style="color: var(--netflix-text-light);">خلال 14 يوم</p>
+                <i class="fas fa-exchange-alt text-2xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold text-sm">استبدال سريع</h4>
+                <p class="text-xs" style="color: var(--netflix-text-light);">خلال 14 يوم</p>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="netflix-footer">
-        <div class="container mx-auto">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="container mx-auto px-3">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div>
                     <h4>الشركة</h4>
                     <a id="footerLink_about" onclick="showInfo()">من نحن</a>
@@ -805,17 +953,17 @@
                 <div>
                     <h4>تابعنا</h4>
                     <div class="flex gap-3 mt-2" id="footerSocial">
-                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
+                        <div class="w-8 h-8 rounded-lg bg-netflix-red/20 animate-pulse"></div>
+                        <div class="w-8 h-8 rounded-lg bg-netflix-red/20 animate-pulse"></div>
+                        <div class="w-8 h-8 rounded-lg bg-netflix-red/20 animate-pulse"></div>
                     </div>
-                    <p class="mt-3 text-sm"><i class="fab fa-whatsapp ml-2 text-green-500"></i> <span id="footerWhatsapp">07730492020</span></p>
-                    <p class="text-sm"><i class="fas fa-envelope ml-2"></i> akkad@store.com</p>
+                    <p class="mt-3 text-xs"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="footerWhatsapp">07730492020</span></p>
+                    <p class="text-xs"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
                 </div>
             </div>
-            <div class="text-center pt-6 mt-6 border-t" style="border-color: var(--netflix-border);">
-                <p class="text-sm" style="color: var(--netflix-text-light);">© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
-                <p class="text-xs mt-2 opacity-50">𒀭𒈾𒀜𒈾 𒀝𒅗𒁺 - تم التطوير للعراق 🇮🇶</p>
+            <div class="text-center pt-5 mt-5 border-t" style="border-color: var(--netflix-border);">
+                <p class="text-xs" style="color: var(--netflix-text-light);">© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
+                <p class="text-[10px] mt-1 opacity-50">𒀭𒈾𒀜𒈾 𒀝𒅗𒁺 - تم التطوير للعراق 🇮🇶</p>
             </div>
         </div>
     </footer>
@@ -828,21 +976,21 @@
     <!-- Product Modal -->
     <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3>
                 <button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
             <div class="relative">
-                <img id="modalImage" src="" class="w-full rounded-lg mb-4 max-h-56 object-contain bg-gray-800">
-                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-netflix-red rounded-full w-10 h-10 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
-                    <i class="fas fa-play text-white text-sm"></i>
+                <img id="modalImage" src="" class="w-full rounded-lg mb-3 max-h-48 object-contain bg-gray-800">
+                <div id="modalVideoBtn" class="hidden absolute top-2 right-2 bg-netflix-red rounded-full w-8 h-8 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
+                    <i class="fas fa-play text-white text-xs"></i>
                 </div>
             </div>
-            <p id="modalDesc" class="mb-4 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p>
-            <div id="modalSpecs" class="rounded-lg p-4 mb-4" style="background: rgba(255,255,255,0.05);"></div>
-            <div class="flex gap-3">
-                <button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix"><i class="fab fa-whatsapp ml-2"></i> طلب الآن</button>
-                <button onclick="addToCartFromModal()" class="flex-1 btn-netflix"><i class="fas fa-shopping-bag ml-2"></i> أضف للسلة</button>
+            <p id="modalDesc" class="mb-3 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p>
+            <div id="modalSpecs" class="rounded-lg p-3 mb-3 text-sm" style="background: rgba(255,255,255,0.05);"></div>
+            <div class="flex gap-2">
+                <button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix py-2"><i class="fab fa-whatsapp ml-1"></i> طلب الآن</button>
+                <button onclick="addToCartFromModal()" class="flex-1 btn-netflix py-2"><i class="fas fa-shopping-bag ml-1"></i> أضف للسلة</button>
             </div>
         </div>
     </div>
@@ -850,7 +998,7 @@
     <!-- Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this) closeModal('videoModal')">
         <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3 border border-netflix-red">
-            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div>
+            <div class="flex justify-end p-1"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div>
             <iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe>
         </div>
     </div>
@@ -858,33 +1006,33 @@
     <!-- Cart Modal -->
     <div id="cartModal" class="modal" onclick="if(event.target===this) closeModal('cartModal')">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold"><i class="fas fa-shopping-bag ml-2"></i> سلة التسوق</h3>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold"><i class="fas fa-shopping-bag ml-1"></i> سلة التسوق</h3>
                 <button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
             <div id="cartItems" class="max-h-80 overflow-y-auto"></div>
-            <div id="cartTotal" class="mt-4 pt-4 border-t" style="border-color: var(--netflix-border);"></div>
-            <button onclick="checkout()" class="btn-netflix w-full mt-4"><i class="fab fa-whatsapp ml-2"></i> إتمام الطلب</button>
-            <button onclick="clearCart()" class="w-full mt-2 text-sm" style="color: var(--netflix-text-light);">تفريغ السلة</button>
+            <div id="cartTotal" class="mt-3 pt-3 border-t" style="border-color: var(--netflix-border);"></div>
+            <button onclick="checkout()" class="btn-netflix w-full mt-3 py-2"><i class="fab fa-whatsapp ml-1"></i> إتمام الطلب</button>
+            <button onclick="clearCart()" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">تفريغ السلة</button>
         </div>
     </div>
 
     <!-- Order Modal -->
     <div id="orderModal" class="modal" onclick="if(event.target===this) closeModal('orderModal')">
         <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
+            <h3 class="text-lg font-bold mb-3" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-1"></i> إتمام الطلب</h3>
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">الاسم الكامل *</label>
-                    <input type="text" id="custName" class="input" placeholder="أدخل اسمك الكامل" required>
+                <div class="mb-2">
+                    <label class="block text-xs font-medium mb-1">الاسم الكامل *</label>
+                    <input type="text" id="custName" class="input text-sm" placeholder="أدخل اسمك الكامل" required>
                 </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">رقم الموبايل *</label>
-                    <input type="tel" id="custPhone" class="input" placeholder="مثال: 077xxxxxxxx" required>
+                <div class="mb-2">
+                    <label class="block text-xs font-medium mb-1">رقم الموبايل *</label>
+                    <input type="tel" id="custPhone" class="input text-sm" placeholder="مثال: 077xxxxxxxx" required>
                 </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">المحافظة *</label>
-                    <select id="custCity" class="select" required>
+                <div class="mb-2">
+                    <label class="block text-xs font-medium mb-1">المحافظة *</label>
+                    <select id="custCity" class="select text-sm" required>
                         <option value="">اختر المحافظة</option>
                         <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
                         <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
@@ -893,17 +1041,17 @@
                         <option>المثنى</option><option>القادسية</option>
                     </select>
                 </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">القضاء / المنطقة *</label>
-                    <input type="text" id="custDistrict" class="input" placeholder="أدخل اسم المنطقة" required>
+                <div class="mb-2">
+                    <label class="block text-xs font-medium mb-1">القضاء / المنطقة *</label>
+                    <input type="text" id="custDistrict" class="input text-sm" placeholder="أدخل اسم المنطقة" required>
                 </div>
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">أقرب نقطة دالة</label>
-                    <input type="text" id="custLandmark" class="input" placeholder="مثال: قرب جامع الكبير">
+                <div class="mb-2">
+                    <label class="block text-xs font-medium mb-1">أقرب نقطة دالة</label>
+                    <input type="text" id="custLandmark" class="input text-sm" placeholder="مثال: قرب جامع الكبير">
                 </div>
-                <div id="orderSummary" class="order-summary"></div>
-                <button type="submit" class="btn-whatsapp-netflix w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
-                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-sm" style="color: var(--netflix-text-light);">إلغاء</button>
+                <div id="orderSummary" class="order-summary text-sm"></div>
+                <button type="submit" class="btn-whatsapp-netflix w-full py-2"><i class="fab fa-whatsapp ml-1"></i> تأكيد الطلب</button>
+                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">إلغاء</button>
             </form>
         </div>
     </div>
@@ -911,17 +1059,17 @@
     <!-- Info Modal -->
     <div id="infoModal" class="modal" onclick="if(event.target===this) closeModal('infoModal')">
         <div class="modal-content text-center">
-            <div class="w-16 h-16 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-4">
-                <i class="fas fa-play text-white text-2xl"></i>
+            <div class="w-14 h-14 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-3">
+                <i class="fas fa-play text-white text-xl"></i>
             </div>
-            <h3 class="text-xl font-bold mb-2">متجر أكاد الرقمي</h3>
-            <p class="text-sm mb-4" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
-            <div class="border-t pt-4 mt-2" style="border-color: var(--netflix-border);">
-                <p class="text-sm"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
-                <p class="text-sm mt-2"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
-                <p class="text-sm mt-2"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p>
+            <h3 class="text-lg font-bold mb-1">متجر أكاد الرقمي</h3>
+            <p class="text-xs mb-3" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
+            <div class="border-t pt-3 mt-2" style="border-color: var(--netflix-border);">
+                <p class="text-xs"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
+                <p class="text-xs mt-1"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
+                <p class="text-xs mt-1"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p>
             </div>
-            <button onclick="closeModal('infoModal')" class="btn-netflix mt-4 px-8 w-auto">إغلاق</button>
+            <button onclick="closeModal('infoModal')" class="btn-netflix mt-3 px-6 py-1.5 w-auto">إغلاق</button>
         </div>
     </div>
 
@@ -988,7 +1136,7 @@
         function showToast(msg, isError = false) {
             const toast = document.createElement('div');
             toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-2"></i> ${msg}`;
+            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-1"></i> ${msg}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
@@ -1024,7 +1172,6 @@
             currentCategory = cat;
             renderCategories();
             filterAndRender();
-            // تحديث الفئة النشطة
             document.querySelectorAll('.category-item').forEach(item => {
                 item.classList.remove('active');
                 if(item.getAttribute('data-cat') === cat || (cat === 'all' && item.getAttribute('data-cat') === 'all')) {
@@ -1065,10 +1212,10 @@
                 const footerSocial = document.getElementById('footerSocial');
                 if(footerSocial) {
                     footerSocial.innerHTML = `
-                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>
-                        <a href="${facebookLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>
-                        <a href="${instagramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>
-                        <a href="${telegramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>
+                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>
+                        <a href="${facebookLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>
+                        <a href="${instagramLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>
+                        <a href="${telegramLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>
                     `;
                 }
             });
@@ -1149,7 +1296,7 @@
         function renderProducts(productsList) {
             const grid = document.getElementById('productsGrid');
             if(productsList.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">لا توجد منتجات</div>';
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>';
                 return;
             }
             grid.innerHTML = productsList.map(p => {
@@ -1184,11 +1331,11 @@
                             ${formatPrice(p.price)}
                             ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}
                         </div>
-                        <div class="flex gap-2 mt-3">
-                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-sm py-2"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
-                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-sm py-2"><i class="fas fa-shopping-bag ml-1"></i> شراء</button>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-xs py-1.5"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
+                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-xs py-1.5"><i class="fas fa-shopping-bag ml-1"></i> شراء</button>
                         </div>
-                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-sm py-2 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
+                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-xs py-1.5 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
                     </div>
                 `;
             }).join('');
@@ -1252,7 +1399,7 @@
             const container = document.getElementById('cartItems');
             const totalContainer = document.getElementById('cartTotal');
             if(cart.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-400 py-8">السلة فارغة</div>';
+                container.innerHTML = '<div class="text-center text-gray-400 py-6">السلة فارغة</div>';
                 totalContainer.innerHTML = '';
                 return;
             }
@@ -1262,22 +1409,22 @@
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
                 return `
-                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover">
+                    <div class="flex gap-2 items-center mb-2 p-2 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover">
                         <div class="flex-1">
-                            <h4 class="font-medium">${escapeHtml(item.name)}</h4>
-                            <p class="text-sm" style="color: var(--netflix-red);">${formatPrice(item.price)}</p>
+                            <h4 class="font-medium text-sm">${escapeHtml(item.name)}</h4>
+                            <p class="text-xs" style="color: var(--netflix-red);">${formatPrice(item.price)}</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="updateQty('${item.id}', -1)" class="w-7 h-7 rounded-lg hover:bg-gray-800 transition">-</button>
-                            <span class="w-6 text-center text-sm">${item.qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" class="w-7 h-7 rounded-lg hover:bg-gray-800 transition">+</button>
+                        <div class="flex items-center gap-1">
+                            <button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">-</button>
+                            <span class="w-5 text-center text-xs">${item.qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">+</button>
                         </div>
-                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash-alt text-sm"></i></button>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition text-xs"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
             }).join('');
-            totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-sm">المجموع:</span><span class="text-xl font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
+            totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-xs">المجموع:</span><span class="text-base font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
         }
         
         function openCart() {
@@ -1298,10 +1445,10 @@
                 let priceNum = parseFloat(item.price);
                 let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
                 total += itemTotal;
-                return `<div class="order-summary-item"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
+                return `<div class="order-summary-item text-xs"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
             }).join('');
             document.getElementById('orderSummary').innerHTML = `
-                <div class="font-medium mb-2">📦 تفاصيل الطلب</div>
+                <div class="font-medium mb-2 text-sm">📦 تفاصيل الطلب</div>
                 ${itemsHtml}
                 <div class="order-summary-item font-bold">
                     <span>الإجمالي:</span>
@@ -1378,7 +1525,7 @@
             
             const specsContainer = document.getElementById('modalSpecs');
             if(product.specs && Object.keys(product.specs).length > 0) {
-                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
+                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-1 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
             } else {
                 specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
             }
