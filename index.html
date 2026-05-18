@@ -11,10 +11,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --netflix-black: #141414; --netflix-black-light: #1f1f1f; --netflix-red: #e50914;
-            --netflix-text: #ffffff; --netflix-text-light: #b3b3b3; --netflix-border: #2c2c2c;
-        }
+        :root { --netflix-black: #141414; --netflix-black-light: #1f1f1f; --netflix-red: #e50914; --netflix-text: #ffffff; --netflix-text-light: #b3b3b3; --netflix-border: #2c2c2c; }
         body { font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--netflix-black); color: var(--netflix-text); transition: all 0.3s ease; overflow-x: hidden; }
         body.light-mode { --netflix-black: #f5f5f1; --netflix-black-light: #ffffff; --netflix-text: #141414; --netflix-text-light: #757575; --netflix-border: #e5e5e5; background: var(--netflix-black); color: var(--netflix-text); }
         body.light-mode .product-card, body.light-mode .modal-content, body.light-mode .search-container, body.light-mode .netflix-header, body.light-mode .netflix-footer { background: var(--netflix-black-light); }
@@ -156,7 +153,7 @@
     <div class="payment-methods-row">
         <div class="container mx-auto px-3">
             <div class="payment-methods-container" id="paymentMethodsContainer">
-                <div class="payment-method-item" onclick="showPaymentMethod('loading')"><i class="fas fa-spinner fa-spin"></i> <span>جاري التحميل...</span></div>
+                <div class="payment-method-item"><i class="fas fa-spinner fa-spin"></i> <span>جاري التحميل...</span></div>
             </div>
         </div>
     </div>
@@ -283,7 +280,7 @@
         
         let products = [], categories = [], cart = JSON.parse(localStorage.getItem('akkad_cart') || '[]');
         let currentProduct = null, currentProductVideo = '', currentCategory = 'all', searchQuery = '';
-        let paymentMethodsData = {}; // ديناميكي من Firebase
+        let paymentMethodsData = {};
         let searchTimeout;
 
         // 🔐 Theme & UI
@@ -307,18 +304,18 @@
         function scrollToProducts() { document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // 🎨 Load Appearance & Settings
+        // 🎨 Real-time Appearance & Settings
         function loadAppearance() {
-            db.ref('appearance').once('value').then(snapshot => {
+            db.ref('appearance').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
-                if(data.storeLogo) { const logo = document.getElementById('storeLogo'); if(logo) { logo.src = data.storeLogo; logo.onerror = ()=> this.src='https://via.placeholder.com/45'; } }
+                if(data.storeLogo) { const logo = document.getElementById('storeLogo'); if(logo) { logo.src = data.storeLogo; logo.onerror = ()=> logo.src='https://via.placeholder.com/45'; } }
                 if(data.storeName) document.getElementById('storeName').textContent = data.storeName;
                 if(data.storeSubtitle) document.getElementById('storeSubtitle').textContent = data.storeSubtitle;
                 if(data.topBarText) document.getElementById('topBar').innerHTML = `<i class="fas fa-truck ml-2"></i> ${data.topBarText}`;
                 if(data.primaryColor) document.documentElement.style.setProperty('--netflix-red', data.primaryColor);
                 if(data.whatsappNumber) { document.getElementById('footerWhatsapp').textContent = data.whatsappNumber; document.getElementById('infoWhatsapp').textContent = data.whatsappNumber; }
                 updateSocialLinks(data);
-            }).catch(err => console.log("خطأ في تحميل الإعدادات:", err));
+            });
         }
         function updateSocialLinks(data) {
             const container = document.getElementById('footerSocial'); if(!container) return; let html = '';
@@ -329,7 +326,7 @@
             if(html) container.innerHTML = html;
         }
 
-        // 💳 Dynamic Payment Methods (Fixed from Hardcoded)
+        // 💳 Real-time Payment Methods
         function loadPaymentMethods() {
             db.ref('paymentMethods').orderByChild('order').on('value', (snapshot) => {
                 paymentMethodsData = {};
@@ -363,14 +360,14 @@
         function processPayment() { const pm = paymentMethodsData[currentPayId]; if(pm?.link && pm.link !== '#') window.open(pm.link, '_blank'); else showToast('⚠️ لا يوجد رابط دفع', true); }
         function copyPaymentLink() { const pm = paymentMethodsData[currentPayId]; if(pm?.link && pm.link !== '#') { navigator.clipboard.writeText(pm.link); showToast('✅ تم نسخ رابط الدفع'); } else showToast('⚠️ لا يوجد رابط للنسخ', true); }
 
-        // 📂 Categories
+        // 📂 Real-time Categories
         function loadCategories() {
-            db.ref('categories').once('value').then(snapshot => {
+            db.ref('categories').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
                 renderCategories();
-                checkAllDataLoaded();
-            }).catch(err => { console.log("خطأ في تحميل الأقسام:", err); checkAllDataLoaded(); });
+                filterAndRender();
+            });
         }
         function renderCategories() {
             const container = document.getElementById('categoriesList');
@@ -386,20 +383,13 @@
             filterAndRender();
         }
 
-        // 📦 Products
+        // 📦 Real-time Products
         function loadProducts() {
-            db.ref('products').once('value').then(snapshot => {
+            db.ref('products').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-                checkAllDataLoaded();
-            }).catch(err => { console.log("خطأ في تحميل المنتجات:", err); checkAllDataLoaded(); });
-        }
-        function checkAllDataLoaded() {
-            if(categories.length > 0 || products.length > 0) filterAndRender();
-            setTimeout(() => {
-                const grid = document.getElementById('productsGrid');
-                if(grid && grid.innerHTML.includes('جاري التحميل')) grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>';
-            }, 5000);
+                filterAndRender();
+            });
         }
         function filterAndRender() {
             let filtered = [...products];
@@ -418,7 +408,7 @@
             }).join('');
         }
 
-        // 🔍 Search (Debounced)
+        // 🔍 Debounced Search
         function searchProducts() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
