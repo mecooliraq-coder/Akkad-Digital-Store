@@ -3,396 +3,786 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <meta name="description" content="متجر أكاد الرقمي - أحدث أجهزة الترفيه الرقمي في العراق">
-    <meta property="og:title" content="AKKAD STORE | متجر أكاد الرقمي">
-    <meta property="og:type" content="website">
-    <title>AKKAD STORE | متجر أكاد الرقمي</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <title>AKKAD STORE | متجر أكاد - Netflix Style</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* 🌊 Glassmorphism Variables */
+        /* تصميم Netflix - داكن وأنيق */
         :root {
-            color-scheme: light dark;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-bg-hover: rgba(255, 255, 255, 0.14);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --glass-border-hover: rgba(255, 255, 255, 0.35);
-            --glass-blur: blur(18px);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-            --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
-            --accent: #e50914;
-            --accent-glow: rgba(229, 9, 20, 0.4);
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.75);
-            --radius-lg: 24px;
-            --radius-md: 16px;
-            --radius-sm: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* ☀️ Light Mode Glass */
-        body.light-mode {
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-bg-hover: rgba(255, 255, 255, 0.9);
-            --glass-border: rgba(0, 0, 0, 0.12);
-            --glass-border-hover: rgba(0, 0, 0, 0.25);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --netflix-black: #141414;
+            --netflix-black-light: #1f1f1f;
+            --netflix-red: #e50914;
+            --netflix-red-dark: #b20710;
+            --netflix-text: #ffffff;
+            --netflix-text-light: #b3b3b3;
+            --netflix-border: #2c2c2c;
+            --netflix-gradient: linear-gradient(135deg, #e50914, #ff4d4d);
         }
         
         body {
-            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            background-attachment: fixed;
-            color: var(--text-primary);
-            line-height: 1.5;
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--netflix-black);
+            color: var(--netflix-text);
+            transition: all 0.3s ease;
             overflow-x: hidden;
-            min-height: 100vh;
         }
         
+        /* Light Mode - Netflix Light */
         body.light-mode {
-            background: linear-gradient(135deg, #f1f5f9, #e2e8f0, #cbd5e1);
-            background-attachment: fixed;
+            --netflix-black: #f5f5f1;
+            --netflix-black-light: #ffffff;
+            --netflix-text: #141414;
+            --netflix-text-light: #757575;
+            --netflix-border: #e5e5e5;
+            background: var(--netflix-black);
+            color: var(--netflix-text);
         }
         
-        /* 🌌 Floating Orbs for Glass Depth */
-        .glass-orb {
-            position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1;
-            animation: floatOrb 25s infinite alternate ease-in-out; pointer-events: none;
-        }
-        .orb-1 { width: 350px; height: 350px; background: var(--accent); top: -60px; right: -60px; opacity: 0.4; }
-        .orb-2 { width: 450px; height: 450px; background: #4c9aff; bottom: -100px; left: -80px; animation-delay: -8s; opacity: 0.35; }
-        .orb-3 { width: 280px; height: 280px; background: #a855f7; top: 45%; left: 20%; animation-delay: -15s; opacity: 0.25; }
-        
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(40px, 50px) scale(1.15); }
+        body.light-mode .product-card,
+        body.light-mode .modal-content,
+        body.light-mode .search-container,
+        body.light-mode .netflix-header,
+        body.light-mode .netflix-footer {
+            background: var(--netflix-black-light);
         }
         
-        /* 🪟 Glass Base Class */
-        .glass {
-            background: var(--glass-bg); backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow); border-radius: var(--radius-lg); transition: var(--transition);
+        body.light-mode .netflix-categories {
+            background: var(--netflix-black-light);
+            border-bottom-color: var(--netflix-border);
         }
-        .glass:hover { background: var(--glass-bg-hover); border-color: var(--glass-border-hover); transform: translateY(-4px); box-shadow: var(--glass-shadow-hover); }
         
-        /* 📌 Header */
-        .glass-header {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(15, 12, 41, 0.7); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
-            padding: 14px 0; transition: var(--transition);
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--netflix-black-light); }
+        ::-webkit-scrollbar-thumb { background: var(--netflix-red); border-radius: 10px; }
+        
+        /* Header Netflix */
+        .netflix-header {
+            background: linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.85) 100%);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(229,9,20,0.3);
+            transition: all 0.3s;
         }
-        body.light-mode .glass-header { background: rgba(255,255,255,0.85); border-bottom-color: rgba(0,0,0,0.1); }
-        .glass-header.scrolled { padding: 10px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        body.light-mode .glass-header.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
-        .logo-text { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, var(--accent), #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        
-        /* 🔍 Search */
-        .glass-search {
-            display: flex; align-items: center; background: var(--glass-bg);
-            border: 1px solid var(--glass-border); border-radius: 50px;
-            padding: 6px 6px 6px 14px; transition: var(--transition);
+        .netflix-header.scrolled {
+            background: rgba(20,20,20,0.98);
+            padding: 10px 0;
         }
-        .glass-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-        .glass-search input { background: transparent; border: none; outline: none; color: var(--text-primary); width: 100%; font-size: 14px; }
-        .glass-search input::placeholder { color: var(--text-secondary); }
-        .glass-search button { background: transparent; border: none; color: var(--accent); padding: 10px 14px; cursor: pointer; border-radius: 50%; transition: var(--transition); }
-        .glass-search button:hover { background: var(--accent); color: white; }
         
-        /* 🔘 Icon Buttons */
-        .glass-icon-btn {
-            width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary);
-            cursor: pointer; transition: var(--transition); position: relative;
+        body.light-mode .netflix-header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
         }
-        .glass-icon-btn:hover { background: var(--accent); color: white; border-color: transparent; transform: translateY(-2px); box-shadow: 0 4px 15px var(--accent-glow); }
         
-        /* 🗂️ Categories (تم إصلاح التداخل نهائيًا) */
+        /* Logo */
+        .netflix-logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: var(--netflix-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        
+        .store-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--netflix-red);
+        }
+        
+        /* Search Bar */
+        .search-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        
+        body.light-mode .search-container {
+            background: var(--netflix-black-light);
+            border: 1px solid var(--netflix-border);
+        }
+        
+        .search-container:focus-within {
+            border-color: var(--netflix-red);
+            box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+        }
+        
+        .search-container input {
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+            font-size: 14px;
+            color: var(--netflix-text);
+        }
+        
+        .search-container input::placeholder {
+            color: var(--netflix-text-light);
+        }
+        
+        .search-container button {
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            cursor: pointer;
+            color: var(--netflix-red);
+        }
+        
+        /* Icon Buttons */
+        .netflix-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--netflix-text);
+        }
+        
+        .netflix-icon-btn:hover {
+            background: var(--netflix-red);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* ========== Categories Bar - Horizontal Scroll (Netflix Style) ========== */
+        .netflix-categories {
+            background: var(--netflix-black);
+            border-bottom: 1px solid var(--netflix-border);
+            padding: 16px 0;
+            position: relative;
+        }
+        
+        body.light-mode .netflix-categories {
+            background: var(--netflix-black-light);
+        }
+        
         .categories-scroll {
-            display: flex; gap: 10px; overflow-x: auto; padding: 8px 4px;
-            scroll-behavior: smooth; scrollbar-width: thin; scroll-snap-type: x mandatory;
-        }
-        .categories-scroll::-webkit-scrollbar { height: 4px; }
-        .categories-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-        
-        .glass-category {
-            padding: 10px 18px; border-radius: 50px; font-size: 13px; font-weight: 500;
-            cursor: pointer; transition: var(--transition); background: var(--glass-bg);
-            border: 1px solid var(--glass-border); color: var(--text-secondary);
-            white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; /* يمنع التداخل */
-        }
-        .glass-category:hover { background: var(--glass-bg-hover); color: var(--text-primary); transform: translateY(-2px); }
-        .glass-category.active {
-            background: linear-gradient(135deg, var(--accent), #ff4d4d); color: white;
-            border-color: transparent; box-shadow: 0 4px 15px var(--accent-glow);
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            gap: 8px;
+            padding: 8px 0 12px 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
         }
         
-        /* 🎬 Hero */
-        .hero-glass { padding: 30px 20px; }
-        .hero-main {
-            background: linear-gradient(135deg, rgba(229,9,20,0.15), rgba(15,12,41,0.4));
-            backdrop-filter: blur(16px); border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg); padding: 36px; position: relative; overflow: hidden;
-        }
-        .hero-main::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top right, rgba(229,9,20,0.2), transparent 70%); pointer-events: none; }
-        .hero-main h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 800; margin-bottom: 12px; }
-        .hero-main p { font-size: 16px; color: var(--text-secondary); max-width: 550px; margin-bottom: 24px; }
-        
-        .btn-glass {
-            background: linear-gradient(135deg, var(--accent), #ff4d4d); border: none; padding: 12px 24px;
-            border-radius: var(--radius-sm); font-weight: 600; color: white; cursor: pointer;
-            transition: var(--transition); display: inline-flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px var(--accent-glow);
-        }
-        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
-        
-        .hero-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .hero-feat-card {
-            padding: 16px; background: var(--glass-bg); border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; transition: var(--transition);
-        }
-        .hero-feat-card:hover { transform: translateY(-3px); background: var(--glass-bg-hover); }
-        .hero-feat-card i { font-size: 22px; color: var(--accent); }
-        .hero-feat-card h4 { font-weight: 600; font-size: 14px; }
-        .hero-feat-card p { font-size: 12px; color: var(--text-secondary); margin: 0; }
-        
-        /* 🛍️ Products Grid */
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding: 20px 0; }
-        
-        .product-card-glass {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
-            padding: 16px; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
-        }
-        .product-card-glass:hover { transform: translateY(-6px) scale(1.01); background: var(--glass-bg-hover); border-color: var(--glass-border-hover); box-shadow: var(--glass-shadow-hover); }
-        .product-img-glass { width: 100%; height: 160px; object-fit: contain; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); margin-bottom: 12px; transition: transform 0.4s ease; }
-        .product-card-glass:hover .product-img-glass { transform: scale(1.06); }
-        
-        .glass-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; z-index: 10; animation: pulseBadge 2s infinite; }
-        @keyframes pulseBadge { 0%,100%{opacity:1;} 50%{opacity:0.85;} }
-        .badge-hot { background: linear-gradient(135deg, var(--accent), #ff4d4d); color: white; }
-        .badge-new { background: #3b82f6; color: white; }
-        .badge-sale { background: #f59e0b; color: #1e293b; }
-        
-        .product-title-glass { font-size: 14px; font-weight: 600; margin: 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .product-price-glass { font-size: 18px; font-weight: 700; color: var(--accent); margin: 6px 0; }
-        .product-old-price-glass { font-size: 13px; text-decoration: line-through; color: var(--text-secondary); margin-right: 8px; }
-        .product-rating-glass { display: flex; align-items: center; gap: 4px; color: #ffc107; font-size: 12px; margin-bottom: 10px; }
-        
-        .btn-glass-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-primary); padding: 10px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; transition: var(--transition); font-size: 13px; flex: 1; }
-        .btn-glass-outline:hover { background: var(--glass-bg-hover); border-color: var(--accent); }
-        
-        .btn-whatsapp-glass { background: #25D366; border: none; padding: 10px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; color: white; transition: var(--transition); font-size: 13px; width: 100%; margin-top: 8px; }
-        .btn-whatsapp-glass:hover { background: #1da851; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37,211,102,0.3); }
-        
-        /* 🪟 Video Overlay */
-        .video-overlay-glass { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; opacity: 0; transition: var(--transition); border-radius: var(--radius-sm); cursor: pointer; }
-        .img-container-glass:hover .video-overlay-glass { opacity: 1; }
-        .play-btn-glass { width: 46px; height: 46px; background: linear-gradient(135deg, var(--accent), #ff4d4d); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-        .play-btn-glass:hover { transform: scale(1.1); }
-        .play-btn-glass i { color: white; font-size: 16px; }
-        
-        /* 🪟 Modals */
-        .glass-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-        .glass-modal-content {
-            background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border); border-radius: var(--radius-lg); max-width: 580px;
-            width: 100%; padding: 24px; max-height: 85vh; overflow-y: auto; box-shadow: var(--glass-shadow-hover);
-            animation: popIn 0.3s ease; color: var(--text-primary);
-        }
-        @keyframes popIn { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
-        
-        /* 📝 Inputs */
-        .glass-input, .glass-select, .glass-textarea {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
-            padding: 12px 16px; width: 100%; color: var(--text-primary); font-size: 14px; outline: none; transition: var(--transition);
-        }
-        .glass-input:focus, .glass-select:focus, .glass-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-        .glass-input::placeholder, .glass-textarea::placeholder { color: var(--text-secondary); }
-        .glass-select option { background: #1e293b; color: white; }
-        body.light-mode .glass-select option { background: #ffffff; color: #0f172a; }
-        
-        .order-summary-glass { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 16px; margin: 16px 0; }
-        .order-item-glass { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--glass-border); color: var(--text-primary); }
-        .order-item-glass:last-child { border-bottom: none; }
-        
-        /* 🦶 Footer (تم إصلاح ظهور النصوص في الوضع النهاري) */
-        .footer-glass {
-            background: rgba(15, 12, 41, 0.7); backdrop-filter: blur(16px);
-            border-top: 1px solid var(--glass-border); padding: 40px 20px 24px; margin-top: 50px;
-        }
-        .footer-glass h4 { color: var(--text-primary); font-weight: 600; margin-bottom: 14px; }
-        .footer-glass a { color: var(--text-secondary); text-decoration: none; display: block; margin: 6px 0; font-size: 13px; transition: var(--transition); }
-        .footer-glass a:hover { color: var(--accent); transform: translateX(-4px); }
-        .footer-glass p, .footer-glass span { color: var(--text-secondary); font-size: 14px; }
-        .footer-glass .border-t { border-color: var(--glass-border); }
-        
-        body.light-mode .footer-glass { background: rgba(255,255,255,0.85); border-top-color: rgba(0,0,0,0.1); }
-        body.light-mode .footer-glass h4 { color: #0f172a; }
-        body.light-mode .footer-glass a { color: #475569; }
-        body.light-mode .footer-glass a:hover { color: var(--accent); }
-        body.light-mode .footer-glass p, 
-        body.light-mode .footer-glass span, 
-        body.light-mode .footer-glass .border-t { color: #64748b; border-color: rgba(0,0,0,0.15) !important; }
-        
-        /* 📱 Features Grid */
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 30px 0; }
-        .feature-glass { padding: 20px; text-align: center; }
-        .feature-glass i { font-size: 26px; color: var(--accent); margin-bottom: 10px; transition: var(--transition); }
-        .feature-glass:hover i { transform: scale(1.15); }
-        .feature-glass h4 { font-weight: 600; margin-bottom: 6px; }
-        .feature-glass p { font-size: 13px; color: var(--text-secondary); }
-        
-        /* 🔔 Toast */
-        .toast-glass {
-            position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg, var(--accent), #ff4d4d);
-            color: white; padding: 12px 20px; border-radius: var(--radius-md); z-index: 9999; animation: slideIn 0.3s ease;
-            font-weight: 500; font-size: 13px; box-shadow: var(--glass-shadow);
-        }
-        .toast-glass.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        @keyframes slideIn { from{transform:translateX(100%);opacity:0;} to{transform:translateX(0);opacity:1;} }
-        
-        /* 🛒 Cart Badge */
-        .cart-badge-glass {
-            position: absolute; top: -6px; right: -6px; background: linear-gradient(135deg, var(--accent), #ff4d4d);
-            color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px;
-            display: flex; align-items: center; justify-content: center; font-weight: 700; animation: pulseBadge 2s infinite;
+        .categories-scroll::-webkit-scrollbar {
+            height: 4px;
         }
         
-        /* ⬆️ Scroll Top */
-        .scroll-top-glass {
-            position: fixed; bottom: 24px; left: 24px; width: 48px; height: 48px;
-            background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; opacity: 0; visibility: hidden; transition: var(--transition); z-index: 99;
-            box-shadow: 0 4px 15px var(--accent-glow);
+        .categories-scroll::-webkit-scrollbar-track {
+            background: var(--netflix-border);
+            border-radius: 10px;
         }
-        .scroll-top-glass.show { opacity: 1; visibility: visible; }
-        .scroll-top-glass:hover { transform: translateY(-4px) scale(1.05); }
         
-        /* 📱 Responsive */
+        .categories-scroll::-webkit-scrollbar-thumb {
+            background: var(--netflix-red);
+            border-radius: 10px;
+        }
+        
+        .category-item {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--netflix-text-light);
+            background: rgba(255,255,255,0.05);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .category-item:hover {
+            background: rgba(229,9,20,0.2);
+            color: var(--netflix-text);
+            transform: translateY(-2px);
+        }
+        
+        .category-item.active {
+            background: var(--netflix-gradient);
+            color: white;
+        }
+        
+        /* Hero Netflix */
+        .netflix-hero {
+            background: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(20,20,20,1) 100%);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.light-mode .netflix-hero {
+            background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, var(--netflix-black) 100%);
+        }
+        
+        .netflix-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(229,9,20,0.05)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
+            background-size: cover;
+            pointer-events: none;
+            animation: waveMove 10s linear infinite;
+        }
+        
+        @keyframes waveMove {
+            0% { background-position: 0 bottom; }
+            100% { background-position: 100% bottom; }
+        }
+        
+        .netflix-hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .netflix-hero p {
+            font-size: 18px;
+            color: var(--netflix-text-light);
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Product Card */
+        .product-card {
+            background: var(--netflix-black-light);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.4s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--netflix-border);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px -12px rgba(229,9,20,0.3);
+            border-color: var(--netflix-red);
+        }
+        
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--netflix-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .product-img {
+            height: 200px;
+            object-fit: contain;
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover .product-img {
+            transform: scale(1.03);
+        }
+        
+        .product-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 8px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 44px;
+        }
+        
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--netflix-red);
+            margin: 8px 0;
+        }
+        
+        .product-old-price {
+            font-size: 13px;
+            text-decoration: line-through;
+            color: var(--netflix-text-light);
+            margin-right: 8px;
+        }
+        
+        .product-rating {
+            color: #ffc107;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        /* Badges */
+        .badge-hot, .badge-new, .badge-sale {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            z-index: 10;
+            text-transform: uppercase;
+        }
+        
+        .badge-hot { background: var(--netflix-gradient); color: white; }
+        .badge-new { background: #4c9aff; color: white; }
+        .badge-sale { background: #ffc107; color: #141414; }
+        
+        /* Buttons */
+        .btn-netflix {
+            background: var(--netflix-gradient);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            color: white;
+        }
+        
+        .btn-netflix:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(229,9,20,0.4);
+        }
+        
+        .btn-outline-netflix {
+            background: transparent;
+            border: 1px solid var(--netflix-red);
+            color: var(--netflix-red);
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-netflix:hover {
+            background: var(--netflix-red);
+            color: white;
+        }
+        
+        .btn-whatsapp-netflix {
+            background: #25D366;
+            border: none;
+            padding: 9px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-whatsapp-netflix:hover {
+            background: #1da851;
+        }
+        
+        /* Video Overlay */
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .product-img-container:hover .video-overlay {
+            opacity: 1;
+        }
+        
+        .play-btn-circle {
+            width: 50px;
+            height: 50px;
+            background: var(--netflix-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-btn-circle i {
+            color: white;
+            font-size: 20px;
+            margin-right: 3px;
+        }
+        
+        .video-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 20px;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: white;
+        }
+        
+        .video-badge i {
+            color: var(--netflix-red);
+            font-size: 10px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--netflix-black-light);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(229,9,20,0.3);
+        }
+        
+        /* Order Summary */
+        .order-summary {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--netflix-border);
+        }
+        
+        .order-summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Inputs */
+        .input, .select, textarea {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--netflix-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            color: var(--netflix-text);
+            font-size: 14px;
+        }
+        
+        .input:focus, .select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--netflix-red);
+        }
+        
+        /* Footer */
+        .netflix-footer {
+            background: var(--netflix-black-light);
+            border-top: 1px solid var(--netflix-border);
+            padding: 50px 20px 30px;
+            margin-top: 60px;
+        }
+        
+        .netflix-footer a {
+            color: var(--netflix-text-light);
+            text-decoration: none;
+            display: block;
+            margin: 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .netflix-footer a:hover {
+            color: var(--netflix-red);
+            transform: translateX(-5px);
+        }
+        
+        .netflix-footer h4 {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--netflix-text);
+        }
+        
+        /* Features */
+        .features-section {
+            padding: 40px 0;
+        }
+        
+        .feature-item {
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-item i {
+            font-size: 36px;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--netflix-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .toast.error {
+            background: #ef4444;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Cart Badge */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--netflix-gradient);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        /* Scroll Top */
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 45px;
+            height: 45px;
+            background: var(--netflix-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .scroll-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Cuneiform */
+        .cuneiform {
+            position: fixed;
+            z-index: 0;
+            pointer-events: none;
+            font-size: clamp(40px, 8vw, 100px);
+            font-weight: 900;
+            color: var(--netflix-red);
+            opacity: 0.03;
+            white-space: nowrap;
+            animation: slideCuneiform 35s linear infinite;
+        }
+        
+        @keyframes slideCuneiform {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
         @media (max-width: 768px) {
-            .hero-features { grid-template-columns: 1fr; }
-            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .product-img-glass { height: 130px; }
-            .hero-main { padding: 24px; }
-        }
-        @media (max-width: 480px) {
-            .products-grid { grid-template-columns: 1fr; }
-            .hero-main h1 { font-size: 26px; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .netflix-hero h1 { font-size: 32px; }
+            .product-img { height: 150px; }
+            .grid-cols-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .category-item { padding: 6px 18px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 🌌 Glassmorphism Background Orbs -->
-    <div class="glass-orb orb-1"></div>
-    <div class="glass-orb orb-2"></div>
-    <div class="glass-orb orb-3"></div>
+    <!-- Floating Cuneiform -->
+    <div class="cuneiform" style="bottom: 15%; right: -20%;">𒀭𒈾𒀜𒀭𒀜 𒈠𒀀𒉡</div>
+    <div class="cuneiform" style="top: 30%; left: -20%; animation-duration: 45s;">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div>
 
-    <!-- 📌 Header -->
-    <header class="glass-header" id="mainHeader">
+    <!-- Header -->
+    <header class="netflix-header" id="mainHeader">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToTop()">
-                    <img id="storeLogo" src="https://via.placeholder.com/44" class="w-11 h-11 rounded-xl object-cover" alt="شعار المتجر">
+                    <img id="storeLogo" src="https://via.placeholder.com/45" class="store-logo" alt="شعار المتجر">
                     <div>
-                        <span class="logo-text" id="storeName">AKKAD</span>
-                        <p class="text-xs" style="color: var(--text-secondary);">متجر أكاد الرقمي</p>
+                        <span class="netflix-logo text-2xl font-black" id="storeName">AKKAD</span>
+                        <p class="text-xs" style="color: var(--netflix-text-light);">متجر أكاد الرقمي</p>
                     </div>
                 </div>
                 
                 <div class="flex-1 max-w-md">
-                    <div class="glass-search">
+                    <div class="search-container">
                         <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="🔍 ابحث عن منتج...">
                         <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-2">
-                    <button onclick="toggleTheme()" class="glass-icon-btn" title="تبديل المظهر"><i class="fas fa-sun" id="themeIcon"></i></button>
-                    <button onclick="shareStore()" class="glass-icon-btn" title="مشاركة المتجر"><i class="fas fa-share-alt"></i></button>
-                    <button onclick="showInfo()" class="glass-icon-btn" title="معلومات المتجر"><i class="fas fa-info-circle"></i></button>
-                    <div class="relative" onclick="openCart()" style="cursor:pointer;">
-                        <i class="fas fa-shopping-bag text-lg"></i>
-                        <span class="cart-badge-glass" id="cartCount">0</span>
+                    <button onclick="toggleTheme()" class="netflix-icon-btn" title="الوضع المضيء">
+                        <i class="fas fa-sun" id="themeIcon"></i>
+                    </button>
+                    <button onclick="shareStore()" class="netflix-icon-btn" title="مشاركة المتجر">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <button onclick="showInfo()" class="netflix-icon-btn" title="معلومات المتجر">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <div class="cart-icon" onclick="openCart()">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="cart-badge" id="cartCount">0</span>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 🗂️ Categories -->
-    <div class="py-3 px-4 glass" style="border-radius:0; border-left:0; border-right:0;">
-        <div class="container mx-auto">
-            <div class="categories-scroll" id="categoriesSlider">
-                <span class="glass-category active" data-cat="all" onclick="filterCategory('all')">🏠 الكل</span>
+    <!-- Categories - Horizontal Scroll Netflix Style -->
+    <div class="netflix-categories">
+        <div class="container mx-auto px-4">
+            <div class="categories-scroll" id="categoriesScroll">
+                <div class="category-item active" data-cat="all" onclick="filterCategory('all')">🏠 الكل</div>
                 <div id="categoriesList"></div>
             </div>
         </div>
     </div>
 
-    <!-- 🎬 Hero Section -->
-    <div class="hero-glass container mx-auto px-4">
-        <div class="hero-main">
-            <div class="relative z-10">
-                <h1>متجر أكاد الرقمي</h1>
-                <p>أحدث أجهزة الترفيه الرقمي بجودة عالية، مع توصيل سريع لجميع أنحاء العراق. تجربة تسوق استثنائية بانتظارك.</p>
-                <button onclick="scrollToProducts()" class="btn-glass">تسوق الآن <i class="fas fa-arrow-left"></i></button>
-            </div>
+    <!-- Hero -->
+    <div class="netflix-hero">
+        <div class="container mx-auto px-4 relative z-10">
+            <h1>متجر أكاد الرقمي</h1>
+            <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع - تجربة تسوق فريدة</p>
+            <button onclick="scrollToProducts()" class="btn-netflix inline-flex items-center gap-2 px-8 py-3 w-auto">
+                تسوق الآن <i class="fas fa-arrow-left"></i>
+            </button>
         </div>
-        <div class="hero-features mt-4">
-            <div class="hero-feat-card">
-                <i class="fas fa-truck-fast"></i>
-                <div><h4>توصيل مجاني</h4><p>لجميع المحافظات</p></div>
-            </div>
-            <div class="hero-feat-card">
-                <i class="fas fa-shield-check"></i>
-                <div><h4>ضمان الجودة</h4><p>استبدال خلال 14 يوم</p></div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold" style="color: var(--netflix-red);">🔥 أشهر المنتجات</h2>
+            <span class="text-sm" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="productsGrid">
+            <div class="product-card text-center py-12">
+                <div class="animate-pulse">جاري التحميل...</div>
             </div>
         </div>
     </div>
 
-    <!-- 🛍️ Products -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-bold" style="color: var(--accent);">🔥 أشهر المنتجات</h2>
-            <span class="text-sm" style="color: var(--text-secondary);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
-        </div>
-        <div class="products-grid" id="productsGrid">
-            <div class="product-card-glass text-center py-12">
-                <div class="animate-pulse" style="color: var(--text-secondary);">جاري تحميل المنتجات...</div>
+    <!-- Features Section -->
+    <div class="container mx-auto px-4 features-section">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="feature-item">
+                <i class="fas fa-truck text-3xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold mt-2">توصيل مجاني</h4>
+                <p class="text-sm" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt text-3xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold mt-2">دفع آمن</h4>
+                <p class="text-sm" style="color: var(--netflix-text-light);">طرق دفع متعددة</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-headset text-3xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold mt-2">دعم فني 24/7</h4>
+                <p class="text-sm" style="color: var(--netflix-text-light);">فريق دعم متكامل</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-exchange-alt text-3xl" style="color: var(--netflix-red);"></i>
+                <h4 class="font-bold mt-2">استبدال سريع</h4>
+                <p class="text-sm" style="color: var(--netflix-text-light);">خلال 14 يوم</p>
             </div>
         </div>
     </div>
 
-    <!-- 🌟 Features -->
-    <div class="container mx-auto px-4">
-        <div class="features-grid">
-            <div class="feature-glass glass"><i class="fas fa-truck"></i><h4>توصيل سريع</h4><p>لجميع أنحاء العراق</p></div>
-            <div class="feature-glass glass"><i class="fas fa-credit-card"></i><h4>دفع آمن</h4><p>طرق دفع متعددة</p></div>
-            <div class="feature-glass glass"><i class="fas fa-headset"></i><h4>دعم 24/7</h4><p>فريق دعم متكامل</p></div>
-            <div class="feature-glass glass"><i class="fas fa-rotate-left"></i><h4>استبدال سهل</h4><p>خلال 14 يوم</p></div>
-        </div>
-    </div>
-
-    <!-- 🦶 Footer -->
-    <footer class="footer-glass">
+    <!-- Footer -->
+    <footer class="netflix-footer">
         <div class="container mx-auto">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
@@ -415,102 +805,128 @@
                 <div>
                     <h4>تابعنا</h4>
                     <div class="flex gap-3 mt-2" id="footerSocial">
-                        <div class="w-9 h-9 rounded-lg bg-accent/20 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-lg bg-accent/20 animate-pulse"></div>
-                        <div class="w-9 h-9 rounded-lg bg-accent/20 animate-pulse"></div>
+                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
+                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
+                        <div class="w-9 h-9 rounded-lg bg-netflix-red/20 animate-pulse"></div>
                     </div>
                     <p class="mt-3 text-sm"><i class="fab fa-whatsapp ml-2 text-green-500"></i> <span id="footerWhatsapp">07730492020</span></p>
                     <p class="text-sm"><i class="fas fa-envelope ml-2"></i> akkad@store.com</p>
                 </div>
             </div>
-            <div class="text-center pt-6 mt-6 border-t">
-                <p class="text-sm">© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
+            <div class="text-center pt-6 mt-6 border-t" style="border-color: var(--netflix-border);">
+                <p class="text-sm" style="color: var(--netflix-text-light);">© 2024-2026 متجر أكاد الرقمي - جميع الحقوق محفوظة</p>
                 <p class="text-xs mt-2 opacity-50">𒀭𒈾𒀜𒈾 𒀝𒅗𒁺 - تم التطوير للعراق 🇮🇶</p>
             </div>
         </div>
     </footer>
 
-    <!-- ⬆️ Scroll to Top -->
-    <div class="scroll-top-glass" id="scrollTop" onclick="scrollToTop()"><i class="fas fa-chevron-up"></i></div>
+    <!-- Scroll to Top -->
+    <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </div>
 
-    <!-- 🛍️ Product Modal -->
-    <div id="productModal" class="glass-modal" onclick="if(event.target===this) closeModal('productModal')">
-        <div class="glass-modal-content">
+    <!-- Product Modal -->
+    <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
+        <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold" id="modalTitle" style="color: var(--accent);"></h3>
-                <button onclick="closeModal('productModal')" class="text-2xl hover:text-accent transition">&times;</button>
+                <h3 class="text-xl font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3>
+                <button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
             <div class="relative">
-                <img id="modalImage" src="" class="w-full rounded-xl mb-4 max-h-48 object-contain" style="background: rgba(255,255,255,0.05);">
-                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-accent rounded-full w-9 h-9 flex items-center justify-center cursor-pointer transition hover:scale-105" onclick="event.stopPropagation(); openVideo()">
-                    <i class="fas fa-play text-white text-xs"></i>
+                <img id="modalImage" src="" class="w-full rounded-lg mb-4 max-h-56 object-contain bg-gray-800">
+                <div id="modalVideoBtn" class="hidden absolute top-3 right-3 bg-netflix-red rounded-full w-10 h-10 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
+                    <i class="fas fa-play text-white text-sm"></i>
                 </div>
             </div>
-            <p id="modalDesc" class="mb-4 leading-relaxed text-sm" style="color: var(--text-secondary);"></p>
-            <div id="modalSpecs" class="rounded-xl p-4 mb-4 glass"></div>
+            <p id="modalDesc" class="mb-4 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p>
+            <div id="modalSpecs" class="rounded-lg p-4 mb-4" style="background: rgba(255,255,255,0.05);"></div>
             <div class="flex gap-3">
-                <button onclick="orderNow()" class="flex-1 btn-whatsapp-glass"><i class="fab fa-whatsapp"></i> طلب الآن</button>
-                <button onclick="addToCartFromModal()" class="flex-1 btn-glass"><i class="fas fa-shopping-bag"></i> أضف للسلة</button>
+                <button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix"><i class="fab fa-whatsapp ml-2"></i> طلب الآن</button>
+                <button onclick="addToCartFromModal()" class="flex-1 btn-netflix"><i class="fas fa-shopping-bag ml-2"></i> أضف للسلة</button>
             </div>
         </div>
     </div>
 
-    <!-- 🎥 Video Modal -->
-    <div id="videoModal" class="glass-modal" onclick="if(event.target===this) closeModal('videoModal')">
-        <div class="glass-modal-content bg-black border-accent p-2">
-            <div class="flex justify-end mb-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-accent transition">&times;</button></div>
-            <iframe id="videoFrame" class="w-full aspect-video rounded-lg" src="" allowfullscreen></iframe>
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal" onclick="if(event.target===this) closeModal('videoModal')">
+        <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3 border border-netflix-red">
+            <div class="flex justify-end p-2"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div>
+            <iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe>
         </div>
     </div>
 
-    <!-- 🛒 Cart Modal -->
-    <div id="cartModal" class="glass-modal" onclick="if(event.target===this) closeModal('cartModal')">
-        <div class="glass-modal-content">
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal" onclick="if(event.target===this) closeModal('cartModal')">
+        <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold"><i class="fas fa-shopping-bag ml-2"></i> سلة التسوق</h3>
-                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-accent transition">&times;</button>
+                <h3 class="text-xl font-bold"><i class="fas fa-shopping-bag ml-2"></i> سلة التسوق</h3>
+                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
             </div>
-            <div id="cartItems" class="max-h-72 overflow-y-auto"></div>
-            <div id="cartTotal" class="mt-4 pt-4 border-t" style="border-color: var(--glass-border);"></div>
-            <button onclick="checkout()" class="btn-glass w-full mt-4"><i class="fab fa-whatsapp ml-2"></i> إتمام الطلب</button>
-            <button onclick="clearCart()" class="w-full mt-2 text-sm text-center" style="color: var(--text-secondary);">تفريغ السلة</button>
+            <div id="cartItems" class="max-h-80 overflow-y-auto"></div>
+            <div id="cartTotal" class="mt-4 pt-4 border-t" style="border-color: var(--netflix-border);"></div>
+            <button onclick="checkout()" class="btn-netflix w-full mt-4"><i class="fab fa-whatsapp ml-2"></i> إتمام الطلب</button>
+            <button onclick="clearCart()" class="w-full mt-2 text-sm" style="color: var(--netflix-text-light);">تفريغ السلة</button>
         </div>
     </div>
 
-    <!-- 📝 Order Modal -->
-    <div id="orderModal" class="glass-modal" onclick="if(event.target===this) closeModal('orderModal')">
-        <div class="glass-modal-content">
-            <h3 class="text-lg font-bold mb-4" style="color: var(--accent);"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal" onclick="if(event.target===this) closeModal('orderModal')">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-2"></i> إتمام الطلب</h3>
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="mb-3"><label class="block text-sm font-medium mb-1">الاسم الكامل *</label><input type="text" id="custName" class="glass-input" placeholder="أدخل اسمك الكامل" required></div>
-                <div class="mb-3"><label class="block text-sm font-medium mb-1">رقم الموبايل *</label><input type="tel" id="custPhone" class="glass-input" placeholder="مثال: 077xxxxxxxx" required></div>
-                <div class="mb-3"><label class="block text-sm font-medium mb-1">المحافظة *</label><select id="custCity" class="glass-select" required><option value="">اختر المحافظة</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option><option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option><option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option><option>المثنى</option><option>القادسية</option></select></div>
-                <div class="mb-3"><label class="block text-sm font-medium mb-1">القضاء / المنطقة *</label><input type="text" id="custDistrict" class="glass-input" placeholder="أدخل اسم المنطقة" required></div>
-                <div class="mb-3"><label class="block text-sm font-medium mb-1">أقرب نقطة دالة</label><input type="text" id="custLandmark" class="glass-input" placeholder="مثال: قرب جامع الكبير"></div>
-                <div id="orderSummary" class="order-summary-glass"></div>
-                <button type="submit" class="btn-whatsapp-glass w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
-                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-sm text-center" style="color: var(--text-secondary);">إلغاء</button>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">الاسم الكامل *</label>
+                    <input type="text" id="custName" class="input" placeholder="أدخل اسمك الكامل" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">رقم الموبايل *</label>
+                    <input type="tel" id="custPhone" class="input" placeholder="مثال: 077xxxxxxxx" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">المحافظة *</label>
+                    <select id="custCity" class="select" required>
+                        <option value="">اختر المحافظة</option>
+                        <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
+                        <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
+                        <option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option>
+                        <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
+                        <option>المثنى</option><option>القادسية</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">القضاء / المنطقة *</label>
+                    <input type="text" id="custDistrict" class="input" placeholder="أدخل اسم المنطقة" required>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">أقرب نقطة دالة</label>
+                    <input type="text" id="custLandmark" class="input" placeholder="مثال: قرب جامع الكبير">
+                </div>
+                <div id="orderSummary" class="order-summary"></div>
+                <button type="submit" class="btn-whatsapp-netflix w-full"><i class="fab fa-whatsapp ml-2"></i> تأكيد الطلب</button>
+                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-sm" style="color: var(--netflix-text-light);">إلغاء</button>
             </form>
         </div>
     </div>
 
-    <!-- ℹ️ Info Modal -->
-    <div id="infoModal" class="glass-modal" onclick="if(event.target===this) closeModal('infoModal')">
-        <div class="glass-modal-content text-center">
-            <div class="w-14 h-14 mx-auto rounded-xl bg-gradient-to-r from-accent to-red-600 flex items-center justify-center mb-4"><i class="fas fa-play text-white text-xl"></i></div>
-            <h3 class="text-lg font-bold mb-2">متجر أكاد الرقمي</h3>
-            <p class="text-sm mb-4" style="color: var(--text-secondary);">نسخة 3.0 • تصميم Glassmorphism</p>
-            <div class="border-t pt-4 mt-2">
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal" onclick="if(event.target===this) closeModal('infoModal')">
+        <div class="modal-content text-center">
+            <div class="w-16 h-16 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-4">
+                <i class="fas fa-play text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">متجر أكاد الرقمي</h3>
+            <p class="text-sm mb-4" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
+            <div class="border-t pt-4 mt-2" style="border-color: var(--netflix-border);">
                 <p class="text-sm"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
                 <p class="text-sm mt-2"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
                 <p class="text-sm mt-2"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p>
             </div>
-            <button onclick="closeModal('infoModal')" class="btn-glass mt-4 px-8 w-auto">إغلاق</button>
+            <button onclick="closeModal('infoModal')" class="btn-netflix mt-4 px-8 w-auto">إغلاق</button>
         </div>
     </div>
 
     <script>
-        // 🔐 Firebase Config
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyAEH25yJ-pwfgFUMjLZNgDyNqw8Rcv9S6E",
             authDomain: "akkad-store-ab5a1.firebaseapp.com",
@@ -524,16 +940,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        // 📦 Global Variables
         let products = [];
         let categories = [];
+        let settings = {};
         let cart = JSON.parse(localStorage.getItem('akkad_cart') || '[]');
         let currentProduct = null;
         let currentProductVideo = '';
         let currentCategory = 'all';
         let searchQuery = '';
         
-        // 🌗 Theme Functions
+        // Theme Functions
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             const icon = document.getElementById('themeIcon');
@@ -556,49 +972,41 @@
             }
         }
         
-        // 📜 Header scroll effect & Scroll Top
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if(window.scrollY > 30) header.classList.add('scrolled');
-            else header.classList.remove('scrolled');
-            
-            const scrollBtn = document.getElementById('scrollTop');
-            if(window.scrollY > 400) scrollBtn.classList.add('show');
-            else scrollBtn.classList.remove('show');
-        });
-        
-        // 🔗 Share Function
         function shareStore() {
             if(navigator.share) {
-                navigator.share({ title: 'AKKAD STORE', text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي', url: window.location.href }).catch(() => {});
+                navigator.share({
+                    title: 'AKKAD STORE',
+                    text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي',
+                    url: window.location.href
+                }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(window.location.href);
                 showToast('✅ تم نسخ رابط المتجر');
             }
         }
         
-        // 🔔 Toast Notification
         function showToast(msg, isError = false) {
             const toast = document.createElement('div');
-            toast.className = `toast-glass ${isError ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${msg}`;
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-2"></i> ${msg}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
         
-        // 🔒 Escape HTML
         function escapeHtml(text) {
             if(!text) return '';
-            return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]);
+            return String(text).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
         }
         
-        // 💰 Format Price
         function formatPrice(price) {
             if(!price || price === 'اتصل بنا') return 'اتصل بنا';
+            let num = parseFloat(price);
+            if(!isNaN(num) && price.toString() === num.toString()) {
+                return num.toLocaleString('ar-IQ') + ' د.ع';
+            }
             return price;
         }
         
-        // 🪟 Modal Functions
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -612,92 +1020,112 @@
         
         function showInfo() { openModal('infoModal'); }
         
-        // 🗂️ Category Filter (تم الإصلاح لمنع التداخل)
         function filterCategory(cat) {
             currentCategory = cat;
-            document.querySelectorAll('.glass-category').forEach(el => {
-                el.classList.toggle('active', el.dataset.cat === cat);
-            });
+            renderCategories();
             filterAndRender();
+            // تحديث الفئة النشطة
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.getAttribute('data-cat') === cat || (cat === 'all' && item.getAttribute('data-cat') === 'all')) {
+                    item.classList.add('active');
+                }
+            });
         }
         
-        // 🔄 Categories Horizontal Scroll
-        function initCategorySlider() {} // تم الاستغناء عنه لصالح CSS scroll-snap
-        
-        function renderCategoriesGlass() {
+        function renderCategories() {
             const container = document.getElementById('categoriesList');
-            container.innerHTML = categories.map(cat => 
-                `<span class="glass-category ${currentCategory === cat.name ? 'active' : ''}" data-cat="${escapeHtml(cat.name)}" onclick="filterCategory('${escapeHtml(cat.name)}')">📁 ${escapeHtml(cat.name)}</span>`
-            ).join('');
+            const sorted = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
+            container.innerHTML = sorted.map(cat => `
+                <div class="category-item" data-cat="${escapeHtml(cat.name)}" onclick="filterCategory('${escapeHtml(cat.name)}')">
+                    📁 ${escapeHtml(cat.name)}
+                </div>
+            `).join('');
         }
         
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         
-        // ⚙️ Load Settings from Firebase
         function loadSettings() {
-            db.ref('settings').on('value', (snap) => {
-                const s = snap.val() || {};
-                if(s.storeLogo) document.getElementById('storeLogo').src = s.storeLogo;
-                document.getElementById('storeName').textContent = s.storeName || 'AKKAD';
-                const wp = s.whatsappNumber || '07730492020';
-                document.getElementById('footerWhatsapp').textContent = wp;
-                document.getElementById('infoWhatsapp').textContent = wp;
+            db.ref('settings').on('value', (snapshot) => {
+                const settingsData = snapshot.val() || {};
+                const facebookLink = settingsData.facebook || '#';
+                const instagramLink = settingsData.instagram || '#';
+                const telegramLink = settingsData.telegram || '#';
+                const whatsappNumber = settingsData.whatsappNumber || '9647730492020';
+                const storeLogo = settingsData.storeLogo || '';
+                const storeName = settingsData.storeName || 'AKKAD';
                 
-                const fs = document.getElementById('footerSocial');
-                if(fs) {
-                    const cleanWp = (s.whatsappNumber || '9647730492020').replace(/[^0-9]/g, '');
-                    fs.innerHTML = `
-                        <a href="https://wa.me/${cleanWp}" target="_blank" class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center hover:bg-accent transition"><i class="fab fa-whatsapp"></i></a>
-                        <a href="${s.facebook || '#'}" target="_blank" class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center hover:bg-accent transition"><i class="fab fa-facebook"></i></a>
-                        <a href="${s.instagram || '#'}" target="_blank" class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center hover:bg-accent transition"><i class="fab fa-instagram"></i></a>
-                        <a href="${s.telegram || '#'}" target="_blank" class="w-9 h-9 rounded-lg bg-accent/20 flex items-center justify-center hover:bg-accent transition"><i class="fab fa-telegram"></i></a>
+                if(storeLogo) document.getElementById('storeLogo').src = storeLogo;
+                document.getElementById('storeName').textContent = storeName;
+                document.getElementById('footerWhatsapp').textContent = whatsappNumber;
+                document.getElementById('infoWhatsapp').textContent = whatsappNumber;
+                
+                const footerSocial = document.getElementById('footerSocial');
+                if(footerSocial) {
+                    footerSocial.innerHTML = `
+                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>
+                        <a href="${facebookLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>
+                        <a href="${instagramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>
+                        <a href="${telegramLink}" target="_blank" class="w-9 h-9 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>
                     `;
                 }
             });
         }
         
-        // 🔗 Load Footer Links
         function loadFooterLinks() {
-            db.ref('footerLinks').on('value', (snap) => {
-                const links = snap.val() || {};
-                const map = { about:'footerLink_about', jobs:'footerLink_jobs', blog:'footerLink_blog', help:'footerLink_help', shipping:'footerLink_shipping', returns:'footerLink_returns', terms:'footerLink_terms', privacy:'footerLink_privacy' };
-                for(const [key, id] of Object.entries(map)) {
-                    if(links[key] && links[key] !== '#') {
-                        const el = document.getElementById(id);
-                        if(el) { el.href = links[key]; el.target = '_blank'; el.onclick = null; }
+            db.ref('footerLinks').on('value', (snapshot) => {
+                const links = snapshot.val() || {};
+                const linkMapping = {
+                    about: 'footerLink_about',
+                    jobs: 'footerLink_jobs',
+                    blog: 'footerLink_blog',
+                    help: 'footerLink_help',
+                    shipping: 'footerLink_shipping',
+                    returns: 'footerLink_returns',
+                    terms: 'footerLink_terms',
+                    privacy: 'footerLink_privacy'
+                };
+                for(const [key, elementId] of Object.entries(linkMapping)) {
+                    const link = links[key];
+                    if(link && link !== '#') {
+                        const element = document.getElementById(elementId);
+                        if(element) {
+                            element.href = link;
+                            element.target = '_blank';
+                            element.onclick = null;
+                        }
                     }
                 }
             });
         }
         
-        // 🎥 Video Functions
         function openVideoDirect(url) {
             let videoId = url;
             if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
             else if(url.includes('youtu.be/')) videoId = url.split('/').pop();
-            if(videoId) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; openModal('videoModal'); }
+            if(videoId) {
+                document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                openModal('videoModal');
+            }
         }
-        function openVideo() { if(currentProductVideo) openVideoDirect(currentProductVideo); }
         
-        // 📥 Load Data (تم إصلاح تكرار الأقسام)
+        function openVideo() {
+            if(currentProductVideo) openVideoDirect(currentProductVideo);
+        }
+        
         async function loadData() {
-            db.ref('products').on('value', (snap) => {
-                const d = snap.val() || {};
-                products = Object.entries(d).map(([id, v]) => ({ id, ...v }));
+            db.ref('products').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
                 filterAndRender();
             });
             
-            db.ref('categories').on('value', (snap) => {
-                const d = snap.val() || {};
-                const raw = Object.entries(d).map(([id, v]) => ({
-                    id,
-                    name: String(v.name || '').trim().replace(/\s+/g, ' '),
-                    order: Number(v.order) || 999
-                }));
-                // 🛡️ إزالة التكرار تلقائيًا
-                categories = [...new Map(raw.map(c => [c.name, c])).values()]
-                             .sort((a, b) => a.order - b.order);
-                renderCategoriesGlass();
+            db.ref('categories').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
+                renderCategories();
                 filterAndRender();
             });
             
@@ -705,114 +1133,191 @@
             loadFooterLinks();
         }
         
-        // 🔍 Filter & Render
         function filterAndRender() {
             let filtered = [...products];
             if(currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
             if(searchQuery) filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery) || p.description?.toLowerCase().includes(searchQuery));
-            renderProductsGlass(filtered);
+            renderProducts(filtered);
         }
         
-        function getRandomBadge() { return ['hot','new','sale'][Math.floor(Math.random()*3)]; }
+        function getRandomBadge() {
+            const badges = ['hot', 'new', 'sale'];
+            const random = Math.floor(Math.random() * badges.length);
+            return badges[random];
+        }
         
-        function renderProductsGlass(list) {
+        function renderProducts(productsList) {
             const grid = document.getElementById('productsGrid');
-            if(list.length === 0) {
-                grid.innerHTML = `<div class="product-card-glass text-center py-12 col-span-full" style="color: var(--text-secondary);">لا توجد منتجات مطابقة للبحث</div>`;
+            if(productsList.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">لا توجد منتجات</div>';
                 return;
             }
-            grid.innerHTML = list.map(p => {
+            grid.innerHTML = productsList.map(p => {
                 const hasVideo = p.video && p.video.trim().length > 5;
                 const badge = getRandomBadge();
-                const badgeHtml = badge === 'hot' ? '<div class="glass-badge badge-hot">🔥 مميز</div>' : 
-                                 badge === 'new' ? '<div class="glass-badge badge-new">✨ جديد</div>' : 
-                                 '<div class="glass-badge badge-sale">💰 عرض</div>';
+                const badgeHtml = badge === 'hot' ? '<div class="badge-hot">الأكثر مشاهدة</div>' : 
+                                 badge === 'new' ? '<div class="badge-new">جديد</div>' : 
+                                 '<div class="badge-sale">خصم خاص</div>';
                 return `
-                    <div class="product-card-glass" onclick="showProduct('${p.id}')">
+                    <div class="product-card" onclick="showProduct('${p.id}')">
                         ${badgeHtml}
-                        <div class="relative img-container-glass">
-                            <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img-glass" loading="lazy" onerror="this.src='https://via.placeholder.com/200'">
+                        <div class="relative product-img-container">
+                            <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
                             ${hasVideo ? `
-                                <div class="video-overlay-glass" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
-                                    <div class="play-btn-glass"><i class="fas fa-play"></i></div>
+                                <div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
+                                    <div class="play-btn-circle">
+                                        <i class="fas fa-play"></i>
+                                    </div>
                                 </div>
-                                <div class="absolute bottom-2 right-2 bg-accent/90 rounded-lg px-2 py-1 text-xs font-semibold text-white cursor-pointer hover:scale-105 transition" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
-                                    <i class="fas fa-play"></i> فيديو
+                                <div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
+                                    <i class="fas fa-play"></i>
+                                    <span>تشغيل</span>
                                 </div>
                             ` : ''}
                         </div>
-                        <div class="product-title-glass">${escapeHtml(p.name)}</div>
-                        <div class="product-rating-glass">
+                        <div class="product-title">${escapeHtml(p.name)}</div>
+                        <div class="product-rating">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                            <span style="color: var(--text-secondary); margin-right: 4px;">(4.5)</span>
+                            <span class="text-xs" style="color: var(--netflix-text-light);">(4.5)</span>
                         </div>
-                        <div class="product-price-glass">
+                        <div class="product-price">
                             ${formatPrice(p.price)}
-                            ${p.oldPrice ? `<span class="product-old-price-glass">${p.oldPrice} د.ع</span>` : ''}
+                            ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}
                         </div>
                         <div class="flex gap-2 mt-3">
-                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="btn-glass-outline"><i class="fas fa-info-circle"></i> تفاصيل</button>
-                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="btn-glass"><i class="fas fa-shopping-bag"></i> شراء</button>
+                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-sm py-2"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
+                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-sm py-2"><i class="fas fa-shopping-bag ml-1"></i> شراء</button>
                         </div>
-                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="btn-whatsapp-glass"><i class="fab fa-whatsapp"></i> طلب سريع</button>
+                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-sm py-2 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
                     </div>
                 `;
             }).join('');
         }
         
-        function searchProducts() { searchQuery = document.getElementById('searchInput').value.toLowerCase(); filterAndRender(); }
-        function scrollToProducts() { document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function searchProducts() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            filterAndRender();
+        }
         
-        // 🛒 Cart Functions
+        function scrollToProducts() {
+            document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
         function updateCartUI() {
-            document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.qty, 0);
+            const count = cart.reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cartCount').textContent = count;
             localStorage.setItem('akkad_cart', JSON.stringify(cart));
         }
+        
         function addToCart(productId) {
-            const p = products.find(x => x.id === productId);
-            if(!p) return;
-            const ex = cart.find(i => i.id === productId);
-            if(ex) ex.qty++; else cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 });
-            updateCartUI(); showToast(`✅ تم إضافة "${p.name}" للسلة`);
+            const product = products.find(p => p.id === productId);
+            if(!product) return;
+            const existing = cart.find(i => i.id === productId);
+            if(existing) existing.qty++;
+            else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
+            updateCartUI();
+            showToast(`✅ تم إضافة ${product.name} للسلة`);
         }
-        function addToCartFromModal() { if(currentProduct) addToCart(currentProduct.id); }
-        function removeFromCart(id) { cart = cart.filter(i => i.id !== id); updateCartUI(); renderCart(); }
-        function updateQty(id, d) {
-            const item = cart.find(i => i.id === id);
-            if(item) { item.qty += d; if(item.qty <= 0) removeFromCart(id); else updateCartUI(); renderCart(); }
+        
+        function addToCartFromModal() {
+            if(currentProduct) addToCart(currentProduct.id);
         }
-        function clearCart() { if(confirm('هل تريد تفريغ السلة؟')) { cart = []; updateCartUI(); renderCart(); showToast('🗑️ تم تفريغ السلة'); } }
+        
+        function removeFromCart(productId) {
+            cart = cart.filter(i => i.id !== productId);
+            updateCartUI();
+            renderCart();
+        }
+        
+        function updateQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if(item) {
+                item.qty += delta;
+                if(item.qty <= 0) removeFromCart(productId);
+                else updateCartUI();
+                renderCart();
+            }
+        }
+        
+        function clearCart() {
+            if(confirm('هل تريد تفريغ السلة؟')) {
+                cart = [];
+                updateCartUI();
+                renderCart();
+                showToast('🗑️ تم تفريغ السلة');
+            }
+        }
         
         function renderCart() {
-            const c = document.getElementById('cartItems');
-            const t = document.getElementById('cartTotal');
-            if(cart.length === 0) { c.innerHTML = `<div class="text-center py-8" style="color: var(--text-secondary);">السلة فارغة 🛒</div>`; t.innerHTML = ''; return; }
+            const container = document.getElementById('cartItems');
+            const totalContainer = document.getElementById('cartTotal');
+            if(cart.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-8">السلة فارغة</div>';
+                totalContainer.innerHTML = '';
+                return;
+            }
             let total = 0;
-            c.innerHTML = cart.map(item => {
-                let pn = parseFloat(item.price); let it = !isNaN(pn) ? pn * item.qty : 0; total += it;
-                return `<div class="flex gap-3 items-center mb-3 p-3 rounded-xl glass"><img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover" loading="lazy"><div class="flex-1 min-w-0"><h4 class="font-medium text-sm truncate">${escapeHtml(item.name)}</h4><p class="text-sm" style="color: var(--accent);">${formatPrice(item.price)}</p></div><div class="flex items-center gap-2"><button onclick="updateQty('${item.id}', -1)" class="w-7 h-7 rounded-lg hover:bg-white/10 transition text-sm">-</button><span class="w-6 text-center text-sm">${item.qty}</span><button onclick="updateQty('${item.id}', 1)" class="w-7 h-7 rounded-lg hover:bg-white/10 transition text-sm">+</button></div><button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash-alt text-sm"></i></button></div>`;
+            container.innerHTML = cart.map(item => {
+                let priceNum = parseFloat(item.price);
+                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
+                total += itemTotal;
+                return `
+                    <div class="flex gap-3 items-center mb-3 p-3 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);">
+                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-medium">${escapeHtml(item.name)}</h4>
+                            <p class="text-sm" style="color: var(--netflix-red);">${formatPrice(item.price)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateQty('${item.id}', -1)" class="w-7 h-7 rounded-lg hover:bg-gray-800 transition">-</button>
+                            <span class="w-6 text-center text-sm">${item.qty}</span>
+                            <button onclick="updateQty('${item.id}', 1)" class="w-7 h-7 rounded-lg hover:bg-gray-800 transition">+</button>
+                        </div>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition"><i class="fas fa-trash-alt text-sm"></i></button>
+                    </div>
+                `;
             }).join('');
-            t.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-sm">المجموع:</span><span class="text-lg font-bold" style="color: var(--accent);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
+            totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-sm">المجموع:</span><span class="text-xl font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
         }
-        function openCart() { renderCart(); openModal('cartModal'); }
-        function checkout() { if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; } closeModal('cartModal'); renderOrderSummary(); openModal('orderModal'); }
+        
+        function openCart() {
+            renderCart();
+            openModal('cartModal');
+        }
+        
+        function checkout() {
+            if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; }
+            closeModal('cartModal');
+            renderOrderSummary();
+            openModal('orderModal');
+        }
         
         function renderOrderSummary() {
             let total = 0;
-            const html = cart.map(item => {
-                let pn = parseFloat(item.price); let it = !isNaN(pn) ? pn * item.qty : 0; total += it;
-                return `<div class="order-item-glass"><span class="text-sm">${escapeHtml(item.name)} × ${item.qty}</span><span class="text-sm">${!isNaN(pn) ? it.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
+            let itemsHtml = cart.map(item => {
+                let priceNum = parseFloat(item.price);
+                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
+                total += itemTotal;
+                return `<div class="order-summary-item"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
             }).join('');
-            document.getElementById('orderSummary').innerHTML = `<div class="font-medium mb-2 text-sm">📦 تفاصيل الطلب</div>${html}<div class="order-item-glass font-bold"><span>الإجمالي:</span><span style="color: var(--accent);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="font-medium mb-2">📦 تفاصيل الطلب</div>
+                ${itemsHtml}
+                <div class="order-summary-item font-bold">
+                    <span>الإجمالي:</span>
+                    <span style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span>
+                </div>
+            `;
         }
         
-        // 📤 Submit Order
         async function submitOrder(e) {
             e.preventDefault();
-            let wp = '9647730492020';
-            try { const s = await db.ref('settings').once('value'); const d = s.val() || {}; wp = d.whatsappNumber || wp; } catch(err) {}
+            let whatsappNumber = '9647730492020';
+            const settingsSnap = await db.ref('settings').once('value');
+            const settingsData = settingsSnap.val() || {};
+            whatsappNumber = settingsData.whatsappNumber || '9647730492020';
             
-            const order = {
+            const orderData = {
                 customerName: document.getElementById('custName').value.trim(),
                 customerPhone: document.getElementById('custPhone').value.trim(),
                 customerCity: document.getElementById('custCity').value,
@@ -820,55 +1325,96 @@
                 customerLandmark: document.getElementById('custLandmark').value.trim(),
                 items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
                 total: cart.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0),
-                status: 'جديد', createdAt: Date.now()
+                status: 'جديد',
+                createdAt: Date.now()
             };
             
-            if(!order.customerName || !order.customerPhone || !order.customerCity || !order.customerDistrict) {
-                showToast('⚠️ الرجاء تعبئة جميع الحقول المطلوبة', true); return;
+            if(!orderData.customerName || !orderData.customerPhone || !orderData.customerCity || !orderData.customerDistrict) {
+                showToast('⚠️ الرجاء تعبئة جميع الحقول', true);
+                return;
             }
             
-            try { await db.ref('orders').push(order); } catch(err) {}
+            await db.ref('orders').push(orderData);
             
-            let msg = `🏛️ *طلب جديد - متجر أكاد*\n━━━━━━━━━━━━━━━\n👤 ${order.customerName}\n📞 ${order.customerPhone}\n📍 ${order.customerCity} - ${order.customerDistrict}\n${order.customerLandmark ? `🗿 ${order.customerLandmark}\n` : ''}━━━━━━━━━━━━━━━\n📦 *المنتجات:*\n`;
-            order.items.forEach(i => msg += `• ${i.name} × ${i.qty}\n`);
-            msg += `━━━━━━━━━━━━━━━\n💰 *المجموع:* ${order.total.toLocaleString('ar-IQ')} د.ع`;
+            let msg = `🏛️ طلب جديد - متجر أكاد\n━━━━━━━━━━━━━━━\n👤 ${orderData.customerName}\n📞 ${orderData.customerPhone}\n📍 ${orderData.customerCity} - ${orderData.customerDistrict}\n${orderData.customerLandmark ? `🗿 ${orderData.customerLandmark}\n` : ''}━━━━━━━━━━━━━━━\n📦 المنتجات:\n`;
+            orderData.items.forEach(i => msg += `• ${i.name} × ${i.qty}\n`);
+            msg += `━━━━━━━━━━━━━━━\n💰 المجموع: ${orderData.total.toLocaleString('ar-IQ')} د.ع`;
             
-            window.open(`https://wa.me/${wp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
             
-            cart = []; updateCartUI(); closeModal('orderModal');
-            showToast('✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً');
+            cart = [];
+            updateCartUI();
+            closeModal('orderModal');
+            showToast('✅ تم إرسال طلبك بنجاح');
             document.getElementById('orderForm').reset();
         }
         
-        function quickOrder(id) {
-            const p = products.find(x => x.id === id);
-            if(p) { cart = [{ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 }]; updateCartUI(); renderOrderSummary(); openModal('orderModal'); }
+        function quickOrder(productId) {
+            const product = products.find(p => p.id === productId);
+            if(product) {
+                cart = [{ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 }];
+                updateCartUI();
+                renderOrderSummary();
+                openModal('orderModal');
+            }
         }
         
-        async function showProduct(id) {
-            const p = products.find(x => x.id === id); if(!p) return;
-            currentProduct = p; currentProductVideo = p.video || '';
-            document.getElementById('modalTitle').textContent = p.name;
-            document.getElementById('modalImage').src = p.image || 'https://via.placeholder.com/300';
-            document.getElementById('modalDesc').textContent = p.description || 'لا يوجد وصف متاح';
-            document.getElementById('modalVideoBtn').classList.toggle('hidden', !(currentProductVideo && currentProductVideo.trim().length > 5));
+        async function showProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if(!product) return;
+            currentProduct = product;
+            currentProductVideo = product.video || '';
             
-            const sc = document.getElementById('modalSpecs');
-            if(p.specs && Object.keys(p.specs).length > 0) {
-                sc.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + 
-                    Object.entries(p.specs).map(([k,v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--glass-border);"><span style="color: var(--text-secondary);">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
-            } else sc.innerHTML = '<p class="text-sm" style="color: var(--text-secondary);">لا توجد مواصفات إضافية</p>';
+            document.getElementById('modalTitle').textContent = product.name;
+            document.getElementById('modalImage').src = product.image || 'https://via.placeholder.com/300';
+            document.getElementById('modalDesc').textContent = product.description || 'لا يوجد وصف';
+            
+            const videoBtn = document.getElementById('modalVideoBtn');
+            if(currentProductVideo && currentProductVideo.trim().length > 5) {
+                videoBtn.classList.remove('hidden');
+            } else {
+                videoBtn.classList.add('hidden');
+            }
+            
+            const specsContainer = document.getElementById('modalSpecs');
+            if(product.specs && Object.keys(product.specs).length > 0) {
+                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-2 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
+            } else {
+                specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
+            }
             openModal('productModal');
         }
         
         function orderNow() {
             if(currentProduct) {
                 cart = [{ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image, qty: 1 }];
-                updateCartUI(); closeModal('productModal'); renderOrderSummary(); openModal('orderModal');
+                updateCartUI();
+                closeModal('productModal');
+                renderOrderSummary();
+                openModal('orderModal');
             }
         }
         
-        // 🚀 Initialize
+        // Scroll to top button visibility
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollTop');
+            if(window.scrollY > 300) {
+                scrollBtn.classList.add('show');
+            } else {
+                scrollBtn.classList.remove('show');
+            }
+        });
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if(window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
         applySavedTheme();
         loadData();
         updateCartUI();
