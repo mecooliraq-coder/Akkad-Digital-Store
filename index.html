@@ -792,51 +792,28 @@
             }
         }
         
-        // ========== تحميل الشعار والإعدادات من Firebase ==========
+        // تحميل الشعار والإعدادات من Firebase
         function loadAppearance() {
-            db.ref('appearance').on('value', (snapshot) => {
+            db.ref('appearance').once('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 
-                // تحديث الشعار - هذا هو الجزء المهم
                 if(data.storeLogo && data.storeLogo !== '') {
                     const logoImg = document.getElementById('storeLogo');
                     if(logoImg) {
                         logoImg.src = data.storeLogo;
-                        logoImg.onerror = function() {
-                            this.src = 'https://via.placeholder.com/45';
-                        };
+                        logoImg.onerror = function() { this.src = 'https://via.placeholder.com/45'; };
                     }
                 }
-                
-                // تحديث اسم المتجر
-                if(data.storeName) {
-                    document.getElementById('storeName').textContent = data.storeName;
-                }
-                
-                // تحديث النص الثانوي
-                if(data.storeSubtitle) {
-                    document.getElementById('storeSubtitle').textContent = data.storeSubtitle;
-                }
-                
-                // تحديث النص العلوي
-                if(data.topBarText) {
-                    document.getElementById('topBar').innerHTML = `<i class="fas fa-truck ml-2"></i> ${data.topBarText}`;
-                }
-                
-                // تحديث اللون الأساسي
-                if(data.primaryColor) {
-                    document.documentElement.style.setProperty('--netflix-red', data.primaryColor);
-                }
-                
-                // تحديث رقم الواتساب
+                if(data.storeName) document.getElementById('storeName').textContent = data.storeName;
+                if(data.storeSubtitle) document.getElementById('storeSubtitle').textContent = data.storeSubtitle;
+                if(data.topBarText) document.getElementById('topBar').innerHTML = `<i class="fas fa-truck ml-2"></i> ${data.topBarText}`;
+                if(data.primaryColor) document.documentElement.style.setProperty('--netflix-red', data.primaryColor);
                 if(data.whatsappNumber) {
                     document.getElementById('footerWhatsapp').textContent = data.whatsappNumber;
                     document.getElementById('infoWhatsapp').textContent = data.whatsappNumber;
                 }
-                
-                // تحديث روابط التواصل
                 updateSocialLinks(data);
-            });
+            }).catch(err => console.log("خطأ في تحميل الإعدادات:", err));
         }
         
         function updateSocialLinks(data) {
@@ -878,14 +855,14 @@
             else showToast('⚠️ لا يوجد رابط للنسخ', true);
         }
         
-        // Categories
+        // Categories - استخدام once() لتجنب التحميل المستمر
         function loadCategories() {
-            db.ref('categories').on('value', (snapshot) => {
+            db.ref('categories').once('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
                 renderCategories();
                 filterAndRender();
-            });
+            }).catch(err => console.log("خطأ في تحميل الأقسام:", err));
         }
         
         function renderCategories() {
@@ -903,13 +880,13 @@
             filterAndRender();
         }
         
-        // Products
+        // Products - استخدام once() لتجنب التحميل المستمر
         function loadProducts() {
-            db.ref('products').on('value', (snapshot) => {
+            db.ref('products').once('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
                 filterAndRender();
-            });
+            }).catch(err => console.log("خطأ في تحميل المنتجات:", err));
         }
         
         function filterAndRender() {
@@ -1017,7 +994,7 @@
         // Initialize
         function init() {
             applySavedTheme();
-            loadAppearance();      // تحميل الشعار والإعدادات
+            loadAppearance();
             loadCategories();
             loadProducts();
             updateCartUI();
