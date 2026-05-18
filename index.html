@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>AKKAD STORE | متجر أكاد - Netflix Style</title>
+    <title>AKKAD STORE | متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
@@ -11,7 +11,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* تصميم Netflix - داكن وأنيق */
+        /* المتغيرات - سيتم تحديثها من Firebase */
         :root {
             --netflix-black: #141414;
             --netflix-black-light: #1f1f1f;
@@ -21,24 +21,26 @@
             --netflix-text-light: #b3b3b3;
             --netflix-border: #2c2c2c;
             --netflix-gradient: linear-gradient(135deg, #e50914, #ff4d4d);
+            --netflix-bg: #141414;
+            --netflix-card: #1f1f1f;
         }
         
         body {
             font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--netflix-black);
+            background: var(--netflix-bg);
             color: var(--netflix-text);
             transition: all 0.3s ease;
             overflow-x: hidden;
         }
         
-        /* Light Mode - Netflix Light */
+        /* Light Mode - سيتم تحديث الألوان من Firebase */
         body.light-mode {
-            --netflix-black: #f5f5f1;
-            --netflix-black-light: #ffffff;
+            --netflix-bg: #f5f5f1;
+            --netflix-card: #ffffff;
             --netflix-text: #141414;
             --netflix-text-light: #757575;
             --netflix-border: #e5e5e5;
-            background: var(--netflix-black);
+            background: var(--netflix-bg);
             color: var(--netflix-text);
         }
         
@@ -47,26 +49,17 @@
         body.light-mode .search-container,
         body.light-mode .netflix-header,
         body.light-mode .netflix-footer {
-            background: var(--netflix-black-light);
-        }
-        
-        body.light-mode .netflix-categories {
-            background: var(--netflix-black-light);
-            border-bottom-color: var(--netflix-border);
-        }
-        
-        body.light-mode .payment-methods-row {
-            background: rgba(0,0,0,0.05);
+            background: var(--netflix-card);
         }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--netflix-black-light); }
+        ::-webkit-scrollbar-track { background: var(--netflix-border); }
         ::-webkit-scrollbar-thumb { background: var(--netflix-red); border-radius: 10px; }
         
-        /* Header Netflix */
+        /* Header */
         .netflix-header {
-            background: linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(20,20,20,0.95) 100%);
+            background: rgba(20,20,20,0.98);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
@@ -76,14 +69,8 @@
             transition: all 0.3s;
         }
         
-        .netflix-header.scrolled {
-            background: rgba(20,20,20,0.99);
-            padding: 8px 0;
-        }
-        
         body.light-mode .netflix-header {
             background: rgba(255,255,255,0.98);
-            backdrop-filter: blur(10px);
         }
         
         /* Logo */
@@ -91,7 +78,7 @@
             font-size: 24px;
             font-weight: 900;
             letter-spacing: -1px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
@@ -117,8 +104,8 @@
         }
         
         body.light-mode .search-container {
-            background: var(--netflix-black-light);
-            border: 1px solid var(--netflix-border);
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
         }
         
         .search-container:focus-within {
@@ -134,6 +121,10 @@
             outline: none;
             font-size: 14px;
             color: var(--netflix-text);
+        }
+        
+        body.light-mode .search-container input {
+            color: #141414;
         }
         
         .search-container input::placeholder {
@@ -167,16 +158,16 @@
             transform: translateY(-2px);
         }
         
+        body.light-mode .netflix-icon-btn {
+            color: #141414;
+        }
+        
         /* Categories - Horizontal Scroll */
         .netflix-categories {
-            background: var(--netflix-black);
+            background: var(--netflix-card);
             border-bottom: 1px solid var(--netflix-border);
             padding: 12px 0;
             position: relative;
-        }
-        
-        body.light-mode .netflix-categories {
-            background: var(--netflix-black-light);
         }
         
         .categories-scroll {
@@ -190,19 +181,9 @@
             scrollbar-width: thin;
         }
         
-        .categories-scroll::-webkit-scrollbar {
-            height: 3px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-track {
-            background: var(--netflix-border);
-            border-radius: 10px;
-        }
-        
-        .categories-scroll::-webkit-scrollbar-thumb {
-            background: var(--netflix-red);
-            border-radius: 10px;
-        }
+        .categories-scroll::-webkit-scrollbar { height: 3px; }
+        .categories-scroll::-webkit-scrollbar-track { background: var(--netflix-border); border-radius: 10px; }
+        .categories-scroll::-webkit-scrollbar-thumb { background: var(--netflix-red); border-radius: 10px; }
         
         .category-item {
             display: inline-block;
@@ -218,6 +199,10 @@
             flex-shrink: 0;
         }
         
+        body.light-mode .category-item {
+            background: rgba(0,0,0,0.05);
+        }
+        
         .category-item:hover {
             background: rgba(229,9,20,0.2);
             color: var(--netflix-text);
@@ -225,7 +210,7 @@
         }
         
         .category-item.active {
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             color: white;
         }
         
@@ -237,6 +222,10 @@
             border-bottom: 1px solid rgba(229,9,20,0.2);
         }
         
+        body.light-mode .payment-methods-row {
+            background: rgba(0,0,0,0.05);
+        }
+        
         .payment-methods-container {
             display: flex;
             flex-wrap: wrap;
@@ -245,7 +234,7 @@
             gap: 15px;
         }
         
-        .payment-item {
+        .payment-method-item {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -257,39 +246,36 @@
             background: rgba(255,255,255,0.05);
         }
         
-        .payment-item:hover {
+        body.light-mode .payment-method-item {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .payment-method-item:hover {
             color: var(--netflix-red);
             transform: translateY(-2px);
             background: rgba(229,9,20,0.15);
         }
         
-        .payment-item i {
-            font-size: 14px;
-        }
-        
-        .payment-separator {
-            width: 1px;
-            height: 15px;
-            background: rgba(255,255,255,0.2);
-        }
+        .payment-method-item i { font-size: 14px; }
+        .payment-separator { width: 1px; height: 15px; background: rgba(255,255,255,0.2); }
         
         @media (max-width: 768px) {
-            .payment-methods-container {
-                gap: 8px;
-            }
-            .payment-item {
-                font-size: 10px;
-                padding: 3px 8px;
-            }
-            .payment-item i {
-                font-size: 11px;
-            }
-            .payment-separator {
-                display: none;
-            }
+            .payment-methods-container { gap: 8px; }
+            .payment-method-item { font-size: 10px; padding: 3px 8px; }
+            .payment-method-item i { font-size: 11px; }
+            .payment-separator { display: none; }
         }
         
-        /* Hero Netflix */
+        /* Top Bar */
+        .top-bar {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        /* Hero */
         .netflix-hero {
             background: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(20,20,20,1) 100%);
             padding: 60px 20px;
@@ -299,25 +285,7 @@
         }
         
         body.light-mode .netflix-hero {
-            background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, var(--netflix-black) 100%);
-        }
-        
-        .netflix-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(229,9,20,0.05)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
-            background-size: cover;
-            pointer-events: none;
-            animation: waveMove 10s linear infinite;
-        }
-        
-        @keyframes waveMove {
-            0% { background-position: 0 bottom; }
-            100% { background-position: 100% bottom; }
+            background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, #f5f5f1 100%);
         }
         
         .netflix-hero h1 {
@@ -344,7 +312,7 @@
         
         /* Product Card */
         .product-card {
-            background: var(--netflix-black-light);
+            background: var(--netflix-card);
             border-radius: 12px;
             padding: 14px;
             transition: all 0.4s;
@@ -367,14 +335,12 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             transform: scaleX(0);
             transition: transform 0.3s;
         }
         
-        .product-card:hover::before {
-            transform: scaleX(1);
-        }
+        .product-card:hover::before { transform: scaleX(1); }
         
         .product-img {
             height: 180px;
@@ -385,9 +351,7 @@
             transition: transform 0.3s;
         }
         
-        .product-card:hover .product-img {
-            transform: scale(1.03);
-        }
+        .product-card:hover .product-img { transform: scale(1.03); }
         
         .product-title {
             font-size: 14px;
@@ -407,21 +371,7 @@
             margin: 8px 0;
         }
         
-        .product-old-price {
-            font-size: 12px;
-            text-decoration: line-through;
-            color: var(--netflix-text-light);
-            margin-right: 6px;
-        }
-        
-        .product-rating {
-            color: #ffc107;
-            margin: 6px 0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-        }
+        .product-rating { color: #ffc107; margin: 6px 0; display: flex; align-items: center; gap: 5px; font-size: 11px; }
         
         @media (max-width: 768px) {
             .product-img { height: 140px; }
@@ -441,14 +391,13 @@
             z-index: 10;
             text-transform: uppercase;
         }
-        
-        .badge-hot { background: var(--netflix-gradient); color: white; }
+        .badge-hot { background: linear-gradient(135deg, var(--netflix-red), #ff4d4d); color: white; }
         .badge-new { background: #4c9aff; color: white; }
         .badge-sale { background: #ffc107; color: #141414; }
         
         /* Buttons */
         .btn-netflix {
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             border: none;
             padding: 8px 14px;
             border-radius: 8px;
@@ -459,11 +408,7 @@
             color: white;
             font-size: 13px;
         }
-        
-        .btn-netflix:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(229,9,20,0.4);
-        }
+        .btn-netflix:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(229,9,20,0.4); }
         
         .btn-outline-netflix {
             background: transparent;
@@ -476,11 +421,7 @@
             transition: all 0.3s;
             font-size: 13px;
         }
-        
-        .btn-outline-netflix:hover {
-            background: var(--netflix-red);
-            color: white;
-        }
+        .btn-outline-netflix:hover { background: var(--netflix-red); color: white; }
         
         .btn-whatsapp-netflix {
             background: #25D366;
@@ -493,10 +434,7 @@
             width: 100%;
             font-size: 13px;
         }
-        
-        .btn-whatsapp-netflix:hover {
-            background: #1da851;
-        }
+        .btn-whatsapp-netflix:hover { background: #1da851; }
         
         /* Video Overlay */
         .video-overlay {
@@ -512,26 +450,18 @@
             border-radius: 8px;
             cursor: pointer;
         }
-        
-        .product-img-container:hover .video-overlay {
-            opacity: 1;
-        }
+        .product-img-container:hover .video-overlay { opacity: 1; }
         
         .play-btn-circle {
             width: 45px;
             height: 45px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
-        .play-btn-circle i {
-            color: white;
-            font-size: 18px;
-            margin-right: 3px;
-        }
+        .play-btn-circle i { color: white; font-size: 18px; margin-right: 3px; }
         
         .video-badge {
             position: absolute;
@@ -548,11 +478,6 @@
             color: white;
         }
         
-        .video-badge i {
-            color: var(--netflix-red);
-            font-size: 9px;
-        }
-        
         /* Modal */
         .modal {
             display: none;
@@ -564,9 +489,8 @@
             align-items: center;
             justify-content: center;
         }
-        
         .modal-content {
-            background: var(--netflix-black-light);
+            background: var(--netflix-card);
             border-radius: 16px;
             max-width: 550px;
             width: 90%;
@@ -576,49 +500,13 @@
             border: 1px solid rgba(229,9,20,0.3);
         }
         
-        /* Order Summary */
-        .order-summary {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 14px;
-        }
-        
-        .order-summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--netflix-border);
-        }
-        
-        .order-summary-item:last-child {
-            border-bottom: none;
-        }
-        
-        /* Inputs */
-        .input, .select, textarea {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid var(--netflix-border);
-            border-radius: 8px;
-            padding: 10px 14px;
-            width: 100%;
-            color: var(--netflix-text);
-            font-size: 14px;
-        }
-        
-        .input:focus, .select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--netflix-red);
-        }
-        
         /* Footer */
         .netflix-footer {
-            background: var(--netflix-black-light);
+            background: var(--netflix-card);
             border-top: 1px solid var(--netflix-border);
             padding: 40px 20px 25px;
             margin-top: 50px;
         }
-        
         .netflix-footer a {
             color: var(--netflix-text-light);
             text-decoration: none;
@@ -628,52 +516,23 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
-        .netflix-footer a:hover {
-            color: var(--netflix-red);
-            transform: translateX(-5px);
-        }
-        
-        .netflix-footer h4 {
-            font-weight: 600;
-            margin-bottom: 14px;
-            font-size: 14px;
-            color: var(--netflix-text);
-        }
+        .netflix-footer a:hover { color: var(--netflix-red); transform: translateX(-5px); }
+        .netflix-footer h4 { font-weight: 600; margin-bottom: 14px; font-size: 14px; color: var(--netflix-text); }
         
         /* Features */
-        .features-section {
-            padding: 30px 0;
-        }
-        
-        .feature-item {
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .feature-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .feature-item i {
-            font-size: 28px;
-        }
-        
-        .feature-item h4 {
-            font-size: 13px;
-            margin-top: 8px;
-        }
-        
-        .feature-item p {
-            font-size: 11px;
-        }
+        .features-section { padding: 30px 0; }
+        .feature-item { text-align: center; transition: all 0.3s; }
+        .feature-item:hover { transform: translateY(-5px); }
+        .feature-item i { font-size: 28px; }
+        .feature-item h4 { font-size: 13px; margin-top: 8px; }
+        .feature-item p { font-size: 11px; }
         
         /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             color: white;
             padding: 10px 20px;
             border-radius: 8px;
@@ -681,22 +540,15 @@
             animation: slideInRight 0.3s ease;
             font-size: 13px;
         }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        .toast.error { background: #ef4444; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         /* Cart Badge */
         .cart-badge {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             color: white;
             border-radius: 50%;
             width: 18px;
@@ -707,11 +559,7 @@
             justify-content: center;
             font-weight: 700;
         }
-        
-        .cart-icon {
-            position: relative;
-            cursor: pointer;
-        }
+        .cart-icon { position: relative; cursor: pointer; }
         
         /* Scroll Top */
         .scroll-top {
@@ -720,7 +568,7 @@
             left: 20px;
             width: 42px;
             height: 42px;
-            background: var(--netflix-gradient);
+            background: linear-gradient(135deg, var(--netflix-red), #ff4d4d);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -731,20 +579,9 @@
             transition: all 0.3s;
             z-index: 99;
         }
-        
-        .scroll-top.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .scroll-top:hover {
-            transform: translateY(-3px);
-        }
-        
-        .scroll-top i {
-            color: white;
-            font-size: 18px;
-        }
+        .scroll-top.show { opacity: 1; visibility: visible; }
+        .scroll-top:hover { transform: translateY(-3px); }
+        .scroll-top i { color: white; font-size: 18px; }
         
         /* Cuneiform */
         .cuneiform {
@@ -758,31 +595,43 @@
             white-space: nowrap;
             animation: slideCuneiform 35s linear infinite;
         }
+        @keyframes slideCuneiform { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        @keyframes slideCuneiform {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        
-        /* Grid Responsive */
+        /* Grid */
         .grid-custom {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
         }
+        @media (max-width: 640px) { .grid-custom { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+        @media (min-width: 1024px) { .grid-custom { grid-template-columns: repeat(4, 1fr); } }
         
-        @media (max-width: 640px) {
-            .grid-custom {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
+        /* Order Summary */
+        .order-summary {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
         }
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--netflix-border);
+        }
+        .order-summary-item:last-child { border-bottom: none; }
         
-        @media (min-width: 1024px) {
-            .grid-custom {
-                grid-template-columns: repeat(4, 1fr);
-            }
+        /* Inputs */
+        .input, .select, textarea {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--netflix-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 100%;
+            color: var(--netflix-text);
+            font-size: 14px;
         }
+        .input:focus, .select:focus, textarea:focus { outline: none; border-color: var(--netflix-red); }
     </style>
 </head>
 <body>
@@ -791,20 +640,23 @@
     <div class="cuneiform" style="bottom: 15%; right: -20%;">𒀭𒈾𒀜𒀭𒀜 𒈠𒀀𒉡</div>
     <div class="cuneiform" style="top: 30%; left: -20%; animation-duration: 45s;">𒀝𒅗𒁺 𒀭𒈾𒀜𒈾</div>
 
+    <!-- Top Bar (يتحكم به من لوحة التحكم) -->
+    <div class="top-bar" id="topBar">
+        <i class="fas fa-truck ml-2"></i> توصيل مجاني لجميع أنحاء العراق | الدفع عند الاستلام
+    </div>
+
     <!-- Header -->
     <header class="netflix-header" id="mainHeader">
         <div class="container mx-auto px-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <!-- Logo -->
                 <div class="flex items-center gap-2 cursor-pointer" onclick="scrollToTop()">
                     <img id="storeLogo" src="https://via.placeholder.com/40" class="store-logo" alt="شعار المتجر">
                     <div class="hidden sm:block">
                         <span class="netflix-logo text-xl font-black" id="storeName">AKKAD</span>
-                        <p class="text-[10px]" style="color: var(--netflix-text-light);">متجر أكاد الرقمي</p>
+                        <p class="text-[10px]" style="color: var(--netflix-text-light);" id="storeSubtitle">متجر أكاد الرقمي</p>
                     </div>
                 </div>
                 
-                <!-- Search Bar -->
                 <div class="flex-1 max-w-sm md:max-w-md">
                     <div class="search-container">
                         <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="🔍 ابحث عن منتج...">
@@ -812,7 +664,6 @@
                     </div>
                 </div>
                 
-                <!-- Icons -->
                 <div class="flex items-center gap-1">
                     <button onclick="toggleTheme()" class="netflix-icon-btn" title="الوضع المضيء">
                         <i class="fas fa-sun" id="themeIcon"></i>
@@ -832,44 +683,22 @@
         </div>
     </header>
 
-    <!-- شريط طرق الدفع المتاحة (يظهر في الكمبيوتر والجوال) -->
+    <!-- شريط طرق الدفع المتاحة (يتحكم به من لوحة التحكم) -->
     <div class="payment-methods-row">
         <div class="container mx-auto px-3">
-            <div class="payment-methods-container">
-                <div class="payment-item">
-                    <i class="fas fa-money-bill-wave text-green-500"></i>
-                    <span>الدفع عند الاستلام</span>
-                </div>
+            <div class="payment-methods-container" id="paymentMethodsContainer">
+                <div class="payment-method-item"><i class="fas fa-money-bill-wave text-green-500"></i><span>الدفع عند الاستلام</span></div>
                 <div class="payment-separator"></div>
-                <div class="payment-item">
-                    <i class="fab fa-cc-visa text-blue-400"></i>
-                    <span>فيزا</span>
-                </div>
+                <div class="payment-method-item"><i class="fab fa-cc-visa text-blue-400"></i><span>فيزا</span></div>
                 <div class="payment-separator"></div>
-                <div class="payment-item">
-                    <i class="fab fa-cc-mastercard text-orange-500"></i>
-                    <span>ماستركارد</span>
-                </div>
+                <div class="payment-method-item"><i class="fab fa-cc-mastercard text-orange-500"></i><span>ماستركارد</span></div>
                 <div class="payment-separator"></div>
-                <div class="payment-item">
-                    <i class="fas fa-mobile-alt text-emerald-500"></i>
-                    <span>زين كاش</span>
-                </div>
-                <div class="payment-separator"></div>
-                <div class="payment-item">
-                    <i class="fas fa-mobile-alt text-teal-500"></i>
-                    <span>آسياسيل</span>
-                </div>
-                <div class="payment-separator"></div>
-                <div class="payment-item">
-                    <i class="fas fa-university text-yellow-500"></i>
-                    <span>تحويل بنكي</span>
-                </div>
+                <div class="payment-method-item"><i class="fas fa-mobile-alt text-emerald-500"></i><span>زين كاش</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Categories - Horizontal Scroll -->
+    <!-- Categories -->
     <div class="netflix-categories">
         <div class="container mx-auto px-3">
             <div class="categories-scroll" id="categoriesScroll">
@@ -882,8 +711,8 @@
     <!-- Hero -->
     <div class="netflix-hero">
         <div class="container mx-auto px-3 relative z-10">
-            <h1>متجر أكاد الرقمي</h1>
-            <p>أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع - تجربة تسوق فريدة</p>
+            <h1 id="heroTitle">متجر أكاد الرقمي</h1>
+            <p id="heroSubtitle">أحدث أجهزة الترفيه الرقمي - جودة عالية - توصيل سريع - تجربة تسوق فريدة</p>
             <button onclick="scrollToProducts()" class="btn-netflix inline-flex items-center gap-2 px-6 py-2 w-auto">
                 تسوق الآن <i class="fas fa-arrow-left"></i>
             </button>
@@ -897,35 +726,17 @@
             <span class="text-xs" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
         </div>
         <div class="grid-custom" id="productsGrid">
-            <div class="product-card text-center py-8">
-                <div class="animate-pulse">جاري التحميل...</div>
-            </div>
+            <div class="product-card text-center py-8"><div class="animate-pulse">جاري التحميل...</div></div>
         </div>
     </div>
 
-    <!-- Features Section -->
+    <!-- Features -->
     <div class="container mx-auto px-3 features-section">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="feature-item">
-                <i class="fas fa-truck text-2xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold text-sm">توصيل مجاني</h4>
-                <p class="text-xs" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-shield-alt text-2xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold text-sm">دفع آمن</h4>
-                <p class="text-xs" style="color: var(--netflix-text-light);">طرق دفع متعددة</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-headset text-2xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold text-sm">دعم فني 24/7</h4>
-                <p class="text-xs" style="color: var(--netflix-text-light);">فريق دعم متكامل</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-exchange-alt text-2xl" style="color: var(--netflix-red);"></i>
-                <h4 class="font-bold text-sm">استبدال سريع</h4>
-                <p class="text-xs" style="color: var(--netflix-text-light);">خلال 14 يوم</p>
-            </div>
+            <div class="feature-item"><i class="fas fa-truck text-2xl" style="color: var(--netflix-red);"></i><h4 class="font-bold text-sm">توصيل مجاني</h4><p class="text-xs" style="color: var(--netflix-text-light);">لجميع أنحاء العراق</p></div>
+            <div class="feature-item"><i class="fas fa-shield-alt text-2xl" style="color: var(--netflix-red);"></i><h4 class="font-bold text-sm">دفع آمن</h4><p class="text-xs" style="color: var(--netflix-text-light);">طرق دفع متعددة</p></div>
+            <div class="feature-item"><i class="fas fa-headset text-2xl" style="color: var(--netflix-red);"></i><h4 class="font-bold text-sm">دعم فني 24/7</h4><p class="text-xs" style="color: var(--netflix-text-light);">فريق دعم متكامل</p></div>
+            <div class="feature-item"><i class="fas fa-exchange-alt text-2xl" style="color: var(--netflix-red);"></i><h4 class="font-bold text-sm">استبدال سريع</h4><p class="text-xs" style="color: var(--netflix-text-light);">خلال 14 يوم</p></div>
         </div>
     </div>
 
@@ -933,23 +744,9 @@
     <footer class="netflix-footer">
         <div class="container mx-auto px-3">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                    <h4>الشركة</h4>
-                    <a id="footerLink_about" onclick="showInfo()">من نحن</a>
-                    <a id="footerLink_jobs" onclick="showInfo()">وظائف</a>
-                    <a id="footerLink_blog" onclick="showInfo()">المدونة</a>
-                </div>
-                <div>
-                    <h4>الخدمات</h4>
-                    <a id="footerLink_help" onclick="showInfo()">مساعدة</a>
-                    <a id="footerLink_shipping" onclick="showInfo()">الشحن</a>
-                    <a id="footerLink_returns" onclick="showInfo()">الاسترجاع</a>
-                </div>
-                <div>
-                    <h4>القوانين</h4>
-                    <a id="footerLink_terms" onclick="showInfo()">الشروط والأحكام</a>
-                    <a id="footerLink_privacy" onclick="showInfo()">سياسة الخصوصية</a>
-                </div>
+                <div><h4>الشركة</h4><a id="footerLink_about" onclick="showInfo()">من نحن</a><a id="footerLink_jobs" onclick="showInfo()">وظائف</a><a id="footerLink_blog" onclick="showInfo()">المدونة</a></div>
+                <div><h4>الخدمات</h4><a id="footerLink_help" onclick="showInfo()">مساعدة</a><a id="footerLink_shipping" onclick="showInfo()">الشحن</a><a id="footerLink_returns" onclick="showInfo()">الاسترجاع</a></div>
+                <div><h4>القوانين</h4><a id="footerLink_terms" onclick="showInfo()">الشروط والأحكام</a><a id="footerLink_privacy" onclick="showInfo()">سياسة الخصوصية</a></div>
                 <div>
                     <h4>تابعنا</h4>
                     <div class="flex gap-3 mt-2" id="footerSocial">
@@ -969,108 +766,49 @@
     </footer>
 
     <!-- Scroll to Top -->
-    <div class="scroll-top" id="scrollTop" onclick="scrollToTop()">
-        <i class="fas fa-chevron-up"></i>
-    </div>
+    <div class="scroll-top" id="scrollTop" onclick="scrollToTop()"><i class="fas fa-chevron-up"></i></div>
 
     <!-- Product Modal -->
     <div id="productModal" class="modal" onclick="if(event.target===this) closeModal('productModal')">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3>
-                <button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
-            </div>
-            <div class="relative">
-                <img id="modalImage" src="" class="w-full rounded-lg mb-3 max-h-48 object-contain bg-gray-800">
-                <div id="modalVideoBtn" class="hidden absolute top-2 right-2 bg-netflix-red rounded-full w-8 h-8 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()">
-                    <i class="fas fa-play text-white text-xs"></i>
-                </div>
-            </div>
-            <p id="modalDesc" class="mb-3 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p>
-            <div id="modalSpecs" class="rounded-lg p-3 mb-3 text-sm" style="background: rgba(255,255,255,0.05);"></div>
-            <div class="flex gap-2">
-                <button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix py-2"><i class="fab fa-whatsapp ml-1"></i> طلب الآن</button>
-                <button onclick="addToCartFromModal()" class="flex-1 btn-netflix py-2"><i class="fas fa-shopping-bag ml-1"></i> أضف للسلة</button>
-            </div>
-        </div>
+        <div class="modal-content"><div class="flex justify-between items-center mb-3"><h3 class="text-lg font-bold" id="modalTitle" style="color: var(--netflix-red);"></h3><button onclick="closeModal('productModal')" class="text-2xl hover:text-netflix-red transition">&times;</button></div>
+        <div class="relative"><img id="modalImage" src="" class="w-full rounded-lg mb-3 max-h-48 object-contain bg-gray-800"><div id="modalVideoBtn" class="hidden absolute top-2 right-2 bg-netflix-red rounded-full w-8 h-8 flex items-center justify-center cursor-pointer" onclick="event.stopPropagation(); openVideo()"><i class="fas fa-play text-white text-xs"></i></div></div>
+        <p id="modalDesc" class="mb-3 leading-relaxed text-sm" style="color: var(--netflix-text-light);"></p><div id="modalSpecs" class="rounded-lg p-3 mb-3 text-sm" style="background: rgba(255,255,255,0.05);"></div>
+        <div class="flex gap-2"><button onclick="orderNow()" class="flex-1 btn-whatsapp-netflix py-2"><i class="fab fa-whatsapp ml-1"></i> طلب الآن</button><button onclick="addToCartFromModal()" class="flex-1 btn-netflix py-2"><i class="fas fa-shopping-bag ml-1"></i> أضف للسلة</button></div></div>
     </div>
 
     <!-- Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this) closeModal('videoModal')">
-        <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3 border border-netflix-red">
-            <div class="flex justify-end p-1"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div>
-            <iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe>
-        </div>
+        <div class="bg-black rounded-lg overflow-hidden max-w-3xl w-full mx-3 border border-netflix-red"><div class="flex justify-end p-1"><button onclick="closeModal('videoModal')" class="text-white text-2xl hover:text-netflix-red transition">&times;</button></div><iframe id="videoFrame" class="w-full aspect-video" src="" allowfullscreen></iframe></div>
     </div>
 
     <!-- Cart Modal -->
     <div id="cartModal" class="modal" onclick="if(event.target===this) closeModal('cartModal')">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-lg font-bold"><i class="fas fa-shopping-bag ml-1"></i> سلة التسوق</h3>
-                <button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red transition">&times;</button>
-            </div>
-            <div id="cartItems" class="max-h-80 overflow-y-auto"></div>
-            <div id="cartTotal" class="mt-3 pt-3 border-t" style="border-color: var(--netflix-border);"></div>
-            <button onclick="checkout()" class="btn-netflix w-full mt-3 py-2"><i class="fab fa-whatsapp ml-1"></i> إتمام الطلب</button>
-            <button onclick="clearCart()" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">تفريغ السلة</button>
-        </div>
+        <div class="modal-content"><div class="flex justify-between items-center mb-3"><h3 class="text-lg font-bold"><i class="fas fa-shopping-bag ml-1"></i> سلة التسوق</h3><button onclick="closeModal('cartModal')" class="text-2xl hover:text-netflix-red transition">&times;</button></div>
+        <div id="cartItems" class="max-h-80 overflow-y-auto"></div><div id="cartTotal" class="mt-3 pt-3 border-t" style="border-color: var(--netflix-border);"></div>
+        <button onclick="checkout()" class="btn-netflix w-full mt-3 py-2"><i class="fab fa-whatsapp ml-1"></i> إتمام الطلب</button><button onclick="clearCart()" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">تفريغ السلة</button></div>
     </div>
 
     <!-- Order Modal -->
     <div id="orderModal" class="modal" onclick="if(event.target===this) closeModal('orderModal')">
-        <div class="modal-content">
-            <h3 class="text-lg font-bold mb-3" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-1"></i> إتمام الطلب</h3>
-            <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="mb-2">
-                    <label class="block text-xs font-medium mb-1">الاسم الكامل *</label>
-                    <input type="text" id="custName" class="input text-sm" placeholder="أدخل اسمك الكامل" required>
-                </div>
-                <div class="mb-2">
-                    <label class="block text-xs font-medium mb-1">رقم الموبايل *</label>
-                    <input type="tel" id="custPhone" class="input text-sm" placeholder="مثال: 077xxxxxxxx" required>
-                </div>
-                <div class="mb-2">
-                    <label class="block text-xs font-medium mb-1">المحافظة *</label>
-                    <select id="custCity" class="select text-sm" required>
-                        <option value="">اختر المحافظة</option>
-                        <option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option>
-                        <option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option>
-                        <option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option>
-                        <option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option>
-                        <option>المثنى</option><option>القادسية</option>
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label class="block text-xs font-medium mb-1">القضاء / المنطقة *</label>
-                    <input type="text" id="custDistrict" class="input text-sm" placeholder="أدخل اسم المنطقة" required>
-                </div>
-                <div class="mb-2">
-                    <label class="block text-xs font-medium mb-1">أقرب نقطة دالة</label>
-                    <input type="text" id="custLandmark" class="input text-sm" placeholder="مثال: قرب جامع الكبير">
-                </div>
-                <div id="orderSummary" class="order-summary text-sm"></div>
-                <button type="submit" class="btn-whatsapp-netflix w-full py-2"><i class="fab fa-whatsapp ml-1"></i> تأكيد الطلب</button>
-                <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">إلغاء</button>
-            </form>
-        </div>
+        <div class="modal-content"><h3 class="text-lg font-bold mb-3" style="color: var(--netflix-red);"><i class="fas fa-clipboard-list ml-1"></i> إتمام الطلب</h3>
+        <form id="orderForm" onsubmit="submitOrder(event)">
+            <div class="mb-2"><label class="block text-xs font-medium mb-1">الاسم الكامل *</label><input type="text" id="custName" class="input text-sm" placeholder="أدخل اسمك الكامل" required></div>
+            <div class="mb-2"><label class="block text-xs font-medium mb-1">رقم الموبايل *</label><input type="tel" id="custPhone" class="input text-sm" placeholder="مثال: 077xxxxxxxx" required></div>
+            <div class="mb-2"><label class="block text-xs font-medium mb-1">المحافظة *</label><select id="custCity" class="select text-sm" required><option value="">اختر المحافظة</option><option>بغداد</option><option>البصرة</option><option>نينوى</option><option>أربيل</option><option>كركوك</option><option>السليمانية</option><option>دهوك</option><option>كربلاء</option><option>النجف</option><option>بابل</option><option>واسط</option><option>ديالى</option><option>الأنبار</option><option>صلاح الدين</option><option>ذي قار</option><option>ميسان</option><option>المثنى</option><option>القادسية</option></select></div>
+            <div class="mb-2"><label class="block text-xs font-medium mb-1">القضاء / المنطقة *</label><input type="text" id="custDistrict" class="input text-sm" placeholder="أدخل اسم المنطقة" required></div>
+            <div class="mb-2"><label class="block text-xs font-medium mb-1">أقرب نقطة دالة</label><input type="text" id="custLandmark" class="input text-sm" placeholder="مثال: قرب جامع الكبير"></div>
+            <div id="orderSummary" class="order-summary text-sm"></div>
+            <button type="submit" class="btn-whatsapp-netflix w-full py-2"><i class="fab fa-whatsapp ml-1"></i> تأكيد الطلب</button>
+            <button type="button" onclick="closeModal('orderModal')" class="w-full mt-2 text-xs" style="color: var(--netflix-text-light);">إلغاء</button>
+        </form></div>
     </div>
 
     <!-- Info Modal -->
     <div id="infoModal" class="modal" onclick="if(event.target===this) closeModal('infoModal')">
-        <div class="modal-content text-center">
-            <div class="w-14 h-14 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-3">
-                <i class="fas fa-play text-white text-xl"></i>
-            </div>
-            <h3 class="text-lg font-bold mb-1">متجر أكاد الرقمي</h3>
-            <p class="text-xs mb-3" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
-            <div class="border-t pt-3 mt-2" style="border-color: var(--netflix-border);">
-                <p class="text-xs"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p>
-                <p class="text-xs mt-1"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p>
-                <p class="text-xs mt-1"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p>
-            </div>
-            <button onclick="closeModal('infoModal')" class="btn-netflix mt-3 px-6 py-1.5 w-auto">إغلاق</button>
-        </div>
+        <div class="modal-content text-center"><div class="w-14 h-14 mx-auto rounded-lg bg-gradient-to-r from-netflix-red to-red-600 flex items-center justify-center mb-3"><i class="fas fa-play text-white text-xl"></i></div>
+        <h3 class="text-lg font-bold mb-1" id="infoStoreName">متجر أكاد الرقمي</h3><p class="text-xs mb-3" style="color: var(--netflix-text-light);">نسخة 3.0 - جميع الحقوق محفوظة</p>
+        <div class="border-t pt-3 mt-2" style="border-color: var(--netflix-border);"><p class="text-xs"><i class="fab fa-whatsapp ml-1 text-green-500"></i> <span id="infoWhatsapp">07730492020</span></p><p class="text-xs mt-1"><i class="fas fa-envelope ml-1"></i> akkad@store.com</p><p class="text-xs mt-1"><i class="fas fa-map-marker-alt ml-1"></i> العراق - بغداد</p></div>
+        <button onclick="closeModal('infoModal')" class="btn-netflix mt-3 px-6 py-1.5 w-auto">إغلاق</button></div>
     </div>
 
     <script>
@@ -1090,7 +828,9 @@
         
         let products = [];
         let categories = [];
-        let settings = {};
+        let paymentMethods = [];
+        let footerLinks = {};
+        let appearance = {};
         let cart = JSON.parse(localStorage.getItem('akkad_cart') || '[]');
         let currentProduct = null;
         let currentProductVideo = '';
@@ -1115,169 +855,148 @@
             if(saved === 'light') {
                 document.body.classList.add('light-mode');
                 document.getElementById('themeIcon').className = 'fas fa-moon';
-            } else {
-                document.getElementById('themeIcon').className = 'fas fa-sun';
             }
         }
         
-        function shareStore() {
-            if(navigator.share) {
-                navigator.share({
-                    title: 'AKKAD STORE',
-                    text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي',
-                    url: window.location.href
-                }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                showToast('✅ تم نسخ رابط المتجر');
-            }
+        // ========== تحميل الإعدادات من Firebase (Full Control) ==========
+        function loadAppearance() {
+            db.ref('appearance').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                appearance = data;
+                
+                // تحديث الشعار
+                if(data.storeLogo) document.getElementById('storeLogo').src = data.storeLogo;
+                
+                // تحديث اسم المتجر
+                document.getElementById('storeName').textContent = data.storeName || 'AKKAD';
+                document.getElementById('infoStoreName').textContent = data.storeName || 'متجر أكاد الرقمي';
+                
+                // تحديث النص الثانوي
+                if(data.storeSubtitle) document.getElementById('storeSubtitle').textContent = data.storeSubtitle;
+                
+                // تحديث النص العلوي (شريط أخضر)
+                if(data.topBarText) {
+                    document.getElementById('topBar').innerHTML = `<i class="fas fa-truck ml-2"></i> ${data.topBarText}`;
+                }
+                
+                // تحديث عنوان ونص الهيرو
+                if(data.heroTitle) document.getElementById('heroTitle').textContent = data.heroTitle;
+                if(data.heroSubtitle) document.getElementById('heroSubtitle').textContent = data.heroSubtitle;
+                
+                // تحديث الألوان
+                if(data.primaryColor) {
+                    document.documentElement.style.setProperty('--netflix-red', data.primaryColor);
+                }
+                if(data.bgDarkColor) {
+                    document.documentElement.style.setProperty('--netflix-bg', data.bgDarkColor);
+                }
+                if(data.bgLightColor && document.body.classList.contains('light-mode')) {
+                    document.documentElement.style.setProperty('--netflix-bg', data.bgLightColor);
+                }
+                
+                // تحديث رقم الواتساب
+                if(data.whatsappNumber) {
+                    const whatsappNumber = data.whatsappNumber.replace(/[^0-9]/g, '');
+                    document.getElementById('footerWhatsapp').textContent = data.whatsappNumber;
+                    document.getElementById('infoWhatsapp').textContent = data.whatsappNumber;
+                }
+                
+                // تحديث روابط التواصل الاجتماعي
+                updateSocialLinks(data);
+            });
         }
         
-        function showToast(msg, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-1"></i> ${msg}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function updateSocialLinks(data) {
+            const footerSocial = document.getElementById('footerSocial');
+            if(!footerSocial) return;
+            
+            let html = '';
+            if(data.whatsappNumber) html += `<a href="https://wa.me/${data.whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>`;
+            if(data.facebook) html += `<a href="${data.facebook}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>`;
+            if(data.instagram) html += `<a href="${data.instagram}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>`;
+            if(data.telegram) html += `<a href="${data.telegram}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>`;
+            if(data.tiktok) html += `<a href="${data.tiktok}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-tiktok"></i></a>`;
+            if(data.twitter) html += `<a href="${data.twitter}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-twitter"></i></a>`;
+            
+            if(html) footerSocial.innerHTML = html;
         }
         
-        function escapeHtml(text) {
-            if(!text) return '';
-            return String(text).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-        }
-        
-        function formatPrice(price) {
-            if(!price || price === 'اتصل بنا') return 'اتصل بنا';
-            let num = parseFloat(price);
-            if(!isNaN(num) && price.toString() === num.toString()) {
-                return num.toLocaleString('ar-IQ') + ' د.ع';
-            }
-            return price;
-        }
-        
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-            document.body.style.overflow = 'auto';
-            if(id === 'videoModal') document.getElementById('videoFrame').src = '';
-        }
-        
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function showInfo() { openModal('infoModal'); }
-        
-        function filterCategory(cat) {
-            currentCategory = cat;
-            renderCategories();
-            filterAndRender();
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('active');
-                if(item.getAttribute('data-cat') === cat || (cat === 'all' && item.getAttribute('data-cat') === 'all')) {
-                    item.classList.add('active');
+        // تحميل طرق الدفع من قاعدة البيانات
+        function loadPaymentMethods() {
+            db.ref('paymentMethods').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                const methods = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                const sorted = methods.sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                const container = document.getElementById('paymentMethodsContainer');
+                if(container && sorted.length > 0) {
+                    container.innerHTML = sorted.map((method, index) => `
+                        <div class="payment-method-item" title="${escapeHtml(method.number || '')}">
+                            <i class="${method.icon}"></i>
+                            <span>${escapeHtml(method.name)}</span>
+                            ${method.number ? `<small class="text-xs opacity-70 mr-1">${escapeHtml(method.number)}</small>` : ''}
+                        </div>
+                        ${index < sorted.length - 1 ? '<div class="payment-separator"></div>' : ''}
+                    `).join('');
                 }
             });
         }
         
-        function renderCategories() {
-            const container = document.getElementById('categoriesList');
-            const sorted = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
-            container.innerHTML = sorted.map(cat => `
-                <div class="category-item" data-cat="${escapeHtml(cat.name)}" onclick="filterCategory('${escapeHtml(cat.name)}')">
-                    📁 ${escapeHtml(cat.name)}
-                </div>
-            `).join('');
-        }
-        
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        function loadSettings() {
-            db.ref('settings').on('value', (snapshot) => {
-                const settingsData = snapshot.val() || {};
-                const facebookLink = settingsData.facebook || '#';
-                const instagramLink = settingsData.instagram || '#';
-                const telegramLink = settingsData.telegram || '#';
-                const whatsappNumber = settingsData.whatsappNumber || '9647730492020';
-                const storeLogo = settingsData.storeLogo || '';
-                const storeName = settingsData.storeName || 'AKKAD';
-                
-                if(storeLogo) document.getElementById('storeLogo').src = storeLogo;
-                document.getElementById('storeName').textContent = storeName;
-                document.getElementById('footerWhatsapp').textContent = whatsappNumber;
-                document.getElementById('infoWhatsapp').textContent = whatsappNumber;
-                
-                const footerSocial = document.getElementById('footerSocial');
-                if(footerSocial) {
-                    footerSocial.innerHTML = `
-                        <a href="https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>
-                        <a href="${facebookLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>
-                        <a href="${instagramLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>
-                        <a href="${telegramLink}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>
-                    `;
-                }
-            });
-        }
-        
+        // تحميل روابط الفوتر
         function loadFooterLinks() {
             db.ref('footerLinks').on('value', (snapshot) => {
                 const links = snapshot.val() || {};
-                const linkMapping = {
-                    about: 'footerLink_about',
-                    jobs: 'footerLink_jobs',
-                    blog: 'footerLink_blog',
-                    help: 'footerLink_help',
-                    shipping: 'footerLink_shipping',
-                    returns: 'footerLink_returns',
-                    terms: 'footerLink_terms',
-                    privacy: 'footerLink_privacy'
-                };
-                for(const [key, elementId] of Object.entries(linkMapping)) {
-                    const link = links[key];
-                    if(link && link !== '#') {
-                        const element = document.getElementById(elementId);
-                        if(element) {
-                            element.href = link;
-                            element.target = '_blank';
-                            element.onclick = null;
-                        }
+                const linkElements = ['about', 'jobs', 'blog', 'help', 'shipping', 'returns', 'terms', 'privacy'];
+                linkElements.forEach(link => {
+                    const element = document.getElementById(`footerLink_${link}`);
+                    const url = links[link];
+                    if(element && url && url !== '#') {
+                        element.href = url;
+                        element.target = '_blank';
+                        element.onclick = null;
                     }
-                }
+                });
             });
         }
         
-        function openVideoDirect(url) {
-            let videoId = url;
-            if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
-            else if(url.includes('youtu.be/')) videoId = url.split('/').pop();
-            if(videoId) {
-                document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                openModal('videoModal');
-            }
-        }
-        
-        function openVideo() {
-            if(currentProductVideo) openVideoDirect(currentProductVideo);
-        }
-        
-        async function loadData() {
-            db.ref('products').on('value', (snapshot) => {
-                const data = snapshot.val() || {};
-                products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-                filterAndRender();
-            });
-            
+        // Categories
+        async function loadCategories() {
             db.ref('categories').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
                 renderCategories();
                 filterAndRender();
             });
-            
-            loadSettings();
-            loadFooterLinks();
+        }
+        
+        function renderCategories() {
+            const container = document.getElementById('categoriesList');
+            const sorted = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
+            container.innerHTML = sorted.map(cat => `<div class="category-item" data-cat="${escapeHtml(cat.name)}" onclick="filterCategory('${escapeHtml(cat.name)}')">📁 ${escapeHtml(cat.name)}</div>`).join('');
+        }
+        
+        function filterCategory(cat) {
+            currentCategory = cat;
+            renderCategoriesActive();
+            filterAndRender();
+        }
+        
+        function renderCategoriesActive() {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.getAttribute('data-cat') === currentCategory || (currentCategory === 'all' && item.getAttribute('data-cat') === 'all')) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Products
+        async function loadProducts() {
+            db.ref('products').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+                filterAndRender();
+            });
         }
         
         function filterAndRender() {
@@ -1285,12 +1004,6 @@
             if(currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
             if(searchQuery) filtered = filtered.filter(p => p.name?.toLowerCase().includes(searchQuery) || p.description?.toLowerCase().includes(searchQuery));
             renderProducts(filtered);
-        }
-        
-        function getRandomBadge() {
-            const badges = ['hot', 'new', 'sale'];
-            const random = Math.floor(Math.random() * badges.length);
-            return badges[random];
         }
         
         function renderProducts(productsList) {
@@ -1302,269 +1015,106 @@
             grid.innerHTML = productsList.map(p => {
                 const hasVideo = p.video && p.video.trim().length > 5;
                 const badge = getRandomBadge();
-                const badgeHtml = badge === 'hot' ? '<div class="badge-hot">الأكثر مشاهدة</div>' : 
-                                 badge === 'new' ? '<div class="badge-new">جديد</div>' : 
-                                 '<div class="badge-sale">خصم خاص</div>';
+                const badgeHtml = badge === 'hot' ? '<div class="badge-hot">الأكثر مشاهدة</div>' : badge === 'new' ? '<div class="badge-new">جديد</div>' : '<div class="badge-sale">خصم خاص</div>';
                 return `
                     <div class="product-card" onclick="showProduct('${p.id}')">
                         ${badgeHtml}
                         <div class="relative product-img-container">
                             <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
-                            ${hasVideo ? `
-                                <div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
-                                    <div class="play-btn-circle">
-                                        <i class="fas fa-play"></i>
-                                    </div>
-                                </div>
-                                <div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')">
-                                    <i class="fas fa-play"></i>
-                                    <span>تشغيل</span>
-                                </div>
-                            ` : ''}
+                            ${hasVideo ? `<div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><div class="play-btn-circle"><i class="fas fa-play"></i></div></div><div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><i class="fas fa-play"></i><span>تشغيل</span></div>` : ''}
                         </div>
                         <div class="product-title">${escapeHtml(p.name)}</div>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                            <span class="text-xs" style="color: var(--netflix-text-light);">(4.5)</span>
-                        </div>
-                        <div class="product-price">
-                            ${formatPrice(p.price)}
-                            ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}
-                        </div>
-                        <div class="flex gap-2 mt-2">
-                            <button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-xs py-1.5"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button>
-                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-xs py-1.5"><i class="fas fa-shopping-bag ml-1"></i> شراء</button>
-                        </div>
+                        <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><span class="text-xs" style="color: var(--netflix-text-light);">(4.5)</span></div>
+                        <div class="product-price">${formatPrice(p.price)}${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}</div>
+                        <div class="flex gap-2 mt-2"><button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-xs py-1.5"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button><button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-xs py-1.5"><i class="fas fa-shopping-bag ml-1"></i> شراء</button></div>
                         <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-xs py-1.5 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
                     </div>
                 `;
             }).join('');
         }
         
-        function searchProducts() {
-            searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            filterAndRender();
-        }
+        function getRandomBadge() { const badges = ['hot', 'new', 'sale']; return badges[Math.floor(Math.random() * badges.length)]; }
+        function formatPrice(price) { if(!price || price === 'اتصل بنا') return 'اتصل بنا'; let num = parseFloat(price); if(!isNaN(num) && price.toString() === num.toString()) return num.toLocaleString('ar-IQ') + ' د.ع'; return price; }
+        function escapeHtml(text) { if(!text) return ''; return String(text).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
         
-        function scrollToProducts() {
-            document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        function searchProducts() { searchQuery = document.getElementById('searchInput').value.toLowerCase(); filterAndRender(); }
+        function scrollToProducts() { document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         
-        function updateCartUI() {
-            const count = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cartCount').textContent = count;
-            localStorage.setItem('akkad_cart', JSON.stringify(cart));
-        }
+        function showToast(msg, isError = false) { const toast = document.createElement('div'); toast.className = `toast ${isError ? 'error' : ''}`; toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-1"></i> ${msg}`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+        function shareStore() { if(navigator.share) { navigator.share({ title: 'AKKAD STORE', text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي', url: window.location.href }).catch(() => {}); } else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } }
+        function showInfo() { openModal('infoModal'); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; if(id === 'videoModal') document.getElementById('videoFrame').src = ''; }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
         
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if(!product) return;
-            const existing = cart.find(i => i.id === productId);
-            if(existing) existing.qty++;
-            else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
-            updateCartUI();
-            showToast(`✅ تم إضافة ${product.name} للسلة`);
-        }
+        // Video Functions
+        function openVideoDirect(url) { let videoId = url; if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0]; else if(url.includes('youtu.be/')) videoId = url.split('/').pop(); if(videoId) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; openModal('videoModal'); } }
+        function openVideo() { if(currentProductVideo) openVideoDirect(currentProductVideo); }
         
-        function addToCartFromModal() {
-            if(currentProduct) addToCart(currentProduct.id);
-        }
-        
-        function removeFromCart(productId) {
-            cart = cart.filter(i => i.id !== productId);
-            updateCartUI();
-            renderCart();
-        }
-        
-        function updateQty(productId, delta) {
-            const item = cart.find(i => i.id === productId);
-            if(item) {
-                item.qty += delta;
-                if(item.qty <= 0) removeFromCart(productId);
-                else updateCartUI();
-                renderCart();
-            }
-        }
-        
-        function clearCart() {
-            if(confirm('هل تريد تفريغ السلة؟')) {
-                cart = [];
-                updateCartUI();
-                renderCart();
-                showToast('🗑️ تم تفريغ السلة');
-            }
-        }
-        
-        function renderCart() {
-            const container = document.getElementById('cartItems');
-            const totalContainer = document.getElementById('cartTotal');
-            if(cart.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-400 py-6">السلة فارغة</div>';
-                totalContainer.innerHTML = '';
-                return;
-            }
-            let total = 0;
-            container.innerHTML = cart.map(item => {
-                let priceNum = parseFloat(item.price);
-                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
-                total += itemTotal;
-                return `
-                    <div class="flex gap-2 items-center mb-2 p-2 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);">
-                        <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover">
-                        <div class="flex-1">
-                            <h4 class="font-medium text-sm">${escapeHtml(item.name)}</h4>
-                            <p class="text-xs" style="color: var(--netflix-red);">${formatPrice(item.price)}</p>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">-</button>
-                            <span class="w-5 text-center text-xs">${item.qty}</span>
-                            <button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">+</button>
-                        </div>
-                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition text-xs"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                `;
-            }).join('');
-            totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-xs">المجموع:</span><span class="text-base font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
-        }
-        
-        function openCart() {
-            renderCart();
-            openModal('cartModal');
-        }
-        
-        function checkout() {
-            if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; }
-            closeModal('cartModal');
-            renderOrderSummary();
-            openModal('orderModal');
-        }
-        
-        function renderOrderSummary() {
-            let total = 0;
-            let itemsHtml = cart.map(item => {
-                let priceNum = parseFloat(item.price);
-                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
-                total += itemTotal;
-                return `<div class="order-summary-item text-xs"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
-            }).join('');
-            document.getElementById('orderSummary').innerHTML = `
-                <div class="font-medium mb-2 text-sm">📦 تفاصيل الطلب</div>
-                ${itemsHtml}
-                <div class="order-summary-item font-bold">
-                    <span>الإجمالي:</span>
-                    <span style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span>
-                </div>
-            `;
-        }
+        // Cart Functions
+        function updateCartUI() { const count = cart.reduce((s, i) => s + i.qty, 0); document.getElementById('cartCount').textContent = count; localStorage.setItem('akkad_cart', JSON.stringify(cart)); }
+        function addToCart(productId) { const product = products.find(p => p.id === productId); if(!product) return; const existing = cart.find(i => i.id === productId); if(existing) existing.qty++; else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 }); updateCartUI(); showToast(`✅ تم إضافة ${product.name} للسلة`); }
+        function addToCartFromModal() { if(currentProduct) addToCart(currentProduct.id); }
+        function removeFromCart(productId) { cart = cart.filter(i => i.id !== productId); updateCartUI(); renderCart(); }
+        function updateQty(productId, delta) { const item = cart.find(i => i.id === productId); if(item) { item.qty += delta; if(item.qty <= 0) removeFromCart(productId); else updateCartUI(); renderCart(); } }
+        function clearCart() { if(confirm('هل تريد تفريغ السلة؟')) { cart = []; updateCartUI(); renderCart(); showToast('🗑️ تم تفريغ السلة'); } }
+        function renderCart() { const container = document.getElementById('cartItems'); const totalContainer = document.getElementById('cartTotal'); if(cart.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 py-6">السلة فارغة</div>'; totalContainer.innerHTML = ''; return; } let total = 0; container.innerHTML = cart.map(item => { let priceNum = parseFloat(item.price); let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0; total += itemTotal; return `<div class="flex gap-2 items-center mb-2 p-2 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);"><img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover"><div class="flex-1"><h4 class="font-medium text-sm">${escapeHtml(item.name)}</h4><p class="text-xs" style="color: var(--netflix-red);">${formatPrice(item.price)}</p></div><div class="flex items-center gap-1"><button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">-</button><span class="w-5 text-center text-xs">${item.qty}</span><button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">+</button></div><button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition text-xs"><i class="fas fa-trash-alt"></i></button></div>`; }).join(''); totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-xs">المجموع:</span><span class="text-base font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`; }
+        function openCart() { renderCart(); openModal('cartModal'); }
+        function checkout() { if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; } closeModal('cartModal'); renderOrderSummary(); openModal('orderModal'); }
+        function renderOrderSummary() { let total = 0; let itemsHtml = cart.map(item => { let priceNum = parseFloat(item.price); let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0; total += itemTotal; return `<div class="order-summary-item text-xs"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`; }).join(''); document.getElementById('orderSummary').innerHTML = `<div class="font-medium mb-2 text-sm">📦 تفاصيل الطلب</div>${itemsHtml}<div class="order-summary-item font-bold"><span>الإجمالي:</span><span style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`; }
         
         async function submitOrder(e) {
             e.preventDefault();
-            let whatsappNumber = '9647730492020';
-            const settingsSnap = await db.ref('settings').once('value');
-            const settingsData = settingsSnap.val() || {};
-            whatsappNumber = settingsData.whatsappNumber || '9647730492020';
-            
-            const orderData = {
-                customerName: document.getElementById('custName').value.trim(),
-                customerPhone: document.getElementById('custPhone').value.trim(),
-                customerCity: document.getElementById('custCity').value,
-                customerDistrict: document.getElementById('custDistrict').value.trim(),
-                customerLandmark: document.getElementById('custLandmark').value.trim(),
-                items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
-                total: cart.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0),
-                status: 'جديد',
-                createdAt: Date.now()
-            };
-            
-            if(!orderData.customerName || !orderData.customerPhone || !orderData.customerCity || !orderData.customerDistrict) {
-                showToast('⚠️ الرجاء تعبئة جميع الحقول', true);
-                return;
-            }
-            
+            let whatsappNumber = appearance.whatsappNumber || '9647730492020';
+            const orderData = { customerName: document.getElementById('custName').value.trim(), customerPhone: document.getElementById('custPhone').value.trim(), customerCity: document.getElementById('custCity').value, customerDistrict: document.getElementById('custDistrict').value.trim(), customerLandmark: document.getElementById('custLandmark').value.trim(), items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })), total: cart.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0), status: 'جديد', createdAt: Date.now() };
+            if(!orderData.customerName || !orderData.customerPhone || !orderData.customerCity || !orderData.customerDistrict) { showToast('⚠️ الرجاء تعبئة جميع الحقول', true); return; }
             await db.ref('orders').push(orderData);
-            
             let msg = `🏛️ طلب جديد - متجر أكاد\n━━━━━━━━━━━━━━━\n👤 ${orderData.customerName}\n📞 ${orderData.customerPhone}\n📍 ${orderData.customerCity} - ${orderData.customerDistrict}\n${orderData.customerLandmark ? `🗿 ${orderData.customerLandmark}\n` : ''}━━━━━━━━━━━━━━━\n📦 المنتجات:\n`;
-            orderData.items.forEach(i => msg += `• ${i.name} × ${i.qty}\n`);
-            msg += `━━━━━━━━━━━━━━━\n💰 المجموع: ${orderData.total.toLocaleString('ar-IQ')} د.ع`;
-            
+            orderData.items.forEach(i => msg += `• ${i.name} × ${i.qty}\n`); msg += `━━━━━━━━━━━━━━━\n💰 المجموع: ${orderData.total.toLocaleString('ar-IQ')} د.ع`;
             window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
-            
-            cart = [];
-            updateCartUI();
-            closeModal('orderModal');
-            showToast('✅ تم إرسال طلبك بنجاح');
-            document.getElementById('orderForm').reset();
+            cart = []; updateCartUI(); closeModal('orderModal'); showToast('✅ تم إرسال طلبك بنجاح'); document.getElementById('orderForm').reset();
         }
         
-        function quickOrder(productId) {
-            const product = products.find(p => p.id === productId);
-            if(product) {
-                cart = [{ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 }];
-                updateCartUI();
-                renderOrderSummary();
-                openModal('orderModal');
-            }
-        }
+        function quickOrder(productId) { const product = products.find(p => p.id === productId); if(product) { cart = [{ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 }]; updateCartUI(); renderOrderSummary(); openModal('orderModal'); } }
         
         async function showProduct(productId) {
             const product = products.find(p => p.id === productId);
             if(!product) return;
-            currentProduct = product;
-            currentProductVideo = product.video || '';
-            
+            currentProduct = product; currentProductVideo = product.video || '';
             document.getElementById('modalTitle').textContent = product.name;
             document.getElementById('modalImage').src = product.image || 'https://via.placeholder.com/300';
             document.getElementById('modalDesc').textContent = product.description || 'لا يوجد وصف';
-            
             const videoBtn = document.getElementById('modalVideoBtn');
-            if(currentProductVideo && currentProductVideo.trim().length > 5) {
-                videoBtn.classList.remove('hidden');
-            } else {
-                videoBtn.classList.add('hidden');
-            }
-            
+            if(currentProductVideo && currentProductVideo.trim().length > 5) videoBtn.classList.remove('hidden'); else videoBtn.classList.add('hidden');
             const specsContainer = document.getElementById('modalSpecs');
-            if(product.specs && Object.keys(product.specs).length > 0) {
-                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-1 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
-            } else {
-                specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
-            }
+            if(product.specs && Object.keys(product.specs).length > 0) { specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-1 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join(''); }
+            else specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
             openModal('productModal');
         }
         
-        function orderNow() {
-            if(currentProduct) {
-                cart = [{ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image, qty: 1 }];
-                updateCartUI();
-                closeModal('productModal');
-                renderOrderSummary();
-                openModal('orderModal');
-            }
+        function orderNow() { if(currentProduct) { cart = [{ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: currentProduct.image, qty: 1 }]; updateCartUI(); closeModal('productModal'); renderOrderSummary(); openModal('orderModal'); } }
+        
+        // Initialize
+        function init() {
+            applySavedTheme();
+            loadAppearance();
+            loadPaymentMethods();
+            loadFooterLinks();
+            loadCategories();
+            loadProducts();
+            updateCartUI();
+            
+            window.addEventListener('scroll', () => {
+                const scrollBtn = document.getElementById('scrollTop');
+                if(window.scrollY > 300) scrollBtn.classList.add('show');
+                else scrollBtn.classList.remove('show');
+                const header = document.getElementById('mainHeader');
+                if(window.scrollY > 50) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            });
         }
         
-        // Scroll to top button visibility
-        window.addEventListener('scroll', () => {
-            const scrollBtn = document.getElementById('scrollTop');
-            if(window.scrollY > 300) {
-                scrollBtn.classList.add('show');
-            } else {
-                scrollBtn.classList.remove('show');
-            }
-        });
-        
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if(window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-        
-        applySavedTheme();
-        loadData();
-        updateCartUI();
+        init();
     </script>
 </body>
 </html>
