@@ -169,7 +169,6 @@
         .category-item:hover { background: rgba(229,9,20,0.2); color: var(--netflix-text); transform: translateY(-2px); }
         .category-item.active { background: linear-gradient(135deg, var(--netflix-red), #ff4d4d); color: white; }
         
-        /* شريط طرق الدفع */
         .payment-methods-row {
             background: rgba(0,0,0,0.3);
             backdrop-filter: blur(8px);
@@ -213,7 +212,6 @@
             .payment-method-item i { font-size: 14px; }
         }
         
-        /* مودال عرض الباركود وطريقة الدفع */
         .payment-modal {
             display: none;
             position: fixed;
@@ -624,10 +622,9 @@
         </div>
     </header>
 
-    <!-- شريط طرق الدفع - ماستركارد وزين كاش -->
     <div class="payment-methods-row">
         <div class="container mx-auto px-3">
-            <div class="payment-methods-container">
+            <div class="payment-methods-container" id="paymentMethodsContainer">
                 <div class="payment-method-item" onclick="showPaymentMethod('mastercard')">
                     <i class="fab fa-cc-mastercard text-orange-500"></i>
                     <span>ماستركارد</span>
@@ -640,28 +637,16 @@
         </div>
     </div>
 
-    <!-- مودال عرض الباركود - فقط رابط وصورة -->
     <div id="paymentModal" class="payment-modal" onclick="if(event.target===this) closePaymentModal()">
         <div class="payment-modal-content">
             <button class="close-payment-modal" onclick="closePaymentModal()">&times;</button>
             <i class="fas fa-qrcode text-5xl" style="color: var(--netflix-red); margin-bottom: 15px;"></i>
             <h3 class="text-xl font-bold mb-2" id="paymentMethodTitle">ماستركارد</h3>
             <p class="text-sm" style="color: var(--netflix-text-light);">امسح الباركود أو اضغط زر الدفع</p>
-            
-            <div class="qr-code-container" id="qrCodeContainer">
-                <img id="qrCodeImage" src="" alt="باركود الدفع" onerror="this.src='https://via.placeholder.com/180?text=QR+Code'">
-            </div>
-            
-            <div class="payment-link" id="paymentLink">
-                رابط الدفع: <span id="paymentLinkText">........</span>
-            </div>
-            
-            <button class="btn-pay" id="payButton" onclick="processPayment()">
-                <i class="fas fa-credit-card ml-2"></i> ادفع الآن
-            </button>
-            <button class="btn-outline-netflix mt-3 w-full" onclick="copyPaymentLink()">
-                <i class="fas fa-copy ml-2"></i> نسخ رابط الدفع
-            </button>
+            <div class="qr-code-container" id="qrCodeContainer"><img id="qrCodeImage" src="" alt="باركود"></div>
+            <div class="payment-link" id="paymentLink">رابط الدفع: <span id="paymentLinkText"></span></div>
+            <button class="btn-pay" id="payButton" onclick="processPayment()"><i class="fas fa-credit-card ml-2"></i> ادفع الآن</button>
+            <button class="btn-outline-netflix mt-3 w-full" onclick="copyPaymentLink()"><i class="fas fa-copy ml-2"></i> نسخ رابط الدفع</button>
         </div>
     </div>
 
@@ -688,7 +673,7 @@
             <span class="text-xs" style="color: var(--netflix-text-light);">عرض الكل <i class="fas fa-arrow-left mr-1"></i></span>
         </div>
         <div class="grid-custom" id="productsGrid">
-            <!-- سيتم تعبئتها من Firebase -->
+            <div class="product-card text-center py-8"><div class="animate-pulse">جاري التحميل...</div></div>
         </div>
     </div>
 
@@ -781,20 +766,9 @@
         let currentCategory = 'all';
         let searchQuery = '';
         
-        // بيانات طرق الدفع (ثابتة - بدون Firebase)
         const paymentMethodsData = {
-            mastercard: {
-                name: "ماستركارد",
-                icon: "fab fa-cc-mastercard",
-                qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://www.mastercard.com/sa/ar/personal/pay-online.html",
-                link: "https://www.mastercard.com/sa/ar/personal/pay-online.html"
-            },
-            zaincash: {
-                name: "زين كاش",
-                icon: "fas fa-mobile-alt",
-                qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://www.zaincash.iq",
-                link: "https://www.zaincash.iq"
-            }
+            mastercard: { name: "ماستركارد", icon: "fab fa-cc-mastercard", qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://www.mastercard.com/sa/ar/personal/pay-online.html", link: "https://www.mastercard.com/sa/ar/personal/pay-online.html" },
+            zaincash: { name: "زين كاش", icon: "fas fa-mobile-alt", qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://www.zaincash.iq", link: "https://www.zaincash.iq" }
         };
         
         // Theme Functions
@@ -818,15 +792,71 @@
             }
         }
         
+        // ========== تحميل الشعار والإعدادات من Firebase ==========
+        function loadAppearance() {
+            db.ref('appearance').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                
+                // تحديث الشعار - هذا هو الجزء المهم
+                if(data.storeLogo && data.storeLogo !== '') {
+                    const logoImg = document.getElementById('storeLogo');
+                    if(logoImg) {
+                        logoImg.src = data.storeLogo;
+                        logoImg.onerror = function() {
+                            this.src = 'https://via.placeholder.com/45';
+                        };
+                    }
+                }
+                
+                // تحديث اسم المتجر
+                if(data.storeName) {
+                    document.getElementById('storeName').textContent = data.storeName;
+                }
+                
+                // تحديث النص الثانوي
+                if(data.storeSubtitle) {
+                    document.getElementById('storeSubtitle').textContent = data.storeSubtitle;
+                }
+                
+                // تحديث النص العلوي
+                if(data.topBarText) {
+                    document.getElementById('topBar').innerHTML = `<i class="fas fa-truck ml-2"></i> ${data.topBarText}`;
+                }
+                
+                // تحديث اللون الأساسي
+                if(data.primaryColor) {
+                    document.documentElement.style.setProperty('--netflix-red', data.primaryColor);
+                }
+                
+                // تحديث رقم الواتساب
+                if(data.whatsappNumber) {
+                    document.getElementById('footerWhatsapp').textContent = data.whatsappNumber;
+                    document.getElementById('infoWhatsapp').textContent = data.whatsappNumber;
+                }
+                
+                // تحديث روابط التواصل
+                updateSocialLinks(data);
+            });
+        }
+        
+        function updateSocialLinks(data) {
+            const container = document.getElementById('footerSocial');
+            if(!container) return;
+            let html = '';
+            if(data.whatsappNumber) html += `<a href="https://wa.me/${data.whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-whatsapp"></i></a>`;
+            if(data.facebook) html += `<a href="${data.facebook}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-facebook"></i></a>`;
+            if(data.instagram) html += `<a href="${data.instagram}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-instagram"></i></a>`;
+            if(data.telegram) html += `<a href="${data.telegram}" target="_blank" class="w-8 h-8 rounded-lg bg-netflix-red/20 flex items-center justify-center hover:bg-netflix-red transition"><i class="fab fa-telegram"></i></a>`;
+            if(html) container.innerHTML = html;
+        }
+        
         // طرق الدفع
         function showPaymentMethod(methodKey) {
             const method = paymentMethodsData[methodKey];
             if(!method) return;
-            
             document.getElementById('paymentMethodTitle').textContent = method.name;
             document.getElementById('paymentLinkText').textContent = method.link;
             document.getElementById('qrCodeImage').src = method.qrCode;
-            
             document.getElementById('paymentModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -838,31 +868,24 @@
         
         function processPayment() {
             const link = document.getElementById('paymentLinkText').textContent;
-            if(link && link !== '#' && link !== '........') {
-                window.open(link, '_blank');
-            } else {
-                showToast('⚠️ لا يوجد رابط دفع', true);
-            }
+            if(link && link !== '#') window.open(link, '_blank');
+            else showToast('⚠️ لا يوجد رابط دفع', true);
         }
         
         function copyPaymentLink() {
             const link = document.getElementById('paymentLinkText').textContent;
-            if(link && link !== '#' && link !== '........') {
-                navigator.clipboard.writeText(link);
-                showToast('✅ تم نسخ رابط الدفع');
-            } else {
-                showToast('⚠️ لا يوجد رابط للنسخ', true);
-            }
+            if(link && link !== '#') { navigator.clipboard.writeText(link); showToast('✅ تم نسخ رابط الدفع'); }
+            else showToast('⚠️ لا يوجد رابط للنسخ', true);
         }
         
         // Categories
         function loadCategories() {
-            db.ref('categories').once('value', (snapshot) => {
+            db.ref('categories').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 categories = Object.entries(data).map(([id, val]) => ({ id, name: val.name, order: val.order || 999 }));
                 renderCategories();
                 filterAndRender();
-            }).catch(err => console.log("خطأ في تحميل الأقسام:", err));
+            });
         }
         
         function renderCategories() {
@@ -875,20 +898,18 @@
             currentCategory = cat;
             document.querySelectorAll('.category-item').forEach(item => {
                 item.classList.remove('active');
-                if(item.getAttribute('data-cat') === cat || (cat === 'all' && item.getAttribute('data-cat') === 'all')) {
-                    item.classList.add('active');
-                }
+                if(item.getAttribute('data-cat') === cat || (cat === 'all' && item.getAttribute('data-cat') === 'all')) item.classList.add('active');
             });
             filterAndRender();
         }
         
         // Products
         function loadProducts() {
-            db.ref('products').once('value', (snapshot) => {
+            db.ref('products').on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 products = Object.entries(data).map(([id, val]) => ({ id, ...val }));
                 filterAndRender();
-            }).catch(err => console.log("خطأ في تحميل المنتجات:", err));
+            });
         }
         
         function filterAndRender() {
@@ -900,74 +921,29 @@
         
         function renderProducts(productsList) {
             const grid = document.getElementById('productsGrid');
-            if(productsList.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>';
-                return;
-            }
+            if(productsList.length === 0) { grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>'; return; }
             grid.innerHTML = productsList.map(p => {
                 const hasVideo = p.video && p.video.trim().length > 5;
                 const badge = ['hot', 'new', 'sale'][Math.floor(Math.random() * 3)];
                 const badgeHtml = badge === 'hot' ? '<div class="badge-hot">الأكثر مشاهدة</div>' : badge === 'new' ? '<div class="badge-new">جديد</div>' : '<div class="badge-sale">خصم خاص</div>';
-                return `
-                    <div class="product-card" onclick="showProduct('${p.id}')">
-                        ${badgeHtml}
-                        <div class="relative product-img-container">
-                            <img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">
-                            ${hasVideo ? `<div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><div class="play-btn-circle"><i class="fas fa-play"></i></div></div><div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><i class="fas fa-play"></i><span>تشغيل</span></div>` : ''}
-                        </div>
-                        <div class="product-title">${escapeHtml(p.name)}</div>
-                        <div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><span class="text-xs" style="color: var(--netflix-text-light);">(4.5)</span></div>
-                        <div class="product-price">${formatPrice(p.price)}${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}</div>
-                        <div class="flex gap-2 mt-2"><button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-xs py-1.5"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button><button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-xs py-1.5"><i class="fas fa-shopping-bag ml-1"></i> شراء</button></div>
-                        <button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-xs py-1.5 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button>
-                    </div>
-                `;
+                return `<div class="product-card" onclick="showProduct('${p.id}')">${badgeHtml}<div class="relative product-img-container"><img src="${p.image || 'https://via.placeholder.com/200'}" class="product-img" onerror="this.src='https://via.placeholder.com/200'">${hasVideo ? `<div class="video-overlay" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><div class="play-btn-circle"><i class="fas fa-play"></i></div></div><div class="video-badge" onclick="event.stopPropagation(); openVideoDirect('${escapeHtml(p.video)}')"><i class="fas fa-play"></i><span>تشغيل</span></div>` : ''}</div><div class="product-title">${escapeHtml(p.name)}</div><div class="product-rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><span class="text-xs" style="color: var(--netflix-text-light);">(4.5)</span></div><div class="product-price">${formatPrice(p.price)}${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} د.ع</span>` : ''}</div><div class="flex gap-2 mt-2"><button onclick="event.stopPropagation(); showProduct('${p.id}')" class="flex-1 btn-outline-netflix text-xs py-1.5"><i class="fas fa-info-circle ml-1"></i> تفاصيل</button><button onclick="event.stopPropagation(); addToCart('${p.id}')" class="flex-1 btn-netflix text-xs py-1.5"><i class="fas fa-shopping-bag ml-1"></i> شراء</button></div><button onclick="event.stopPropagation(); quickOrder('${p.id}')" class="w-full btn-whatsapp-netflix text-xs py-1.5 mt-2"><i class="fab fa-whatsapp ml-1"></i> طلب سريع</button></div>`;
             }).join('');
         }
         
-        function formatPrice(price) {
-            if(!price || price === 'اتصل بنا') return 'اتصل بنا';
-            let num = parseFloat(price);
-            if(!isNaN(num) && price.toString() === num.toString()) return num.toLocaleString('ar-IQ') + ' د.ع';
-            return price;
-        }
-        
-        function escapeHtml(text) {
-            if(!text) return '';
-            return String(text).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-        }
+        function formatPrice(price) { if(!price || price === 'اتصل بنا') return 'اتصل بنا'; let num = parseFloat(price); if(!isNaN(num) && price.toString() === num.toString()) return num.toLocaleString('ar-IQ') + ' د.ع'; return price; }
+        function escapeHtml(text) { if(!text) return ''; return String(text).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
         
         function searchProducts() { searchQuery = document.getElementById('searchInput').value.toLowerCase(); filterAndRender(); }
         function scrollToProducts() { document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
         
-        function showToast(msg, isError = false) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-1"></i> ${msg}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-        
-        function shareStore() {
-            if(navigator.share) {
-                navigator.share({ title: 'AKKAD STORE', text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي', url: window.location.href }).catch(() => {});
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                showToast('✅ تم نسخ رابط المتجر');
-            }
-        }
-        
+        function showToast(msg, isError = false) { const toast = document.createElement('div'); toast.className = `toast ${isError ? 'error' : ''}`; toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'} ml-1"></i> ${msg}`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+        function shareStore() { if(navigator.share) { navigator.share({ title: 'AKKAD STORE', text: 'تسوق أفضل الأجهزة من متجر أكاد الرقمي', url: window.location.href }).catch(() => {}); } else { navigator.clipboard.writeText(window.location.href); showToast('✅ تم نسخ رابط المتجر'); } }
         function showInfo() { openModal('infoModal'); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; if(id === 'videoModal') document.getElementById('videoFrame').src = ''; }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
         
-        function openVideoDirect(url) {
-            let videoId = url;
-            if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
-            else if(url.includes('youtu.be/')) videoId = url.split('/').pop();
-            if(videoId) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; openModal('videoModal'); }
-        }
+        function openVideoDirect(url) { let videoId = url; if(url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0]; else if(url.includes('youtu.be/')) videoId = url.split('/').pop(); if(videoId) { document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`; openModal('videoModal'); } }
         function openVideo() { if(currentProductVideo) openVideoDirect(currentProductVideo); }
         
         // Cart Functions
@@ -983,32 +959,16 @@
             const totalContainer = document.getElementById('cartTotal');
             if(cart.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 py-6">السلة فارغة</div>'; totalContainer.innerHTML = ''; return; }
             let total = 0;
-            container.innerHTML = cart.map(item => {
-                let priceNum = parseFloat(item.price);
-                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
-                total += itemTotal;
-                return `<div class="flex gap-2 items-center mb-2 p-2 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);"><img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover"><div class="flex-1"><h4 class="font-medium text-sm">${escapeHtml(item.name)}</h4><p class="text-xs" style="color: var(--netflix-red);">${formatPrice(item.price)}</p></div><div class="flex items-center gap-1"><button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">-</button><span class="w-5 text-center text-xs">${item.qty}</span><button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">+</button></div><button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition text-xs"><i class="fas fa-trash-alt"></i></button></div>`;
-            }).join('');
+            container.innerHTML = cart.map(item => { let priceNum = parseFloat(item.price); let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0; total += itemTotal; return `<div class="flex gap-2 items-center mb-2 p-2 border rounded-lg" style="border-color: var(--netflix-border); background: rgba(255,255,255,0.05);"><img src="${item.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-lg object-cover"><div class="flex-1"><h4 class="font-medium text-sm">${escapeHtml(item.name)}</h4><p class="text-xs" style="color: var(--netflix-red);">${formatPrice(item.price)}</p></div><div class="flex items-center gap-1"><button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">-</button><span class="w-5 text-center text-xs">${item.qty}</span><button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded hover:bg-gray-800 transition text-xs">+</button></div><button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 transition text-xs"><i class="fas fa-trash-alt"></i></button></div>`; }).join('');
             totalContainer.innerHTML = `<div class="flex justify-between items-center pt-2"><span class="text-xs">المجموع:</span><span class="text-base font-bold" style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
         }
         
         function openCart() { renderCart(); openModal('cartModal'); }
-        
-        function checkout() {
-            if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; }
-            closeModal('cartModal');
-            renderOrderSummary();
-            openModal('orderModal');
-        }
+        function checkout() { if(cart.length === 0) { showToast('⚠️ السلة فارغة', true); return; } closeModal('cartModal'); renderOrderSummary(); openModal('orderModal'); }
         
         function renderOrderSummary() {
             let total = 0;
-            let itemsHtml = cart.map(item => {
-                let priceNum = parseFloat(item.price);
-                let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0;
-                total += itemTotal;
-                return `<div class="order-summary-item text-xs"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`;
-            }).join('');
+            let itemsHtml = cart.map(item => { let priceNum = parseFloat(item.price); let itemTotal = !isNaN(priceNum) ? priceNum * item.qty : 0; total += itemTotal; return `<div class="order-summary-item text-xs"><span>${escapeHtml(item.name)} × ${item.qty}</span><span>${!isNaN(priceNum) ? itemTotal.toLocaleString('ar-IQ') + ' د.ع' : formatPrice(item.price)}</span></div>`; }).join('');
             document.getElementById('orderSummary').innerHTML = `<div class="font-medium mb-2 text-sm">📦 تفاصيل الطلب</div>${itemsHtml}<div class="order-summary-item font-bold"><span>الإجمالي:</span><span style="color: var(--netflix-red);">${total.toLocaleString('ar-IQ')} د.ع</span></div>`;
         }
         
@@ -1047,9 +1007,8 @@
             const videoBtn = document.getElementById('modalVideoBtn');
             if(currentProductVideo && currentProductVideo.trim().length > 5) videoBtn.classList.remove('hidden'); else videoBtn.classList.add('hidden');
             const specsContainer = document.getElementById('modalSpecs');
-            if(product.specs && Object.keys(product.specs).length > 0) {
-                specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-1 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join('');
-            } else specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
+            if(product.specs && Object.keys(product.specs).length > 0) { specsContainer.innerHTML = `<div class="font-medium mb-2 text-sm">📋 المواصفات:</div>` + Object.entries(product.specs).map(([k, v]) => `<div class="flex justify-between py-1 border-b last:border-0 text-sm" style="border-color: var(--netflix-border);"><span class="text-gray-400">${escapeHtml(k)}:</span><span>${escapeHtml(v)}</span></div>`).join(''); }
+            else specsContainer.innerHTML = '<p class="text-gray-400 text-sm">لا توجد مواصفات</p>';
             openModal('productModal');
         }
         
@@ -1058,6 +1017,7 @@
         // Initialize
         function init() {
             applySavedTheme();
+            loadAppearance();      // تحميل الشعار والإعدادات
             loadCategories();
             loadProducts();
             updateCartUI();
@@ -1068,14 +1028,6 @@
                 const header = document.getElementById('mainHeader');
                 if(window.scrollY > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
             });
-            
-            // إخفاء شريط التحميل بعد 2 ثانية كحد أقصى
-            setTimeout(() => {
-                const grid = document.getElementById('productsGrid');
-                if(grid && grid.innerHTML === '') {
-                    grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-400">لا توجد منتجات</div>';
-                }
-            }, 3000);
         }
         
         init();
