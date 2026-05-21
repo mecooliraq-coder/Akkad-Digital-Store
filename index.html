@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AKKAD STORE | متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -49,6 +49,11 @@
             transition: all 0.3s ease;
         }
 
+        @supports not (backdrop-filter: blur(12px)) {
+            .card-bg-fallback { background: rgba(17, 25, 45, 0.95) !important; }
+            body.light-mode .card-bg-fallback { background: rgba(255, 255, 255, 0.98) !important; }
+        }
+
         .top-bar {
             background: var(--accent-gradient);
             color: white;
@@ -72,11 +77,7 @@
         .h-flex { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
         .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; background: var(--card-bg); box-shadow: var(--shadow); }
-        .brand { 
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
+        .brand { display: flex; flex-direction: column; line-height: 1.2; }
         .store-name {
             font-size: 1.2rem;
             font-weight: 800;
@@ -371,7 +372,7 @@
         <div class="copyright">© 2024-2026 متجر أكاد الرقمي</div>
     </footer>
 
-    <!-- باقي النوافذ المنبثقة (Modal) بنفس الكود السابق -->
+    <!-- Modals -->
     <div id="prodModal" class="modal" onclick="if(event.target===this)closeModal('prodModal')">
         <div class="modal-box">
             <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
@@ -486,6 +487,7 @@
         let cart = JSON.parse(localStorage.getItem('akkad_cart')||'[]');
         let selectedRating = 0;
         
+        // دالة هروب آمنة من XSS
         function eH(s){return s?String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]):''}
         
         function closeModal(id){const el=document.getElementById(id);el.style.display='none';el.classList.remove('active');document.body.style.overflow=''}
@@ -522,21 +524,25 @@
             document.body.classList.toggle('light-mode');
             const isDark=!document.body.classList.contains('light-mode');
             document.getElementById('themeIcon').className=isDark?'fas fa-moon':'fas fa-sun';
-            localStorage.setItem('akkad_store_theme',isDark?'dark':'light');
+            localStorage.setItem('akkad_theme',isDark?'dark':'light');
         }
         
         function applySavedTheme(){
-            const saved=localStorage.getItem('akkad_store_theme');
+            const saved=localStorage.getItem('akkad_theme');
             if(saved==='light'){ document.body.classList.add('light-mode'); document.getElementById('themeIcon').className='fas fa-sun'; }
         }
         
+        // ✅ دالة تنسيق السعر - تدعم النصوص الحرة والأرقام
         function formatPrice(p){
-            if(!p) return 'اتصل بنا';
+            if(!p || p.trim()==='') return 'اتصل بنا';
             const priceStr = p.toString().trim();
-            if(/^[\d,]+$/.test(priceStr)) {
-                let num = parseFloat(priceStr.replace(/,/g, ''));
-                if(!isNaN(num)) return num.toLocaleString('ar-IQ') + ' د.ع';
+            // إذا كان نصاً غير رقمي (مثل "اتصل بنا"، "سعر خاص")
+            if(isNaN(priceStr.replace(/,/g,'').replace(/\s/g,''))){
+                return priceStr;
             }
+            // إذا كان رقماً
+            let num = parseFloat(priceStr.replace(/,/g, ''));
+            if(!isNaN(num)) return num.toLocaleString('ar-IQ') + ' د.ع';
             return priceStr;
         }
         
@@ -561,7 +567,7 @@
             const c=document.getElementById('cartItems'),f=document.getElementById('cartFoot');
             if(!cart.length){c.innerHTML='<div class="text-center py-8 text-[var(--text-secondary)]">السلة فارغة</div>';f.innerHTML='<button onclick="closeModal(\'cartModal\')" class="w-full p-3 bg-[var(--accent)] text-white rounded-xl">العودة</button>';return;}
             c.innerHTML=cart.map(i=>`<div class="flex items-center gap-3 p-3 bg-[var(--input-bg)] rounded-xl mb-3"><img src="${eH(i.image||'https://placehold.co/60')}" class="w-14 h-14 rounded-lg object-cover"><div class="flex-1"><div class="font-bold">${eH(i.name)}</div><div class="text-[var(--accent)]">${formatPrice(i.price)}</div><div class="flex items-center gap-2 mt-2"><button onclick="changeQty('${i.id}',-1)" class="w-7 h-7 rounded-md bg-[var(--card-bg)] border">-</button><span>${i.qty}</span><button onclick="changeQty('${i.id}',1)" class="w-7 h-7 rounded-md bg-[var(--card-bg)] border">+</button></div></div><button onclick="removeFromCart('${i.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></div>`).join('');
-            const total=cart.reduce((s,i)=>s+(parseFloat(i.price)*i.qty),0);
+            const total=cart.reduce((s,i)=>{const p=parseFloat(i.price);return s+(isNaN(p)?0:p*i.qty)},0);
             f.innerHTML=`<div class="flex justify-between mb-3"><span>الإجمالي:</span><span class="text-[var(--accent)] font-bold">${total.toLocaleString('ar-IQ')} د.ع</span></div><button onclick="checkoutCart()" class="w-full btn-wa-sm py-3">إرسال الطلب</button>`;
         }
         
@@ -584,7 +590,7 @@
             if(!cart.length)return;
             const w = settings.whatsappNumber || '9647730492020';
             const items=cart.map(i=>`• ${eH(i.name)} × ${i.qty} = ${formatPrice(i.price)}`).join('\n');
-            const total=cart.reduce((s,i)=>s+(parseFloat(i.price)*i.qty),0);
+            const total=cart.reduce((s,i)=>{const p=parseFloat(i.price);return s+(isNaN(p)?0:p*i.qty)},0);
             window.open(`https://wa.me/${w.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(`طلب جديد من المتجر\n━━━━━━━━━━━━━━━\n${items}\n━━━━━━━━━━━━━━━\n💰 الإجمالي: ${total.toLocaleString('ar-IQ')} د.ع`)}`,'_blank');
         }
         
@@ -618,7 +624,7 @@
             modal.onclick = () => modal.remove();
         }
         
-        // ========== التقييمات ==========
+        // ========== التقييمات (بدون تسجيل دخول) ==========
         function openAddReviewModal(){
             if(!curProd){showToast('⚠️ يرجى اختيار منتج أولاً');return;}
             selectedRating=0;
@@ -640,14 +646,16 @@
             if(selectedRating===0){showToast('⚠️ اختر تقييمك');return;}
             if(!name){showToast('⚠️ أدخل اسمك');return;}
             if(!comment){showToast('⚠️ اكتب تعليقك');return;}
+            if(comment.length<10){showToast('⚠️ التعليق قصير جداً');return;}
             try{
                 await db.ref('reviews').push({
                     productId:curProd.id,
-                    reviewerName:name,
+                    reviewerName:eH(name),
                     rating:selectedRating,
-                    comment:comment,
+                    comment:eH(comment),
                     approved:false,
-                    createdAt:Date.now()
+                    createdAt:Date.now(),
+                    ip:'client'
                 });
                 showToast('✅ تم إرسال تقييمك، سيتم نشره بعد المراجعة');
                 closeModal('addReviewModal');
@@ -687,6 +695,9 @@
                 settings.whatsappNumber = settingsData.whatsappNumber;
         }
         
+        // مراجع Firebase لإلغاء الاستماع عند الحاجة
+        let listeners = {};
+        
         async function loadData() {
             try {
                 const [c, s, r, set, soc, pay] = await Promise.all([
@@ -698,7 +709,6 @@
                     db.ref('paymentMethods').once('value')
                 ]);
                 
-                // الأقسام - مع الترتيب
                 const cd = c.val();
                 cats = cd ? Object.entries(cd).map(([id, v]) => ({ 
                     id, 
@@ -762,7 +772,7 @@
                 
                 c.innerHTML+=`<div class="product-card" onclick="showDetails('${p.id}')">
                     <div class="card-img-box">
-                        <img src="${eH(p.image||'https://placehold.co/400x300')}" class="card-img" onerror="this.src='https://placehold.co/400x300'">
+                        <img src="${eH(p.image||'https://placehold.co/400x300')}" class="card-img" onerror="this.src='https://placehold.co/400x300'" loading="lazy">
                         ${hasVideo ? `
                         <div class="video-overlay" onclick="event.stopPropagation();openVideo('${p.video}')">
                             <div class="play-icon"><i class="fas fa-play"></i></div>
@@ -836,11 +846,11 @@
             
             try{
                 await db.ref('orders').push({
-                    customerName: n,
-                    customerCity: c,
-                    customerDistrict: d,
-                    customerLandmark: l,
-                    customerPhone: p,
+                    customerName: eH(n),
+                    customerCity: eH(c),
+                    customerDistrict: eH(d),
+                    customerLandmark: eH(l),
+                    customerPhone: p.replace(/[^0-9+]/g,''),
                     productName: curProd.name,
                     productPrice: curProd.price,
                     productId: curProd.id,
@@ -860,7 +870,11 @@
         }
         
         function listenToUpdates(){
-            db.ref('categories').on('value', s => {
+            // إلغاء المستمعات القديمة إن وُجدت
+            Object.values(listeners).forEach(ref=>ref?.off?.('value'));
+            
+            listeners.categories = db.ref('categories');
+            listeners.categories.on('value', s => {
                 const d = s.val();
                 cats = d ? Object.entries(d).map(([id, v]) => ({ 
                     id, 
@@ -870,12 +884,27 @@
                 renderCats();
                 renderProds();
             });
-            db.ref('products').on('value',s=>{prods=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];renderProds();document.getElementById('sProd').textContent=prods.length;});
-            db.ref('reviews').on('value',s=>{revs=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];document.getElementById('sRev').textContent=revs.filter(r=>r.approved!==false).length;if(curProd)renderRevs(curProd.id);});
-            db.ref('appearance').on('value',s=>{const d=s.val()||{};settings=d;applyStoreSettings(d);renderSocialLinks();});
-            db.ref('social').on('value',s=>{social=s.val()||{};renderSocialLinks();});
-            db.ref('paymentMethods').on('value',s=>{const d=s.val();paymentMethods=d?Object.entries(d).map(([id,v])=>({id,...v})).sort((a,b)=>(a.order||0)-(b.order||0)):[];});
+            
+            listeners.products = db.ref('products');
+            listeners.products.on('value',s=>{prods=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];renderProds();document.getElementById('sProd').textContent=prods.length;});
+            
+            listeners.reviews = db.ref('reviews');
+            listeners.reviews.on('value',s=>{revs=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];document.getElementById('sRev').textContent=revs.filter(r=>r.approved!==false).length;if(curProd)renderRevs(curProd.id);});
+            
+            listeners.appearance = db.ref('appearance');
+            listeners.appearance.on('value',s=>{const d=s.val()||{};settings=d;applyStoreSettings(d);renderSocialLinks();});
+            
+            listeners.social = db.ref('social');
+            listeners.social.on('value',s=>{social=s.val()||{};renderSocialLinks();});
+            
+            listeners.paymentMethods = db.ref('paymentMethods');
+            listeners.paymentMethods.on('value',s=>{const d=s.val();paymentMethods=d?Object.entries(d).map(([id,v])=>({id,...v})).sort((a,b)=>(a.order||0)-(b.order||0)):[];});
         }
+        
+        // تنظيف عند إغلاق الصفحة
+        window.addEventListener('beforeunload', () => {
+            Object.values(listeners).forEach(ref=>ref?.off?.('value'));
+        });
         
         updateCartUI();
         applySavedTheme();
