@@ -49,7 +49,6 @@
             transition: all 0.3s ease;
         }
 
-        /* الشريط العلوي */
         .top-bar {
             background: var(--accent-gradient);
             color: white;
@@ -324,7 +323,6 @@
     </style>
 </head>
 <body>
-    <!-- الشريط العلوي (النص العلوي من لوحة التحكم) -->
     <div class="top-bar" id="topBarText">جاري التحميل...</div>
     
     <header>
@@ -373,7 +371,7 @@
         <div class="copyright">© 2024-2026 متجر أكاد الرقمي</div>
     </footer>
 
-    <!-- Product Modal -->
+    <!-- باقي النوافذ المنبثقة (Modal) بنفس الكود السابق -->
     <div id="prodModal" class="modal" onclick="if(event.target===this)closeModal('prodModal')">
         <div class="modal-box">
             <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
@@ -384,7 +382,6 @@
                 <img id="mImg" src="" class="w-full rounded-xl mb-4" style="max-height:220px;object-fit:contain;background:rgba(0,0,0,0.3);padding:16px">
                 <p id="mDesc" class="text-sm text-[var(--text-secondary)] mb-4 leading-relaxed"></p>
                 <div id="mSpecs" class="bg-[var(--input-bg)] rounded-xl p-4 mb-4 text-sm"></div>
-                
                 <div class="mb-4">
                     <div class="font-bold text-[var(--accent)] mb-3 flex items-center justify-between flex-wrap gap-2">
                         <span><i class="fas fa-star ml-1"></i> التقييمات</span>
@@ -392,7 +389,6 @@
                     </div>
                     <div id="revCont" class="text-[var(--text-secondary)] text-sm max-h-60 overflow-y-auto space-y-2"></div>
                 </div>
-                
                 <div class="flex gap-3">
                     <button onclick="closeModal('prodModal');openOrder()" class="flex-1 btn-wa-sm"><i class="fab fa-whatsapp"></i> طلب الآن</button>
                     <button onclick="addToCartFromModal()" class="btn-cart-sm" id="mCartBtn" style="width:auto;padding:0 14px"><i class="fas fa-shopping-bag"></i></button>
@@ -401,7 +397,6 @@
         </div>
     </div>
 
-    <!-- Add Review Modal -->
     <div id="addReviewModal" class="modal" onclick="if(event.target===this)closeModal('addReviewModal')">
         <div class="modal-box">
             <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
@@ -409,8 +404,7 @@
                 <button onclick="closeModal('addReviewModal')" class="text-xl text-[var(--text-secondary)] hover:text-[var(--accent)]"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-4 space-y-4">
-                <div>
-                    <label class="block text-sm font-bold mb-2">تقييمك بالنجوم</label>
+                <div><label class="block text-sm font-bold mb-2">تقييمك بالنجوم</label>
                     <div class="rating-stars" id="ratingStarsContainer">
                         <i class="fas fa-star rating-star" data-rating="1"></i>
                         <i class="fas fa-star rating-star" data-rating="2"></i>
@@ -419,20 +413,13 @@
                         <i class="fas fa-star rating-star" data-rating="5"></i>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold mb-2">اسمك</label>
-                    <input type="text" id="reviewerName" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none" placeholder="مثال: أحمد محمد">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold mb-2">تعليقك</label>
-                    <textarea id="reviewComment" rows="3" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none" placeholder="شاركنا رأيك في هذا المنتج..."></textarea>
-                </div>
+                <div><label class="block text-sm font-bold mb-2">اسمك</label><input type="text" id="reviewerName" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none" placeholder="مثال: أحمد محمد"></div>
+                <div><label class="block text-sm font-bold mb-2">تعليقك</label><textarea id="reviewComment" rows="3" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none" placeholder="شاركنا رأيك في هذا المنتج..."></textarea></div>
                 <button onclick="submitReview()" class="w-full btn-wa-sm py-3"><i class="fas fa-paper-plane ml-2"></i> إرسال التقييم</button>
             </div>
         </div>
     </div>
 
-    <!-- Cart Modal -->
     <div id="cartModal" class="modal" onclick="if(event.target===this)closeModal('cartModal')">
         <div class="modal-box">
             <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
@@ -444,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Payment Methods Modal -->
     <div id="paymentMethodsModal" class="modal" onclick="if(event.target===this)closeModal('paymentMethodsModal')">
         <div class="modal-box">
             <div class="flex justify-between items-center p-4 border-b border-[var(--border-color)]">
@@ -455,7 +441,6 @@
         </div>
     </div>
 
-    <!-- Video Modal -->
     <div id="videoModal" class="modal" onclick="if(event.target===this)closeModal('videoModal')">
         <div class="modal-box p-2">
             <div class="flex justify-between items-center p-3 border-b border-[var(--border-color)]">
@@ -466,7 +451,6 @@
         </div>
     </div>
 
-    <!-- Order Modal -->
     <div id="orderModal" class="modal" onclick="if(event.target===this)closeModal('orderModal')">
         <div class="modal-box">
             <div class="p-4 border-b border-[var(--border-color)]"><h3 class="text-lg font-bold text-[var(--accent)]">📋 إتمام الطلب</h3></div>
@@ -486,7 +470,6 @@
                 </div>
                 <div><label class="block text-sm font-bold mb-2">رقم الموبايل *</label><input type="tel" id="cPhone" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none"></div>
                 <div><label class="block text-sm font-bold mb-2">أقرب نقطة دالة (اختياري)</label><input type="text" id="cLand" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] focus:border-[var(--accent)] outline-none"></div>
-                
                 <button onclick="submitOrder()" class="w-full btn-wa-sm py-3"><i class="fab fa-whatsapp"></i> تأكيد وإرسال</button>
                 <button onclick="closeModal('orderModal')" class="w-full p-3 bg-[var(--input-bg)] rounded-xl border border-[var(--border-color)] font-bold hover:bg-[var(--border-color)] transition">إلغاء</button>
             </div>
@@ -552,9 +535,7 @@
             const priceStr = p.toString().trim();
             if(/^[\d,]+$/.test(priceStr)) {
                 let num = parseFloat(priceStr.replace(/,/g, ''));
-                if(!isNaN(num)) {
-                    return num.toLocaleString('ar-IQ') + ' د.ع';
-                }
+                if(!isNaN(num)) return num.toLocaleString('ar-IQ') + ' د.ع';
             }
             return priceStr;
         }
@@ -693,28 +674,17 @@
             container.innerHTML = html;
         }
         
-        // تطبيق إعدادات المتجر من Firebase
         function applyStoreSettings(settingsData){
-            // الشعار
-            if(settingsData.storeLogo && settingsData.storeLogo.trim() !== ''){
+            if(settingsData.storeLogo && settingsData.storeLogo.trim() !== '')
                 document.getElementById('storeLogo').src = settingsData.storeLogo;
-            }
-            // اسم المتجر
-            if(settingsData.storeName){
+            if(settingsData.storeName)
                 document.getElementById('storeName').innerHTML = settingsData.storeName;
-            }
-            // النص الثانوي
-            if(settingsData.storeSubtitle){
+            if(settingsData.storeSubtitle)
                 document.getElementById('storeSubtitle').innerHTML = settingsData.storeSubtitle;
-            }
-            // النص العلوي (الشريط الأخضر)
-            if(settingsData.topBarText){
+            if(settingsData.topBarText)
                 document.getElementById('topBarText').innerHTML = settingsData.topBarText;
-            }
-            // رقم الواتساب
-            if(settingsData.whatsappNumber){
+            if(settingsData.whatsappNumber)
                 settings.whatsappNumber = settingsData.whatsappNumber;
-            }
         }
         
         async function loadData() {
@@ -728,8 +698,13 @@
                     db.ref('paymentMethods').once('value')
                 ]);
                 
+                // الأقسام - مع الترتيب
                 const cd = c.val();
-                cats = cd ? Object.entries(cd).map(([id, v]) => ({ id, name: v.name, order: v.order || 999999 })).sort((a, b) => a.order - b.order) : [];
+                cats = cd ? Object.entries(cd).map(([id, v]) => ({ 
+                    id, 
+                    name: v.name, 
+                    order: v.order !== undefined ? v.order : 999999 
+                })).sort((a, b) => a.order - b.order) : [];
                 
                 const pd = s.val();
                 prods = pd ? Object.entries(pd).map(([id, v]) => ({ id, ...v })) : [];
@@ -739,8 +714,6 @@
                 
                 const std = set.val() || {};
                 settings = std;
-                
-                // تطبيق إعدادات المتجر (شعار، اسم، نص ثانوي، نص علوي، واتساب)
                 applyStoreSettings(settings);
                 
                 const socd = soc.val() || {};
@@ -763,9 +736,11 @@
         }
         
         function renderCats(){
-            const c=document.getElementById('catsCont');
-            c.innerHTML=`<div class="cat-pill ${curCat==='all'?'active':''}" onclick="filterBy('all')">الكل</div>`;
-            cats.forEach(cat=>{c.innerHTML+=`<div class="cat-pill ${curCat===cat.name?'active':''}" onclick="filterBy('${eH(cat.name)}')">${eH(cat.name)}</div>`});
+            const c = document.getElementById('catsCont');
+            c.innerHTML = `<div class="cat-pill ${curCat === 'all' ? 'active' : ''}" onclick="filterBy('all')">الكل</div>`;
+            cats.forEach(cat => {
+                c.innerHTML += `<div class="cat-pill ${curCat === cat.name ? 'active' : ''}" onclick="filterBy('${eH(cat.name)}')">${eH(cat.name)}</div>`;
+            });
         }
         
         function filterBy(name){curCat=name;renderCats();renderProds()}
@@ -885,15 +860,19 @@
         }
         
         function listenToUpdates(){
-            db.ref('categories').on('value',s=>{const d=s.val();cats=d?Object.entries(d).map(([id,v])=>({id,name:v.name,order:v.order||999999})).sort((a,b)=>a.order-b.order):[];renderCats();renderProds();});
+            db.ref('categories').on('value', s => {
+                const d = s.val();
+                cats = d ? Object.entries(d).map(([id, v]) => ({ 
+                    id, 
+                    name: v.name, 
+                    order: v.order !== undefined ? v.order : 999999 
+                })).sort((a, b) => a.order - b.order) : [];
+                renderCats();
+                renderProds();
+            });
             db.ref('products').on('value',s=>{prods=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];renderProds();document.getElementById('sProd').textContent=prods.length;});
             db.ref('reviews').on('value',s=>{revs=s.val()?Object.entries(s.val()).map(([id,v])=>({id,...v})):[];document.getElementById('sRev').textContent=revs.filter(r=>r.approved!==false).length;if(curProd)renderRevs(curProd.id);});
-            db.ref('appearance').on('value',s=>{
-                const d=s.val()||{};
-                settings = d;
-                applyStoreSettings(d);
-                renderSocialLinks();
-            });
+            db.ref('appearance').on('value',s=>{const d=s.val()||{};settings=d;applyStoreSettings(d);renderSocialLinks();});
             db.ref('social').on('value',s=>{social=s.val()||{};renderSocialLinks();});
             db.ref('paymentMethods').on('value',s=>{const d=s.val();paymentMethods=d?Object.entries(d).map(([id,v])=>({id,...v})).sort((a,b)=>(a.order||0)-(b.order||0)):[];});
         }
