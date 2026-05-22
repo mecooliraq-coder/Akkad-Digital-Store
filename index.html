@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- ✅ PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AKKAD STORE">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/0a0f1e/38bdf8?text=AKKAD">
+    <link rel="manifest" href="./manifest.json">
+    
     <title>AKKAD STORE | متجر أكاد الرقمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -905,6 +914,17 @@
         window.addEventListener('beforeunload', () => {
             Object.values(listeners).forEach(ref=>ref?.off?.('value'));
         });
+        
+        // ✅ تسجيل Service Worker لدعم التطبيق
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('✅ Service Worker registered:', reg.scope);
+                }).catch(err => {
+                    console.log('❌ Service Worker failed:', err);
+                });
+            });
+        }
         
         updateCartUI();
         applySavedTheme();
