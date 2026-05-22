@@ -1,6 +1,14 @@
 {
   "name": "متجر أكاد الرقمي | AKKAD STORE",
   "short_name": "AKKAD",
+  "description": "أحدث الأجهزة الإلكترونية بأفضل الأسعار مع توصيل سريع وآمن لجميع محافظات العراق",
+  "start_url": "/Akkad-Digital-Store/",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "lang": "ar",
+  "dir": "rtl",
   "icons": [
     {
       "src": "./icon-192.png",
